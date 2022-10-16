@@ -1,0 +1,428 @@
+﻿@model Numbers.Entity.ViewModels.CustomerDiscountAdjustmentVM
+@{ ViewData["Title"] = "Create Customer Discount Adjustment";
+    ViewData["CurrentPage"] = "CustomerDiscountAdjustment";
+}
+
+<style>
+    table td {
+        position: relative;
+    }
+
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    .disable-select {
+        background: #eee;
+        pointer-events: none;
+        touch-action: none;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post">
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <input type="hidden" asp-for="CustomerDiscountAdjustment.Id">
+                        <input type="hidden" id="entityStatehdn" value="@ViewBag.EntityState">
+                        <div class="col-lg-2 Pad-rht">
+                            @if (Model.CustomerDiscountAdjustment == null)
+                            {
+                                <div class="form-group">
+                                    <label asp-for="CustomerDiscountAdjustment.TransactionNo" class="col-form-label"></label>
+                                    <input tabindex="-1" type="text" class="form-control text-right" value="" readonly />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <label asp-for="CustomerDiscountAdjustment.TransactionNo" class="col-form-label"></label>
+                                    <input tabindex="-1" type="text" class="form-control text-right" asp-for="CustomerDiscountAdjustment.TransactionNo" data-validation="required" readonly />
+                                </div>
+                            }
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="CustomerDiscountAdjustment.TransactionType" class="col-form-label"></label>
+                                <select id="TransactionTypeId" autofocus asp-for="CustomerDiscountAdjustment.TransactionType" onchange="CheckType()" class="chosen-select form-control" asp-items="ViewBag.TransactionType">
+                                    <option value="0" disabled selected>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                        </div>
+
+                        <div class="col-lg-3 Pad-rht">
+                            <label></label>
+                            <div class="text-right">
+                                <a id="add-purchaseReturn-popUp" class="btn btn-primary" onclick="ShowModel();">Get Customer Discounts</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <!-- Modal -->
+                        <div class="modal fade" id="invoiceModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Pending Customer Discounts</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row text-center">
+                                            <div class="col-md-12">
+                                                <div class="ibox ">
+                                                    <p id="itemTable">
+                                                        <div class="table-responsive">
+                                                            <table id="discountTable" class="table table-striped table-bordered table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Discount Id</th>
+                                                                        <th>Category</th>
+                                                                        <th>Customer</th>
+                                                                        <th>SalesPerson</th>
+                                                                        <th>City</th>
+                                                                        <th>Balance</th>
+                                                                        <th>Utilized</th>
+                                                                        <th>Grand Total</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in ViewBag.DiscountList)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@item.ARDiscountId</td>
+                                                                            <td>@item.CategoryDesc</td>
+                                                                            <td hidden>@item.Customer_Id</td>
+                                                                            <td>@item.CustomerDesc</td>
+                                                                            <td>@item.SalesPersonDesc</td>
+                                                                            <td>@item.CityDesc</td>
+                                                                            <td>@item.DiscountBalance</td>
+                                                                            <td>@item.Utilized</td>
+                                                                            <td>@item.GrandTotal</td>
+                                                                            <td hidden>@item.IsClosed</td>
+                                                                            <td>
+                                                                                <input type="checkbox" class="IsSelect" onclick="Create($(this))" />
+                                                                                @*<input class="form-control isClosed" value="@item.IsClosed" />*@
+                                                                            </td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        @*<button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>*@
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12 table-responsive ">
+                            <table id="tblDetail" class="table table-bordered table-striped" style=" width:100%">
+                                <thead>
+                                    <tr>
+                                        <th hidden></th>
+                                        <th>Customer</th>
+                                        <th>Discount Amount</th>
+                                        <th>Discount Balance</th>
+                                        <th>Paid Amount</th>
+                                        <th>Transfer Amount</th>
+                                        <th>Transfer To Customer</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.CustomerAdjustmentItem != null)
+                                    {
+                                        @for (int i = 0; i < Model.CustomerAdjustmentItem.Count; i++)
+                                        {
+                                            <tr>
+                                                <td hidden><input asp-for="CustomerAdjustmentItem[i].ARDiscount_Id" tabindex="-1" class="form-control DiscountId" value="@Model.CustomerAdjustmentItem[i].ARDiscount_Id" /></td>
+                                                <td hidden><input asp-for="CustomerAdjustmentItem[i].Customer_Id" tabindex="-1" class="form-control CustomerId" value="@Model.CustomerAdjustmentItem[i].Customer_Id" readonly /></td>
+                                                <td hidden><input asp-for="CustomerAdjustmentItem[i].Utilized" tabindex="-" class="form-control UtilizedBalance" value="@Model.CustomerAdjustmentItem[i].Utilized" readonly /></td>
+                                                <td><input tabindex="-1" class="form-control CustomerDesc" value="@Model.CustomerAdjustmentItem[i].CustomerName" readonly /></td>
+                                                <td><input asp-for="CustomerAdjustmentItem[i].DiscountAmount" tabindex="-1" class="form-control GrandTotal" value="@Model.CustomerAdjustmentItem[i].DiscountAmount" readonly /></td>
+                                                <td><input asp-for="CustomerAdjustmentItem[i].DiscountBalance" tabindex="-1" class="form-control DiscountBalance" value="@Model.CustomerAdjustmentItem[i].DiscountBalance" readonly /></td>
+                                                <td><input asp-for="CustomerAdjustmentItem[i].PaidAmount" onkeypress="return isNumberKey(event)" value="@Model.CustomerAdjustmentItem[i].PaidAmount" onpaste="return false;" ondrop="return false;" onchange="PAmount($(this));" class="form-control PaidAmount" /></td>
+                                                <td><input asp-for="CustomerAdjustmentItem[i].TransferAmount" onkeypress="return isNumberKey(event)" onpaste="return false;" value="@Model.CustomerAdjustmentItem[i].TransferAmount" ondrop="return false;" onchange='TAmount($(this));' class="form-control TransferAmount" /></td>
+                                                <td><select asp-for="CustomerAdjustmentItem[i].TransferToCustomer" asp-items="@ViewBag.ARCustomer" class="form-control TransferToCustomer"><option value="0" selected="selected">Select...</option> </select></td>
+                                                <td hidden> <input asp-for="CustomerAdjustmentItem[i].Id" tabindex="-1" class="form-control" value="@Model.CustomerAdjustmentItem[i].Id" /></td>
+                                                <td hidden> <input asp-for="CustomerAdjustmentItem[i].IsClosed" tabindex="-1" class="form-control isClosed" value="@Model.CustomerAdjustmentItem[i].IsClosed" /></td>
+                                                <td><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-sm btn-danger m-t-n-xs">Delete</a></td>
+                                                @*@if (Model.CustomerAdjustmentItem[i].IsClosed == false)
+                                                    {
+                                                        <td class="text-center"><a asp-controller="CustomerDiscountAdjustment" asp-action="CloseDiscount" asp-route-id="@Model.CustomerAdjustmentItem[i].ARDiscount_Id" style="margin-top:0px" class="btn btn-sm btn-danger m-t-n-xs">Close</a></td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td class="text-center"><a style="margin-top:0px" class="btn btn-sm btn-default m-t-n-xs">Closed</a></td>
+                                                    }*@
+                                            </tr>
+                                        }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a type="button" asp-controller="CustomerDiscountAdjustment" asp-action="Index" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-controller="CustomerDiscountAdjustment" asp-action="Create" value="Save" class="btn btn-primary" />
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#TransactionTypeId").select2();
+             var CustomerList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ARCustomer));
+            var TransactionType = $('#TransactionTypeId').find(':selected').text();
+            debugger
+            if (TransactionType == "Payment") {
+
+                $(".PaidAmount").attr("readonly", false);
+                $(".TransferAmount").attr("readonly", true);
+                $(".TransferAmount").val(0);
+                /*$('.TransferToCustomer option:not(:selected)').attr('disabled', true);*/
+                /*$('.TransferToCustomer').val(null).trigger('change');*/
+                $(".TransferToCustomer").attr("disabled", true);
+
+            } else if (TransactionType == "Transfer") {
+
+                $(".PaidAmount").attr("readonly", true);
+                $(".TransferAmount").attr("readonly", false);
+                //if (#('#entityStatehdn').val() != 'Update') {
+                //    $(".TransferAmount").val(0);
+                //}
+                $(".PaidAmount").val(0);
+                $(".TransferToCustomer").removeAttr("disabled", true);
+
+            } else {
+                $(".PaidAmount").attr("readonly", true);
+                $(".TransferAmount").attr("readonly", true);
+                $(".TransferAmount").val(0);
+                $(".PaidAmount").val(0);
+                $(".TransferToCustomer").attr("disabled", true);
+            }
+            $('#tblDetail tbody tr').each(function () {
+                debugger
+                var Isclosed = $(this).find(".isClosed").val();
+                if (Isclosed=="True") {
+                    $(this).find(".PaidAmount").attr("readonly", true);
+                    $(this).find(".TransferAmount").attr("readonly", true);
+                    $(this).find(".TransferToCustomer").attr("disabled", true);
+                }
+            });
+
+        });
+        function ShowModel() {
+            if ($('#TransactionTypeId').find(':selected').val() != "0") {
+                $('#invoiceModal').modal('show');
+            }
+        }
+
+        function Create(row) {
+            debugger
+           // var closestrow = row.closest("tr").find('td:eq(9)').html() == "False" ? "False" : row.isClosed
+            if (row.closest("tr").find('td:eq(9)').html() == "False") {
+                debugger
+                row.closest("tr").remove();
+                var CustomerList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ARCustomer));
+                var ARDiscountId = row.closest("tr").find('td:eq(0)').html();
+                var GrandTotal = row.closest("tr").find('td:eq(8)').html();
+                var CustomerId = row.closest("tr").find('td:eq(2)').html();
+                var CustomerDesc = row.closest("tr").find('td:eq(3)').html();
+                var DiscountBalance = row.closest("tr").find('td:eq(6)').html();
+                var UtilizedBalance = row.closest("tr").find('td:eq(7)').html();
+                var ClosedBalance = row.closest("tr").find('td:eq(9)').html();
+                var row = "<tr>" +
+                    "<td hidden > <input name='DiscountId' tabindex='-1' class='form-control DiscountId' value='" + ARDiscountId + "' /></td>" +
+                    "<td hidden> <input name='Customer_Id' tabindex='-1' class='form-control CustomerId' value='" + CustomerId + "' readonly/></td>" +
+                    "<td hidden><input name='UtilizedBalance' tabindex='-1' class='form-control UtilizedBalance' value='" + UtilizedBalance + "' readonly/></td>" +
+                    "<td><input name='CustomerDesc' tabindex='-1' class='form-control CustomerDesc' value='" + CustomerDesc + "' readonly/></td>" +
+                    "<td><input name='GrandTotal' tabindex='-1' class='form-control GrandTotal' value='" + GrandTotal + "' readonly/></td>" +
+                    "<td><input name='DiscountBalance' tabindex='-1' class='form-control DiscountBalance' value='" + DiscountBalance + "' readonly/></td>" +
+                    "<td><input name='PaidAmount' onkeypress='return isNumberKey(event)'  onpaste='return false;' ondrop='return false;' onchange='PAmount($(this));' class='form-control PaidAmount' value='0' /></td>" +
+                    "<td><input onkeypress='return isNumberKey(event)'  onpaste='return false;' ondrop='return false;' name='TransferAmount' onchange='TAmount($(this));' class='form-control TransferAmount' value='0' /></td>" +
+                    '<td><select name="TransferToCustomer" class="form-control TransferToCustomer"><option value="0" selected="selected">Select...</option> </select></td>' +
+                    '<td><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-sm btn-danger m-t-n-xs">Delete</a></td>'
+                    /*'<td><select id="SubAccount" name="SubAccount" class="form-control" required> <option selected="selected">Select...</option> </select> </td>' +*/
+                    //"<td class='text-center'><a  onclick='  ($(this));' style='margin-top:0px' class='btn btn-sm btn-danger m-t-n-xs'>Close</a></td>" +
+                    "</tr>"
+            }
+            $("#tblDetail tbody").append(row);
+            var TransactionType = $('#TransactionTypeId').find(':selected').text();
+            if (TransactionType == "Transfer") {
+                $('#tblDetail tbody tr td select').each(function () {
+                    if (!($(this).find("option").length > 1)) {
+                        for (var i = 0; i < CustomerList.length; i++) {
+                            optionText = CustomerList[i].Text;
+                            optionValue = CustomerList[i].Value;
+                            $(this).append('<option value=' + optionValue + '>' + optionText + '</option>');
+                            //var sd = result.closest('tr').html();//.append('<option value=' + optionValue + '>' + optionText + '</option>');
+                        }
+                    }
+
+                });
+            }
+            $(".TransferToCustomer").select2();
+            CheckType();
+        }
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function closerow(row) {
+            debugger
+            var close = row.closest("tr").find('.DiscountId').val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CustomerDiscountAdjustment/ClosedDiscount',
+                data: { id: close }
+            }).done(function (data) {
+                if (data == true) {
+                    row.text("Closed");
+                    row.removeAttr("onclick", true)
+                    row.removeClass("btn-danger");
+                    row.addClass("btn-default")
+                    row.closest("tr").find(".PaidAmount").attr("readonly", true);
+                    row.closest("tr").find(".TransferAmount").attr("readonly", true);
+                    row.closest("tr").find(".TransferToCustomer").attr("disabled", true);
+                    row.closest("tr").find(".TransferAmount").val(0);
+                    row.closest("tr").find(".PaidAmount").val(0);
+                }
+            });
+
+        }
+       function CheckType() {
+            debugger
+           var TransactionType = $('#TransactionTypeId').find(':selected').text();
+           $('#tblDetail tbody tr').each(function () {
+               if (TransactionType == "Payment") {
+                   if ($(this).find(".PaidAmount").val() == "0") {
+                       $(this).find(".PaidAmount").attr("readonly", false);
+                       $(this).find(".TransferAmount").attr("readonly", true);
+                       $(this).find(".TransferAmount").val(0);
+                       $(this).find(".PaidAmount").val(0);
+                       /*$('.TransferToCustomer option:not(:selected)').attr('disabled', true);*/
+                       /*$('.TransferToCustomer').val(null).trigger('change');*/
+
+                       $(this).find(".TransferToCustomer").attr("disabled", true);
+                       $(this).find(".TransferToCustomer").val(0);
+                   }
+               } else if (TransactionType == "Transfer") {
+
+                   $(this).find(".PaidAmount").attr("readonly", true);
+                   $(this).find(".TransferAmount").attr("readonly", false);
+
+                   $(this).find(".PaidAmount").val(0);
+                   $(this).find(".TransferToCustomer").removeAttr("disabled", false);
+                   $(this).find(".TransferToCustomer").val(0);
+                   if ($('#entityStatehdn').val() != 'Update') {
+                       $(this).find(".TransferAmount").val(0);
+                         }
+
+               } else {
+                   $(this).find(".PaidAmount").attr("readonly", true);
+                   $(this).find(".TransferAmount").attr("readonly", true);
+                   $(this).find(".TransferAmount").val(0);
+                   $(this).find(".PaidAmount").val(0);
+                   $(this).find(".TransferToCustomer").attr("disabled", true);
+                   $(this).find(".TransferToCustomer").val(0);
+               }
+           });
+        }
+
+        function PAmount(row) {
+            var PAmount = Number(row.closest("tr").find('.PaidAmount').val());
+            var DBalance = Number(row.closest("tr").find('.DiscountBalance').val());
+            debugger
+            if (PAmount > DBalance) {
+                swal("", "Paid Amount must be less than Discount Balance", "warning");
+                row.closest("tr").find('.PaidAmount').val(0);
+                return false
+            }
+        };
+        function TAmount(row) {
+            var TAmount = Number(row.closest("tr").find('.TransferAmount').val());
+            var DBalance = Number(row.closest("tr").find('.DiscountBalance').val());
+            debugger
+            if (TAmount > DBalance) {
+                swal("", "Transfer Amount must be less than Discount Balance", "warning");
+                row.closest("tr").find('.TransferAmount').val(0);
+                return false
+            }
+        };
+
+        //function Validation() {
+        //    debugger
+        //    var type = $("#TransactionTypeId").find("option:selected").val();
+        //    var TAmount = Number($(".TransferAmount").val());
+        //    var PAmount = Number($(".PaidAmount").val());
+        //    if (type == 0) {
+        //        swal("", "Please Select Transaction Type!", "warning");
+        //        return false
+        //    } else if ( PAmount == 0) {
+        //        swal("", "Please Enter Paid or Transfer Amount!", "warning");
+        //        return false
+        //    } else if (TAmount == 0 || PAmount == 0) {
+        //        swal("", "Please Enter Paid or Transfer Amount!", "warning");
+        //        return false
+        //    }
+        //}
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        $("#form").on("submit", function () {
+            if ($('#TransactionTypeId').find(':selected').text() == "Transfer" && $('.TransferToCustomer').find(':selected').val() == '0') {
+                swal('', 'Please select customer first', 'warning');
+                return false;
+            }
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+        });
+        //function closerow(row) {
+        //    var Discount = row.closest("tr").find('.DiscountId').val();
+        //    $.ajax({
+        //        method: "GET",
+        //        url: '/AR/CustomerDiscountAdjustment/CloseDiscount?id=' + Discount,
+        //    }).done(function (data) {
+        //    })
+        //}
+    </script>
+}

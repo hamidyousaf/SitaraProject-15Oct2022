@@ -1,0 +1,338 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<Numbers.Entity.Models.ApplicationUser> SignInManager
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Numbers</title>
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="~/fontawesome-pro/css/all.css" rel="stylesheet">
+    <link href="~/css/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
+    <link href="~/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="~/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="~/css/plugins/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/chosen/bootstrap-chosen.css" rel="stylesheet">
+    <link href="~/css/plugins/chosen/bootstrap-chosen.css" rel="stylesheet">
+    <link href="~/css/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+    <link href="~/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
+
+    @RenderSection("customCSS", required: false)
+</head>
+<body>
+
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <div class="row" id="collapse-button" style="display:none">
+                    <a href="javascript:;" class="navbar-minimalize minimalize-styl-2"
+                       style="margin: 0px !important;
+                            font-size: 10px;
+                            background-color: #ed5565;
+                            padding: 28px 2px;
+                            color: white;">
+                        <i class="fa fa-exchange"></i>
+                    </a>
+                </div>
+
+                <ul class="nav metismenu" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element">
+                            <span>
+                                <a asp-controller="Dashboard" asp-action="Index">
+                                    <img alt="@Context.Session.GetString("CompanyName")" src="~/img/userphotos/logo-02.png" />
+                                </a>
+                            </span>
+                        </div>
+                    </li>
+                    @*<li><a asp-controller="ChartofAccount" asp-action="index">Chart of Account</a></li>*@
+                    @if (User.Identity.IsAuthenticated && Context.Session.GetString("menus") != null)
+                    {
+
+                        var str = Context.Session.GetString("menus");
+                        var obj = JsonConvert.DeserializeObject<List<AppMenu>>(str);
+                        //NumbersDbContext numbersDbContext = new NumbersDbContext();
+                        //numbersDbContext.AppMenus.
+
+                        string currentPage = "";
+                        string currentPageFirstParent = "";
+                        string currentPageSecondParent = "";
+                        currentPage = ViewBag.CurrentPage == null ? "null" : ViewBag.CurrentPage;
+                        currentPage = ViewBag.CurrentPage == "" ? "null" : ViewBag.CurrentPage;
+                        currentPageFirstParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPage).
+                                                        Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+                        currentPageSecondParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPageFirstParent).
+                                Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+
+                        string currentPageClass = "";
+                        foreach (var level1 in obj.Where(x => x.ParentId == 0))
+                        {
+                            if (level1.Name.Equals(currentPageFirstParent))
+                            { currentPageClass = "active"; }
+                            else if (level1.Name.Equals(currentPageSecondParent))
+                            { currentPageClass = "active"; }
+
+                            <li class="@currentPageClass">
+                                @{currentPageClass = "";}
+                                <a href="@level1.Url">
+                                    <i class="@level1.IconClass"></i> <span class="nav-label">@level1.Name.Trim()</span> @if (level1.HasSubMenus)
+                                    {<span class="fa arrow"></span>}
+                                </a>
+                                @if (level1.HasSubMenus)
+                                {
+                                    <ul class="nav nav-second-level">
+                                        @foreach (var level2 in obj.Where(x => x.ParentId == level1.Id))
+                                        {
+                                            if (level2.Name.Equals(currentPageFirstParent))
+                                            { currentPageClass = "active"; }
+                                            else if (level2.Name.Equals(currentPageSecondParent))
+                                            { currentPageClass = "active"; }
+                                            else if (level2.Name.Equals(currentPage))
+                                            { currentPageClass = "active"; }
+
+                                            <li  class="@currentPageClass">
+
+                                                <a href="@level2.Url">
+                                                    <i class="@level2.IconClass"></i>@level2.Name.Trim()@if (level2.HasSubMenus)
+                                                    {<span class="fa arrow"></span>}
+                                                </a>
+                                                @{currentPageClass = "";}
+
+                                                @if (level2.HasSubMenus)
+                                                {
+                                                    <ul class="nav nav-third-level">
+                                                        @foreach (var level3 in obj.Where(x => x.ParentId == level2.Id))
+                                                        {
+                                                            if (level3.Name.Equals(currentPageFirstParent))
+                                                            { currentPageClass = "active"; }
+                                                            else if (level3.Name.Equals(currentPageSecondParent))
+                                                            { currentPageClass = "active"; }
+                                                            else if (level3.Name.Equals(currentPage))
+                                                            { currentPageClass = "active"; }
+
+                                                            <li class="@currentPageClass">
+                                                                @{currentPageClass = "";}
+
+                                                                <a href="@level3.Url"><i class="@level3.IconClass"></i>@level3.Name.Trim()</a>
+                                                            </li>
+
+
+                                                        }
+                                                    </ul>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        await SignInManager.SignOutAsync();
+
+                    }
+
+                </ul>
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top  " role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        <h3 class="navbar-form-custom" style="padding: 3.5% 1%;">
+                            @*<span id="greetings">@Context.Session.GetString("CompanyName") &nbsp;</span>*@
+                            <a class="small">Change</a>
+                        </h3>
+
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message">Welcome, @User.GetFullName() <span class="small"></span></span>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                <i class="fa fa-envelope"></i>  @*<span class="label label-warning">16</span>*@
+                            </a>
+                            <ul class="dropdown-menu dropdown-messages">
+                                @*<li>
+                                        <div class="dropdown-messages-box">
+                                            <a href="profile.html" class="pull-left">
+                                                <img alt="image" class="img-circle" src="~/img/a7.jpg">
+                                            </a>
+                                            <div class="media-body">
+                                                <small class="pull-right">46h ago</small>
+                                                <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
+                                                <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <div class="dropdown-messages-box">
+                                            <a href="profile.html" class="pull-left">
+                                                <img alt="image" class="img-circle" src="~/img/a4.jpg">
+                                            </a>
+                                            <div class="media-body ">
+                                                <small class="pull-right text-navy">5h ago</small>
+                                                <strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
+                                                <small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <div class="dropdown-messages-box">
+                                            <a href="profile.html" class="pull-left">
+                                                <img alt="image" class="img-circle" src="~/img/profile.jpg">
+                                            </a>
+                                            <div class="media-body ">
+                                                <small class="pull-right">23h ago</small>
+                                                <strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
+                                                <small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
+                                            </div>
+                                        </div>
+                                    </li>*@
+                                <li class="divider"></li>
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="mailbox.html">
+                                            <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#"> 
+                                <i class="fa fa-bell"></i>  @*<span class="label label-primary">8</span>*@
+                            </a>
+                            <ul class="dropdown-menu dropdown-alerts">
+                                @*<li>
+                                        <a href="mailbox.html">
+                                            <div>
+                                                <i class="fa fa-envelope fa-fw"></i> You have 16 messages
+                                                <span class="pull-right text-muted small">4 minutes ago</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <a href="profile.html">
+                                            <div>
+                                                <i class="fa fa-twitter fa-fw"></i> 3 New Followers
+                                                <span class="pull-right text-muted small">12 minutes ago</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <a href="grid_options.html">
+                                            <div>
+                                                <i class="fa fa-upload fa-fw"></i> Server Rebooted
+                                                <span class="pull-right text-muted small">4 minutes ago</span>
+                                            </div>
+                                        </a>
+                                    </li>*@
+                                <li class="divider"></li>
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="notifications.html">
+                                            <strong>See All Alerts </strong>
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                        <li class="profile_area">
+                            <div class="dropdown profile-element">
+                                <img alt="image" style="height:40px;width:40px;" class="img-circle" src="@User.GetUserPhoto()" />  <a data-toggle="dropdown" class="dropdown-toggle" href="#"> <span class=""> <b class="caret"></b> </span> </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    <li><a href="profile.html">Profile</a></li>
+                                    <li><a href="contacts.html">Change Password</a></li>
+                                    <li class="divider"></li>
+                                    @if (SignInManager.IsSignedIn(User))
+                                    {
+                                        <form asp-controller="Account" asp-action="Logout" id="logoutForm" method="post">
+                                            <li><a href="javascript:document.getElementById('logoutForm').submit()"> Log out</a></li>
+                                        </form>
+                                    }
+                                    @*<li><a href="auth/logout"> <i class="fa fa-sign-out"></i> Log out </a></li>*@
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+
+                </nav>
+            </div>
+
+
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    @if (Convert.ToString(TempData["error"]) == "false")
+                    {
+                        <div class="alert alert-success alert-dismissable">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                           @TempData["message"].ToString()
+                        </div>
+                    }
+                    @if (Convert.ToString(TempData["error"]) == "true")
+                    {
+                        <div class="alert alert-danger alert-dismissable">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            @TempData["message"].ToString()
+                        </div>
+                    }
+                    @RenderBody()
+                </div>
+            </div>
+            <div class="footer">
+                <div class="text-center">
+                    <strong>&copy;Vision Plus</strong> - @DateTime.Now.Year
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+    <script src="~/js/jquery-3.1.1.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/lib/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/lib/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/lib/select2/select2.min.js"></script>
+    <script src="~/lib/jquery-form-validator/jquery.form-validator.min.js"></script>
+    <script src="~/js/datatables.min.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="~/js/inspinia.js"></script>
+    <!-- <script src="~/js/plugins/pace/pace.min.js"></script> !-->
+    <!-- Custom site javascript-->
+    <script src="~/js/site.js"></script>
+    <script src="~/js/jasny-bootstrap.min.js"></script>
+    <script src="~/lib/chosen/chosen.jquery.js"></script>
+    <script src="~/lib/datapicker/bootstrap-datepicker.js"></script>
+
+    @RenderSection("customJS", required: false)
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

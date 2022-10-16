@@ -1,0 +1,138 @@
+﻿@model ARSaleReturnInvoice
+@{
+    ViewData["Title"] = "List of Sale Return Invoice Items";
+    ViewData["CurrentPage"] = "Sale Return Invoice Items";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="SaleReturnInvoice" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="8%">@Html.DisplayNameFor(model => model.InvoiceNo)</th>
+                                <th class="searchHeader" width="10%">@Html.DisplayNameFor(model => model.InvoiceDate)</th>
+                                <th class="searchHeader" width="24%">@Html.DisplayNameFor(model => model.CustomerId)</th>
+                                <th class="searchHeader" width="8%">Packing #</th>
+                                <th class="searchHeader" width="10%">@Html.DisplayNameFor(model => model.Status)</th>
+                                <th width="14%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/AR/SaleReturnInvoice/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [5] },
+                    //{
+                    //    targets: [3,4,5],
+                    //    render: $.fn.dataTable.render.number(',','.', 2, '')
+                    //}
+                ],
+                columns: [
+                    { "data": "arSaleReturnInvoice.invoiceNo", "name": "InvoiceNo", className: "text-center" },
+                    { "data": "date", "name": "InvoiceDate", className: "text-center" },
+                    { "data": "arSaleReturnInvoice.customer.name", "name": "Customer.Name", className: "text-left" },
+                    { "data": "arSaleReturnInvoice.packing.packingNo", "name": "Packing.PackingNo", className: "text-center" },
+                    { "data": "arSaleReturnInvoice.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "arSaleReturnInvoice", className: "text-center",
+                        "render": function (data, row) {
+                            debugger;
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/AR/SaleReturnInvoice/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AR/SaleReturnInvoice/Approve?id=" + data.id + "' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up'  title='Approve'></i></a>";
+                                } else {
+                                    return "<a href='/AR/SaleReturnInvoice/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>";
+                                }
+                            }
+                            else {
+                                return '<a href="/AR/SaleReturnInvoice/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>  <a href="@ViewBag.ReportPath' + data.voucherId + '" target="_blank" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-print" title="Sale Return"></i></a> <a href="@ViewBag.ReportPath2' + data.id + '" target="_blank" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-print" title="SRI"></i>SRI</a>';
+                            }
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

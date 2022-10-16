@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgVehicle>
+
+@{
+    ViewData["Title"] = "List of Vehicle Booking";
+    ViewData["CurrentPage"] = "Vehicle Booking";
+
+}
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>List of Vehicle Booking </h5>
+
+
+
+        <div class="ibox-content">
+            <div class="text-center">
+                <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+            </div>
+            <br /><br />
+            <table class="table table-bordered table-striped dataTables-example">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            Customer CNIC
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ReferenceNo)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TransDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.BookingNo)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.BookingType)
+                        </th>
+                        <th>
+                            Model
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Price)
+                        </th>
+                        <th>
+                            Received
+                        </th>
+                        <th>
+                            Payment
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Status)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.CNIC)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.Name)
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReferenceNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TransDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BookingNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BookingType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReceivedAmount)
+                        </td>
+
+
+                        <td>@Html.DisplayFor(modelItem => item.PaymentAmount)</td>
+                        <td>
+                            @if (item.Status == "Cancelled")
+                            {
+                                <span class="label label-warning"> @Html.DisplayFor(modelItem => item.Status)</span>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.Status)
+                            }
+                        </td>
+                        <td>
+                            @if (item.Status == "Booking")
+                            {
+                                <a asp-action="Create" asp-controller="Vehicle" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                            }
+                            else
+                            {
+                                <a asp-action="Detail" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" title="View" aria-hidden="true"></i></a>
+                            }
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

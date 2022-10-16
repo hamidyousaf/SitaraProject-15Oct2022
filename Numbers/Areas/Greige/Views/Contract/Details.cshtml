@@ -1,0 +1,632 @@
+﻿@model GRWeavingContract
+
+@{
+    ViewData["Title"] = "Create Weaving Contract";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5> Weaving Contract</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden asp-for="Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.TransactionNo != 0)
+                                {
+                                <input readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@Model.TransactionDate.ToString(CommonHelper.DateFormat)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Weaver</label>
+                                <select readonly disabled  asp-for="VendorId" class="chosen-select form-control" id="VendorId" asp-items="@ViewBag.Vendors" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Address</label>
+                                <input readonly type="text"  id="address" class="form-control text-right" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Delivery Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="DeliveryDate" class="form-control" readonly asp-for="DeliveryDate" type="text" value="@Model.DeliveryDate.ToString(CommonHelper.DateFormat)" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Quality</label>
+                                <select readonly disabled asp-for="GreigeQualityId" name="GreigeQualityId" class="chosen-select form-control" id="GreigeQualityId" asp-items="@ViewBag.GreigeQuality" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Quality On Loom</label>
+                                <select readonly disabled asp-for="GreigeQualityLoomId" class="chosen-select form-control" id="GreigeQualityLoomId" asp-items="@ViewBag.GreigeQuality" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+ 
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Basic Information</h4>
+                            @*<h4 style="font-weight:bold;">Basic Information</h4>*@
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label ">No Of Looms</label>
+                                
+                                    <input readonly asp-for="NoOfLooms" id="NoOfLooms" min="1" name="NoOfLooms" class="form-control" data-validation="required" />
+                             
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="ContractQty" class="control-label  ">Contract Qty</label>
+                               
+                                    <input readonly asp-for="ContractQty" id="ContractQty" onchange="calculateAllValues();" name="ContractQty" class="form-control" />
+                                 
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label ">Width</label>
+                               
+                                    <input readonly asp-for="Width" id="Width" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label  ">Picks</label>
+                                 
+                                    <input readonly readonly asp-for="Picks" id="Picks" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label ">Rate/Pick</label>
+                             
+                                    <input readonly asp-for="RatePerPicks" onchange="calculateAllValues();" id="RatePerPicks" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label  ">Reed</label>
+                                
+                                    <input readonly readonly asp-for="Reed" id="Reed" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="AdditionalReed" class="control-label  ">Additional Reed</label>
+                                
+                                    <input asp-for="AdditionalReed" id="AdditionalReed" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label ">Sale Tax %</label>
+                                
+                                    @*<input readonly asp-for="SaleTax" id="SaleTax" onchange="calculateAllValues()" value="17" class="form-control" />*@
+                            <select asp-for="SaleTax" readonly onchange="calculateAllValues()" class="chosen-select form-control" id="SaleTax" asp-items="@ViewBag.SalesTaxLOV">
+                                <option value="0" disabled>Please select</option>
+                            </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Warp Information</h4>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label  ">Warp</label>
+                               
+                                    <input readonly asp-for="Warp" id="Warp" name="Warp" class="form-control" data-validation="required" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="WarpCount" class="control-label  ">Warp Count</label>
+                               
+                                    <input readonly asp-for="WarpCount" id="WarpCount" name="WarpCount" class="form-control" />
+                              
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label  ">Warp Weight gram/Meter</label>
+                                
+                                    <input readonly asp-for="WarpWeightPerMeter" id="WarpWeightPerMeter" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label  ">Total Warp Bags</label>
+                                 
+                                    <input readonly asp-for="TotalWarpBags" readonly id="TotalWarpBags" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label  ">Warp Rate/Pound</label>
+                                
+                                    <input readonly asp-for="WarpRatePound"  onchange="calculateAllValues()" id="WarpRatePound" class="form-control" />
+                                
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Weft Information</h4>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label ">Weft</label>
+                               
+                                    <input readonly asp-for="Weft" id="Weft" name="Weft" class="form-control" data-validation="required" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="WeftCount" class="control-label ">Weft Count</label>
+                               
+                                    <input readonly asp-for="WeftCount" id="WeftCount" name="WeftCount" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label ">Weft Weight gram/Meter</label>
+                             
+                                    <input readonly asp-for="WeftWeightPerMeter" id="WeftWeightPerMeter" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label  ">Total Weft Bags</label>
+                                
+                                    <input readonly asp-for="TotalWeftBags" readonly id="TotalWeftBags" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label  ">Weft Rate/Pound</label>
+                                
+                                    <input readonly asp-for="WeftRatePound" onchange="calculateAllValues()" id="WeftRatePound" class="form-control" />
+                                
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Amounts</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label  ">Rate Of Conversion Exc Tax / 40 mtr</label>
+                                
+                                    <input readonly asp-for="RateOfConversionExcTax" id="RateOfConversionExcTax" name="RateOfConversionExcTax" class="form-control" data-validation="required" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="SaleTaxAmount" class="control-label  ">Sale Tax Amount / 40 mtr</label>
+                                
+                                    <input readonly asp-for="SaleTaxAmount" id="SaleTaxAmount" name="SaleTaxAmount" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label  ">Rate Of Conversion Inc Tax / 40 mtr</label>
+                              
+                                    <input readonly asp-for="RateOfConversionIncTax" id="RateOfConversionIncTax" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label ">Price Of Yarn / 40 mtr</label>
+                               
+                                    <input readonly asp-for="PriceOfYarn" id="PriceOfYarn" class="form-control" />
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label ">Value Of Greige / 40 mtr</label>
+                                
+                                    <input readonly asp-for="ValueOfGreige" id="ValueOfGreige" class="form-control" />
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label ">Total Contract Amount </label>
+                                
+                                    <input readonly asp-for="TotalContractAmount" id="TotalContractAmount" class="form-control" />
+                               
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="Contract" tabindex="10" asp-action="Index" class="btn btn-warning" style="">List</a>
+@*                            <button class="btn btn-primary" id="btnSave" onclick="return Validation()" asp-controller="Contract" asp-action="Create">Save</button>
+*@                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section customJS{
+
+    <script>
+        $(document).ready(function () {
+            $("#VendorId").select2();
+            $("#GreigeQualityId").select2();
+            $("#GreigeQualityLoomId").select2();
+            $("#btnSave").focus(function () {
+            $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            getVendorAddress();
+
+             
+        });
+
+ 
+        function Validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#VendorId').val() == 0 || $('#VendorId').val() =="") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Vendor..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#VendorId').focus();
+                });
+                return false;
+            }
+            else if ($('#GreigeQualityId').val() == 0 || $('#GreigeQualityId').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Greige Quality..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GreigeQualityId').focus();
+                });
+                return false;
+            }
+            else if ($('#GreigeQualityLoomId').val() == 0 || $('#GreigeQualityLoomId').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Greige Quality Loom..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GreigeQualityLoomId').focus();
+                });
+                return false;
+            }
+           else if ($('#Reed').val() == 0 || $('#Reed').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Reed!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Reed').focus();
+                });
+                return false;
+            }
+            else if ($('#ContractQty').val() == 0 || $('#ContractQty').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Contract Qty!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractQty').focus();
+                });
+                return false;
+            }
+            else if ($('#Pick').val() == 0 || $('#Pick').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Pick!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Pick').focus();
+                });
+                return false;
+            }
+            else if ($('#Warp').val() == 0 || $('#Warp').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Warp!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Warp').focus();
+                });
+                return false;
+            }
+            else if ($('#Weft').val() == 0 || $('#Weft').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Weft!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Weft').focus();
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        //On change Customer
+        $('#VendorId').on('change', function () {
+            debugger
+            var vendorId = $('#VendorId').val();
+            $.ajax({
+                type: "GET",
+                url: "/AP/Api/GetSupplier",
+                data: { id: vendorId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#address').val(data.address);
+                    
+                    return false;
+                }
+            });
+       
+        })
+
+        function getVendorAddress(){
+
+            var vendorId = $('#VendorId').val();
+            $.ajax({
+                type: "GET",
+                url: "/AP/Api/GetSupplier",
+                data: { id: vendorId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#address').val(data.address);
+
+                    return false;
+                }
+            });
+        }
+
+        //On change Greige Quality on Loom
+        $('#GreigeQualityLoomId').on('change', function () {
+            debugger
+            var qualityId = $('#GreigeQualityLoomId').val();
+            $.ajax({
+                type: "GET",
+                url: "/Greige/Api/GetGreigeConstruction",
+                data: { qualityId: qualityId }
+            }).done(function (data) {
+                debugger
+                if (data.grConstruction != null) {
+                    debugger;
+                    $('#Picks').val(data.grConstruction.pick);
+                    $('#Reed').val(data.grConstruction.reed);
+                    $('#Width').val(data.width);
+                    $('#Weft').val(data.grConstruction.weft.name);
+                    $('#Warp').val(data.grConstruction.warp.name);
+                    $('#WarpCount').val(data.grConstruction.warp.name.substring(0, data.grConstruction.warp.name.indexOf("-")));
+                    $('#WeftCount').val(data.grConstruction.weft.name.substring(0, data.grConstruction.weft.name.indexOf("-")));
+
+                    weftWeight();
+                    warpWeight();
+                    totalWarpBag();
+                    totalWeftBag();
+                    
+                }
+            });
+
+           
+
+        })
+
+        function warpWeight() {
+            debugger;
+            var reed = Number($('#Reed').val());
+            var width = Number($('#Width').val());
+            var WarpCount = Number($('#WarpCount').val());
+            var WeftWeightPerMeter = Number($('#WeftWeightPerMeter').val());
+           // var totalWarpWeight = Number((reed * width * WeftWeightPerMeter) / WarpCount / 20 / 40).toFixed(2);;
+            var totalWarpWeight = Number((reed * width * 1.0936) / WarpCount / 20 / 40).toFixed(4);
+            $('#WarpWeightPerMeter').val(totalWarpWeight);
+           
+
+        }
+
+        function weftWeight() {
+            debugger;
+            var pick = Number($('#Picks').val());
+            var width = Number($('#Width').val());
+            var WeftCount = Number($('#WeftCount').val());
+            var totalWeftWeight = Number((pick * width * 1.0936) / WeftCount / 20 / 40).toFixed(4);;
+            $('#WeftWeightPerMeter').val(totalWeftWeight);
+            
+        }
+
+       function calculateAllValues() {
+            Amount1();
+           calculateSaleTax();
+           totalWarpBag();
+           totalWeftBag();
+            Amount2();
+            Amount3();
+            Amount4();
+            Amount5();
+
+        } 
+
+        function Amount1() {
+            debugger
+            //var weaveRate = Number(0.47);
+            var weaveRate = Number($('#RatePerPicks').val());
+            var pick = Number($('#Picks').val());
+            var meterToInConversion = 40;
+            var amount = Number(weaveRate * pick * meterToInConversion).toFixed(4);
+            $('#RateOfConversionExcTax').val(amount);
+        }
+
+        function calculateSaleTax() {
+            debugger;
+            var saleTax = Number($('#SaleTax').val());
+            var rateOfConversionExcTax = Number($('#RateOfConversionExcTax').val());
+            var saleTaxAmount = Number(((rateOfConversionExcTax / 100) * saleTax)).toFixed(4);
+            $('#SaleTaxAmount').val(saleTaxAmount);
+        }
+        function totalWarpBag() {
+
+            var contractQty = Number($('#ContractQty').val());
+            var warpWeightPerMeter = Number($('#WarpWeightPerMeter').val());
+            var amount = Number((contractQty * warpWeightPerMeter)/ 100).toFixed(4);
+            $('#TotalWarpBags').val(amount);
+        }
+        function totalWeftBag() {
+
+            var contractQty = Number($('#ContractQty').val());
+            var weftWeightPerMeter = Number($('#WeftWeightPerMeter').val());
+            var amount = Number((contractQty * weftWeightPerMeter) / 100).toFixed(4);
+            $('#TotalWeftBags').val(amount);
+        }
+        function Amount2() {
+
+            var saleTax = Number($('#SaleTaxAmount').val());
+            var rateOfConversionExcTax = Number($('#RateOfConversionExcTax').val());
+            var amount = Number(rateOfConversionExcTax + saleTax).toFixed(4);
+            $('#RateOfConversionIncTax').val(amount);
+        }
+
+        function Amount3() {
+            debugger;
+            var WarpWeightPerMeter = Number($('#WarpWeightPerMeter').val());
+            var WarptRatePound = Number($('#WarpRatePound').val());
+            var WeftWeightPerMeter = Number($('#WeftWeightPerMeter').val());
+            var WeftRatePound = Number($('#WeftRatePound').val());
+            var CostOfYarnWarp = Number(WarpWeightPerMeter * WarptRatePound).toFixed(4);
+            var CostOfYarnWeft = Number(WeftWeightPerMeter * WeftRatePound).toFixed(4);
+            var costofYarnPerMeter = Number(Number( CostOfYarnWarp) + Number( CostOfYarnWeft)).toFixed(4);
+            var meterToInchConversion = 40;
+            var costOfYarnPerMeter40 = Number(costofYarnPerMeter * meterToInchConversion).toFixed(4);
+            $('#PriceOfYarn').val(costOfYarnPerMeter40);
+        }
+
+        function Amount4() {
+            debugger
+            //var WarpWeightPerMeter = Number($('#WarpWeightPerMeter').val());
+            //var WarptRatePound = Number($('#WarpRatePound').val());
+            //var WeftWeightPerMeter = Number($('#WeftWeightPerMeter').val());
+            //var WeftRatePound = Number($('#WeftRatePound').val());
+            //var CostOfYarnWarp = WarpWeightPerMeter * WarptRatePound;
+            //var CostOfYarnWeft = WeftWeightPerMeter * WeftRatePound;
+            //var costofYarnPerMeter = CostOfYarnWarp + CostOfYarnWeft;
+            //var meterToInchConversion = 40;
+            //var costOfYarnPerMeter40 = costofYarnPerMeter * meterToInchConversion;
+            var costOfYarnPerMeter40 =Number( $('#PriceOfYarn').val());
+            var RateOfConversionIncTax =Number( $('#RateOfConversionIncTax').val());
+            var valueOfGreige40Meter = Number(costOfYarnPerMeter40 + RateOfConversionIncTax).toFixed(4);
+            $('#ValueOfGreige').val(valueOfGreige40Meter);
+        }
+        function Amount5() {
+            debugger;
+            var valueOfGreige = Number($('#ValueOfGreige').val());
+            var meterToInchConversion = 40;
+            var ValuePerMeterGreige = Number(valueOfGreige / meterToInchConversion).toFixed(4)
+            var contractQty =Number( $('#ContractQty').val());
+            var totalContractValue = Number(ValuePerMeterGreige * contractQty).toFixed(4);
+            
+            $('#TotalContractAmount').val(totalContractValue);
+        }
+
+    </script>
+}
+
+

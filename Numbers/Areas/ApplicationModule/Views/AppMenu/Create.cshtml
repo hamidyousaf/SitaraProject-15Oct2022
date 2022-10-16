@@ -1,0 +1,620 @@
+﻿@model AppMenuViewModel
+@using Numbers.Repository.Helpers;
+@{
+    ViewData["Title"] = "Create Menus";
+    ViewData["CurrentPage"] = "Application Menu";
+}
+<div class="col-lg-12">
+    <div class="row">
+        <div class="col-lg-12">
+            <form id="IssueFormId" method="post" asp-action="Create" asp-area="ApplicationModule" asp-controller="AppMenu" onsubmit=" return submitdetails()" typeof="multiple">
+                <div class="ibox-content">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="MENU_ID" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="USER_MENU_NAME" class="control-label">User Menu Name</label>
+                                        <input asp-for="USER_MENU_NAME" class="form-control" autofocus />
+                                        <span asp-validation-for="USER_MENU_NAME" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="MENU_NAME" class=" control-label">Menu Description</label>
+
+                                        <input asp-for="MENU_NAME" class="form-control" />
+                                        <span asp-validation-for="MENU_NAME" class="text-danger"></span>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label">Menu Type</label>
+                                        <Select name="MENU_TYPE" asp-for="MENU_TYPE" asp-items="@ViewBag.CostCenter" data-validation="required" data-validation-error-msg="Cost Center is required" data-validation-error-msg-container="#cost" class="form-control">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <span asp-validation-for="MENU_TYPE" class="text-danger"></span>
+                                        <p id="cost"></p>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="DESCRIPTION" class=" control-label">Description</label>
+                                        <input asp-for="DESCRIPTION" class="form-control" />
+                                        <span asp-validation-for="DESCRIPTION" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="ibox-title">
+                    <div class="row">
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label>Prompt</label>
+                                <input id="Prompt" class="form-control on-focus-change-color" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3">
+                            <input id="id" type="hidden" />
+                            <div class="form-group">
+                                <label> Sub Menu</label>
+                                <select name="subMenu" id='subMenuId' class="form-control select-item">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label> Function</label>
+                                <select name="functionId" id='functionId' class="form-control select-item">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input id="description" class="form-control on-focus-change-color" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-sm-1 m-t-md">
+                            <div class="form-group">
+                                <button id="btnAdd1" type="button" class="btn btn-primary" onclick="addrows();">ADD</button>
+                                <button id="btnUpdateMaster" style="display:none;" type="button" class="btn btn-primary">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ibox-title">
+                    <div class="row">
+                        <input hidden id="menudetails" name="Details" type="text" />
+                        <div class="container-fluid table-responsive" style="background-color:white;">
+                            <h5 class="font-bold">Add Menu Items</h5>
+                            <br />
+                            <table id="tblMenu" name="tableitems" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Seq.No
+                                        </th>
+                                        <th>
+                                            Prompt
+                                        </th>
+                                        <th>
+                                            Sub Menus
+                                        </th>
+                                        <th>
+                                            Function
+                                        </th>
+                                        <th>
+                                            Description
+                                        </th>
+                                        <th class="text-center">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.InvStoreIssueItems != null)
+                                    {
+                                        @if (Model.InvStoreIssueItems.Count > 0)
+                                        {
+                                            foreach (var items in Model.InvStoreIssueItems)
+                                            {
+                                                NumbersDbContext _dbcontext = new NumbersDbContext();
+                                                var menuName = new ConfigValues(_dbcontext).GetMenubyId(Convert.ToInt32(items.SUBMENU_ID));
+                                                var formName = new ConfigValues(_dbcontext).GetForm(Convert.ToInt32(items.FUNCTION_ID));
+
+                                                <tr>
+                                                    <td name='id' hidden class='id'>@items.MENU_D_ID</td>
+                                                    <td name='Sr' class='text-right Sr'>@items.SEQUENCE_ID</td>
+                                                    <td name='Prompt' class='Prompt'>@items.PROMPTS</td>
+                                                    <td hidden name='ItemId1' class='ItemId'>@items.SUBMENU_ID</td>
+                                                    <td class='itemt'>  @menuName</td>
+                                                    <td hidden name='ItemId2' class='ItemId2'>@items.FUNCTION_ID</td>
+                                                    <td class='itemt2'>  @formName</td>
+                                                    <td name='description' class='description'> @items.DESCRIPTION</td>
+                                                    <td class="text-center"> <a class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a><a class=""> </a><a class="btn btn-danger"><i class="fas fa-trash remove-row"></i></a></td>
+                                                </tr>
+
+
+                                            }
+                                        }
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                <!--Modal For Purchase Order Items to be loaded for selection-->
+                <div class="text-left mb-3">
+                    <a asp-controller="AppMenu" asp-action="Index" class="btn btn-white" style="">List</a>
+                    <button  type="Submit" asp-action="Create" asp-controller="AppMenu" class="btn btn-primary">@ViewBag.EntityState</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            debugger;
+            //_applySelect($('#subMenuId'));
+            //_applySelect($('#functionId'));
+        //bind item select2
+            var itemId = $('#subMenuId');
+            bindSelect2(itemId, '/ApplicationModule/Api/GetMenus', '/ApplicationModule/Api/GetMenu?id=', '@ViewBag.ItemId');
+
+            var functionId = $('#functionId');
+            bindSelect2(functionId, '/ApplicationModule/Api/GetFunctions', '/ApplicationModule/Api/GetFunction?id=', '@ViewBag.ItemId');
+    });
+    </script>
+
+    <script>
+
+         function CheckNo() {
+            debugger;
+            var ex = /^[0-9]*$/;
+             var A = $('#IssueNo').val();
+             if (A.replace(/ /g, '') != "") {
+
+                   $("#Status").html("Checking...");
+        $.post("@Url.Action("checkProductCodeAlreadyExists", "StoreIssue", "Inventory")",
+            {
+                code: $("#IssueNo").val()
+            },
+        function (data) {
+            if (data == 0) {
+                $("#Status").html('<font color="Green"></font>');
+                $("#IssueNo").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+
+                return true;
+            }
+            else {
+                $("#Status").html('<font color="Red">Issue with same Code already exists.</font>');
+                $("#IssueNo").css("border-color", "Red");
+                $(".submit").attr("disabled", "disabled");
+                return false;
+            }
+
+        });
+            }
+            else {
+                swal("", "Enter No !", "info");
+                $('#IssueNo').val('');
+            }
+        }
+
+        function checkFormData() {
+            debugger;
+            var formdetails = [];
+            if ("@TempData["Mode"]" == "False") {
+                $.each($("#tblMenu tbody tr"), function () {
+                    debugger
+                    formdetails.push({
+                        SUBMENU_ID: $(this).find('.ItemId').html(),
+                        FUNCTION_ID: $(this).find('.ItemId2').html(),
+                        SEQUENCE_ID: $(this).find('.sr').html(),
+                        PROMPTS: $(this).find('.Prompt').html(),
+                        DESCRIPTION: $(this).find('.description').html(),
+                        MENU_D_ID: $(this).find('.id').html(),
+                    });
+
+                });
+
+                var model = JSON.stringify(formdetails);
+                $("#menudetails").val(model);
+                if (formdetails.length >= 1) {
+                    swal("", "Please Save Record!", "info");
+                    return false;
+                }
+                else {
+                    window.open("/ApplicationModule/AppMenu/Index", '_blank');
+                }
+            } else {
+                window.open("/ApplicationModule/AppMenu/Index", '_blank');
+            }
+        }
+
+        $(document).ready(function () {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            var counter = 1;
+            if (items != null) {
+                if (items.length == 0) {
+                    counter = counter;
+                } else if (items.length != 0) {
+                    counter = items.length + 1;
+                }
+            }
+        });
+        //for pop-up modal
+        var skipIds = [];//skip from loading table rows
+        function getPurchaseOrders() {
+            var supplierId = $('#SupplierId').val();
+            var counter = 1;
+            // AJAX request
+            $.ajax({
+                url: '/AP/Purchase/GetPurchaseOrdersBySupplierId',
+                type: 'POST',
+                method: 'POST',
+                data: { id: supplierId, skipIds: skipIds },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#returnModal').modal('show');
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+        var counter = 50;
+        $('#button').click(function () {
+            var table = document.getElementById('invoiceTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            var arrLength = arrayOfValues.length;
+            var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (i = 0; i < arrLength; i++) {
+                var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+
+
+                $.ajax({
+                    type: 'POST',
+                    async: false,
+                    url: '/AP/Purchase/GetPurchaseOrderItems',
+                    data: { purchaseInvoiceItemId: parseInt(values[i]), counter: counter },
+                    beforeSend: function () {
+                        skipIds.push(values[i]);
+                        $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        $('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+                    debugger;
+                    $.ajax({
+                        type: 'POST',
+                        async: false,
+                        url: '/AP/PurchaseForm/GetItemById?id=' + data.itemId,
+
+                    }).done(function (data1) {
+                        debugger;
+                        var row1 = "<tr><td hidden class='ItemId'>" + data.itemId + "</td><td class='ItemName'> " + data1.name
+                            + "   </td><td class='UOM'>" + data1.unit + "</td><td class='stock'>" + data1.stockQty + "</td><td class='qty'><input class='qtyin' type='number' /> </td><td></td><td></td><td class='SQM'> </td><td class='Rate'></td><td class='Total'>" + data.total + "</td><td class='Discount'> </td><td></td><td class='NetTotal'>" + data.total_ + "</td><td ><i class='fa fa-trash ' id='remove-row'></i></td></tr>";
+                        var row = "<tr><td hidden name='ItemId1'  class='ItemId'>" + data.itemId + "</td><td  class='itemt' value=" + data1.name + " >" + data1.name
+                            + "</td><td></td><td name='stock1' class='stock'>" + data1.stockQty + "</td><td name='SQM1' class='SQM'>" + data1.boxInSQM + "</td><td></td><td></td><td >" + data1.unit + "</td><td name='Rate1' hidden class='Rate'>" + data1.avgRate + "</td><td name='Total1'  class='Total'>" + data.total + "</td><td name='Discount1' hidden class='Discount'>" + data.discountAmount + "</td><td></td><td name='NetTotal1' hidden class='NetTotal'>" + data.total_ + "</td><td ><i class='fa fa-trash ' id='remove-row'></i></td></tr>";
+
+                        $("#tblMenu >tbody").append(row);
+
+                    });
+
+                    $('#button').prop('disabled', false);
+                    $('#returnModal').modal("hide");
+                    counter++;
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+            }
+        });
+        $("#tblMenu tbody").on('click', '.remove-row', function () {
+            debugger;
+            $(this).closest('tr').remove();
+            var itemId = $(this).closest("tr").find(".id").html();
+            if (itemId != null) {
+                IdsDeleted.push(itemId);
+                $('#IdsDeleted').text(ids);
+            }
+            counter--;
+        });
+    </script>
+
+    <script>
+
+        function addrows() {
+            debugger;
+            var itemt = $("#subMenuId option:selected").text();
+            var itemv = $("#subMenuId option:selected").val();
+            var itemt2 = $("#functionId option:selected").text();
+            var itemv2 = $("#functionId option:selected").val();
+            var Prompt = $("#Prompt").val();
+            var subMenuId = $("#subMenuId").val();
+            var functionId = $("#functionId").val();
+            var description = $("#description").val();
+
+            if (Prompt != "" && subMenuId != "Select Please.." && functionId != "Select Please.." && description != "") {
+
+                var row = "<tr>" +
+                    "<td name='id' hidden class='id'>0</td>" +
+                    "<td name='Sr' class='Sr'>" + 0 + "</td> " +
+                    "<td name='Prompt' class='Prompt'>" + Prompt + "</td> " +
+                    "<td hidden name='ItemId1' class='ItemId'>" + itemv + "</td>" +
+                    "<td class='itemt'>" + itemt + "</td> " +
+                    "<td hidden name='ItemId2' class='ItemId2'>" + itemv2 + "</td>" +
+                    "<td class='itemt2'>" + itemt2 + "</td> " +
+                    "<td name='description' class='description'>" + description + "</td> " +
+                    '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                "</tr>"
+
+                $("#tblMenu tbody").append(row);
+                numberRows();
+
+
+            }
+            else {
+                swal("", "Please Enter Required Field..!", "info");
+                return;
+            }
+
+            clearTexbox();
+        }
+
+        function clearTexbox() {
+            debugger;
+            $('#subMenuId').val(null).trigger('change.select2');
+            $('#functionId').val(null).trigger('change.select2');
+            $('#Prompt').val("");
+            $('#description').val("");
+
+        }
+
+    </script>
+
+    <script>
+        $('#ItemId').change(function () {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var issueDate = $('#IssueDate').val();
+            //  var SupplierId = $('#SupplierId').val();
+            var SupplierId = 1;
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/AP/PurchaseForm/GetItemById?id=' + itemId,
+
+            }).done(function (data) {
+                debugger;
+                if (data != null) {
+                    debugger;
+                    console.log(data);
+                    $('#Box').val(data.boxInSQM);
+                    $('#UOM').val(data.code);
+                    $('#SQM').val(data.tileInSQM);
+                    $('#Stock').val(0);
+                    $('#Pcs').val(data.pcsInBox);
+                    $('#Rate').val(data.avgRate);
+                    $('#DiscountPerc').val(data.discountPercentage);
+                }
+                else {
+
+                }
+                // debugger;
+                if (wareHouseId != "") {
+                    var stock = getStock(itemId, wareHouseId, issueDate);
+                    stock.done(function (data) {
+                        $('#Stock').val(data.toFixed(2));
+                    });
+                }
+                //$('#WareHouseId').empty();
+                //var itemId = $('#ItemId').val();
+                //_applySelectWH($('#WareHouseId'), itemId);
+            });
+        });
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var formdetails = [];
+            debugger
+            $.each($("#tblMenu tbody tr"), function () {
+                formdetails.push({
+                    SUBMENU_ID: $(this).find('.ItemId').html(),
+                    FUNCTION_ID: $(this).find('.ItemId2').html(),
+                    SEQUENCE_ID: $(this).find('.Sr').html(),
+                    PROMPTS: $(this).find('.Prompt').html(),
+                    DESCRIPTION: $(this).find('.description').html(),
+                    MENU_D_ID: $(this).find('.id').html(),
+                });
+            });
+
+            var model = JSON.stringify(formdetails);
+            $("#menudetails").val(model);
+            if (formdetails.length <= 0) {
+                swal("", "Enter At Least One Record!", "info");
+                return false;
+            }
+        }
+
+    </script>
+    <script>
+        function HideTrue() {
+            debugger;
+            if ($('#Chkbox').prop('checked')) {
+                document.getElementById('NoOfPcs').readOnly = false;
+                document.getElementById('Tiles').readOnly = false;
+                //  $('#NoOfPcs').focus();
+
+            } else {
+                document.getElementById('NoOfPcs').readOnly = true;
+                document.getElementById('Tiles').readOnly = true;
+                // $('#SQM1').focus();
+            }
+        }
+
+        function calculateDisAmt() {
+            var Total = $("#Total").val();
+            var DiscountPerc = $("#DiscountPerc").val();
+            var discountAmt = 0;
+            discountAmt = (Number(DiscountPerc) / (100)) * Total;
+            $("#DiscountAmt").val(discountAmt);
+
+            // alert(discountAmt);
+            return discountAmt;
+        }
+    </script>
+
+    <script>
+
+        $("#tblMenu tbody").on("click", ".fa-edit", function () {
+            //    var check = "";
+            debugger;
+            if ($('#btnUpdateMaster').css('display') == 'none') {
+                debugger;
+                var $id = $(this).closest("tr")
+                    .find(".id").html();
+                var $item1 = $(this).closest("tr")
+                    .find(".ItemId")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find(".ItemId2")
+                    .html();
+                var $item3 = $(this).closest("tr")
+                    .find(".Prompt")
+                    .html();
+                var $item4 = $(this).closest("tr")
+                    .find(".description")
+                    .html();
+                debugger;
+                $('#id').val($id);
+                $('#subMenuId').val($item1);
+                $('#functionId').val($item2);
+                $('#Prompt').val($item3);
+                $('#description').val($item4);
+
+                 var itemId = $('#subMenuId');
+                bindSelect2(itemId, '/ApplicationModule/Api/GetMenus', '/ApplicationModule/Api/GetMenu?id=',$item1);
+
+                var functionId = $('#functionId');
+            bindSelect2(functionId, '/ApplicationModule/Api/GetFunctions', '/ApplicationModule/Api/GetFunction?id=',$item2);
+
+                $(this).closest("tr").remove();
+                $('#btnUpdateMaster').css('display', 'block');
+                $('#btnAdd1').css('display', 'none');
+
+            }
+            else if ($('#btnUpdateMaster').css('display') == 'block') {
+
+                swal("", "Please Finish Updating Current Part.", "warning");
+            }
+        });
+        //function addSerialNumber() {
+        //    debugger;
+        //    $('tblMenu tr').each(function (index) {
+        //        $(this).find('td:nth-child(1)').html(index + 1);
+        //    });
+        //};
+        //var addSerialNumber = function () {
+        //    var i = 0
+        //    $('#tblMenu tbody').each(function (index) {
+        //        $(this).find('td:nth-child(1)').html(index - 1 + 1);
+        //    });
+        //};
+        function numberRows() {
+            debugger;
+            $('#tblMenu tbody tr').each(function (idx) {
+                debugger;
+                $(this).children("td:eq(1)").html(idx + 1);
+            });
+        }
+
+        $('#btnUpdateMaster').click(function () {
+
+            var id = $("#id").val();
+            var itemt = $("#subMenuId option:selected").text();
+            var itemv = $("#subMenuId option:selected").val();
+            var itemt2 = $("#functionId option:selected").text();
+            var itemv2 = $("#functionId option:selected").val();
+            var Prompt = $("#Prompt").val();
+            var subMenuId = $("#subMenuId").val();
+            var functionId = $("#functionId").val();
+            var description = $("#description").val();
+
+            if (Prompt != "" && subMenuId != "Select Please.." && functionId != "Select Please.." && description != "") {
+
+                var row = "<tr>" +
+                    "<td name='Sr' class='Sr'>" + 0 + "</td> " +
+                    "<td name='id' hidden class='id'>" + id + "</td>" +
+                    "<td name='Prompt' class='Prompt'>" + Prompt + "</td> " +
+                    "<td hidden name='ItemId1' class='ItemId'>" + itemv + "</td>" +
+                    "<td class='itemt'>" + itemt + "</td> " +
+                    "<td hidden name='ItemId2' class='ItemId2'>" + itemv2 + "</td>" +
+                    "<td class='itemt2'>" + itemt2 + "</td> " +
+                    "<td name='description' class='description'>" + description + "</td> " +
+                    '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                "</tr>"
+
+                $("#tblMenu tbody").append(row);
+                numberRows();
+
+            }
+            else {
+                swal("", "Please Enter Required Field..!", "info");
+                return;
+            }
+
+            $('#btnUpdateMaster').css('display', 'none');
+            $('#btnAdd1').css('display', 'block');
+            clearTexbox();
+
+        });
+
+    </script>
+
+
+    <script>
+
+
+        $("#tblMenu tbody").on("click", ".remove-row", function () {
+            $(this).closest("tr").remove();
+        });
+
+
+    </script>
+
+
+}

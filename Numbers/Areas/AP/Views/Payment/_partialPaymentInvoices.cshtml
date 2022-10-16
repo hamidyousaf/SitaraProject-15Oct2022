@@ -1,0 +1,75 @@
+﻿@model IEnumerable<APPaymentViewModel>
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="table-responsive">
+    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th hidden>Invoice Id</th>
+
+                <th>Invoice No</th>
+                <th>Invoice Date</th>
+                <th>Total</th>
+                <th>Sales Tax</th>
+                <th>Excise Tax</th>
+                <th>Invoice Total</th>
+                <th>Payment Total</th>
+                <th>Invoice Balance</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                decimal invoiceTotal = item.InvoiceAmount;
+                decimal paymentTotal = item.PaymentTotal;
+                decimal invoiceBalance = invoiceTotal - paymentTotal;
+                <tr>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.InvoiceId)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.InvoiceNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.InvoiceDate)
+                    </td>
+                    <td class="text-right add-comma">
+                        @Html.DisplayFor(modelItem => item.LineTotal)
+                    </td>
+                    <td class="text-right add-comma">
+                        @Html.DisplayFor(modelItem => item.TaxAmount)
+                    </td>
+                    <td class="text-right add-comma">
+                        @Html.DisplayFor(modelItem => item.ExciseTaxAmount)
+                    </td>
+                    <td class="text-right add-comma">
+                        @Html.DisplayFor(modelItem => item.InvoiceAmount)
+                    </td>
+                    <td class="text-right add-comma">
+                        @Html.DisplayFor(modelItem => item.PaymentTotal)
+                    </td>
+                    <td class="text-right add-comma">
+                        @invoiceBalance
+                    </td>
+                    <td class="text-center"><input id="check" class="checkbox" type="checkbox"></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

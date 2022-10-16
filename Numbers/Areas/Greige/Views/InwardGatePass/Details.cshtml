@@ -1,0 +1,531 @@
+﻿@model GRInwardGatePass
+@{
+    ViewData["Title"] = "Approved IGP";
+    var totalTax = 0;
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="InwardGatePass" asp-action="Index" class="btn btn-warning">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+@*                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)"  target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>
+*@                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+
+                        <span><strong>Transaction No:</strong><strong class="text-navy"> @Model.TransactionNo</strong></span><br />
+                        <span><strong>Transation Date:</strong> @Model.TransactionDate</span><br />
+                        <span><strong>LOT NO:</strong> @Model.LotNo</span><br />
+                        
+
+                       </div>
+                       
+                         <div class="col-sm-6 text-right">
+                       
+
+                        
+                        @if(Model.WeavingContract!=null)
+                       {
+                            <span><strong>Address:</strong> @Model.WeavingContract.Vendor.Address</span><br />
+                            <span><strong>Weaving Contract: </strong> @Model.WeavingContract.Vendor.Name</span><br />
+                           @* <span><strong>Contract Greige Quality:</strong> @Model.WeavingContract.GreigeQuality.Description.ToString()</span><br />
+                            <span><strong>On Loom Greige Quality:</strong> @Model.WeavingContract.GreigeQualityLoom.Description.ToString()</span><br />
+*@
+                                
+                       } else if(Model.PurchaseContract!=null)
+                       {
+                           <span><strong>Address:</strong> @Model.PurchaseContract.Vendor.Address</span><br />
+                           <span><strong>purchase contract: </strong>@Model.PurchaseContract.Vendor.Name</span><br />
+                            @*<span><strong>Contract Greige Quality:</strong> @Model.PurchaseContract.ContractGRQuality.Description.ToString()</span><br />
+                           <span><strong>On Loom Greige Quality:</strong> @Model.PurchaseContract.ContractGRQuality.Description.ToString()</span><br />*@
+
+                        }
+                        else
+                        {
+                                                       <span><strong></strong> </span><br />
+
+                        }
+                    </div>
+                       @*  @if(Model.PurchaseContractLOV.Count()!=0)
+                       {
+                            <span><strong>WeavingContract:</strong> @Model.PurchaseContractLOV.FirstOrDefault().Text.ToString()</span><br />
+                        } else if(Model.WeavingContractLOV.Count()!=0)
+                       {
+                            <span><strong>WeavingContract:</strong> @Model.WeavingContractLOV.FirstOrDefault().Text.ToString()</span><br />
+                       }else
+                        {
+                              <span><strong>WeavingContract:</strong></span><br />
+                        }*@
+@*
+                        @if(Model.PurchaseContract!=null)
+                       {
+                            <span><strong>Contract Greige Quality:</strong> @Model.PurchaseContract.ContractGRQuality.Description.ToString()</span><br />
+                        } else if(Model.WeavingContract!=null)
+                       {
+                            <span><strong>Contract Greige Quality:</strong> @Model.WeavingContract.GreigeQuality.Description.ToString()</span><br />
+                       }else
+                        {
+                              <span><strong>Contract Greige Quality:</strong> </span><br />
+                        }
+
+
+                    </div>
+                    <div class="col-sm-6 text-right">
+
+                        <span><strong>Lot No:</strong> @Model.LotNo</span><br />*@
+@*                        <span><strong>PurchaseContract:</strong> @Model.PurchaseContractLOV.FirstOrDefault()</span><br />          
+*@                   @* @if(Model.PurchaseContract!=null)
+                       {
+                            <span><strong>On Loom Greige Quality:</strong> @Model.PurchaseContract.ContractGRQuality.Description.ToString()</span><br />
+
+
+                        } 
+                        {
+                            <span><strong>On Loom Greige Quality:</strong> </span><br />
+
+                        }*@
+                        
+                    
+
+
+                        @*<h4><span>TransactionDate:<strong class="text-navy"> @Model.gRInwardGatePass.TransactionDate</strong></span></h4>
+                        <span><strong>TransactionNo:</strong> @Model.gRInwardGatePass.TransactionNo</span><br />
+                        <span><LotNo>Payment Term:</LotNo> @Model.LotNo</span><br />          
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>WeavingContract <strong class="text-navy">@Model.WeavingContract.GreigeQuality.Description</strong></span></h4>
+                        <p>
+                            <span><strong>PurchaseContract:</strong> @Model.PurchaseContract.ContractGRQuality.Description</span><br />
+                        </p>
+                        <span><strong>On Loom Greige Quality:</strong> @Model.PurchaseContract.ContractGRQuality.Description</span><br />
+                        <span><strong>Contract Greige Quality:</strong> @Model.ReferenceNo</span><br />
+                        <span><strong>Currency:</strong> @Model.Currency</span><br />
+                    </div>*@
+                </div>
+
+                </div>
+                 <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover" id="Table">
+                        <thead>
+                            <tr>
+                                <th>Sr No</th>
+                                <th>Received Quantity</th>
+                                <th class="text-right">Less Measure Record</th>
+                                <th class="text-right">Actual Received Quantity</th>
+                                @*<th>Disc.%</th>
+                                    <th class="text-right">Disc. Amount</th>
+                                    <th>S.Tax %</th>
+                                    <th class="text-right">S.Tax Amount</th>
+                                    <th class="text-right">Total</th>*@
+                                @*<th>Remarks</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<GRInwardGatePassDetail>)
+                            {
+                                NumbersDbContext _dbcontext = new NumbersDbContext();
+                                @*var ItemName = new ConfigValues(_dbcontext).GetItemNameById(Convert.ToInt32(item.ItemId));*@
+                                <tr>
+                                    <td class="text-center">
+                                       
+                                       @item.SrNo
+                                        
+                                    </td>
+                                   
+                                    <td class="text-right">
+                                        <input class="Receviedqty form-control text-right" readonly value="@item.ReceivedQuantity" />
+                                                
+                                        
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            <input class="Measureqty form-control text-right" readonly value="@item.MeasureQuantity"/>
+                                                
+
+                                                
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            <input class="Actualqty form-control text-right" readonly value=" @item.ActualQuantity" />
+                                               
+                                               
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+
+                                    <tfoot>
+                                       
+                                    </tfoot>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                @*<table class="table invoice-total" >
+                    <tbody>
+                          <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.SrNo)
+                               
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ReceivedQuantity)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.MeasureQuantity)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ActualQuantity)
+                            </th>
+                         
+                            <th></th>
+                        </tr>
+                    </tbody>
+                </table>*@
+                @*<div class="well-remarks m-t">
+                    <strong>Remarks:</strong>
+                    @Model.Remarks
+                </div>*@
+            </div>
+        </div>
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                    <input hidden id="totalReceived" name="TotalReceived" />
+                    <input hidden id="totalMeasure" name="TotalMeasure" />
+                    <input hidden id="totalActual" name="TotalActual" />
+
+    </div>
+
+
+
+
+  @section customJS{
+    <script>
+        $(document).ready(function () {
+            debugger
+           
+            RowCalculation();
+
+            $("#WeavingContractId").select2();
+            $("#PurchaseContractId").select2();
+            GetRowFooter();
+
+            ////Get Weaving Contract
+            //$("#WeavingContractId").change();
+            ////Get Purchase Contract
+            //$("#PurchaseContractId").change();
+
+            
+        });
+        $("#WeavingContractId").change(function () {
+            debugger
+            $('#Address').val("");
+            $('#GreigeQualityId').val("");
+            $('#LoomQualityId').val("");
+            $('#Quantity').val("");
+            $('#BalanceQuantity').val("");
+            $('#PurchaseContractId').val(0).trigger('change.select2');
+            var weavingContractId = $('#WeavingContractId').val();
+            $.ajax({
+                type: "GET",
+                url: "/Greige/InwardGatePass/GetWeavingContract",
+                data: { Id: weavingContractId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#Address').val(data.vendor.address == "" ? "Not Define" : data.vendor.address);
+                    $('#GreigeQualityId').val(data.greigeQuality.description);
+                    $('#LoomQualityId').val(data.greigeQualityLoom.description);
+                    $('#Quantity').val(data.contractQty);
+                    $('#BalanceQuantity').val(data.balanceContractQty);
+                    $('#CheckBalanceQuantity').val(data.balanceContractQty);
+                    return false;
+                } else {
+                    $('#Address').val("Non Avaiable");
+                    return false;
+                }
+            });
+        });
+        $("#PurchaseContractId").change(function () {
+            debugger
+            $('#Address').val("");
+            $('#GreigeQualityId').val("");
+            $('#LoomQualityId').val("");
+            $('#Quantity').val("");
+            $('#BalanceQuantity').val("");
+            $('#WeavingContractId').val(0).trigger('change.select2');
+            var purchaseContractId = $('#PurchaseContractId').val();
+            $.ajax({
+                type: "GET",
+                url: "/Greige/InwardGatePass/GetPurchaseContract",
+                data: { Id: purchaseContractId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#Address').val(data.vendor.address == "" ? "Not Define" : data.vendor.address);
+                    $('#GreigeQualityId').val(data.contractGRQuality.description);
+                    $('#LoomQualityId').val(data.purchaseGRQuality.description);
+                    $('#Quantity').val(data.contractQuantity);
+                    $('#BalanceQuantity').val(data.balanceContractQty);
+                    $('#CheckBalanceQuantity').val(data.balanceContractQty);
+                    return false;
+                } else {
+                    $('#Address').val("Non Avaiable");
+                    return false;
+                }
+            });
+        });
+
+
+         function GetRowFooter() {
+            debugger
+            var TotalRcvQty = 0;
+            var TotalFrQty = 0;
+            var TotalFolQty = 0;
+            var TotalGLQty = 0;
+            var TotalActQty = 0;
+            var check = false;
+            
+
+            $.each($("#Table tbody tr"), function () {
+                debugger;
+                var qty1 = Number($(this).find(".Receviedqty").val());
+                TotalRcvQty = TotalRcvQty + qty1;
+                
+
+                var qty2 = Number($(this).find(".Measureqty").val());
+                TotalFrQty = TotalFrQty + qty2;
+                
+
+                var qty3 = Number($(this).find(".Actualqty").val());
+                TotalFolQty = TotalFolQty + qty3;
+            });
+
+            
+
+            
+
+            //$('#TotalQty').val(TotalQty);
+           
+
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    
+                    "<td style'text-aligin: right;'>Total:</td> " +
+                   
+                    "<td class='text-right TotalRcvQty' name='TotalRcvQty'>" + Number(TotalRcvQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFrQty' name='TotalFrQty'>" + Number(TotalFrQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFolQty' name='TotalFolQty'>" + Number(TotalFolQty).toFixed(2) + "</td> " +
+                   
+                "</tr>"
+
+                $("#Table tfoot").append(row);
+            
+
+        }
+
+
+
+
+
+        function addRow() {
+            debugger;
+            var received = Number($("#RecievedInMeter").val());
+            var measure = Number($("#LessMeasureMeters").val());
+            var actual = received - measure;
+            var balanceQuantity = Number($("#BalanceQuantity").val());
+            var weavingContractId = $("#WeavingContractId").find(":selected").val();
+            var purchaseContractId = $("#PurchaseContractId").find(":selected").val();
+
+            if (actual > balanceQuantity) {
+                swal({
+                    icon: "warning",
+                    text: "Quantity must be less than balance quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+
+            if (weavingContractId == 0 && purchaseContractId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select contract!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WeavingContractId").focus();
+                });
+                return false;
+            }
+
+            var srNo = 1;
+            if (received == 0 || received == "") {
+                swal({
+                    icon: "warning",
+                    text: "Please enter received in meter quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#RecievedInMeter").focus();
+                });
+                return false;
+            }
+            if (measure < 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please enter measurement in meter quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+
+            if (measure > received) {
+                swal({
+                    icon: "warning",
+                    text: "Measurement quantity must be less than received quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+            var length = $("#table > tbody > tr").length;
+            if (length != 0) {
+                debugger
+                var sr = Number($('#table > tbody > tr:last').find(".SrNo").text());
+                srNo = srNo + sr;
+            }
+            $("#BalanceQuantity").val(balanceQuantity - actual);
+
+
+
+            data = '';
+            data += '<tr>';
+            data += '<td hidden class ="Id">0</td>';
+            data += '<td class ="SrNo text-center">' + srNo + '</td>';
+            data += '<td class ="Revieved text-right">' + received + '</td>';
+            data += '<td class ="Measure text-right">' + measure + '</td>';
+            data += '<td class ="Actual text-right">' + actual + '</td>';
+            data += '<td class="text-center">';
+            data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            data += '</tr>';
+            $('#table tbody').append(data);
+
+            $("#RecievedInMeter").focus();
+
+            clearTextBox();
+            RowCalculation();
+        }
+        function clearTextBox() {
+            $("#RecievedInMeter").val("");
+            $("#LessMeasureMeters").val("");
+        }
+        function RowCalculation() {
+            debugger
+            var received = 0;
+            var measure = 0;
+            var actual = 0;
+            $('#table > tbody > tr').each(function () {
+                var TotalReceived = Number($(this).find(".Revieved").text());
+                var TotalMeasure = Number($(this).find(".Measure").text());
+                var TotalActual = Number($(this).find(".Actual").text());
+                received = received + TotalReceived;
+                measure = measure + TotalMeasure;
+                actual = actual + TotalActual;
+            });
+            $('#table > tfoot > tr').find(".TotalReceived").text(received);
+            $('#table > tfoot > tr').find(".TotalMeasure").text(measure);
+            $('#table > tfoot > tr').find(".TotalActual").text(actual);
+        }
+        function deleterow(row) {
+            debugger
+            var actual = Number(row.closest("tr").find(".Actual").text());
+            var balanceQuantity = Number($("#BalanceQuantity").val());
+            $("#BalanceQuantity").val(balanceQuantity + actual);
+            row.closest("tr").remove();
+            RowCalculation();
+        }
+        function OnSubmit() {
+            debugger
+            var weavingContractId = Number($("#WeavingContractId").find(":selected").val());
+            var purchaseContractId = Number($("#PurchaseContractId").find(":selected").val());
+            var Length = $("#table > tbody > tr").length;
+            if (weavingContractId == 0 && purchaseContractId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please Select Contract!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WeavingContractId").focus();
+                });
+                return false;
+            }
+            if (Length == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please enter at least one items!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#RecievedInMeter").focus();
+                });
+                return false;
+            }
+
+            var itemDetails = [];
+            $.each($("#table tbody tr"), function () {
+                itemDetails.push({
+                    Id: $(this).find('.Id').html(),
+                    SrNo: $(this).find('.SrNo').html(),
+                    ReceivedQuantity: $(this).find('.Revieved').html(),
+                    MeasureQuantity: $(this).find('.Measure').html(),
+                    ActualQuantity: $(this).find('.Actual').html(),
+                });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            var TotalReceived = Number($('#table > tfoot > tr').find(".TotalReceived").text());
+            var TotalMeasure = Number($('#table > tfoot > tr').find(".TotalMeasure").text());
+            var TotalActual = Number($('#table > tfoot > tr').find(".TotalActual").text());
+
+            $("#itemDetail").val(model);
+            $("#totalReceived").val(TotalReceived);
+            $("#totalMeasure").val(TotalMeasure);
+            $("#totalActual").val(TotalActual);
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+    </script>
+}
+
+

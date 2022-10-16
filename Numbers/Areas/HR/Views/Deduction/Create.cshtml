@@ -1,0 +1,207 @@
+﻿@model HRDeductionViewModel
+@{
+    ViewData["Title"] =string.Concat(ViewBag.EntityState,"Deduction");
+    ViewData["CurrentPage"] = "Deduction";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none; 
+        }
+    </style>
+}
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h2>@ViewBag.EntityState Deduction</h2>
+                    </div>
+                    <div class="ibox-content to_in_put_bor_der">
+                            <form method="post" enctype="multipart/form-data" id="deductionform" >
+                                <div asp-validation-summary="ModelOnly" class="form-horizontal"></div>
+                                <div>
+                                    <input type="hidden" asp-for="Id" />
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="EmployeeLeave" class="col-form-label">Deduction #</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="md-form md-outline form-sm">
+                                            <input id="form-sm-o-o" class="form-control form-control-sm" type="text" style="border-radius:0;">
+                                            <label for="form-sm-o-o">Deduction No</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label asp-for="Date" class="col-form-label">Deduction Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group" id="data_1">
+                                            <div class="input-group date">
+                                                <span asp-validation-for="Date" class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control form-control-sm" value="03/04/2014">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label asp-for="Type" class="col-form-label">Deduction Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="md-form md-outline form-sm">
+                                            <select class="form-control form-control-sm" name="account">
+                                                <option>option 1</option>
+                                                <option>option 2</option>
+                                                <option>option 3</option>
+                                                <option>option 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label asp-for="EmployeeType" class="col-form-label">Emp Type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="md-form md-outline form-sm">
+                                            <select asp-for="Type" class="form-control form-control-sm" name="account">
+                                                <option>option 1</option>
+                                                <option>option 2</option>
+                                                <option>option 3</option>
+                                                <option>option 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label asp-for="Remarks" class="col-form-label">Remarks</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="md-form md-outline form-sm">
+                                            <textarea id="form-sm-o-o" class="form-control form-control-sm" type="text" style="border-radius:0;"></textarea>
+                                            <!--<label for="form-sm-o-o">Increment No</label>-->
+                                        </div>
+                                    </div>
+                                </div><br>
+                                <div class="row">
+                                    <div class="col-md-12" style="height:300px;overflow-y:scroll;overflow-x:scroll;margin-bottom:10px;">
+
+                                        <table class="table table-resposnive table-striped to_giv_wid">
+                                            <thead>
+                                                <tr>
+                                                    <th class="bg-info">Emp #</th>
+                                                    <th class="bg-success">Emp Name</th>
+                                                    <th class="bg-warning">Amount</th>
+                                                    <th class="bg-danger">Remarks</th>
+                                                    <th class="bg-primary"><i class="fa fa-user-times" aria-hidden="true"></i></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td class="to_ver_t_ical_ali_gn">
+                                                        <i class="fa fa-user-times uss_er_del_ic_on_colo_r" aria-hidden="true"></i>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td class="to_ver_t_ical_ali_gn">
+                                                        <i class="fa fa-user-times uss_er_del_ic_on_colo_r" aria-hidden="true"></i>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td class="to_ver_t_ical_ali_gn">
+                                                        <i class="fa fa-user-times uss_er_del_ic_on_colo_r" aria-hidden="true"></i>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td class="to_ver_t_ical_ali_gn">
+                                                        <i class="fa fa-user-times uss_er_del_ic_on_colo_r" aria-hidden="true"></i>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td><input type="text" placeholder="placeholder" class="form-control"></td>
+                                                    <td class="to_ver_t_ical_ali_gn">
+                                                        <i class="fa fa-user-times uss_er_del_ic_on_colo_r" aria-hidden="true"></i>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        @*<button type="button" class="btn bg-primary btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>*@
+
+                                        <a asp-controller="Deduction" asp-action="Index" class="btn btn-white">Back</a>
+                                        @if (Model.Status != "Approved")
+                                        {
+                                            <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Deduction">@ViewBag.EntityState</button>
+                                        }
+
+                                    </div>
+                                    <div class="col-md-3">
+
+                                    </div>
+                                    <div class="col-md-3">
+
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn bg-warning btn-sm to_fl_o_t_righ_t"><i class="fa fa-times" aria-hidden="true"></i> Exit</button>
+                                    </div>
+                                </div>
+                            </form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <!--Designer changes starts from here-->
+                <!--Designer changes ends from here-->
+
+            </div>
+
+        </div>
+
+<!--JsGrid-->
+
+@section customJS{
+
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+
+}

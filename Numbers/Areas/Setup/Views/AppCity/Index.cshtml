@@ -1,0 +1,139 @@
+﻿@model AppCountry
+@{
+    ViewData["Title"] = "City";
+    ViewData["CurrentPage"] = "Define City";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+}
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        @*<div class="ibox-title">
+            <h5>@ViewBag.EntityState Add City</h5>
+            <span class="label label-success pull-right status"></span>
+        </div>*@
+        <div class="ibox-content">
+            <form class="form-horizontal" method="post" id="appCity" asp-action="Submit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            <label asp-for="Id" class="col-lg-1 control-label">Country</label>
+                            <div class="col-lg-4">
+                                <select asp-for="Id" asp-items="@(new SelectList(ViewBag.CountryList,"Id","Name"))" autofocus class="form-control" data-validation="required" onchange="loadCities(this);">
+                                    <option value="" selected disabled>Please select</option>
+                                </select>
+                                <span asp-validation-for="Id" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div id="jsGrid"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <input type="hidden" name="deletedIds" id="deletedIds" />
+                        <input type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="AppCity" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        $(document).ready(function () {
+            //change selectboxes to selectize mode to be searchable
+            $("select").select2();
+        });
+    </script>
+    <script>
+        function loadCities(item) {
+            var countryId = item.value;
+            $("input[name=deletedIds]").val('');
+
+
+            $("#jsGrid").jsGrid({
+                width: "100%",
+                height: "auto",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: true,
+                inserting: true,
+                deleteConfirm: "Do you really want to delete?",
+                pageButtonCount: 10,
+                controller: {
+                    loadData: function () {
+                        var d = $.Deferred();
+                        return $.ajax({
+                            url: "/Api/GetCitiesByCountryId/" + countryId,
+                            dataType: "json"
+                        }).done(function (response) {
+                            //console.log("response ==>",response);
+                            d.resolve(response.value);
+                        });
+                        return d.promise();
+                    }
+                },
+                fields: [
+                    { name: "id", type: "text", width: 0, visible: false },
+                    { name: "name", type: "text", title: "Name", validate: "required", width: 100 },                         
+                    { type: "control" }
+                ],
+                onItemDeleted: function (arg) {
+                    var deletedId = $("input[name=deletedIds]").val();
+                    if (deletedId == "")
+                        $("input[name=deletedIds]").val(arg.item.id);
+                    else {
+                        $("input[name=deletedIds]").val(deletedId.concat(",", arg.item.id));
+                    }
+                },
+            });
+
+        }
+    </script>
+
+
+    <script>
+        $("#appCity").submit(function (event) {
+
+            /* stop form from submitting normally */
+            event.preventDefault();
+
+            var data = $("#jsGrid").jsGrid("option", "data");
+            var countryId = $("#Id").val();
+            var deleteIds = $("#deletedIds").val();
+            //debugger;
+            /* get the action attribute from the <form action=""> element */
+            var $form = $(this),
+                url = $form.attr('action');
+
+            /* Send the data using post with element id name and name2*/
+            var posting = $.post(url, { data: JSON.stringify(data), countryId: countryId, deletedIds: deleteIds });
+
+            /* Alerts the results */
+            posting.done(function (data) {
+                toasterMessage(false, "City has been saved");
+            });
+        });
+    </script>
+
+    }

@@ -1,0 +1,231 @@
+﻿@model Numbers.Entity.Models.BkgVehicle
+
+@{
+    ViewData["Title"] = "Cash/Bank Receipt Confirmation";
+    ViewData["CurrentPage"] = "Cash / Bank Receipt Confirmation";
+
+}
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Vehicle Detail</h5>
+    </div>
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="list-group clear-list m-t">
+                    <li class="list-group-item fist-item">
+                        <span class="pull-right">
+                            <h3>   @Html.DisplayFor(model => model.BookingDate)</h3>
+                        </span>
+                        <span class="label label-success">1</span> Booking Date
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.BookingType)
+                        </span>
+                        <span class="label label-info">2</span> Booking Type
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.BankName)
+                        </span>
+                        <span class="label label-primary">3</span> Bank Name
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.ReferenceNo)
+                        </span>
+                        <span class="label label-default">4</span> Reference No
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.Item.Name)
+                        </span>
+                        <span class="label label-primary">5</span> Item Description
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-lg-6">
+                <ul class="list-group clear-list m-t">
+                    <li class="list-group-item fist-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.Customer.CNIC)
+                        </span>
+                        <span class="label label-success">6</span> CNIC
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.Price)
+                        </span>
+                        <span class="label label-default">7</span> Price
+                    </li>
+                    <li class="list-group-item">
+                        <span class="pull-right">
+                            @Html.DisplayFor(model => model.ReceivedAmount)
+                        </span>
+                        <span class="label label-info">8</span> ReceivedAmount
+                    </li>
+
+                </ul>
+            </div>
+            @*<div class="col-lg-6">
+
+            <div class="row">
+                <div class="col-lg-2"><strong>Booking Date</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BookingDate)
+                </div>
+                <div class="col-lg-6"></div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-2"><strong>Booking Type</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BookingType)
+                </div>
+                <div class="col-lg-2"><strong>Bank Name</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BankName)
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-2"><strong>Reference No</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.ReferenceNo)
+                </div>
+
+                <div class="col-lg-2"><strong>Item Description</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Item.Description)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2"><strong>Customer CNIC</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Customer.CNIC)
+                </div>
+                <div class="col-lg-2"><strong>Price</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Price)
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-6"></div>
+
+                <div class="col-lg-2"><strong>ReceivedAmount</strong></div>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.ReceivedAmount)
+                </div>
+
+            </div>
+        </div>*@
+        </div>
+    </div>
+
+</div>
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Cash/Bank Receipt Confirmation</h5>
+
+    </div>
+    <div class="ibox-content ibox-content-1">
+        <form class="form-horizontal" asp-action="CashOrBankReceiptConfirmation">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+
+                <label asp-for="CashBankReceiptDate" class="col-lg-2 control-label"></label>
+
+                <div class="col-lg-4">
+                    <div class="form-group" id="data_1">
+                        <div class="input-group date">
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                            <input type="text" class="form-control" asp-for="CashBankReceiptDate">
+                            <span asp-validation-for="CashBankReceiptDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="BankCashAccountId" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    <select class="chosen-select" asp-for="BankCashAccountId">
+                        <option selected="selected">Select...</option>
+                    </select>
+                    BankAccountId
+                </div>
+
+
+            </div>
+
+
+
+            <div class="form-group" hidden="hidden">
+                <input asp-for="BookingNo" />
+                <input asp-for="CompanyId" />
+                <input asp-for="CreatedBy" />
+                <input asp-for="CreatedDate" />
+                <input asp-for="Status" />
+            </div>
+            <div class="form-group">
+                <div class="col-lg-4 col-lg-offset-2">
+                    <input type="submit" value="Cancel" class="btn btn-white" asp-action="CashOrBankReceiptConfirmationList" />
+                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary" />
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section customJS{
+    <script>
+        
+
+    $(function () {
+        $('#BankAccountId').select2({
+            ajax: {
+                url: '/GL/ChartofAccount/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a Cash Bank Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.BankCashAccountId;
+        var GLAccountIdSelect = $('#BankAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/ChartofAccount/Get?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLAccountIdSelect.append(option).trigger('change');
+            GLAccountIdSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+
+
+    </script>
+}

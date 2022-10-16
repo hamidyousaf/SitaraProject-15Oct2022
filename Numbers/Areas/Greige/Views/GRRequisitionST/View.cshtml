@@ -1,0 +1,606 @@
+﻿@model Numbers.Entity.ViewModels.VMGriegeRequisitionST
+
+@{
+    ViewData["Title"] = "Create Greige Requisition";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5> Greige Quality</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return validation();" asp-controller="GRRequisitionST" asp-action="Create">
+                    <div class="row">
+                        <input hidden asp-for="GriegeRequisition.Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans #</label>
+                                @if (Model.GriegeRequisition.TransactionNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="GriegeRequisition.TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Request</label>
+                                <input  type="text" class="form-control" asp-for="GriegeRequisition.UserName" readonly />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="GriegeRequisition.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Order Ref#</label>
+                                <input readonly type="text" asp-for="GriegeRequisition.OrderRef" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Department</label>
+                                <select readonly asp-for="GriegeRequisition.DepartmentId" class="chosen-select form-control" asp-items="@ViewBag.Department" id="DepartmentId">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Sub Department</label>
+                                <select readonly asp-for="GriegeRequisition.SubDepartmentId" class="chosen-select form-control" asp-items="@ViewBag.SubDepartment" id="SubDepartmentId">
+                                </select>
+                                @*<input type="text" id="WeavingContractNo" asp-for="grFolding.WeavingContractNo" class="form-control text-right" readonly tabindex="-1" />*@
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label"  readonly>Greige Quality</label>
+                                <select onchange="getQualityData();" class="chosen-select form-control" asp-items="@ViewBag.Quality" id="QualityId">
+                                    <option value="0">Please select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <div class="input-group">
+                                    <input readonly type="file" name="Attachment" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Remarks</label>
+                                <input readonly type="text" asp-for="GriegeRequisition.Remarks" class="form-control" />
+                            </div>
+                        </div>
+                      
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="form-group">
+                                <label class="strong" style="font-size:20px;">Greige Requisition Detail</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th hidden>Requisition Id</th>
+
+                                                <th style="width:31%;" class="searchHeader">Greige Quality</th>
+                                                <th style="width:8%;" class="searchHeader">UOM</th>
+                                                <th style="width:10%;" class="searchHeader">Avlbl Stock</th>
+
+                                                <th style="width:12%;" class="searchHeader">Qty</th>
+
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.GRGriegeRequisitionDetailsList != null)
+                                            {
+                                                @for (int i = 0; i < Model.GRGriegeRequisitionDetailsList.Count; i++)
+                                                {
+
+                                                    <tr class="removed">
+                                                        <td hidden><input class="DetailId" name='id' asp-for="GRGriegeRequisitionDetailsList[i].Id" value='@Model.GRGriegeRequisitionDetailsList[i].Id' type='hidden' /></td>
+                                                        <td hidden><input name='GRRequisitionId' asp-for="GRGriegeRequisitionDetailsList[i].GRRequisitionIdST" value='@Model.GRGriegeRequisitionDetailsList[i].GRRequisitionIdST' type='hidden' /></td>
+
+                                                        <td hidden><input readonly class='form-control text-right recQty ' name='specificationId' asp-for="GRGriegeRequisitionDetailsList[i].GriegeQualityId" value='@Model.GRGriegeRequisitionDetailsList[i].GriegeQualityId' /></td>
+                                                        <td><input readonly class='form-control text-left recQty ' name='receivedQuantity' asp-for="GRGriegeRequisitionDetailsList[i].GRQuality" value='@Model.GRGriegeRequisitionDetailsList[i].GRQuality' /></td>
+                                                        <td hidden><input readonly class='form-control text-right  freshQty' name='unitId' asp-for="GRGriegeRequisitionDetailsList[i].UOMId" value='@Model.GRGriegeRequisitionDetailsList[i].UOMId' /></td>
+
+                                                        <td><input readonly class='form-control text-center  ' name='freshQuantity' asp-for="GRGriegeRequisitionDetailsList[i].UOMName" value='@Model.GRGriegeRequisitionDetailsList[i].UOMName' /></td>
+                                                        <td><input readonly class='form-control text-right  availableStock' type="number" min="0" name='availableStock' asp-for="GRGriegeRequisitionDetailsList[i].AvailableStock" value='@Model.GRGriegeRequisitionDetailsList[i].AvailableStock' /></td>
+
+                                                        <td><input readonly class='form-control text-right  qty' name='qty' asp-for="GRGriegeRequisitionDetailsList[i].Qty" value='@Model.GRGriegeRequisitionDetailsList[i].Qty' /></td>
+
+                                                      
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                        @*<tfoot id="myfoot">
+                                                <tr style='font-weight: bold'>
+
+                                                    <td style="text-align: right;">Total:</td>
+                                                    <td class='text-right '>0.00</td>
+                                                    <td class='text-right '>0.00</td>
+                                                    <td class='text-right'>0.00</td>
+                                                    <td class='text-right'>0.00</td>
+                                                    <td class='text-right'>0.00</td>
+
+                                                </tr>
+                                            </tfoot>*@
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    @*<input hidden id="recty" asp-for="grFolding.RecQty" />
+                        <input hidden id="medty" asp-for="grFolding.MendQty" />
+                        <input hidden id="folty" asp-for="grFolding.FoldQty" />
+                        <input hidden id="glqty" asp-for="grFolding.GainLossQty" />
+                        <input hidden id="Actty" asp-for="grFolding.ActQty" />*@
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="GRRequisitionST" asp-action="Index" class="btn btn-white">List</a>
+                            @*<button class="btn btn-primary" type="submit" id="btnSave">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />*@
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            GetRowFooter();
+            $("#hideselect").hide();
+            $("#VendorId").select2();
+
+
+            $("#PurchaseGRQualityId").select2();
+            $("#ContractGRQualityId").select2();
+            $("#WeavingContractNo").select2();
+            $("#PurchaseContractNo").select2();
+            $("#MendingId").select2();
+            //On change Customer
+            debugger;
+            getFoldingById();
+            if (@Model.GriegeRequisition.Id == 0) {
+               // getApprovedSeasonalPlannningData();
+
+            }
+
+        });
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function getQualityData() {
+            var QualityId = $('#QualityId').val();
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/GRRequisitionST/GetSPData",
+                    data: { QualityId: QualityId }
+                }).done(function (data) {
+                    debugger
+                    $('#Table tbody tr').remove();
+                    $.each(data, function (i, item) {
+                         var row = "<tr >" +
+
+                             "<td hidden > <input value=" + item.specificationId + " name='specificationId' id='customerId' class='form-control text-right specificationId '  readonly /></td>" +
+                             "<td > <input value='" + item.specification + "' name='specification' id='customerId' class='form-control text-left specification '  readonly /></td>" +
+                             "<td hidden > <input value=" + item.unitId + " name='unitId' id='freshQty' class='form-control text-right  unitId'  readonly /></td>" +
+                             "<td > <input value=" + item.uom + " name='uom' id='freshQty' class='form-control text-center  uom'  readonly /></td>" +
+                             "<td > <input value=" + item.availableStock + " name='availableStock' type='number' min='0' class='form-control text-right availableStock' readonly onchange='Calgain($(this));'  id='foldQty'   /></td>" +
+
+                             "<td > <input value=" + item.qty + " name='qty' id='qty' class='form-control text-right qty'  /></td>" +
+
+                            "<td class='text-center'><a id='delrow' onclick='deleterow($(this));' style='margin - top: 0px' class='btn btn-xs btn-danger m-t-n-xs'> <i id='delrow' onclick='deleterow($(this));' class='fa fa-trash' title='Delete'></i> </a> </td>" +
+
+                             "</tr>"
+                         $('#Table tbody').append(row);
+                        // GetRowFooter();
+                    });
+                    // GetRowFooter();
+                });
+        }
+
+
+        function Calgain(row) {
+            debugger
+            var DetailId = $(row).closest("tr").find(".DetailId").val();
+
+            var availableStock = $(row).closest("tr").find(".availableStock").val();
+            var reserveQty = $(row).closest("tr").find(".reserveQty").val();
+            var seasonalFabricCons = 0;//$(row).closest("tr").find(".seasonalFabricCons").val();
+            var WeftBagWOQ = 0;//$(row).closest("tr").find(".WeftBagWOQ").val();
+            var WarpBagWOQ = 0;///$(row).closest("tr").find(".WarpBagWOQ").val();
+            var seasonalFabricCons2 = 0; //$(row).closest("tr").find(".qty").val();
+
+
+            debugger;
+
+            if (Number(reserveQty) > Number(availableStock)) {
+                $(row).closest("tr").find(".reserveQty").val(0);
+                swal("", "Reserve Qty Connot by Greate then Available Stock", "warning");
+                return false;
+            }
+
+
+            $.ajax({
+                type: "GET",
+                url: "/Greige/GRRequisition/GetGreigeReqData",
+                data: { Id: DetailId }
+
+            }).done(function (data) {
+                debugger;
+                availableStock  = Number(data[0].avlblQty);
+                WeftBagWOQ  = Number(data[0].weftbag);
+                WarpBagWOQ = Number(data[0].warpbag);
+                seasonalFabricCons2 = Number(data[0].seasonalFabricCons);
+
+
+                var QtyQty = seasonalFabricCons2 - reserveQty;
+                var qtyaval = availableStock - reserveQty;
+                var qtyWeft = Number(WeftBagWOQ * QtyQty / 100).toFixed(2);
+                var qtyWarp = Number(WarpBagWOQ * QtyQty / 100).toFixed(2);
+                $(row).closest("tr").find(".qty").val(QtyQty);
+                $(row).closest("tr").find(".availableStock").val(qtyaval);
+                $(row).closest("tr").find(".warpbag").val(qtyWarp);
+                $(row).closest("tr").find(".weftbag").val(qtyWeft);
+            });
+
+
+
+
+            //var availableStock = $(row).closest("tr").find(".availableStock").val();
+            //var reserveQty = $(row).closest("tr").find(".reserveQty").val();
+            //var seasonalFabricCons = $(row).closest("tr").find(".seasonalFabricCons").val();
+            //var WeftBagWOQ = $(row).closest("tr").find(".WeftBagWOQ").val();
+            //var WarpBagWOQ = $(row).closest("tr").find(".WarpBagWOQ").val();
+            //var seasonalFabricCons2 = $(row).closest("tr").find(".qty").val();
+            debugger;
+
+            //if (Number(reserveQty) > Number(availableStock)) {
+            //   // $(row).closest("tr").find(".reserveQty").val(0);
+            //    swal("", "Reserve Qty Connot by Greate then Available Stock", "warning");
+            //    return false;
+            //}
+
+            //var QtyQty = seasonalFabricCons2 - reserveQty;
+            //var qtyaval = availableStock - reserveQty;
+            //var qtyWeft = Number(WeftBagWOQ * QtyQty / 100).toFixed(2);
+            //var qtyWarp = Number(WarpBagWOQ * QtyQty / 100).toFixed(2);
+            //$(row).closest("tr").find(".qty").val(QtyQty);
+            //$(row).closest("tr").find(".availableStock").val(qtyaval);
+            //$(row).closest("tr").find(".warpbag").val(qtyWarp);
+            //$(row).closest("tr").find(".weftbag").val(qtyWeft);
+
+
+        }
+
+
+        function getFoldingById() {
+            debugger;
+            var MendId = $('#MendingId').val();
+            if (MendId != 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Folding/GetMendingData",
+                    data: { Id: MendId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        debugger;
+                        $('#GreigeQualityIdD').val(data.grWeavingContracts.greigeQualityDesc);
+                        $('#LoomQualityIdD').val(data.grWeavingContracts.loomQualityDesc);
+                        $('#GreigeQualityId').val(data.grWeavingContracts.contractQualityId);
+                        $('#LoomQualityId').val(data.grWeavingContracts.loomQualityId);
+                        //$('#FreshQty').val(data.grWeavingContracts.receivedQuantity);
+                        $('#LotNo').val(data.grWeavingContracts.lotNo);
+                        if (data.purchaseContract.length != 0) {
+                            $('#PurchaseContractNo').find('option').remove();
+                            $('#WeavingContractNo').find('option').remove();
+                            $.each(data.purchaseContract, function (i, item) {
+                                debugger;
+                                $('#PurchaseContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+                        if (data.weavingContract.length != 0) {
+                            $('#WeavingContractNo').find('option').remove();
+                            $('#PurchaseContractNo').find('option').remove();
+                            $('#WeavingContractNo').not(':first').remove();
+                            $.each(data.weavingContract, function (i, item) {
+                                debugger
+                                $('#WeavingContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+
+
+                    }
+
+                });
+                GetRowFooter();
+            } else {
+                $('#PurchaseContractNo').val(0).trigger('change.select2');
+                $('#WeavingContractNo').val(0).trigger('change.select2');
+                $('#GreigeQualityIdD').val("");
+                $('#LoomQualityIdD').val("");
+                $('#GreigeQualityId').val("");
+                $('#LoomQualityId').val("");
+                $('#FreshQty').val(0);
+                $('#FreshQty').val(0);
+                $('#LotNo').val("");
+                $('#Table tbody tr').remove();
+            }
+
+            return false;
+        }
+
+        $('#SPID').on('change', function () {
+            debugger
+            clearTaxBox();
+            var SPID = $('#SPID').val();
+            if (SPID != 0) {
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/GRRequisition/GetSPData",
+                    data: { Id: MendId }
+                }).done(function (data) {
+                    debugger
+                    $('#Table tbody tr').remove();
+                    $.each(data, function (i, item) {
+
+                        var row = "<tr >" +
+                            "<td > <input type='text' value=" + item.srNo + " name='srNo'  class='form-control text-right customerName '  readonly /></td>" +
+                            "<td > <input value=" + item.receivedQuantity + " name='receivedQuantity' id='customerId' class='form-control text-right recQty '  readonly /></td>" +
+                            "<td > <input value=" + item.freshQuantity + " name='freshQuantity' id='freshQty' class='form-control text-right  freshQty'  readonly /></td>" +
+                            "<td > <input value=" + 0 + " name='foldQty' type='number' min='0' class='form-control text-right foldQty' onchange='Calgain($(this));'  id='foldQty'   /></td>" +
+                            "<td > <input value=" + 0 + " name='gainLossQty' id='gainLossQty'  class='form-control text-right gainLossQty ' readonly /></td>" +
+                            "<td > <input value=" + 0 + " name='ActualFoldQty' id='ActualFoldQty' class='form-control text-right ActualFoldQty' readonly /></td>" +
+                            "<td hidden > <input value=" + 0 + " name='Id' class='form-control text-right '  /></td>" +
+                            "</tr>"
+                        $('#Table tbody').append(row);
+                       // GetRowFooter();
+                    });
+                   // GetRowFooter();
+                });
+
+            } else {
+                $('#PurchaseContractNo').val(0).trigger('change.select2');
+                $('#WeavingContractNo').val(0).trigger('change.select2');
+                $('#GreigeQualityIdD').val("");
+                $('#LoomQualityIdD').val("");
+                $('#GreigeQualityId').val("");
+                $('#LoomQualityId').val("");
+                $('#FreshQty').val(0);
+                $('#FreshQty').val(0);
+                $('#LotNo').val("");
+                $('#Table tbody tr').remove();
+            }
+
+            return false;
+        });
+
+
+        function GetRowFooter() {
+            debugger
+            var TotalRcvQty = 0;
+            var TotalFrQty = 0;
+            var TotalFolQty = 0;
+            var TotalGLQty = 0;
+            var TotalActQty = 0;
+            var check = false;
+
+
+            $.each($("#Table tbody tr"), function () {
+                debugger;
+                var qty1 = Number($(this).find(".recQty").val());
+                TotalRcvQty = TotalRcvQty + qty1;
+
+
+                var qty2 = Number($(this).find(".freshQty").val());
+                TotalFrQty = TotalFrQty + qty2;
+
+
+                var qty3 = Number($(this).find(".foldQty").val());
+                TotalFolQty = TotalFolQty + qty3;
+
+
+                var qty4 = Number($(this).find(".gainLossQty").val());
+                TotalGLQty = TotalGLQty + qty4;
+
+
+                var qty5 = Number($(this).find(".ActualFoldQty").val());
+                TotalActQty = TotalActQty + qty5;
+
+
+
+            });
+
+            $("#Actty").val(TotalActQty);
+            $("#glqty").val(TotalGLQty);
+            $("#folty").val(TotalFolQty);
+            $("#medty").val(TotalFrQty);
+            $("#recty").val(TotalRcvQty);
+            $("#FreshQty").val(TotalFrQty);
+
+            if (check == true) {
+                return false;
+            }
+
+            //$('#TotalQty').val(TotalQty);
+
+
+            $.each($("#Table tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row;
+                row = "<tr style='font-weight: bold'>" +
+
+                    "<td style'text-aligin: right;'>Total:</td> " +
+                    "<td class='text-right TotalRcvQty' name='TotalRcvQty'>" + Number(TotalRcvQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFrQty' name='TotalFrQty'>" + Number(TotalFrQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFolQty' name='TotalFolQty'>" + Number(TotalFolQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalGLQty' name='TotalGLQty'>" + Number(TotalGLQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalActQty' name='TotalActQty'>" + Number(TotalActQty).toFixed(2) + "</td> " +
+                "</tr>"
+
+                $("#Table tfoot").append(row);
+            });
+
+        }
+
+
+        function calculateAmount() {
+            debugger
+            var rate =  Number($("#RatePerMeter").val());
+            var quantity = Number($("#ContractQuantity").val());
+            var amountExTax = rate * quantity;
+            $("#ExSalesTaxAmount").val(amountExTax);
+
+            var taxAmount = (amountExTax * 17) / 100;
+            $("#SalesTax").val(taxAmount);
+
+            var amountInTax = amountExTax + taxAmount;
+            $("#InSalesTaxAmount").val(amountInTax);
+        }
+        function clearTaxBox() {
+            $("#RatePerMeter").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#SalesTax").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#InSalesTaxAmount").val(0);
+        }
+        function validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var vendorId = $("#VendorId").find(":selected").val();
+            var qualityId = $("#PurchaseGRQualityId").find(":selected").val();
+            var contractQualityId = $("#ContractGRQualityId").find(":selected").val();
+
+            if (vendorId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Vendor!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#VendorId').focus();
+                });
+                return false;
+            } else if (qualityId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Purchase Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#PurchaseGRQualityId').focus();
+                });
+                return false;
+            } else if (contractQualityId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Contract Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractGRQualityId').focus();
+                });
+                return false;
+            }
+            $("#btnSave").attr("disabled", true)
+            $("#btnSave").text("Saving...")
+            return true;
+        }
+
+
+
+
+
+
+
+    </script>
+}

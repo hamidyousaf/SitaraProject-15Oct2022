@@ -1,0 +1,861 @@
+﻿@model Numbers.Entity.ViewModels.GRGRNViewModel
+
+@{
+    ViewData["Title"] = "Detail Greige Good Receipt Note";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+@section customCSS{ 
+<style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5> Greige Quality</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return OnSubmit();" asp-controller="GRN" asp-action="Create">
+                    <div class="row">
+                        <input hidden asp-for="GRGRN.Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRGRN.TransactionNo"></label>
+                                @if (Model.GRGRN.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" asp-for="GRGRN.TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label asp-for="GRGRN.TransactionDate"></label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="GRGRN.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label" asp-for="GRGRN.FoldingId"></label>
+                                    <select readonly disabled asp-items="@Model.FeederLov" asp-for="GRGRN.FoldingId" name="GRGRN.FoldingId" class="chosen-select form-control" id="FoldingId">
+                                        <option value="0">Please select</option>
+                                    </select>
+                                </div>
+                            </div>
+                    
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRGRN.WeavingContractId"></label>
+                                <select readonly disabled asp-for="GRGRN.WeavingContractId" class="chosen-select form-control" id="WeavingContractId" asp-items="@Model.WeavingContractLOV">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRGRN.PurchaseContractId"></label>
+                                <select readonly disabled asp-for="GRGRN.PurchaseContractId" class="chosen-select form-control" id="PurchaseContractId" asp-items="@Model.PurchaseContractLOV">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Vendor</label>
+                                <input type="text" asp-for="GRGRN.VendorId" tabindex="-1" id="VendorId" hidden readonly class="form-control text-left hidden" />
+                                <input readonly type="text" asp-for="GRGRN.VendorName" tabindex="-1" id="VendorName" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRGRN.ContractRate"></label>
+                                <input readonly asp-for="GRGRN.ContractRate" type="text" class="form-control text-left" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Greige Quality </h4>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Contract Greige Quality</label>
+                                <input readonly type="text" asp-for="GRGRN.GreigeContractQuality" tabindex="-1" id="GreigeQualityId" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">On Loom Greige Quality</label>
+                                <input readonly type="text" asp-for="GRGRN.GreigeContractQualityLoom" tabindex="-1" id="LoomQualityId" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Greige Information</h4>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label">Ends</label>
+                                <input type="number" readonly asp-for="GRGRN.End" min="0" step="1" id="End" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label class="control-label">Picks</label>
+                                <input type="number" readonly asp-for="GRGRN.Picks" min="0" step="1" id="Picks" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Width</label>
+                                <input type="number" readonly asp-for="GRGRN.Width" min="0" step="1" id="Width" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Woven Pieces</label>
+                                <input type="number" readonly asp-for="GRGRN.WovenPieces" min="0" step="1" id="WomenPieces" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Woven Qty</label>
+                                <input type="number" readonly asp-for="GRGRN.WovenQty" min="0" step="1" id="WovenQty" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Mended Pieces</label>
+                                <input type="number" readonly asp-for="GRGRN.MendedPieces" min="0" step="1" id="MendedPieces" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Mended Qty</label>
+                                <input type="number"readonly asp-for="GRGRN.MendedQty" min="0" step="1" id="MendedQty" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Folded Pieces</label>
+                                <input type="number" readonly asp-for="GRGRN.FoldedPieces" min="0" step="1" id="FoldedPieces" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Folded Qty</label>
+                                <input type="number" readonly asp-for="GRGRN.FoldedQty" min="0" step="1" id="FoldedQty" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Rejected Qty</label>
+                                <input type="number" readonly asp-for="GRGRN.RejectedQty" min="0" step="1" id="RejectedQty" class="form-control text-right" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Penalty</h4>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label"> Penalty</label>
+                                <select readonly disabled class="chosen-select form-control" id="PenaltyId" asp-items="@Model.Penalty">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Penalty Rate</label>
+                                <input readonly type="number" min="0" step="1" id="Rate" onchange="CalculateAmount();" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Quantity</label>
+                                <input readonly type="number" min="0" step="1" id="Qty" onchange="CalculateAmount();" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Amount</label>
+                                <input  type="number" min="0" step="1" id="Amount" readonly class="form-control text-right" />
+                            </div>
+                        </div>
+                       
+
+                        <div class="col-lg-12 col-sm-12">
+                            <div class="container-fluid table-responsive">
+                                <table id="table" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th>Penalty</th>
+                                            <th>Penalty Rate</th>
+                                            <th>Quantity</th>
+                                            <th>Amount</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.GRGRNItem != null)
+                                        {
+                                            @for (int i = 0; i < Model.GRGRNItem.Length; i++)
+                                            {
+
+                                                <tr class="removed">
+                                                    <td hidden class="Id">@Model.GRGRNItem[i].Id</td>
+                                                    <td hidden class="SrNo">@Model.GRGRNItem[i].PenaltyId</td>
+                                                    <td class="PenaltyName text-center">@Model.GRGRNItem[i].Penalty.ConfigValue</td>
+                                                    <td class="Revieved text-right ">@Model.GRGRNItem[i].PenaltyRate</td>
+                                                    <td class="Measure text-right">@Model.GRGRNItem[i].Quantity</td>
+                                                    <td class="Actual text-right">@Model.GRGRNItem[i].Amount</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style='font-weight: bold'>
+                                            <td class='text-right'>Total:</td>
+                                            <td class='text-right TotalReceived'>0</td>
+                                            <td class='text-right TotalMeasure'>0</td>
+                                            <td class='text-right TotalActual'>0</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-------------------------------Stacking Area---------------------------------------->
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h4 style="font-weight:bold;">Stacking</h4>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label"> WareHouse</label>
+                                <select readonly disabled class="chosen-select form-control" id="WareHouseId" asp-items="@Model.WareHouse">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label"> Location</label>
+                                <select readonly disabled class="chosen-select form-control" id="LocationId" asp-items="@Model.Location">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Quantity</label>
+                                <input readonly type="number" min="0" step="1" id="Qty2" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">BalQty</label>
+                                <input readonly type="number" min="0" step="1" id="balQty2" class="form-control text-right" />
+                            </div>
+                        </div>
+                      
+
+                        <div class="col-lg-12 col-sm-12">
+                            <div class="container-fluid table-responsive">
+                                <table id="tableSt" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th>WareHouse</th>
+                                            <th>Location</th>
+                                            <th>Quantity</th>
+                                            <th>Bal Qty</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.GRStackingItem != null)
+                                        {
+                                            @for (int i = 0; i < Model.GRStackingItem.Length; i++)
+                                            {
+
+                                                <tr class="removed">
+                                                    <td hidden class="Id">@Model.GRStackingItem[i].Id</td>
+                                                    <td hidden class="WareHouseId">@Model.GRStackingItem[i].WareHouseId</td>
+                                                    <td class="PenaltyName text-center">@Model.GRStackingItem[i].WareHouse.ConfigValue</td>
+                                                    <td hidden class="LocationId text-right ">@Model.GRStackingItem[i].LocationId</td>
+                                                    <td class="LocationName text-center ">@Model.GRStackingItem[i].Location.ConfigValue</td>
+                                                    <td class="Qty2 text-right">@Model.GRStackingItem[i].Quantity</td>
+                                                    <td class="BalQty2 text-right">@Model.GRStackingItem[i].BalQty</td>
+                                                    <td class="text-center"><a class="btn btn-danger"><i class="fas fa-trash remove-row"></i></a></td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style='font-weight: bold'>
+                                            <td></td>
+                                            <td class='text-right'>Total:</td>
+                                            <td class='text-right TotalMeasure'>0</td>
+                                            <td class='text-right TotalActual'>0</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!----------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="GRN" asp-action="Index" class="btn btn-warning">List</a>
+                           
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                    <input hidden id="itemStack" name="itemStack" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+<script>
+    $(document).ready(function () {
+        $("#WeavingContractId").select2();
+        $("#PurchaseContractId").select2();
+        //$("#GreigeQualityId").select2();
+        //$("#LoomQualityId").select2();
+        //$("#VendorId").select2();
+        //Get Weaving Contract
+        $("#WeavingContractId").change();
+        //Get Purchase Contract
+        $("#PurchaseContractId").change();
+        RowCalculation();
+        RowCalculation2();
+        $("#FoldingId").change();
+    });
+    $("#WeavingContractId").change(function () {
+        getWeavingContract();
+    });
+                $("#PurchaseContractId").change(function () {
+                    getPurchaseContract()
+                });
+    function getWeavingContract() {
+        debugger
+        $('#Address').val("");
+        $('#GreigeQualityId').val("");
+        $('#LoomQualityId').val("");
+        $('#Quantity').val("");
+        $('#BalanceQuantity').val("");
+        $('#PurchaseContractId').val(0).trigger('change.select2');
+        var weavingContractId = $('#WeavingContractId').val();
+        $.ajax({
+            type: "GET",
+            url: "/Greige/GRN/GetWeavingContract",
+            data: { Id: weavingContractId }
+        }).done(function (data) {
+            debugger
+            if (data != null) {
+                $('#VendorId').val(data.vendor.id == "" ? "Not Define" : data.vendor.id);
+                $('#VendorName').val(data.vendor.name == "" ? "Not Define" : data.vendor.name);
+                $('#GreigeQualityId').val(data.greigeQuality.description);
+                $('#LoomQualityId').val(data.greigeQualityLoom.description);
+                $('#Quantity').val(data.contractQty);
+                $('#BalanceQuantity').val(data.contractQty);
+                $('#CheckBalanceQuantity').val(data.contractQty);
+                $('#End').val(data.greigeQualityLoom.grConstruction.reed);
+                $('#Picks').val(data.greigeQualityLoom.grConstruction.pick);
+                $('#Width').val(data.greigeQualityLoom.width);
+                return false;
+            } else {
+                $('#Address').val("Non Avaiable");
+                return false;
+            }
+        });
+    }
+                function getPurchaseContract() {
+                    debugger
+                    $('#Address').val("");
+                    $('#GreigeQualityId').val("");
+                    $('#LoomQualityId').val("");
+                    $('#Quantity').val("");
+                    $('#BalanceQuantity').val("");
+                    $('#WeavingContractId').val(0).trigger('change.select2');
+                    var purchaseContractId = $('#PurchaseContractId').val();
+                    $.ajax({
+                        type: "GET",
+                        url: "/Greige/GRN/GetPurchaseContract",
+                        data: { Id: purchaseContractId }
+                    }).done(function (data) {
+                        debugger
+                        if (data != null) {
+                            $('#VendorId').val(data.vendor.id == "" ? "Not Define" : data.vendor.id);
+                            $('#VendorName').val(data.vendor.name == "" ? "Not Define" : data.vendor.name);
+                            $('#GreigeQualityId').val(data.contractGRQuality.description);
+                            $('#LoomQualityId').val(data.purchaseGRQuality.description);
+                            $('#Quantity').val(data.contractQuantity);
+                            $('#BalanceQuantity').val(data.contractQuantity);
+                            $('#CheckBalanceQuantity').val(data.contractQuantity);
+                            $('#End').val(data.contractGRQuality.grConstruction.pick);
+                            $('#Picks').val(data.contractGRQuality.grConstruction.pick);
+                            $('#Width').val(data.contractGRQuality.width);
+                            return false;
+                        } else {
+                            $('#Address').val("Non Avaiable");
+                            return false;
+                        }
+                    });
+                };
+    //$("#FoldingId").change(function () {
+    //    debugger
+ 
+    //    var foldingId = $('#FoldingId').val();
+    //    $.ajax({
+    //        type: "GET",
+    //        url: "/Greige/GRN/GetFolding",
+    //        data: { Id: foldingId }
+    //    }).done(function (data) {
+    //        debugger
+    //        if (data != null) {
+    //            $('#WomenPieces').val(data.data.wovenPieces);
+    //            $('#WovenQty').val(data.data.wovenQty);
+    //            $('#MendedPieces').val(data.data.mendingPieces);
+    //            $('#MendedQty').val(data.data.mendingQuantity);
+    //            $('#FoldedPieces').val(data.data.foldPieces);
+    //            $('#FoldedQty').val(data.data.foldQty);
+    //            $('#RejectedQty').val(data.data.totalRejectedQuantity);
+    //            if (data.purchaseContract.length != 0) {
+    //                $('#PurchaseContractId').find('option').remove();
+    //                $('#WeavingContractId').find('option').remove();
+    //                $.each(data.purchaseContract, function (i, item) {
+    //                    debugger;
+    //                    $('#PurchaseContractId').append($('<option>', {
+
+    //                        value: item.value,
+    //                        text: item.text
+    //                    }));
+    //                });
+    //                getPurchaseContract();
+    //                return true;
+    //            }
+    //            if (data.weavingContract.length != 0) {
+    //                $('#WeavingContractId').find('option').remove();
+    //                $('#PurchaseContractId').find('option').remove();
+    //                $.each(data.weavingContract, function (i, item) {
+    //                    debugger
+    //                    $('#WeavingContractId').append($('<option>', {
+
+    //                        value: item.value,
+    //                        text: item.text
+    //                    }));
+    //                });
+    //                getWeavingContract();
+    //                //return true;
+    //            }
+    //            return true;
+    //        } else {
+    //            $('#Address').val("Non Avaiable");
+    //            return false;
+    //        }
+    //    });
+    //});
+
+    //On change Greige Quality on Loom
+    $('#GreigeQualityLoomId').on('change', function () {
+        debugger
+        var vendorId = $('#GreigeQualityLoomId').val();
+        $.ajax({
+            type: "GET",
+            url: "/Greige/Api/GetGreigeConstruction",
+            data: { qualityId: vendorId }
+        }).done(function (data) {
+            debugger
+            if (data.grConstruction != null) {
+                debugger;
+                $('#Picks').val(data.grConstruction.pick);
+                $('#Reed').val(data.grConstruction.reed);
+                $('#Width').val(data.width);
+                $('#Weft').val(data.grConstruction.weft.name);
+                $('#Warp').val(data.grConstruction.warp.name);
+                $('#WarpCount').val(data.grConstruction.warp.name.substring(0, data.grConstruction.warp.name.indexOf("-")));
+                $('#WeftCount').val(data.grConstruction.weft.name.substring(0, data.grConstruction.weft.name.indexOf("-")));
+                weftWeight();
+                warpWeight();
+            }
+        });
+
+    })
+
+    function addRow() {
+        debugger;
+
+        var penaltyId = $("#PenaltyId").find(":selected").val();
+        var penaltyName = $("#PenaltyId").find(":selected").text();
+        var rate = Number($("#Rate").val());
+        var qty = Number($("#Qty").val());
+     
+        if (penaltyId == 0 && penaltyId == 0) {
+            swal({
+                icon: "warning",
+                text: "Please select penalty!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#PenaltyId").focus();
+            });
+            return false;
+        }
+
+        var srNo = penaltyId;
+        if (rate == 0 || rate == "") {
+            swal({
+                icon: "warning",
+                text: "Please enter rate!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#Rate").focus();
+            });
+            return false;
+        }
+        if (qty == 0 || qty == "") {
+            swal({
+                icon: "warning",
+                text: "Please enter quantity!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#Qty").focus();
+            });
+            return false;
+        }
+
+        var length = $("#table > tbody > tr").length;
+        if (length != 0) {
+            debugger
+            var sr = Number($('#table > tbody > tr:last').find(".SrNo").text());
+            srNo = srNo + sr;
+        }
+
+        var amount = rate * qty;
+        
+
+        data = '';
+        data += '<tr>';
+        data += '<td hidden class ="Id">0</td>';
+        data += '<td hidden class ="SrNo text-center">' + penaltyId +'</td>';
+        data += '<td class ="PenaltyName text-center">' + penaltyName +'</td>';
+        data += '<td class ="Revieved text-right">' + rate +'</td>';
+        data += '<td class ="Measure text-right">' + qty + '</td>';
+        data += '<td class ="Actual text-right">' + amount+'</td>';
+        data += '<td class="text-center">';
+        data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+        data += '</tr>';
+        $('#table tbody').append(data);
+
+        clearTextBox();
+        RowCalculation();
+    }
+    function clearTextBox() {
+        $("#Rate").val("");
+        $("#Qty").val("");
+        $("#Amount").val("");
+    }
+
+    function CalculateAmount() {
+
+       var rate = Number( $("#Rate").val());
+        var qty = Number($("#Qty").val());
+        var amount = rate * qty;
+
+            $("#Amount").val(amount);
+    }
+    function RowCalculation() {
+        debugger
+        var received = 0;
+        var measure = 0;
+        var actual = 0;
+        var checkBalanceQuantity = Number($("#CheckBalanceQuantity").val());
+        $('#table > tbody > tr').each(function () {
+            debugger;
+            var TotalReceived = Number($(this).find(".Revieved").text());
+            var TotalMeasure = Number($(this).find(".Measure").text());
+            var TotalActual = Number($(this).find(".Actual").text());
+            received = received + TotalReceived;
+            measure = measure + TotalMeasure;
+            actual = actual + TotalActual;
+        });
+        $('#table > tfoot > tr').find(".TotalReceived").text(received);
+        $('#table > tfoot > tr').find(".TotalMeasure").text(measure);
+        $('#table > tfoot > tr').find(".TotalActual").text(actual);
+        $("#BalanceQuantity").val(checkBalanceQuantity - actual)
+    }
+    function deleterow(row) {
+        debugger
+        var actual = Number(row.closest("tr").find(".Actual").text());
+        var balanceQuantity = Number($("#BalanceQuantity").val());
+        $("#BalanceQuantity").val(balanceQuantity + actual);
+        row.closest("tr").remove();
+        RowCalculation();
+    }
+
+
+    $("#table tbody").on("click", ".remove-row", function () {
+        debugger;
+        $(this).closest("tr").remove();
+        RowCalculation();
+       // GetRowFooter()
+
+    });
+
+
+    function OnSubmit() {
+        debugger;
+        var itemDetails = [];
+        var itemStacking = [];
+        var foldingId = $('#FoldingId').val();
+        var weavingContractId = $('#WeavingContractId').val();
+        var purchaseContractId = $('#PurchaseContractId').val();
+        if (foldingId == null || foldingId == 0) {
+            swal({
+                icon: 'warning',
+                text: "Select Folding # ..!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $('#FoldingId').focus();
+            });
+            return false;
+        }
+        if ((weavingContractId == null || weavingContractId == 0) && (purchaseContractId == null || purchaseContractId == 0) ) {
+            swal({
+                icon: 'warning',
+                text: "Select Weaving/Purchase Contract # ..!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                
+            });
+            return false;
+        }
+        //if (purchaseContractId == null || purchaseContractId == 0) {
+        //    swal({
+        //        icon: 'warning',
+        //        text: "Select Purchase Contract # ..!",
+        //        closeModal: false
+        //    }).then(function () {
+        //        swal.close();
+        //        $('#PurchaseContractId').focus();
+        //    });
+        //    return false;
+        //}
+       
+        $.each($("#table tbody tr"), function () {
+            itemDetails.push({
+                Id: $(this).find('.Id').html(),
+                PenaltyId: $(this).find('.SrNo').html(),
+                PenaltyRate: $(this).find('.Revieved').html(),
+                Quantity: $(this).find('.Measure').html(),
+                Amount: $(this).find('.Actual').html(),
+            });
+
+        });
+
+
+        /////////// Stacking
+        $.each($("#tableSt tbody tr"), function () {
+            itemStacking.push({
+                Id: $(this).find('.Id').html(),
+                WareHouseId: $(this).find('.WareHouseId').html(),
+                LocationId: $(this).find('.LocationId').html(),
+                Quantity: $(this).find('.Qty2').html(),
+                BalQty: $(this).find('.BalQty2').html(),
+            });
+
+        });
+        var model = JSON.stringify(itemStacking);
+        $("#itemStack").val(model);
+        ////////// End Stacking
+
+
+        var model = JSON.stringify(itemDetails);
+        $("#itemDetail").val(model);
+        if (itemDetails.length <= 0) {
+
+            swal({
+                icon: 'warning',
+                text: "Enter At Least One Item!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $('#PenaltyId').focus();
+            });
+            return false;
+        }
+        $("#SaveBtn").attr("disabled", true);
+        $("#SaveBtn").text("Saving...");
+        return true;
+    }
+
+    /////////////////////////// Stacking Table Jquery ////////////////
+    function addRow2() {
+        debugger;
+
+        var penaltyId = $("#WareHouseId").find(":selected").val();
+        var penaltyName = $("#WareHouseId").find(":selected").text();
+        var locationId = $("#LocationId").find(":selected").val();
+        var locationName = $("#LocationId").find(":selected").text();
+        var balQty = Number($("#balQty2").val());
+        var qty = Number($("#Qty2").val());
+        var srNo = penaltyId;
+
+        if (penaltyId == 0 && penaltyId == 0) {
+            swal({
+                icon: "warning",
+                text: "Please select penalty!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#PenaltyId").focus();
+            });
+            return false;
+        }
+        if (locationId == 0 && locationId == 0) {
+            swal({
+                icon: "warning",
+                text: "Please select Location!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#LocationId").focus();
+            });
+            return false;
+        }
+        if (qty == 0 || qty == "") {
+            swal({
+                icon: "warning",
+                text: "Please enter quantity!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $("#Qty").focus();
+            });
+            return false;
+        }
+
+        var length = $("#tableSt > tbody > tr").length;
+        if (length != 0) {
+            debugger
+            var sr = Number($('#tableSt > tbody > tr:last').find(".SrNo").text());
+            srNo = srNo + sr;
+        }
+
+       // var amount = rate * qty;
+
+
+        data = '';
+        data += '<tr>';
+        data += '<td hidden class ="Id">0</td>';
+        data += '<td hidden class ="WareHouseId text-center">' + penaltyId + '</td>';
+        data += '<td class ="WareHoseName text-center">' + penaltyName + '</td>';
+        data += '<td hidden class ="LocationId text-center">' + locationId + '</td>';
+        data += '<td class ="LocationName text-center">' + locationName + '</td>';
+        data += '<td class ="Qty2 text-right">' + qty + '</td>';
+        data += '<td class ="BalQty2 text-right">' + balQty + '</td>';
+        data += '<td class="text-center">';
+        data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow2($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+        data += '</tr>';
+        $('#tableSt tbody').append(data);
+
+        clearTextBox2();
+        RowCalculation2();
+    }
+    function clearTextBox2() {
+        $("#Rate").val("");
+        $("#Qty").val("");
+        $("#Amount").val("");
+    }
+
+    function CalculateAmount2() {
+
+        var rate = Number($("#Rate").val());
+        var qty = Number($("#Qty").val());
+        var amount = rate * qty;
+
+        $("#Amount").val(amount);
+    }
+    function RowCalculation2() {
+        debugger
+ 
+        var measure = 0;
+        var actual = 0;
+         
+        $('#tableSt > tbody > tr').each(function () {
+            debugger;
+          
+            var TotalMeasure = Number($(this).find(".Qty2 ").text());
+            var TotalActual = Number($(this).find(".BalQty2 ").text());
+          
+            measure = measure + TotalMeasure;
+            actual = actual + TotalActual;
+        });
+        $('#tableSt > tfoot > tr').find(".TotalMeasure").text(measure);
+        $('#tableSt > tfoot > tr').find(".TotalActual").text(actual);
+        $("#BalanceQuantity").val(actual)
+    }
+    function deleterow2(row) {
+        debugger
+        var actual = Number(row.closest("tr").find(".Actual").text());
+        var balanceQuantity = Number($("#BalanceQuantity").val());
+        $("#BalanceQuantity").val(balanceQuantity + actual);
+        row.closest("tr").remove();
+        RowCalculation2();
+    }
+
+
+    $("#tableSt tbody").on("click", ".remove-row", function () {
+        debugger;
+        $(this).closest("tr").remove();
+        RowCalculation2();
+        //GetRowFooter2()
+
+    });
+
+</script>
+}

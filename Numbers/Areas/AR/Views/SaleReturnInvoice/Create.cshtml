@@ -1,0 +1,772 @@
+﻿@model SaleReturnInvoiceViewModel
+@{ ViewData["Title"] = "Create Sale Return Invoice Items";
+    ViewData["CurrentPage"] = "Sale Return Invoice Items";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="SaleReturnInvoice" enctype="multipart/form-data" onsubmit="return submitdetails();">
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceNo"></label>
+                            <div class="input-group">
+                                @if (Model.InvoiceNo != 0)
+                                {
+                                    <input asp-for="InvoiceNo" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input value="" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="InvoiceDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.InvoiceDate.ToString(CommonHelper.DateFormat))" readonly />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-sm-3">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input id="address" value="@Model.Address" readonly type="text" tabindex="2" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="PackingId"></label>
+                            <Select id="PackingId" asp-for="PackingId" asp-items="ViewBag.PackingNo" class="form-control">
+                                <option selected  value="0">Select...</option>
+                            </Select>
+                            <p id="packingid"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hidden">
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label>4th Level Category</label>
+                            <Select -for="FourthCategoryId" asp-items="@ViewBag.FourthLevelCategoryLOV" id="FourthCat" class="form-control" data-validation="required" data-validation-error-msg="Category is required" data-validation-error-msg-container="#dCat">
+                                <option value="0" selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="dCat"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label for="OGPQty">Qty</label>
+                            <div class="input-group">
+                                <input id="Qty" min="0" step="1" class="form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hidden">
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label> Item</label>
+                            <Select tabindex="5" id="ItemId" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="Itemid"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label> Reason Type</label>
+                            <Select tabindex="5" id="reasonTypeId" asp-items="@Model.ReasonType" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="reasonTypeId"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label> Return Type</label>
+                            <Select tabindex="5" id="returnTypeId" asp-items="@Model.ReturnType" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="returnTypeId"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label> Season</label>
+                            <Select tabindex="5" id="seasonId" asp-items="@Model.Season" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="seasonId"></p>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-1">
+                        <label class="control-label">  </label>
+                        <div>
+                            <a class="btn btn-primary" onclick="addItem();" style="margin-top:4px">Add</a>
+
+                        </div>
+                    </div>
+                    <div class="spinner-border text-danger"></div>
+                </div>
+                <div class="row">
+                    <div class="table-responsive">
+                        <table id="tblItem" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Item Category</th>
+                                    <th>Item Code & Description</th>
+                                    <th>Qty</th>
+                                    <th>Return Type</th>
+                                    <th>Season</th>
+                                    <th>Reason Type</th>
+                                    <th>Inv. #</th>
+                                    <th hidden>ItemId</th>
+                                    <th>Discount</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.SaleReturnInvoiceItemsList != null)
+                                {
+                                    @foreach (var item in Model.SaleReturnInvoiceItemsList)
+                                    {
+                                        <tr class="removed">
+                                            <td class="Id" hidden>@Html.DisplayFor(modelItem => item.Id)</td>
+
+                                            <td class="fourthItemCategoryId" hidden>@Html.DisplayFor(modelItem => item.FourthItemCategoryId)</td>
+                                            <td class="fourthItemCategoryText">@item.FourthLevel.Code - @item.FourthLevel.Name</td>
+                                            <td class="ItemId" hidden>@Html.DisplayFor(modelItem => item.ItemId)</td>
+                                            <td class="Item"><a id='view' onclick='View(@item.ItemId); ' data-target='#viewModal'>@item.Item.Name</a></td>
+                                            <td class="qty text-right">@Html.DisplayFor(modelItem => item.Qty)</td>
+                                            <td class="returnTypeId" hidden>@Html.DisplayFor(modelItem => item.ReturnTypeId)</td>
+                                            <td class="returnTypeText">@item.ReturnType.ConfigDescription</td>
+                                            <td class="seasonId" hidden>@Html.DisplayFor(modelItem => item.SeasonId)</td>
+                                            <td class="seasonText">@item.Season.ConfigDescription</td>
+                                            <td class="reasonTypeId" hidden>@Html.DisplayFor(modelItem => item.ReasonTypeId)</td>
+                                            <td class="reasonTypeText">@item.ReasonType.ConfigDescription</td>
+                                            <td hidden class="saleInvoiceItemId">@Html.DisplayFor(modelItem => item.SaleInvoiceItemId)</td>
+                                            <td hidden class="saleInvoiceId">@Html.DisplayFor(modelItem => item.SaleInvoiceId)</td>
+                                            <td class="saleInvoiceText">@item.SaleInvoice.InvoiceNo</td>
+                                            <td class="discount text-right">@Html.DisplayFor(modelItem => item.Discount)</td>
+                                            <td class="rate text-right">@Html.DisplayFor(modelItem => item.Rate)</td>
+                                            <td class="amount text-right">@Html.DisplayFor(modelItem => item.Amount)</td>
+                                            
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+                            <tfoot id="myfoot">
+                                <tr style='font-weight: bold'>
+                                    <td></td>
+                                    <td style="text-align: right;">Total:</td>
+                                    <td class='text-right'>0.00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class='text-right'>0.00</td>
+                                    <td></td>
+                                    <td class='text-right'>0.00</td>
+
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left mb-3">
+                <a asp-controller="SaleReturnInvoice" asp-action="Index" tabindex="8" class="btn btn-white">List</a>
+                <button type="submit" tabindex="9" class="btn btn-primary">@ViewBag.EntityState</button>
+            </div>
+
+            <div class="modal fade" id="viewModal" role="dialog">
+                <div class="modal-dialog" style="width:70%;margin-top:10%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="form-group row">
+                                <div class="col-lg-3 col-md-3">
+                                    <label class="row-form-label">Item Description: </label>
+                                    @*<input class="form-control" id="itemDescrpton" readonly/>*@
+                                    <label style="font-weight:normal !important;" id="itemDescrpton"></label>
+                                    <input hidden type="text" id="rateItemId" />
+                                </div>
+                                <div class="col-lg-3 col-md-3">
+                                    <label class="row-form-label">UOM: </label>
+                                    @*<input class="form-control" id="itemUoM" readonly/>*@
+                                    <label style="font-weight:normal !important;" id="itemUoM"></label>
+                                </div>
+                                <div class="col-lg-3 col-md-3">
+                                    <label class="row-form-label">Category: </label>
+                                    @*<input class="form-control" id="itemCategry" readonly />*@
+                                    <label style="font-weight:normal !important;" id="itemCategry"></label>
+                                </div>
+                                @*<div class="form-group row">
+                                    <div class="col-lg-3 col-md-3">
+                                        <label class="row-form-label" style="margin-left:16px;"> Stock: </label>
+                                        <label style="font-weight:normal !important;" id="itemstock"></label>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <label class="row-form-label"> Average Rate: </label>
+                                        <label style="font-weight:normal !important;" id="itemavg"></label>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <label class="row-form-label"> Avg.Consumption Per Day: </label>
+                                        <label style="font-weight:normal !important;" id="itemconsump"></label>
+                                    </div>
+                                </div>*@
+                            </div>
+                        </div>
+                        <div class="PopupHeight">
+                            <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table id="ViewTable" class="table table-bordered table-striped t">
+                                            <thead>
+                                                <tr>
+                                                    <th>Inv #</th>
+                                                    <th style="width: 128px;">Inv Date</th>
+                                                    <th>Inv Qty</th>
+                                                    <th>Customer</th>
+                                                    <th>Rate</th>
+                                                    <th>Discount</th>
+                                                    <th>Actual Rate</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input hidden id="packingDetail" name="PackingDetail" />
+        <input id="TotalQty" name="TotalQty" class="hidden" />
+    </form>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#FourthCat").select2();
+            $("#ItemId").select2();
+            $("#reasonTypeId").select2();
+            $("#returnTypeId").select2();
+            $("#seasonId").select2();
+            $("#CustomerId").select2();
+            $("#PackingId").select2();
+            GetRowFooter();
+            $('#CustomerId').on('change', function () {
+                debugger
+                var customerId = $('#CustomerId').val();
+                $('#PackingId').find('option').not(':first').remove();
+                $('.removed').remove();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/InwardGatePass/GetCustomerAddress",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#address').val(data);
+                        $('.removed').remove();
+                        return false;
+                    }
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/SaleReturnInvoice/Getpacking",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#PackingId').append($('<option>', {
+                                value: item.id,
+                                text: item.packingNo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+            })
+
+            $('#FourthCat').on('change', function () {
+
+                $('#ItemId').find('option').not(':first').remove();
+
+                var catId = $('#FourthCat').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/Api/GetItemsByCategoryId",
+                    data: { categoryId: catId }
+                }).done(function (data) {
+                    debugger;
+                    $.each(data, function (i, item) {
+                        debugger;
+                        $('#ItemId').append($('<option>', {
+                            value: item.id,
+                            text: item.name + " " + item.brand
+                        }));
+                    });
+                });
+
+                $('#ItemId').val(0).trigger('change.select2');
+            })
+            
+        });
+
+        $('#PackingId').on('change', function () {
+            debugger
+            $('#WareHouseId').val(0);
+            $('.removed').remove();
+            var IGPId = $('#PackingId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/SaleReturnInvoice/GetPackingList",
+                data: { id: IGPId }
+            })
+                .done(function (data) {
+                    debugger
+                    if (data != null) {
+                        var wareHouseId = data[0].packing.wareHouseId
+                        $('#WareHouseId').val(wareHouseId);
+                    }
+                   
+                    $.each(data, function (i, item) {
+                        
+                            debugger
+                            //var itemname = item.apigpDetails.itemCode + " - " + item.apigpDetails.itemDiscription;
+                            item_data = '';
+                            item_data += '<tr class="removed">';
+                            item_data += '<td class ="Id" hidden>0</td>';
+                            item_data += '<td class ="fourthItemCategoryId" hidden>' + item.fourthItemCategoryId + '</td>';
+                            item_data += '<td class ="fourthItemCategoryText">' + item.fourthLevel.name + "-" + item.fourthLevel.name + '</td>';
+                            item_data += '<td class ="ItemId" hidden>' + item.itemId + '</td>';
+                            item_data += '<td><a id="view" onclick="View(' + item.itemId + '); " data-toggle="popover" data-content="' + item.item.name + '" data-target="#viewModal" >' + item.item.name + '</a></td > ';
+
+                            item_data += '<td class ="qty text-right" >' + item.qty + '</td>';
+                            item_data += '<td class ="returnTypeId" hidden>' + item.returnTypeId + '</td>';
+                            item_data += '<td class ="returnTypeText">' + item.returnType.configDescription + '</td>';
+                            item_data += '<td class ="seasonId" hidden>' + item.seasonId + '</td>';
+                            item_data += '<td class ="seasonText">' + item.season.configDescription + '</td>';
+                            item_data += '<td class ="reasonTypeId" hidden>' + item.reasonTypeId + '</td>';
+                            item_data += '<td class ="reasonTypeText">' + item.reasonType.configDescription + '</td>';
+                        item_data += '<td hidden class ="saleInvoiceId text-center" >0</td>';
+                            item_data += '<td  class ="saleInvoiceText text-center" >0</td>';
+                            item_data += '<td hidden class ="saleInvoiceItemId text-center" ></td>';
+                            item_data += '<td class ="discount text-right" >' + 0 + '</td>';
+                            item_data += '<td class ="rate text-right" ></td>';
+                            item_data += '<td class ="amount text-right" >' + 0 + '</td>';
+                            item_data += '</tr>';
+
+                            $('#tblItem tbody').append(item_data);
+                       
+                        $('input.add-comma').commaTextbox();
+                        
+                    });
+
+                    GetRowFooter();
+                });
+        })
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function addItem() {
+            debugger;
+            var ItemId = $("#ItemId").find(":selected").val();
+            var ItemIdText = $("#ItemId").find(":selected").text();
+            var fourthItemCategoryId = $("#FourthCat").find(":selected").val();
+            var fourthItemCategoryText = $("#FourthCat").find(":selected").text();
+            var returnTypeId = $("#returnTypeId").find(":selected").val();
+            var returnTypeText = $("#returnTypeId").find(":selected").text();
+            var seasonId = $("#seasonId").find(":selected").val();
+            var seasonText = $("#seasonId").find(":selected").text();
+            var reasonTypeId = $("#reasonTypeId").find(":selected").val();
+            var reasonTypeText = $("#reasonTypeId").find(":selected").text();
+            var qty = $("#Qty").val();
+
+            if (fourthItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select fourth Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#fourthItemCategoryId').focus();
+                });
+                return false;
+            }
+            if (ItemId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemId').focus();
+                });
+                return false;
+            }
+            if (reasonTypeId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Reason Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#reasonTypeId').focus();
+                });
+                return false;
+            }
+            if (qty == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter Qty",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Qty').focus();
+                });
+                return false;
+            }
+            if (returnTypeId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Return Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#returnTypeId').focus();
+                });
+                return false;
+            }
+            item_data = '';
+
+            item_data = '';
+            item_data += '<tr>';
+            item_data += '<td class ="Id" hidden>0</td>';
+            item_data += '<td class ="fourthItemCategoryId" hidden>' + fourthItemCategoryId + '</td>';
+            item_data += '<td class ="fourthItemCategoryText">' + fourthItemCategoryText + '</td>';
+            item_data += '<td class ="ItemId" hidden>' + ItemId + '</td>';
+            item_data += '<td class ="Item">' + ItemIdText + '</td>';
+            item_data += '<td class ="qty text-right" >' + qty + '</td>';
+            item_data += '<td class ="returnTypeId" hidden>' + returnTypeId + '</td>';
+            item_data += '<td class ="returnTypeText">' + returnTypeText + '</td>';
+            item_data += '<td class ="seasonId" hidden>' + seasonId + '</td>';
+            item_data += '<td class ="seasonText">' + seasonText + '</td>';
+            item_data += '<td class ="reasonTypeId" hidden>' + reasonTypeId + '</td>';
+            item_data += '<td class ="reasonTypeText">' + reasonTypeText + '</td>';
+            item_data += '<td>';
+            item_data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            item_data += '</tr>';
+
+            $('#tblItem tbody').append(item_data);
+            ClearTextBox();
+            GetRowFooter();
+        }
+        function ClearTextBox() {
+            debugger;
+            $('#FourthCat').val(0).trigger('change.select2');
+            $('#ItemId').val(0).trigger('change.select2');
+            $('#returnTypeId').val(0).trigger('change.select2');
+            $('#seasonId').val(0).trigger('change.select2');
+            $('#reasonTypeId').val(0).trigger('change.select2');
+            $("#Qty").val("");
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+            GetRowFooter();
+        };
+        function addRate(row) {
+            //row.closest("tr").remove();
+          debugger;
+            var invoiceId = row.closest("tr").find('.invoiceId').val();
+            var invoiceItemId = row.closest("tr").find('.invoiceItemId').val();
+            var invoiceNo = row.closest("tr").find('.invoiceNo').val();
+            var invoiceDate = row.closest("tr").find('.date').val();
+            var qty = row.closest("tr").find('.qty').val();
+            var rate =row.closest("tr").find('.rate').val();
+            var discount = row.closest("tr").find('.discount').val();
+            var discountRate = Number( row.closest("tr").find('.discountRate').val());
+             
+            debugger;
+            $.each($("#tblItem tbody tr"), function () {
+                debugger;
+                var itemid = $("#rateItemId").val();
+                var updateItemId = $(this).find('.ItemId').html();
+                if (itemid == updateItemId) {
+                    debugger;
+                    var qty = Number($(this).find('.qty').html());
+                    var totalAmount = qty * discountRate
+                    $(this).find('.saleInvoiceId').html(invoiceId);
+                    $(this).find('.saleInvoiceItemId').html(invoiceItemId);
+                    $(this).find('.saleInvoiceText').html(invoiceNo);
+                    $(this).find('.discount').html(discount);
+                    $(this).find('.rate').html(discountRate);
+                    $(this).find('.amount').html(totalAmount);
+                }
+
+                GetRowFooter();
+            });
+        };
+
+        function calculateDiscountRate(row) {
+            //row.closest("tr").remove();
+          debugger;
+            var qty = row.closest("tr").find('.qty').val();
+            var rate =Number(row.closest("tr").find('.rate').val());
+            var discount = Number(row.closest("tr").find('.discount').val());
+            if (rate > discount) {
+                var discountRate = rate - discount;
+                row.closest("tr").find('.discountRate').val(discountRate)
+            } else {
+                row.closest("tr").find('.discount').val(0)
+                swal({
+                    icon: 'warning',
+                    text: "Discount amount must be less than rate!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    row.closest("tr").find('.discount').focus();
+                });
+                return false;
+
+               
+            }
+            
+
+           
+        };
+
+        function GetRowFooter() {
+            debugger
+            var TotalQty = 0;
+            var TotalDiscount = 0;
+            var TotalAmount = 0;
+            $.each($("#tblItem tbody tr"), function () {
+                debugger;
+                var qty = Number($(this).find('.qty').text());
+                var discount = Number($(this).find('.discount').text());
+                var amount = Number($(this).find('.amount').text());
+                TotalQty = TotalQty + qty;
+                TotalDiscount = TotalDiscount + discount;
+                TotalAmount = TotalAmount + amount;
+            });
+
+            $('#TotalQty').val(TotalQty);
+           
+            $.each($("#tblItem tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    "<td ></td>" +
+                    "<td class='text-right'>Total:</td> " +
+                    "<td class='text-right'>" + Number(TotalQty).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td class='text-right'>" + Number(TotalDiscount).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td class='text-right'>" + Number(TotalAmount).toFixed(2) + "</td> " 
+                "</tr>"
+
+                $("#tblItem tfoot").append(row);
+            });
+
+        }
+
+        function submitdetails(form) {
+            debugger;
+            var itemDetails = [];
+            var packingNo = $('#PackingId').val();
+            var customerId = $('#CustomerId').val();
+            var checkRate = true;
+            $.each($("#tblItem tbody tr"), function () {
+                itemDetails.push({
+                    Id: $(this).find('.Id').html(),
+                    FourthItemCategoryId: $(this).find('.fourthItemCategoryId').html(),
+                    ItemId: $(this).find('.ItemId').html(),
+                    ReturnTypeId: $(this).find('.returnTypeId').html(),
+                    SeasonId: $(this).find('.seasonId').html(),
+                    ReasonTypeId: $(this).find('.reasonTypeId').html(),
+                    Qty: $(this).find('.qty').html(),
+                    SaleInvoiceId: $(this).find('.saleInvoiceId').html(),
+                    SaleInvoiceItemId: $(this).find('.saleInvoiceItemId').html(),
+                    Discount: $(this).find('.discount').html(),
+                    Rate: $(this).find('.rate').html(),
+                    Amount: $(this).find('.amount').html()
+                });
+
+                var rate = $(this).find('.rate').html();
+                if (rate == 0 || rate == "") {
+                    checkRate = false;
+                    return false;
+                    
+                }
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#packingDetail").val(model);
+            if (customerId == null) {
+                swal({
+                    icon: 'warning',
+                    text: "Select Customer ..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if (packingNo == null) {
+                swal({
+                    icon: 'warning',
+                    text: "Select Packing # ..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#PackingId').focus();
+                });
+                return false;
+            }
+            if (itemDetails.length <= 0) {
+                  
+                swal({
+                    icon: 'warning',
+                    text: "Enter At Least One Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#FourthCat').focus();
+                });
+                return false;
+            }
+            if (!checkRate) {
+                swal("", "Rate must be greater than 0.", "warning");
+                return false;
+            }
+            return true;
+        }
+
+        function View(id) {
+            debugger
+            //var b = row.closest("tr").index();
+            //var c = b + 1;
+            //var rowItemTable = $("#tblItem > tbody").find("tr").eq(b);
+            //var itemID = rowItemTable.closest("tr").find(".ItemId").val();
+            var customerId = $('#CustomerId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/SaleReturnInvoice/GetViewDetail",
+                data: { id: id, customerId: customerId }
+            }).done(function (data) {
+                $.each($("#ViewTable tbody tr"), function () {
+                    $(this).remove();
+                });
+                $.each(data, function (i, item) {
+                    debugger
+                    if (item.poDate != null) {
+                        var row = "<tr>" +
+                            "<td hidden > <input name='invoiceId' id='invoiceId' class='form-control text-right invoiceId' value=" + item.invoiceId + " readonly/></td>" +
+                            "<td hidden > <input name='invoiceItemId' id='invoiceItemId' class='form-control text-right invoiceItemId' value=" + item.invoiceItemId + " readonly/></td>" +
+                            "<td > <input name='poNo' id='poNo' class='form-control text-center invoiceNo' value=" + item.poNo + " readonly/></td>" +
+                            "<td > <input name='poDate' id='poDate' class='form-control text-center date' value=" + item.poDate + " readonly/></td>" +
+                            "<td > <input name='poQty' id='poQty' class='form-control text-right add-comma qty' value=" + item.poQty + " readonly/></td>" +
+                            "<td > <input  name='grnvendor' id='grnvendor' class='form-control text-left customer'  value='" + item.vendor + "' readonly/></td>" +
+                            "<td > <input  name='grnQty' id='grnQty' class='form-control text-right add-comma rate'  value=" + item.grnRate + " readonly/></td>" +
+                            "<td > <input  name='discount' id='discount' onchange='calculateDiscountRate($(this))' class='form-control text-right add-comma discount'  value=" + 0 + " /></td>" +
+                            "<td > <input  name='discountRate' id='discountRate'  class='form-control text-right add-comma discountRate'  value=" + item.grnRate + " readonly/></td>" +
+                            "<td ><a onclick='addRate($(this));' class='btn btn-sm btn-primary btn-lg m-t-n-xs' data-dismiss='modal' ><i class='fa fa-plus' title='Add Rate'></i></a></td>" +
+
+                        "</tr>"
+                        debugger
+                        $('#rateItemId').val(item.itemId);
+                        $("#ViewTable tbody").append(row);
+                       
+                    } else {
+                        debugger
+                        $('#rateItemId').val(item.itemId);
+                        $('#itemCategry').html(item.category);
+                        $('#itemstock').html(item.stock);
+                        $('#itemDescrpton').html(item.itemDescription);
+                        $('#itemUoM').html(item.uom);
+                    }
+                });
+                $("#viewModal").modal("show");
+            });
+        }
+
+    </script>
+}

@@ -1,0 +1,896 @@
+@model Numbers.Entity.ViewModels.APPurchaseRequisitionViewModel
+@{ ViewData["Title"] = "Create Purchase Requistion";
+}
+<style>
+    #main {
+        display: flex;
+    }
+    .t td {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .withscroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+    table td {
+        position: relative;
+    }
+    .removed .select2-container {
+        width: 195px !important;
+    }
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+        table td input, table td select, table td select2 {
+            position: absolute;
+            bottom: 0;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Purchase Requisition</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <input type="hidden" id="counter" value="0" />
+
+                <form id="form" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row" style="margin-top:10px">
+                                @if (Model.APPurchaseRequisition == null)
+                                {
+                                    <div class="col-lg-1 col-sm-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label>PR #</label>
+                                            <label></label>
+                                            <input asp-for="APPurchaseRequisition.PrNo" class="chosen-select form-control text-right" readonly>
+                                            @*<input asp-for="APPurchaseRequisition.PrNo" class="chosen-select form-control text-right" readonly>*@
+                                        </div>
+                                    </div> }
+                                else
+                                {
+                                    if (TempData["SelectedPR"] != null)
+                                    {
+                                        <div class="col-lg-1 col-sm-2 Pad-rht">
+                                            <div class="form-group">
+                                                <label>PR #</label>
+                                                <label></label>
+                                                <input asp-for="APPurchaseRequisition.PrNo" class="chosen-select form-control text-right" readonly>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-lg-1 col-sm-2 Pad-rht">
+                                            <div class="form-group">
+                                                <label>PR #</label>
+                                                <label></label>
+                                                <input asp-for="APPurchaseRequisition.PrNo" class="chosen-select form-control text-right" readonly>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                <div class="col-lg-2 col-sm-4 Pad-rht">
+                                    <input asp-for="APPurchaseRequisition.Id" class="id" type="hidden" />
+                                    <div class="form-group">
+                                        <label>Request</label>
+                                        <input asp-for="APPurchaseRequisition.CreatedBy" class="form-control" value="@ViewBag.UserName" readonly>
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Requisition Tye</label>
+                                        <select autofocus asp-for="APPurchaseRequisition.RequisitionTypeId" class="chosen-select form-control" asp-items="ViewBag.Requisition" id="TypeId" required>
+                                        </select>
+                                    </div>
+                                </div>
+                                @if (ViewBag.Responsibility == "Yarn Purchase")
+                                {
+                                    @if (ViewBag.CompanyName == "Sitara Textile")
+                                    {
+                                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                                            <div class="form-group">
+                                                <label>Sale Contract/Ref No#</label>
+                                                <input asp-for="APPurchaseRequisition.RefrenceNo" type="text" onpaste="return false;" maxlength="10" ondrop="return false;" autocomplete="off" class="form-control" />
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+
+                                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                                            <div class="form-group">
+                                                <label asp-for="APPurchaseRequisition.GreigeRequisitionId"></label>
+                                                <select asp-for="APPurchaseRequisition.GreigeRequisitionId" class="chosen-select form-control" asp-items="ViewBag.GreigeReqNo" id="GreigeReqNo" required>
+                                                    <option selected disabled value="0">Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Sale Contract/Ref No#</label>
+                                            <input asp-for="APPurchaseRequisition.RefrenceNo" type="text" onpaste="return false;" maxlength="10" ondrop="return false;" autocomplete="off" class="form-control" />
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-lg-2 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Creation Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input tabindex="-1" asp-for="APPurchaseRequisition.CreatedDate" class="form-control" type="text" value=@(Model.APPurchaseRequisition == null ? CommonHelper.CurrentDate : Model.APPurchaseRequisition.CreatedDate.ToString(CommonHelper.DateFormat)) readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label>PR date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input tabindex="-1" asp-for="APPurchaseRequisition.PrDate" readonly value="@(Model.APPurchaseRequisition == null ? CommonHelper.CurrentDate : Model.APPurchaseRequisition.PrDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Operating Unit</label>
+                                        <select asp-for="APPurchaseRequisition.OperationId" class="chosen-select form-control" asp-items="ViewBag.OperatingUnit" id="OpId" required>
+                                            @*<option value="0" selected>Please select</option>*@
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Department</label>
+                                        <select asp-for="APPurchaseRequisition.DepartmentId" class="chosen-select form-control" id="DepId" asp-items="ViewBag.Department" required>
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Sub Department</label>
+                                        <select class="form-control" asp-for="APPurchaseRequisition.SubDepartmentId" id="SubDepId" asp-items="ViewBag.SubDivision" required>
+                                            <option value="0">N/A</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label -for="Attachment">Attachment</label>
+                                        <div class="custom-file">
+                                            <input type="file" name="File" multiple class="form-control custom-file-input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-12 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <input asp-for="APPurchaseRequisition.Remarks" class="form-control" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (ViewBag.CompanyName == "Sitara Textile")
+                            {
+                                <div class="row">
+                                    <div class="col-lg-4 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Item</label>
+                                            <select class="chosen-select form-control itm" id="Item">
+                                                <option value="0">Please select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+
+                                @if (ViewBag.Responsibility != "Yarn Purchase")
+                                {
+
+                                    <div class="row">
+                                        <div class="col-lg-4 col-sm-6">
+                                            <div class="form-group">
+                                                <label>Item</label>
+                                                <select class="chosen-select form-control itm" id="Item">
+                                                    <option value="0">Please select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            }
+
+
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <div>
+                                        <table id="tblDetail" class="table table-bordered table-striped withscroll" style="table-layout:fixed;display:flow-root">
+                                            <thead>
+                                                <tr>
+
+                                                    <th>Item Code</th>
+                                                    <th>Description</th>
+                                                    <th>UOM</th>
+                                                    <th>Stock QTY</th>
+                                                    <th>Last PO Date</th>
+                                                    <th>Last PO Qty</th>
+                                                    <th>Consumption</th>
+                                                    <th>Item Specfication</th>
+                                                    <th>Quantity</th>
+                                                    <th>Required Date</th>
+                                                    <th>Brand</th>
+                                                    <th>Techanical Information</th>
+                                                    @*<th>Cost Center</th>*@
+                                                    <th>Attachment</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.APPurchaseRequisitionDetails != null)
+                                                {
+                                                    @for (int i = 0; i < Model.APPurchaseRequisitionDetails.Count; i++)
+                                                    {
+                                                        <tr class="removed">
+                                                            <td hidden><input asp-for="APPurchaseRequisitionDetails[i].Id" value="@Model.APPurchaseRequisitionDetails[i].Id" id="username" class="id" type="hidden" /></td>
+                                                            <td hidden><input asp-for="APPurchaseRequisitionDetails[i].ItemId" value="@Model.APPurchaseRequisitionDetails[i].ItemId" class="id detailItemId" type="hidden" /></td>
+                                                            <td><input style="background-color: #eee;" tabindex="-1" asp-for="APPurchaseRequisitionDetails[i].Code" type="text" value="@Model.APPurchaseRequisitionDetails[i].Code" class="text-right" readonly /></td>
+
+
+
+                                                            <td hidden><input style="background-color: #eee;" tabindex="-1" asp-for="APPurchaseRequisitionDetails[i].Description" type="text" value="@Model.APPurchaseRequisitionDetails[i].Description" readonly /></td>
+                                                            <td class="text-left"><a id="view" onclick="View($(this)); " data-toggle="modal" data-target="#viewModal">@Model.APPurchaseRequisitionDetails[i].Description</a></td>
+
+
+
+                                                            <td><input style="background-color: #eee;" tabindex="-1" asp-for="UOmName[i]" value="@Model.UOmName[i]" type="text" readonly /></td>
+                                                            <td><input style="background-color: #eee;" tabindex="-1" value="@Model.Stock[i]" class="add-comma text-right" type="text" readonly /></td>
+                                                            <td> <input style="background-color: #eee;" tabindex="-1" asp-for="APPurchaseRequisitionDetails[i].LastPODate" value="@(Model.APPurchaseRequisitionDetails[i].LastPODate ==null?"":Model.APPurchaseRequisitionDetails[i].LastPODate?.ToString("dd-MMM-yyyy"))" class="text-center" type="text" autocomplete="off" readonly /></td>
+                                                            <td><input style="background-color: #eee;" tabindex="-1" asp-for="APPurchaseRequisitionDetails[i].LastPOQty" value="@Model.APPurchaseRequisitionDetails[i].LastPOQty" type="text" class="text-right" readonly /></td>
+                                                            <td><input style="background-color: #eee;" tabindex="-1" asp-for="APPurchaseRequisitionDetails[i].Consumption" value="@Model.APPurchaseRequisitionDetails[i].Consumption" type="text" class="add-comma text-right" readonly /></td>
+                                                            <td><input asp-for="APPurchaseRequisitionDetails[i].ItemSpecification" type="text" value="@Model.APPurchaseRequisitionDetails[i].ItemSpecification" autocomplete="off" /></td>
+                                                            @if (ViewBag.Responsibility != "Yarn Purchase")
+                                                            {
+                                                                <td> <input asp-for="APPurchaseRequisitionDetails[i].Quantity" type="text" value="@Model.APPurchaseRequisitionDetails[i].Quantity" class=" text-right add-comma" autocomplete="off" /></td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td> <input asp-for="APPurchaseRequisitionDetails[i].Quantity" style="background-color: #eee;" tabindex="-1" type="text" value="@Model.APPurchaseRequisitionDetails[i].Quantity" class=" text-right add-comma" autocomplete="off" /></td>
+                                                            }
+                                                            <td> <input asp-for="APPurchaseRequisitionDetails[i].RequiredDate" value="@Model.APPurchaseRequisitionDetails[i].RequiredDate.ToString("dd-MMM-yyyy")" class="text-center date" type="text" autocomplete="off" readonly /></td>
+                                                            <td><input asp-for="APPurchaseRequisitionDetails[i].Brand" value="@Model.APPurchaseRequisitionDetails[i].Brand" type="text" autocomplete="off"></td>
+                                                            <td> <input asp-for="APPurchaseRequisitionDetails[i].TechanicalInfo" value="@Model.APPurchaseRequisitionDetails[i].TechanicalInfo" type="text" autocomplete="off" /></td>
+                                                            @*<td><select asp-for="APPurchaseRequisitionDetails[i].CostCenterId" id="cos" asp-items="ViewBag.CostCenter" value="@Model.APPurchaseRequisitionDetails[i].CostCenterId" class="chosen-select cosId" required><option value="0" selected> Please select</option></select></td>*@
+                                                            <td><input type='file' src="~@Model.APPurchaseRequisitionDetails[i].Attachment" name="Attachment" multiple class="custom-file-input" style="padding: 9px 0px 0px 0px"></td>
+                                                            @if (ViewBag.Responsibility != "Yarn Purchase")
+                                                            {
+                                                                <td style=" background-color: #dee0f1;"> <a id="delrow" style=" margin-top:0px" onclick="deleterow($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                                            }
+                                                        </tr>
+                                                    }}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a asp-controller="PurchaseRequisition" asp-action="Index" class="btn btn-white">List</a>
+                                    <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-action="Create" asp-controller="PurchaseRequisition" value="Save" class="btn btn-primary" />
+                                    <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                                </div>
+                            </div>
+                            <div class="modal fade" id="viewModal" role="dialog">
+                                <div class="modal-dialog" style="width:80%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <div class="form-group row">
+                                                <div class="col-lg-3 col-md-3">
+                                                    <label class="row-form-label">Item Description: </label>
+                                                    @*<input class="form-control" id="itemDescrpton" readonly/>*@
+                                                    <label style="font-weight:normal !important;" id="itemDescrpton"></label>
+                                                </div>
+                                                <div class="col-lg-3 col-md-3">
+                                                    <label class="row-form-label">UOM: </label>
+                                                    @*<input class="form-control" id="itemUoM" readonly/>*@
+                                                    <label style="font-weight:normal !important;" id="itemUoM"></label>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="row-form-label">Category: </label>
+                                                    @*<input class="form-control" id="itemCategry" readonly />*@
+                                                    <label style="font-weight:normal !important;" id="itemCategry"></label>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label" style="margin-left:16px;"> Stock: </label>
+                                                        <label style="font-weight:normal !important;" id="itemstock"></label>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label"> Average Rate: </label>
+                                                        <label style="font-weight:normal !important;" id="itemavg"></label>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label"> Avg.Consumption Per Day: </label>
+                                                        <label style="font-weight:normal !important;" id="itemconsump"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="PopupHeight">
+                                            <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                                                <div class="row">
+                                                    <div class="col-md-12 col-lg-12">
+                                                        <table id="ViewTable" class="table table-bordered table-striped t">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>PO #</th>
+                                                                    <th>PO Date</th>
+                                                                    <th>PO Qty</th>
+                                                                    <th>GRN No</th>
+                                                                    <th>GRN Date</th>
+                                                                    <th>Vendor</th>
+                                                                    <th>Rate</th>
+                                                                    @*<th>Contact Person</th>*@
+                                                                    @*<th>Phone#</th>*@
+                                                                    <th hidden>GRN Qty</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        var CostCnter;
+        $('#department').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/AP/Api/GetDepartments',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    debugger
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.text,
+                                id: item.value,
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+        $('#SubDepId').select2();
+
+        function getFormattedDate(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear().toString().slice(2);
+            return day + '-' + month + '-' + year;
+        }
+
+        $(document).ready(function () {
+            $('#GreigeReqNo').select2();
+            $('#DepId').change(function () {
+                debugger;
+                var department = $("#DepId option:selected").val();
+                $.ajax({
+                    type: 'GET',
+                    url: '/GL/CostCenter/GetSubDivisions?id=' + department,
+                }).done(function (data) {
+                    debugger;
+                    if (data != null) {
+                        $('#SubDepId').empty();
+                        $('#SubDepId').append($('<option>', {
+                            value: 0,
+                            text: "Select..."
+                        }));
+                        $.each(data, function (i, item) {
+                            $('#SubDepId').append($('<option>', {
+                                value: item.id,
+                                text: item.name
+                            }));
+                        });
+                    }
+                });
+
+            });
+
+            $("#GreigeReqNo").change(function () {
+                debugger
+                $("#tblDetail > tbody > tr").remove();
+                var greigeReqNo = $(this).find(":selected").val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AP/PurchaseRequisition/GetGreigeRequisitions",
+                    data: { GreigeRequisitionId: greigeReqNo }
+                }).done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        debugger
+
+                        var row = "<tr class='removed'>" +
+                            "<td hidden><input name='id'  id='username' class='id'  /></td>" +
+                            "<td hidden><input name='itemId' value=" + item.invItem.id + "  id='username' class='id detailItemId'  /></td>" +
+                            "<td><input style='background-color: #eee;' tabindex='-1' name='code' class=text-right value=" + item.invItem.code + " readonly /></td>" +
+
+                            '<td><a id="view" onclick="View($(this)); " data-toggle="popover" data-content="' + item.invItem.name + '" data-target="#viewModal" >' + item.invItem.name + '</a></td > ' +
+
+
+                            " <td hidden><input style='background-color: #eee;' tabindex='-1' data-toggle='popover' name='description' value='" + item.invItem.name + "' readonly /></td> " +
+                            "<td><input style='background-color: #eee;' tabindex='-1' name='uOM' value='" + item.invItem.uom.configValue + "' readonly/></td>" +
+                            "<td><input style='background-color: #eee;' tabindex='-1' value='" + item.invItem.stockQty + "' class='add-comma text-right' readonly/></td>" +
+                            " <td><input style='background-color: #eee;' tabindex='-1'  name='poDate' value='" + item.lastPODate + "' type='text' class='text-center' autocomplete='off' readonly /></td>" +
+                            " <td><input style='background-color: #eee;' tabindex='-1'  name='poQty' readonly onkeypress='return isNumberKey(event)' value='" + item.lastPOQty + "' onpaste='return false;' ondrop='return false;' type='text' class='text-right add-comma' autocomplete='off'/></td>" +
+                            " <td><input style='background-color: #eee;' tabindex='-1'  name='cons' readonly onkeypress='return isNumberKey(event)' value='" + item.comsumption + "' onpaste='return false;' ondrop='return false;' type='text' class='text-right add-comma' autocomplete='off'/></td>" +
+                            "<td><input name='itemSpecification' autocomplete='off'  /></td>" +
+                            " <td><input   name='quantity' readonly style='background-color: #eee;' tabindex='-1' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' class='text-right add-comma' value=" + item.quantity+" autocomplete='off'/></td>" +
+                            " <td><input  name='requiredDate' class='text-center' value='" + item.requiredDate + "' type='text' autocomplete='off' /></td>" +
+                            " <td><input name='brand' autocomplete='off'></td>" +
+                            " <td><input  name='techanicalInfo' autocomplete='off'  /></td>" +
+                            //" <td><select name='cosId' class='chosen-select cosId' id=" + $("#counter").val() + " required><option value = '0' selected ></option></select ></td>" +
+                            " <td><input name='file' name='Attachment' type='file' multiple class='custom-file-input'  style='padding: 9px 0px 0px 0px;'></td>" +
+                            "</tr>";
+                        $("#tblDetail tbody").append(row);
+                    });
+                    $('input.add-comma').commaTextbox();
+                    //$(".date").datepicker(
+                    //)
+                    //debugger
+                    //                var date = new Date();
+                    //                date.setDate(date.getDate() + 4);
+
+
+                    //                $(".date").datepicker({
+
+                    //                    minDate: date,
+                    //                    dateFormat: "mm/dd/yy",
+
+                    //                    //onSelect: function (selected) {
+                    //                    //    $("#date_start").datepicker("option", "maxDate", selected); //  maxdate on the Start datepicker cannot be more than end date selected.
+
+                    //                    //}
+
+                    //                });
+
+                    debugger;
+                    var a = Number($("#counter").val());
+                    var id = "#" + a;
+
+
+                });
+            });
+        });
+
+        function GetCost() {
+          //  $('#cos').remove();
+            $('#cos').select2({
+                width: 'resolve',
+                ajax: {
+                    url: '/AP/Api/GetCostCenter',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: {
+                        id: '-1', // the value of the option
+                        text: 'Select an option'
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    text: item.text,
+                                    id: item.value
+                                }
+                            })
+                        }
+                    },
+                    cache: true
+                }
+            });
+            //$('#cos').find('option').remove();
+            //$.ajax({
+            //    method: "GET",
+            //    url: '/AP/Api/GetCostCenter',
+            //})
+            //    .done(function (data) {
+            //        debugger
+            //        $.each(data, function (i, item) {
+            //            $('.cosId').append($('<option>', {
+            //                value: item.value,
+            //                text: item.text
+            //            }));
+            //        });
+            //    });
+        }
+        var i = 1;
+        $(document).ready(function () {
+            var itemCode =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Itemlist));
+            
+            $.each(itemCode, function (i,item) {
+                $('#Item').append($('<option>', {
+                    value: item.id,
+                    text: item.text
+                }));
+            });
+            $('.custom-file-input').on("change", function () {
+
+                var fileLabel = $(this).next('.custom-file-label');
+                var files = $(this)[0].files;
+                if (files.length > 1) {
+                    fileLabel.html(files.length + ' files selected');
+                }
+                else if (files.length == 1) {
+                    fileLabel.html(files[0].name);
+                }
+            });
+            $.validate();
+            $('#DepId').select2();
+            $('#TypeId').select2();
+            $('#OpId').select2();
+            $('#Item').select2();
+
+           // $('.cosId').select2();
+            //$(".date").datepicker({
+            //})
+
+            
+
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+        });
+
+        $('#Item').on('change', function () {
+            if ($("#DepId").find(":selected").text() != "Please select") {
+                var ItemId = $('#Item').val();
+                var value = false;
+                $('#tblDetail > tbody > tr').each(function () {
+                    var item = $(this).closest("tr").find('td:eq(1) input').val();
+                    if (ItemId == item) {
+                        value = true;
+                    }
+                });
+                if (value == false) {
+                    var CostCenter =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CostCnter));
+                    $.ajax({
+                        method: "GET",
+                        url: "/AP/PurchaseRequisition/GetItemList",
+                        data: { itemId: ItemId }
+                    }).done(function (data) {
+                        $.each(data, function (i, item) {
+                            var i = Number($("#counter").val());
+                              
+                            $("#counter").val(i + 1);
+                            var row = "<tr class='removed'>" +
+                                "<td hidden><input name='id'  id='username' class='id'  /></td>" +
+                                "<td hidden><input name='itemId' value=" + item.invItems.id + "  id='username' class='id detailItemId'  /></td>" +
+                                "<td><input style='background-color: #eee;' tabindex='-1' name='code' class=text-right value=" + item.invItems.code + " readonly /></td>" +
+
+                                '<td><a id="view" onclick="View($(this)); " data-toggle="popover" data-content="' + item.invItems.name + '" data-target="#viewModal" >' + item.invItems.name + '</a></td > ' +
+
+
+                                " <td hidden><input style='background-color: #eee;' tabindex='-1' data-toggle='popover' name='description' value='" + item.invItems.name + "' readonly /></td> " +
+                                "<td><input style='background-color: #eee;' tabindex='-1' name='uOM' value='" + item.uom + "' readonly/></td>" +
+                                "<td><input style='background-color: #eee;' tabindex='-1' value='" + item.invItems.stockQty + "' class='text-right' readonly/></td>" +
+                                " <td><input style='background-color: #eee;' tabindex='-1'  name='poDate' value='" + item.lastPODate + "' type='text' class='text-center' autocomplete='off' readonly /></td>" +
+                                " <td><input style='background-color: #eee;' tabindex='-1'  name='poQty' readonly onkeypress='return isNumberKey(event)' value='" + item.lastPOQty + "' onpaste='return false;' ondrop='return false;' type='text' class='text-right  ' autocomplete='off'/></td>" +
+                                " <td><input style='background-color: #eee;' tabindex='-1'  name='cons' readonly onkeypress='return isNumberKey(event)' value='" + item.comsumption + "' onpaste='return false;' ondrop='return false;' type='text' class='text-right add-comma' autocomplete='off'/></td>" +
+                                "<td><input name='itemSpecification' autocomplete='off'  /></td>" +
+                                " <td><input   name='quantity' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' class='text-right add-comma' autocomplete='off'/></td>" +
+                                " <td><input  name='requiredDate' class='text-center' value='" + item.requiredDate+"' type='text' autocomplete='off' /></td>" +
+                                " <td><input name='brand' autocomplete='off'></td>" +
+                                " <td><input  name='techanicalInfo' autocomplete='off'  /></td>" +
+                                //" <td><select name='cosId' class='chosen-select cosId' id=" + $("#counter").val() + " required><option value = '0' selected ></option></select ></td>" +
+                                " <td><input name='file' name='Attachment' type='file' multiple class='custom-file-input'  style='padding: 9px 0px 0px 0px;'></td>" +
+                                '<td > <a id="delrow" onclick="deleterow($(this));"  style=" margin-top:0px"class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i></a> </td>'+
+                            "</tr>";
+                            $("#tblDetail tbody").append(row);
+                        });
+                        $('input.add-comma').commaTextbox();
+                        //$(".date").datepicker(
+                        //)
+        //debugger
+        //                var date = new Date();
+        //                date.setDate(date.getDate() + 4);
+
+
+        //                $(".date").datepicker({
+
+        //                    minDate: date,
+        //                    dateFormat: "mm/dd/yy",
+
+        //                    //onSelect: function (selected) {
+        //                    //    $("#date_start").datepicker("option", "maxDate", selected); //  maxdate on the Start datepicker cannot be more than end date selected.
+
+        //                    //}
+
+        //                });
+
+                        debugger;
+                        var a = Number($("#counter").val());
+                        var id = "#" + a;
+                        
+                        if (CostCnter == null) {
+                            $.each(CostCenter, function (i, item) {
+                                $(id).find('option').remove();
+                            });
+                            $(id).append($('<option>', {
+                                value: "",
+                                text: "Please Select"
+                            }));
+                            $.each(CostCenter, function (i, item) {
+                                $(id).append($('<option>', {
+                                    value: item.Value,
+                                    text: item.Text
+                                }));
+                            });
+                        }
+                        else {
+                            $.each(CostCnter, function (i, item) {
+                                $(id).find('option').remove();
+                            });
+                            $(id).append($('<option>', {
+                                value: "",
+                                text: "Please Select"
+                            }));
+                            $.each(CostCnter, function (i, item) {
+                                $(id).append($('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+                        }
+                        
+                    });
+                }
+                
+            }
+            else {
+                swal("", "Please Select Department first", "warning");
+            }
+        })
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function hiderow(row) {
+            row.closest("tr").hiderow();
+        }
+
+        function Validation() {
+            debugger
+            $("#form").validate({
+                rules: {
+                    quantity: {
+                        required: true,
+                        number: true,
+                    },
+                    requiredDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    quantity: "",
+                    requiredDate:""
+                }
+            });
+            debugger
+            var breakOut;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            //else if ($("#TypeId").find(":selected").val() == "0") {
+            //    swal("", "Please Select Requisition Type", "warning")
+            //    return false;
+            //}
+            else if ($("#OpId").find(":selected").val() == "0") {
+                swal("", "Please Select Operating Unit", "warning")
+                return false;
+            }
+            else if ($("#DepId").find(":selected").val() == "0") {
+                swal("", "Please Select Departemnt", "warning")
+                return false;
+            }
+            else if ($('#tblDetail').find('td').length != 0) {
+                debugger
+                // $('#tblDetail > tbody > tr').each(function () {
+                //     if ($(this).closest("tr").find(":selected").text() == "Please Select") {
+                //         swal("", "Please Select Cost Center", "warning")
+                //         breakOut = true;
+                //        return false;
+                //    }
+                //});
+            //}
+            //else {
+                @*$("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").val("Saving...");*@
+                return true;
+            }
+
+        }
+
+        //$("#DepId").on('change', function () {
+
+        //    getCostCenter();
+        //})
+
+        function getCostCenter() {
+            debugger
+            var departId = $('#DepId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/PurchaseRequisition/GetCostCeter",
+                data: { id: departId }
+            }).done(function (data) {
+                CostCnter = data;
+                $('.cosId').find('option').remove();
+                $('.cosId').append($('<option>', {
+                    value: "",
+                    text: "Please Select"
+                }));
+
+                //$('.cosId').find('option').not(':first').remove();
+                $.each(CostCnter, function (i, item) {
+                    debugger
+                    $('.cosId').append($('<option>', {
+                        value: item.value,
+                        text: item.text
+                    }));
+                });
+            });
+            
+           
+        }
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        $('body').popover({
+            selector: '[data-toggle="popover"]',
+            trigger: 'hover',
+            container: 'body',
+            placement: 'top',
+            animation: false
+        }).on('hide.bs.popover', function () {
+            if ($(".popover:hover").length) {
+                return false;
+            }
+        });
+
+        $('body').on('mouseleave', '.popover', function () {
+            $('.popover').popover('hide');
+        });
+
+
+        $("#form").on("submit", function () {
+            debugger
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+        });
+        function View(row) {
+            debugger
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            var rowItemTable = $("#tblDetail > tbody").find("tr").eq(b);
+            var itemID = rowItemTable.closest("tr").find(".detailItemId").val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/ComparativeStatement/GetViewDetail",
+                data: { id: itemID, }
+            }).done(function (data) {
+                $.each($("#ViewTable tbody tr"), function () {
+                    $(this).remove();
+                });
+                $.each(data, function (i, item) {
+                    debugger
+                    if (item.grnDate != null) {
+                        var row = "<tr>" +
+                            "<td > <input name='poNo' id='poNo' class='form-control text-right' value=" + item.poNo + " readonly/></td>" +
+                            "<td > <input name='poDate' id='poDate' class='form-control text-center' value=" + item.poDate + " readonly/></td>" +
+                            "<td > <input name='poQty' id='poQty' class='form-control text-right add-comma' value=" + item.poQty + " readonly/></td>" +
+                            "<td > <input  name='grnDate' id='grnDate' class='form-control text-right'  value='" + item.grnNo + "' readonly/></td>" +
+                            "<td > <input  name='grnNo' id='grnNo' class='form-control text-center'  value=" + item.grnDate + " readonly/></td>" +
+                            "<td > <input  name='grnvendor' id='grnvendor' class='form-control text-left'  value='" + item.vendor + "' readonly/></td>" +
+                            "<td > <input  name='grnQty' id='grnQty' class='form-control text-right add-comma'  value=" + item.grnRate + " readonly/></td>" +
+                            //"<td > <input  name='grnQty' id='grnQty' class='form-control text-right'  value='" + item.contactName + "' readonly/></td>" +
+                            //"<td > <input  name='grnQty' id='grnQty' class='form-control text-right'  value='" + item.phone + "' readonly/></td>" +
+                            "<td hidden> <input  name='grnQty' id='grnQty' class='form-control text-right'  value=" + item.grnQty + " readonly/></td>"
+                        "</tr>"
+                        debugger
+                        $("#ViewTable tbody").append(row);
+                        //$('#itemCategry').html(item.category);
+                        //$('#itemstock').html(item.stock);
+                        //$('#itemavg').html(item.average);
+                        //$('#itemconsump').html(Number(item.consumption).toFixed(2));
+                        //$('#itemDescrpton').html(item.itemDescrpton);
+                    } else {
+                        debugger
+                        $('#itemCategry').html(item.category);
+                        $('#itemstock').html(item.stock);
+                        $('#itemavg').html(item.average);
+                        $('#itemconsump').html(Number(item.consumption).toFixed(2));
+                        $('#itemDescrpton').html(item.itemDescription);
+                        $('#itemUoM').html(item.uom);
+                    }
+                });
+                $("#viewModal").modal("show");
+            });
+        }
+    </script>
+}

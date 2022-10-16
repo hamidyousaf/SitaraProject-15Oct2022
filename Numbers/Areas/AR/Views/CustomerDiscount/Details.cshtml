@@ -1,0 +1,103 @@
+﻿@model ARDiscount
+@using System.Globalization
+@{
+    ViewData["Title"] = "Approved Customer Discount";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="CustomerDiscount" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Customer Name:<strong class="text-navy"> @Model.Customer_.Name</strong></span></h4>
+                        @*<span><strong>Delivery Term:</strong> @Model.DeliveryTerm.ConfigValue</span><br />
+                        <span><strong>Payment Term:</strong> @Model.PaymentTerm.ConfigValue</span><br />*@
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Transaction No. <strong class="text-navy">@Model.TransactionNo</strong></span></h4>
+                        <p>
+                            <span><strong>Start Date:</strong> @Model.StartDate.ToString(CommonHelper.DateFormat)</span><br />
+                        </p>
+                        <span><strong>EndDate:</strong>@Model.EndDate.ToString(CommonHelper.DateFormat)</span><br />
+                        @*<span><strong>Reference No:</strong> @Model.</span><br />
+                        <span><strong>Currency:</strong> @Model.Currency  @Model.CurrencyExchangeRate</span><br />*@
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-right">Quantity</th>
+                                <th class="text-right">Amount</th>
+                                <th class="text-right">Discount Percentage</th>
+                                <th class="text-right">Discount Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<ARDiscountItem>)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.InvItemCategories.Name)
+                                </td>
+                                <td>@item.Quantity.ToString("N", new CultureInfo("en-US"))</td>
+                                <td>@item.Amount.ToString("N", new CultureInfo("en-US"))</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscountPercentage)</td>
+                                <td>@item.DiscountAmount.ToString("N", new CultureInfo("en-US"))</td>
+
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                <table class="table invoice-total">
+                    <tbody>
+                        <tr>
+                            <td><strong>Grand Total :</strong></td>
+                            <td>
+                                <b>
+                                   @Model.GrandTotal.ToString("N", new CultureInfo("en-US"))
+                                </b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Numbers.Entity.Models.AppAuditTrial>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Audit Logs.</h5>
+                <div class="ibox-content">
+                   
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserFullName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Module)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransactionId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SourceTable)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BeforeValue)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SourceField)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AfterValue)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Action)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CreatedDate)
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserFullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Module)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransactionId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SourceTable)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.BeforeValue)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SourceField)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AfterValue)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Action)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CreatedDate)
+                                </td>
+                                <td>
+                                    <a  class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                </td>
+
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

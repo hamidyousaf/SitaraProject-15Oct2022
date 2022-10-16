@@ -1,0 +1,610 @@
+﻿@model InvStockTransferViewModel
+@{
+    ViewData["Title"] = "Create Stock Transfer";
+    ViewData["CurrentPage"] = "Stock Transfer Note";
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+</style>
+<div class="col-lg-12">
+    <div class="row">
+        <div class="col-lg-12">
+            <form id="TransferFormId" method="post" asp-action="Create" asp-controller="StockTransfer" onsubmit=" return submitdetails()" typeof="multiple">
+                <div class="ibox-content">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                @if (Model.StockTransfer == null)
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="TransferNo"></label>
+                                            <input value="@ViewBag.Id" readonly asp-for="TransferNo" data-validation="required number" class="form-control" />
+                                            <span id="Status" asp-validation-for="TransferNo"></span>
+                                        </div>
+                                    </div> }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="TransferNo"></label>
+                                            <input value="@ViewBag.Id" readonly asp-for="TransferNo" data-validation="required number" class="form-control" />
+                                            <span id="Status" asp-validation-for="TransferNo"></span>
+                                        </div>
+                                    </div>}
+                                <div class="col-lg-3 col-sm-4">
+                                    <div class="form-group">
+                                        <label>Transfer Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input autofocus asp-for="TransferDate" id="TransferDate" class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.TransferDate.ToString(CommonHelper.DateFormat)) />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="WareHouseFromId"></label>
+                                        <Select id="WareHouseFromId" name="WareHouseFromId" asp-for="WareHouseFromId" asp-items="@ViewBag.WareHouseFrom" data-validation="required" data-validation-error-msg="Ware House From is required" data-validation-error-msg-container="#wareHouseFrom" class="form-control">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <span asp-validation-for="WareHouseFromId" class="text-danger"></span>
+                                        <p id="wareHouseFrom"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="WareHouseToId"></label>
+                                        <Select id="WareHouseToId" name="WareHouseToId" asp-for="WareHouseToId" asp-items="@ViewBag.WareHouseTo" data-validation="required" data-validation-error-msg="Ware House To is required" data-validation-error-msg-container="#wareHouseTo" class="form-control">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <span asp-validation-for="WareHouseToId" class="text-danger"></span>
+                                        <p id="wareHouseTo"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <div class="form-group">
+                                        <label asp-for="Remarks"></label>
+                                        <textarea asp-for="Remarks" rows="2" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="ibox-title">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label>Item</label>
+                                <select asp-items="@ViewBag.Items" asp-for="ItemId" name="ItemId" id="ItemId" class="form-control select-item">
+                                    <option disabled selected>Select an item...</option>
+                                </select>
+                                <p id="ItemId"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-3">
+                            <div class="form-group">
+                                <label>UOM</label>
+                                <input asp-for="UOM" id="UOM" tabindex="-1" readonly class="form-control on-focus-change-color text-left" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-3">
+                            <div class="form-group">
+                                <label>Stock</label>
+                                <input id="Stock" tabindex="-1" readonly class="form-control on-focus-change-color" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-3">
+                            <div class="form-group">
+                                <label>Qty</label>
+                                <input id="Qty" onkeypress='return isNumberKey(event)' onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color text-right add-comma" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3" @*id="divRate"*@>
+                            <div class="form-group">
+                                <label>Rate</label>
+                                <input id="Rate" readonly tabindex="-1" class="form-control on-focus-change-color text-right add-comma" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3" @*id="divTotal"*@>
+                            <div class="form-group">
+                                <label>Total</label>
+                                <input id="Total" tabindex="-1" class="form-control on-focus-change-color text-right add-comma" readonly type="text" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-sm-1 m-t-md">
+                            <div class="form-group">
+                                <button id="btnAdd1" type="button" class="btn btn-primary">ADD</button>
+                                <button id="btnUpdateMaster" style="display:none;" type="button" class="btn btn-primary">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ibox-title">
+                    <div class="container-fluid table-responsive" style="background-color:white;">
+                        <h5 class="font-bold">Add StoreTransfer Items</h5>
+                        <br />
+                        <table id="tblpurchase" name="tableitems" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Item Name
+                                    </th>
+                                    <th>
+                                        UOM
+                                    </th>
+                                    <th>
+                                        Qty
+                                    </th>
+                                    <th>
+                                        Rate
+                                    </th>
+                                    <th>
+                                        Total
+                                    </th>
+                                    <th class="text-center">
+                                        Action
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.InvStockTransferItems != null)
+                                {
+                                    @if (Model.InvStockTransferItems.Count > 0)
+                                    {
+                                        foreach (var items in Model.InvStockTransferItems)
+                                        {
+                                            <tr>
+                                                <td name='id' hidden class='id'>@items.Id</td>
+                                                <td hidden><input name='ItemId' class='ItemId form-group' readonly value='@items.ItemId' /></td>
+                                                <td class='itemt'>@items.ItemName</td>
+                                                <td name='uOM' class='UOM'>@items.UnitName</td>
+                                                <td><input name='Qty' class='text-right form-group Qty' readonly value='@items.Qty' /></td>
+                                                <td name='rate' class='text-right Rate'>@items.ItemRate</td>
+                                                <td name='total' class='text-right Total'>@items.ItemAmount</td>
+                                                <td class="text-center"> <a class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a><a class=""> </a><a class="btn btn-danger"><i class="fas fa-trash remove-row"></i></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+
+                            </tbody>
+                            <tfoot align="right">
+                                <tr style='font-weight: bold'>
+                                    <td> </td>
+                                    <td style="text-decoration-color:black;">Total:</td>
+                                    <td class="TotalQty" id="TotalQty">0.00</td>
+                                    <td id="TRate">0.00</td>
+                                    <td id="TAmount">0.00</td>
+                                    <td> </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="text-left mb-3">
+                    <a asp-controller="StockTransfer" asp-action="Index" class="btn btn-white">List</a>
+                    @if (Model.Status != "Approved")
+                    {
+                        <button id="SaveBtn" onclick="return SaveValidation();" type="submit" asp-action="Create" asp-controller="StockTransfer" class="btn btn-primary">@ViewBag.EntityState</button>
+                    }
+                    <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                    <input hidden id="sTotalQty" class="add-comma" value="0" />
+                    <input hidden id="sGrandTotal" class="add-comma" value="0" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS {
+    <script src="~/js/INV/stockTransferItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var formdetails = [];
+            $.each($("#tblpurchase tbody tr"), function () {
+                formdetails.push({
+
+                    ItemId: $(this).find('.ItemId').html(),
+                    Qty: $(this).find('.Qty').html(),
+                    Rate: $(this).find('.Rate').html(),
+                    Total: $(this).find('.Total').html(),
+                    UOM: $(this).find('.UOM').html(),
+                    Id: $(this).find('.id').html(),
+                    LineTotal: $(this).find('.NetTotal').html(),
+                    NetTotal: $(this).find('.NetTotal').html(),
+                });
+
+            });
+
+            var model = JSON.stringify(formdetails);
+            $("#purchasedetails").val(model);
+            if (formdetails.length <= 0) {
+                swal("", "Enter At Least One Record!", "info");
+                return false;
+            }
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+
+
+        }
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            //Select2
+            $('input.add-comma').commaTextbox();
+
+            $("#ItemId").select2();
+            $("#WareHouseFromId").select2();
+            $("#WareHouseToId").select2();
+            $("#UOM").val("");
+
+            //Get UOM
+            $('#ItemId').change(function () {
+                $("#Qty").val("");
+                $("#Total").val("");
+                debugger;
+                var itemId = $('#ItemId').val();
+                var wareHouseId = $('#WareHouseFromId').val();
+                var transferDate = $('#TransferDate').val();
+                //  var SupplierId = $('#SupplierId').val();
+                var SupplierId = 1;
+                $.ajax({
+                    type: 'Get',
+                    async: false,
+                    url: '/Inventory/StockTransfer/GetUOM?id=' + itemId,
+
+                }).done(function (data) {
+                    debugger;
+                    if (data != null) {
+                        debugger;
+                        console.log(data[0].uom, data[0].avgRate);
+                        $('#UOM').val(data[0].uom);
+                        $('#Rate').val(data[0].avgRate);
+                    }
+                    else {
+
+                    }
+                    if (wareHouseId != "" && itemId != "") {
+                        var stock = getStock(itemId, wareHouseId, transferDate);
+                        stock.done(function (data) {
+                            $('#Stock').val(data.toFixed(2));
+                        });
+
+
+                    }
+
+
+                });
+                var qty = $("#Qty").val();
+                var rate = $("#Rate").val();
+                if (qty != "") {
+                    var result = parseFloat(qty * rate).toFixed(2);
+                    $("#Total").val(result);
+                }
+
+
+            });
+
+            $("#Qty").change(function () {
+                debugger
+                var qty = $("#Qty").val().replace(/,/g, "") || 0.0;
+                var rate = $("#Rate").val().replace(/,/g, "") || 0.0;
+                var itemId = $('#ItemId').val();
+                var stock = parseFloat($('#Stock').val());
+                if (itemId == null) {
+                    swal("", "Please select item.", "warning");
+                    $("#Qty").val("");
+                    return false;
+                } else if (qty == "" || qty == null) {
+                    swal("", "Please enter the quantity.", "warning");
+                    return false;
+                } else if (qty < 0) {
+                    swal("", "Quantity must be greater than zero.", "warning")
+                    return false;
+                }
+                if (stock < qty) {
+                    swal("", "Please enter value lower than stock.", "warning");
+                    $('#Qty').val("");
+                    return false;
+                }
+                else {
+                    var result = parseFloat(qty * rate).toFixed(2);
+                    $("#Total").val(result);
+                }
+                $('input.add-comma').commaTextbox();
+            });
+
+            $("#btnAdd1").click(function () {
+                debugger
+                if (validate() != false) {
+                    var itemt = $("#ItemId option:selected").text();
+                    var itemv = $("#ItemId option:selected").val();
+                    var uom = $("#UOM").val();
+                    var qty = Number($("#Qty").val().replace(/,/g, "") || 0.0);
+                    var rate = Number($("#Rate").val().replace(/,/g, "") || 0.0);
+                    var total = $("#Total").val();
+
+
+                    var row = "<tr>" +
+                        "<td name='id' hidden class='id'>0</td>" +
+                        "<td hidden><input name='ItemId' class='ItemId' value='" + itemv + "' /></td>" +
+                        "<td class='itemt'>" + itemt + "</td> " +
+                        "<td name='UOM' class='text-right UOM'>" + uom + "</td> " +
+                        "<td class='text-right'><input name='Qty' class='text-right form-group Qty add-comma' readonly value="+ qty +" /></td> " +
+                        " <td name='Rate1' class='text-right Rate add-comma'>" + rate + "</td> " +
+                        " <td name='Total1' class='text-right Total add-comma'>" + total + "</td> " +
+                        '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                    "</tr>"
+
+                    $("#tblpurchase tbody ").append(row);
+                    debugger
+                    calculatetotal();
+                    debugger
+
+                    GetRowFooter();
+                    debugger
+
+                    clearTexbox();
+                    $('input.add-comma').commaTextbox();
+                    $('#ItemId').focus();
+                };
+
+            });
+
+            function clearTexbox() {
+                debugger;
+                $('#ItemId').val(null).trigger('change.select2');
+                $('#Qty').val("");
+                $('#UOM').val("");
+                $('#Rate').val("");
+                $('#Total').val("");
+                $('#Stock').val("");
+            }
+
+            $("#tblpurchase tbody").on("click", ".fa-edit", function () {
+
+                debugger;
+                if ($('#btnUpdateMaster').css('display') == 'none') {
+
+                    debugger;
+                    var $id = $(this).closest("tr").find(".id").html();
+                    var $item1 = $(this).closest("tr").find(".ItemId").val();
+                    var $item2 = $(this).closest("tr").find(".UOM").html();
+                    var $item3 = $(this).closest("tr").find(".Qty").val();
+                    var $item4 = $(this).closest("tr").find(".Rate").html().replace(/,/g, "") || 0.0;
+                    var $item5 = $(this).closest("tr").find(".Total").html().replace(/,/g, "") || 0.0;
+
+                    debugger;
+
+                    $('#id').val($id);
+                    $('#ItemId').val($item1);
+                    $('#UOM').val($item2);
+                    $('#Qty').val($item3);
+                    $('#Rate').val($item4);
+                    $('#Total').val($item5);
+
+                    //var itemId = $('#ItemId');
+                    //bindSelect2(itemId, '/Inventory/StockTransfer/GetItems', '/AR/StockTransfer/GetItem?id=', $item1);
+
+                    $('#ItemId').val($item1).trigger('change.select2');
+
+
+                    $(this).closest("tr").remove();
+                    $('#btnUpdateMaster').css('display', 'block');
+                    $('#btnAdd1').css('display', 'none');
+
+                    calculatetotal();
+                    $('input.add-comma').commaTextbox();
+                }
+                else if ($('#btnUpdateMaster').css('display') == 'block') {
+
+                    swal("", "Please Finish Updating Current Part.", "warning");
+                }
+            });
+
+            function calculatetotal() {
+                var GrandQty = 0;
+                var GrandTotal = 0;
+
+                $.each($("#tblpurchase tbody tr"), function () {
+                    debugger;
+                    var rowQty = Number($(this).find('.Qty').val().replace(/,/g, "") || 0.0);
+                   /* var rowRate = Number($(this).find('.Rate').html().replace(/,/g, "") || 0.0);*/
+                    var rowTotal = Number($(this).find('.Total').html().replace(/,/g, "") || 0.0);
+                    GrandQty = GrandQty + rowQty;
+                    /*GrandRate = parseFloat(parseFloat(GrandRate) + parseFloat(rowRate)).toFixed(2);*/
+                    GrandTotal = parseFloat(parseFloat(GrandTotal) + parseFloat(rowTotal)).toFixed(2);
+                });
+                $("#TQty").text(GrandQty);
+               /* $("#TRate").text("");*/
+                $("#TAmount").text(GrandTotal);
+
+                GetRowFooter();
+                $('input.add-comma').commaTextbox();
+            }
+
+            function GetRowFooter() {
+                debugger;
+                var TotalQty = 0;
+                var TotalAmount = 0;
+
+                $.each($("#tblpurchase tbody tr"), function () {
+                    debugger;
+
+                    var rowQty = Number($(this).find('.Qty').val().replace(/,/g, "") || 0.0);
+                    var rowAmount = Number($(this).find('.Total').html().replace(/,/g, "") || 0.0);
+                    // Total Qty
+                    TotalQty = parseFloat(parseFloat(TotalQty) + parseFloat(rowQty)).toFixed(2);
+                    // Total Amount
+                    TotalAmount = parseFloat(parseFloat(TotalAmount) + parseFloat(rowAmount)).toFixed(2);
+                });
+
+                $("#sTotalQty").val(TotalQty);
+                $("#sGrandTotal").val(TotalAmount);
+                $('input.add-comma').commaTextbox();
+
+                var sTotalQty = $("#sTotalQty").val();
+                var sGrandTotal = $("#sGrandTotal").val();
+
+                $.each($("#tblpurchase tfoot tr"), function () {
+                    debugger;
+
+                    $(this).closest("tr").remove();
+                    var row = "<tr style='font-weight: bold'>" +
+                        "<td ></td>" +
+                        "<td style'text-aligin: right;'>Total :</td> " +
+                        "<td class='text-right add-comma '>" + sTotalQty + "</td> " +
+                        "<td ></td> " +
+                        "<td class='text-right add-comma '>" + sGrandTotal + "</td> " +
+                        " <td ></td> "
+                    "</tr>"
+                    $("#tblpurchase tfoot ").append(row);
+                });
+            }
+
+            $('#btnUpdateMaster').click(function () {
+                if (validate() != false) {
+                    var itemt = $("#ItemId option:selected").text();
+                    var itemv = $("#ItemId option:selected").val();
+
+                    debugger;
+
+                    $.ajax({
+                        url: '/AP/Purchase/GetItemDetails?id=' + itemv,
+                        type: 'GET'
+                    }).done(function (data) {
+
+                        debugger;
+                        //$('.UOM' + element).val(data[0].id);
+                        //$('#UOM' + element).html(data[0].uom);
+                    });
+
+                    var id = $("#id").val();
+                    var itemId = $("#ItemId").val();
+                    var uom = $("#UOM").val();
+                    var qty = Number($("#Qty").val().replace(/,/g, "") || 0.0);
+                    var rate = Number($("#Rate").val().replace(/,/g, "") || 0.0);
+                    var total = Number($("#Total").val().replace(/,/g, "") || 0.0);
+
+                    var row = "<tr>" +
+                        "<td name='id' hidden class='id'>0</td>" +
+                        "<td hidden><input name='ItemId' class='ItemId' value='" + itemv + "' /></td>" +
+                        "<td class='itemt'>" + itemt + "</td> " +
+                        "<td name='UOM' class='text-right UOM'>" + uom + "</td> " +
+                        "<td class='text-right'><input name='Qty' class='text-right form-group Qty add-comma' readonly value=" + qty + " /></td> " +
+                        "<td name='Rate1' class='text-right Rate add-comma'>" + rate + "</td> " +
+                        "<td name='Total1' class='text-right Total add-comma'>" + total + "</td> " +
+                        '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                    "</tr>"
+
+                    $("#tblpurchase tbody ").append(row);
+                    $('#btnUpdateMaster').css('display', 'none');
+                    $('#btnAdd1').css('display', 'block');
+
+                    calculatetotal();
+                    GetRowFooter();
+                    clearTexbox();
+                    $('input.add-comma').commaTextbox();
+                    $('#ItemId').focus();
+                };
+
+            });
+
+            $("#tblpurchase tbody").on("click", ".remove-row", function () {
+                $(this).closest("tr").remove();
+                calculatetotal();
+            });
+
+            function validate() {
+                debugger
+                var itemId = $("#ItemId").val();
+                var qty = Number($("#Qty").val());
+                var total = Number($("#Total").val());
+                if (itemId == null) {
+                    swal("", "Please select Item.", "warning");
+                    return false;
+                } else if (qty <= 0) {
+                    swal("", "Please enter the Quantity", "warning");
+                    return false;
+                } else if (total <= 0) {
+                    swal("", "Total Must be greater than 0", "warning")
+                    return false;
+                }
+
+            }
+
+            calculatetotal();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function SaveValidation() {
+            debugger
+            var itemId = $("#ItemId").val();
+            var qty = $("#Qty").val();
+            var WareHouseFromId = $("#WareHouseFromId").val();
+            var WareHouseToId = $("#WareHouseToId").val();
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+
+            if (itemId != null || qty != "") {
+                swal("", "Please insert Item.", "warning");
+                return false;
+            } if (WareHouseFromId == null) {
+                swal("", "Please select Ware House From!", "warning");
+                return false;
+            } if (WareHouseToId == null) {
+                swal("", "Please select Ware House To!", "warning");
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+}

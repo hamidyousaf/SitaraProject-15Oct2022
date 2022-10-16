@@ -1,0 +1,97 @@
+﻿@model InvStoreIssueViewModel
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+@if (ViewBag.Items == null)
+{
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox-title">
+                <h5 class="font-bold">Add Store Issue Items</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-sm-3 col-md-6 col-lg-5">
+                                <input type="hidden" asp-for="StoreIssueId" name="StoreIssueId" id=@string.Format("{0}{1}", "StoreIssueId", ViewBag.Counter) />
+                                <input type="hidden" asp-for="StoreIssueItemId" name="StoreIssueItemId" id=@string.Format("{0}{1}", "StoreIssueItemId", ViewBag.Counter) />
+                                <label asp-for="ItemId"></label>
+                                <select name="ItemId" asp-for="ItemId" id='@string.Format("{0}{1}", "ItemId", ViewBag.Counter)' onchange="getItemValues(this.id, $(this).val())" class="form-control select-item" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("#_item{0}", ViewBag.Counter)>
+                                    <option disabled selected>Select an item...</option>
+                                </select>
+                                <p id=@string.Format("_item{0}", ViewBag.Counter)></p>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="UOM"></label>
+                                    <input type="hidden" asp-for="UOM" name="UOM" id=@string.Format("{0}{1}", "UOMId_", ViewBag.Counter) />
+                                    <input name="UOM_Value" readonly class="form-control" id=@string.Format("{0}{1}", "UOM_Value", ViewBag.Counter) tabIndex="-1" />
+                                </div>
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="Stock"></label>
+                                    <input asp-for="Stock" name="Stock" id=@string.Format("{0}{1}", "Stock_", ViewBag.Counter) class="form-control text-right" readonly type="text" tabIndex="-1" />
+                                </div>
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="Qty"></label>
+                                    <input asp-for="Qty" name="Qty" id=@string.Format("{0}{1}", "Qty_", ViewBag.Counter) class="form-control text-right calculate-total" type="number" />
+                                </div>
+                                <div hidden class="col-sm-3 col-md-6 col-lg-3">
+                                    <label hidden asp-for="Rate"></label>
+                                    <input hidden asp-for="Rate" name="Rate" id=@string.Format("{0}{1}", "Rate_", ViewBag.Counter) class="form-control text-right calculate-total" type="number" />
+                                </div>
+                                <div hidden class="col-sm-3 col-md-6 col-lg-3">
+                                    <label hidden asp-for="LineTotal"></label>
+                                    <input hidden asp-for="LineTotal" name="LineTotal" id=@string.Format("{0}{1}", "LineTotal_", ViewBag.Counter) readonly class="form-control text-right calculate-total" type="number" />
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                    <label asp-for="Remarks"></label>
+                                    <textarea asp-for="Remarks" name="Remarks" rows="1" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>}
+<p id="p"></p>
+<div class="text-right mb-3">
+    <a id="add-storeIssue-item" class="btn btn-success add-storeIssue-item"><i class="fa fa-plus"></i></a>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+@*<script src="~/lib/select2/select2.min.js"></script>*@
+<script src="~/js/INV/customSelect2.js"></script>
+<script src="~/js/INV/storeIssueItem.js"></script>
+<script>
+    $(document).ready(function () {
+    _applySelect($('#ItemId'+@ViewBag.Counter ));
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+        var counter = 1;
+        if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            } else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+        }
+        $('#add-storeIssue-item').on('click', function () {
+            $.post("/Inventory/StoreIssue/PartialStoreIssueItem", { counter: counter }).done(function (data) {
+                $("#p").append(data);
+                counter++;
+            });
+    });
+    });
+</script>
+

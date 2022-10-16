@@ -1,0 +1,1241 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Numbers.Entity.Models;
+using Numbers.Entity.ViewModels;
+using Numbers.Repository.AP;
+using Numbers.Repository.Helpers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+using Numbers.Helpers;
+
+namespace Numbers.Areas.AP.Controllers
+{
+    [Authorize]
+    [Area("AP")]
+    public class ComparativeStatementController : Controller
+    {
+        private readonly NumbersDbContext _dbContext;
+        private readonly APPurchaseRequisitionDetailsRepository _APPurchaseRequisitionDetailsRepository;
+        private readonly APPurchaseRequisitionRepository _APPurchaseRequisitionRepository;
+        private readonly APComparativeStatementRepository _APComparativeStatementRepository;
+        private readonly APCSRequestDetailRepository _APCSRequestDetailRepository;
+        private readonly APCSRequestRepository _APCSResquestRepository;
+
+        public ComparativeStatementController(NumbersDbContext context, APPurchaseRequisitionDetailsRepository aPPurchaseRequisitionDetailsRepository,
+            APPurchaseRequisitionRepository aPPurchaseRequisitionRepository, APComparativeStatementRepository aPComparativeStatementRepository,
+            APCSRequestDetailRepository aPCSRequestDetailRepository, APCSRequestRepository aPCSResquestRepository)
+        {
+            _dbContext = context;
+            _APPurchaseRequisitionDetailsRepository = aPPurchaseRequisitionDetailsRepository;
+            _APPurchaseRequisitionRepository = aPPurchaseRequisitionRepository;
+            _APComparativeStatementRepository = aPComparativeStatementRepository;
+            _APCSRequestDetailRepository = aPCSRequestDetailRepository;
+            _APCSResquestRepository = aPCSResquestRepository;
+        }
+        public IActionResult GetComparativeStatement()
+        {
+            try
+            {
+                int companyId = HttpContext.Session.GetInt32("CompanyId").Value;
+                var draw = Request.Form["draw"].FirstOrDefault();
+                var start = Request.Form["start"].FirstOrDefault();
+                var length = Request.Form["length"].FirstOrDefault();
+                var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+                var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+                var searchValue = Request.Form["search[value]"].FirstOrDefault();
+                int pageSize = length != null ? Convert.ToInt32(length) : 0;
+                int skip = start != null ? Convert.ToInt32(start) : 0;
+                int recordsTotal = 0;
+                var CompData = (from tempcustomer in _dbContext.APComparativeStatements.Where(x => x.IsActive == true&&x.IsDelete==false) select tempcustomer);
+                if (!string.IsNullOrEmpty(sortColumn) && (!string.IsNullOrEmpty(sortColumnDirection)))
+                {
+                    CompData = CompData.OrderBy(sortColumn + " " + sortColumnDirection);
+                }
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    CompData = CompData.Where(m => m.CSValidity.ToShortDateString().Contains(searchValue)
+                                                    || m.CS.ToString().Contains(searchValue)
+             
+                                                  );
+
+                }
+                recordsTotal = CompData.Count();
+                var data = CompData.Skip(skip).Take(pageSize).ToList();
+                List<APComparativeStatementVM> Details = new List<APComparativeStatementVM>();
+                foreach (var grp in data)
+                {
+                    APComparativeStatementVM aPComparative = new APComparativeStatementVM();
+                    aPComparative.ValidityDate = grp.CSValidity.ToShortDateString();
+                    aPComparative.CreatedBy = _dbContext.Users.FirstOrDefault(x => x.Id== grp.CreatedBy).FullName;
+                    aPComparative.OperatingName = _dbContext.SysOrganization.FirstOrDefault(x => x.Organization_Id == grp.OperatingId).OrgName;
+                    aPComparative.APComparativeStatement = grp;
+                    Details.Add(aPComparative);
+
+                }
+                var jsonData = new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = Details };
+                return Ok(jsonData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<IActionResult> Index(int? id)
+        {
+            var configValues = new ConfigValues(_dbContext);
+            int resp_Id = HttpContext.Session.GetInt32("Resp_ID").Value;
+            int companyId = HttpContext.Session.GetInt32("CompanyId").Value;
+            var aPComparativeStatementVM = new APComparativeStatementVM();
+            ViewBag.OperatingUnit = configValues.GetOrgValues(resp_Id, "Operating Unit", companyId);
+            ViewBag.Organization = configValues.GetOrgValues(resp_Id, "Inventory Organization", companyId);
+            ViewBag.User=(from u in _dbContext.Users select u).ToList();
+            ViewBag.Department = (from g in _dbContext.GLDivision select g).ToList();
+            ViewBag.Vendor = (from v in _dbContext.APSuppliers select v).ToList();
+            ViewBag.APPurchaseRequisition = _APPurchaseRequisitionRepository.Get(x=>x.IsApproved);
+            var d = await _APPurchaseRequisitionRepository.GetAllAsync();
+            ViewBag.APPurchaseRequisitionDetails =  _APPurchaseRequisitionDetailsRepository.Get(x=>x.Quantity-x.CSRcd>0);
+            //ViewBag.UOM = configValues.GetConfigValues("Inventory", "UOM", companyId);
+            ViewBag.UOM = _dbContext.AppCompanyConfigs.Where(x=>x.Module=="Inventory"&&x.ConfigName=="UOM"&&x.CompanyId==companyId).ToList();
+            ViewBag.PaymentTerms = configValues.GetConfigValues("AP", "Payment Term", companyId);
+            ViewBag.DeliveryTerms = configValues.GetConfigValues("AP", "Delivery Term", companyId);
+            ViewBag.POType = configValues.GetConfigValues("AP", "Purchase Order Type", companyId);
+            ViewBag.SalesTax = (from p in _dbContext.AppTaxes where p.CompanyId== companyId select p).ToList();
+            string configValue = _dbContext.AppCompanyConfigs
+                                            .Where(w => w.Module == "Global" && w.ConfigName == "Report Path")
+                                            .Select(c => c.ConfigValue)
+                                            .FirstOrDefault();
+            ViewBag.ReportPath2 = string.Concat(configValue, "Viewer", "?Report=CSBasePrint&cId=", companyId, "&id={0}");
+            if (id.HasValue)
+            {
+                aPComparativeStatementVM.APComparativeStatement = _APComparativeStatementRepository.Get(x => x.ID == id).FirstOrDefault();
+                aPComparativeStatementVM.APCSRequestsList = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).ToList();
+                aPComparativeStatementVM.APCSRequestDetails = _APCSRequestDetailRepository.Get(x => x.APComparativeStatement_ID == id).ToList();
+                List<int> VendorList = new List<int>();
+                List<int> PaymentTermsList = new List<int>();
+                List<decimal> FreightList = new List<decimal>();
+                List<decimal> GrandTotallist = new List<decimal>();
+                List<int> DeliveryTermsList = new List<int>();
+                List<int> SalesTaxList = new List<int>();
+                List<int> POTypeList = new List<int>();
+                foreach(var freight in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    FreightList.Add(freight.Freight);
+                    GrandTotallist.Add(freight.GrandTotal);
+                }
+                
+                foreach(var vendor in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    var vendor_Id = (from v in _dbContext.APSuppliers where v.Id== vendor.Vendor_ID select v.Id).FirstOrDefault();
+                    if (vendor_Id == 0)
+                        vendor_Id = 0;
+                    VendorList.Add(vendor_Id);
+                }
+                foreach (var paymnet in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    var vendor_Id = (from v in _dbContext.AppCompanyConfigs where v.Id == paymnet.PaymentTerm select v.Id).FirstOrDefault();
+                    if (vendor_Id == 0)
+                        vendor_Id = 0;
+                    PaymentTermsList.Add(vendor_Id);
+                }
+                foreach (var delivery in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    var vendor_Id = (from v in _dbContext.AppCompanyConfigs where v.Id == delivery.DeliveryTerm select v.Id).FirstOrDefault();
+                    DeliveryTermsList.Add(vendor_Id);
+                }
+                foreach (var sale in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    var vendor_Id = (from v in _dbContext.AppTaxes where v.Id == sale.SaleTax select v.Id).FirstOrDefault();
+                    if (vendor_Id == 0)
+                        vendor_Id = 0;
+                    SalesTaxList.Add(vendor_Id);
+                }
+                foreach (var poType in aPComparativeStatementVM.APCSRequestDetails)
+                {
+                    var vendor_Id = (from v in _dbContext.AppCompanyConfigs where v.Id == poType.POType_ID select v.Id).FirstOrDefault();
+                    if (vendor_Id == 0)
+                        vendor_Id = 0;
+                    POTypeList.Add(vendor_Id);
+                }
+                var COUNT = FreightList.Count;
+                if (FreightList.Count >=1)
+                    ViewBag.Freight1 = FreightList[0];
+                else
+                    ViewBag.Freight1 = 0;
+                if (FreightList.Count >= 2)
+                    ViewBag.Freight2 = FreightList[1];
+                else
+                    ViewBag.Freight2 = 0;
+                if (FreightList.Count >= 3)
+                    ViewBag.Freight3 = FreightList[2];
+                else
+                    ViewBag.Freight3 = 0;
+                if (FreightList.Count >= 4)
+                    ViewBag.Freight4 = FreightList[3];
+                else
+                    ViewBag.Freight4 = 0;
+                if (FreightList.Count >= 5)
+                    ViewBag.Freight5 = FreightList[4];
+                else
+                    ViewBag.Freight5 = 0;
+                if (GrandTotallist.Count >= 1)
+                    ViewBag.GrandTotalList1 = GrandTotallist[0];
+                else
+                    ViewBag.GrandTotalList1 = 0;
+                if (GrandTotallist.Count >= 2)
+                    ViewBag.GrandTotalList2 = GrandTotallist[1];
+                else
+                    ViewBag.GrandTotalList2 = 0;
+                if (GrandTotallist.Count >= 3)
+                    ViewBag.GrandTotalList3 = GrandTotallist[2];
+                else
+                    ViewBag.GrandTotalList3 = 0;
+                if (GrandTotallist.Count >= 4)
+                    ViewBag.GrandTotalList4 = GrandTotallist[3];
+                else
+                    ViewBag.GrandTotalList4 = 0;
+                if (GrandTotallist.Count >= 5)
+                    ViewBag.GrandTotalList5 = GrandTotallist[4];
+                else
+                    ViewBag.GrandTotalList5 = 0;
+                if (VendorList.Count >= 1)
+                    ViewBag.Vendor1 = VendorList[0];
+                else
+                    ViewBag.Vendor1 = 0;
+                if (VendorList.Count >= 2)
+                    ViewBag.Vendor2 = VendorList[1];
+                else
+                    ViewBag.Vendor2 = 0;
+                if (VendorList.Count >= 3)
+                    ViewBag.Vendor3 = VendorList[2];
+                else
+                    ViewBag.Vendor3 = 0;
+                if (VendorList.Count >= 4)
+                    ViewBag.Vendor4 = VendorList[3];
+                else
+                    ViewBag.Vendor4 = 0;
+                if (VendorList.Count >= 5)
+                    ViewBag.Vendor5 = VendorList[4];
+                else
+                    ViewBag.Vendor5 = 0;
+                /*if (VendorList.Count >= 5)
+                    ViewBag.Freight1 = VendorList[0];
+                ViewBag.Freight2 = VendorList[1];
+                ViewBag.Freight3 = VendorList[2];
+                ViewBag.Freight4 = VendorList[3];
+                ViewBag.Freight5 = VendorList[4];*/
+                if (PaymentTermsList.Count >= 1)
+                    ViewBag.Paymenterm1 = PaymentTermsList[0];
+                else
+                    ViewBag.Paymenterm1 = 0;
+                if (PaymentTermsList.Count >= 2)
+                    ViewBag.Paymenterm2 = PaymentTermsList[1];
+                else
+                    ViewBag.Paymenterm2 = 0;
+                if (PaymentTermsList.Count >= 3)
+                    ViewBag.Paymenterm3 = PaymentTermsList[2];
+                else
+                    ViewBag.Paymenterm3 = 0;
+                if (PaymentTermsList.Count >= 4)
+                    ViewBag.Paymenterm4 = PaymentTermsList[3];
+                else
+                    ViewBag.Paymenterm4 = 0;
+                if (PaymentTermsList.Count >= 5)
+                    ViewBag.Paymenterm5 = PaymentTermsList[4];
+                else
+                    ViewBag.Paymenterm5 = 0;
+                if (DeliveryTermsList.Count >= 1)
+                    ViewBag.Deliveryterm1 = DeliveryTermsList[0];
+                else
+                    ViewBag.Deliveryterm1 = 0;
+                if (DeliveryTermsList.Count >= 2)
+                    ViewBag.Deliveryterm2 = DeliveryTermsList[1];
+                else
+                    ViewBag.Deliveryterm2 = 0;
+                if (DeliveryTermsList.Count >= 3)
+                    ViewBag.Deliveryterm3 = DeliveryTermsList[2];
+                else
+                    ViewBag.Deliveryterm3 = 0;
+                if (DeliveryTermsList.Count >= 4)
+                    ViewBag.Deliveryterm4 = DeliveryTermsList[3];
+                else
+                    ViewBag.Deliveryterm4 = 0;
+                if (DeliveryTermsList.Count >= 5)
+                    ViewBag.Deliveryterm5 = DeliveryTermsList[4];
+                else
+                    ViewBag.Deliveryterm5 = 0;
+                if (SalesTaxList.Count >= 1)
+                    ViewBag.SalesTax1 = SalesTaxList[0];
+                else
+                    ViewBag.SalesTax1 = 0;
+                if (SalesTaxList.Count >= 2)
+                    ViewBag.SalesTax2 = SalesTaxList[1];
+                else
+                    ViewBag.SalesTax2 = 0;
+                if (SalesTaxList.Count >= 3)
+                    ViewBag.SalesTax3 = SalesTaxList[2];
+                else
+                    ViewBag.SalesTax3 = 0;
+                if (SalesTaxList.Count >= 4)
+                    ViewBag.SalesTax4 = SalesTaxList[3];
+                else
+                    ViewBag.SalesTax4 = 0;
+                if (SalesTaxList.Count >= 5)
+                    ViewBag.SalesTax5 = SalesTaxList[4];
+                else
+                    ViewBag.SalesTax5 = 0;
+                if (POTypeList.Count >= 1)
+                    ViewBag.POTypeList1 = POTypeList[0];
+                else
+                    ViewBag.POTypeList1 = 0;
+                if (POTypeList.Count >= 2)
+                    ViewBag.POTypeList2 = POTypeList[1];
+                else
+                    ViewBag.POTypeList2 = 0;
+                if (POTypeList.Count >= 3)
+                    ViewBag.POTypeList3 = POTypeList[2];
+                else
+                    ViewBag.POTypeList3 = 0;
+                if (POTypeList.Count >= 4)
+                    ViewBag.POTypeList4 = POTypeList[3];
+                else
+                    ViewBag.POTypeList4 = 0;
+                if (POTypeList.Count >= 5)
+                    ViewBag.POTypeList5 = POTypeList[4];
+                else
+                    ViewBag.POTypeList5 = 0;
+                if(VendorList.Count >= 1) { 
+                if (VendorList[0] == 0)
+                {
+                    List<APCSRequestDetail> itmdetail_1 = new List<APCSRequestDetail>();
+                    var count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).Count();
+                    var itemDetail1 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[0] &&
+                                           x.PaymentTerm == PaymentTermsList[0] && x.APComparativeStatement_ID == id && x.DeliveryTerm == DeliveryTermsList[0] &&
+                                           x.SaleTax == SalesTaxList[0] select x).FirstOrDefault();
+                    for(int i = 0; i <= count; i++)
+                    {
+                        itmdetail_1.Add(itemDetail1);
+                    }
+                    ViewBag.ItemDetail1 = itmdetail_1;
+                }
+                else
+                    ViewBag.ItemDetail1 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[0] && 
+                                           x.PaymentTerm == PaymentTermsList[0] && x.DeliveryTerm == DeliveryTermsList[0] && 
+                                           x.SaleTax == SalesTaxList[0] select x).ToList().Distinct();
+                }
+                if (VendorList.Count >= 2)
+                {
+                    if (VendorList[1] == 0)
+                    {
+                        var count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).Count();
+                        List<APCSRequestDetail> itmdetail_2 = new List<APCSRequestDetail>();
+                        var itmdetail2 = (from x in aPComparativeStatementVM.APCSRequestDetails
+                                          where x.Vendor_ID == VendorList[1] &&
+x.PaymentTerm == PaymentTermsList[1] && x.DeliveryTerm == DeliveryTermsList[1] &&
+x.SaleTax == SalesTaxList[1]
+                                          select x).FirstOrDefault();
+                        for (int i = 0; i < count; i++)
+                        {
+                            itmdetail_2.Add(itmdetail2);
+                        }
+                        ViewBag.ItemDetail2 = itmdetail_2;
+                    }
+                    else
+                    {
+                        ViewBag.ItemDetail2 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[1] && x.PaymentTerm == PaymentTermsList[1] && x.DeliveryTerm == DeliveryTermsList[1] && x.SaleTax == SalesTaxList[1] select x).ToList().Distinct();
+                    }
+                }
+                if (VendorList.Count >= 3)
+                {
+                    if (VendorList[2] == 0) {
+                    var count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).Count();
+                    List<APCSRequestDetail> itmdetail_3 = new List<APCSRequestDetail>();
+                    var itmdetail3 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[2] &&
+                                           x.PaymentTerm == PaymentTermsList[2] && x.DeliveryTerm == DeliveryTermsList[2] &&
+                                           x.SaleTax == SalesTaxList[2] select x).FirstOrDefault();
+                    for (int i = 0; i < count; i++)
+                    {
+                        itmdetail_3.Add(itmdetail3);
+                    }
+                    ViewBag.ItemDetail3 = itmdetail_3;
+
+                }
+                    else {   
+                    ViewBag.ItemDetail3 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[2] &&
+                                           x.PaymentTerm == PaymentTermsList[2] && x.DeliveryTerm == DeliveryTermsList[2] &&
+                                           x.SaleTax == SalesTaxList[2] select x).ToList().Distinct();
+                }
+                    }
+                if(VendorList.Count >= 4) { 
+                if (VendorList[3] == 0) {
+                    var count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).Count();
+                    List<APCSRequestDetail> itmdetail_4 = new List<APCSRequestDetail>();
+                    var itmdetail4 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[3] && 
+                                           x.PaymentTerm == PaymentTermsList[3] && x.DeliveryTerm == DeliveryTermsList[3] &&
+                                           x.SaleTax == SalesTaxList[3] select x).FirstOrDefault();
+                    for (int i = 0; i < count; i++)
+                    {
+                        itmdetail_4.Add(itmdetail4);
+                    }
+                    ViewBag.ItemDetail4 = itmdetail_4;
+                }
+                else {    
+                    ViewBag.ItemDetail4 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[3] &&
+                                           x.PaymentTerm == PaymentTermsList[3] && x.DeliveryTerm == DeliveryTermsList[3] &&
+                                           x.SaleTax == SalesTaxList[3] select x).ToList().Distinct();
+                    }
+                }
+                if (VendorList.Count >= 5)
+                {
+                    if (VendorList[4] == 0) {
+                    var count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == id).Count();
+                    List<APCSRequestDetail> itmdetail_5 = new List<APCSRequestDetail>();
+                    var itmdetail5 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[4] && 
+                                           x.PaymentTerm == PaymentTermsList[4] && x.DeliveryTerm == DeliveryTermsList[4] && 
+                                           x.SaleTax == SalesTaxList[4] select x).FirstOrDefault();
+                    for (int i = 0; i < count; i++)
+                    {
+                        itmdetail_5.Add(itmdetail5);
+                    }
+                    ViewBag.ItemDetail5 = itmdetail_5;
+                }
+                    else {   
+                    ViewBag.ItemDetail5 = (from x in aPComparativeStatementVM.APCSRequestDetails where x.Vendor_ID == VendorList[4] && 
+                                           x.PaymentTerm == PaymentTermsList[4] && x.DeliveryTerm == DeliveryTermsList[4] && 
+                                           x.SaleTax == SalesTaxList[4] select x).ToList().Distinct();
+                    }
+                    }
+                return View(aPComparativeStatementVM);
+            }
+            else
+            {
+                var result = _dbContext.APComparativeStatements.Where(x => x.IsActive).ToList();
+                if (result.Count > 0)
+                {
+                    var CSNo= _dbContext.APComparativeStatements.Select(x => x.CS).Max();
+                    int cs = Convert.ToInt32(CSNo) + 1;
+                    ViewBag.Id = cs;
+                }
+                else
+                {
+                    ViewBag.Id = 1;
+                }
+                return View(aPComparativeStatementVM);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(APComparativeStatementVM aPComparativeStatementVM,IFormCollection collection)
+        {
+            int companyId = HttpContext.Session.GetInt32("CompanyId").Value;
+            string userId = HttpContext.Session.GetString("UserId");
+            int resp_Id = HttpContext.Session.GetInt32("Resp_ID").Value;
+            aPComparativeStatementVM.APComparativeStatement.CompanyId = HttpContext.Session.GetInt32("CompanyId").Value;
+            aPComparativeStatementVM.APComparativeStatement.Resp_ID = HttpContext.Session.GetInt32("Resp_ID").Value;
+            IFormFile file=null;
+            if (collection.Files.Count >0)
+            {
+                file = collection.Files[0];
+            }
+            if (aPComparativeStatementVM.APComparativeStatement.ID == 0)
+            {
+                aPComparativeStatementVM.APComparativeStatement.CreatedBy = HttpContext.Session.GetString("UserId");
+                aPComparativeStatementVM.APComparativeStatement.CreatedDate = DateTime.Now;
+                aPComparativeStatementVM.APComparativeStatement.Attachment = await UploadFile(file);
+                aPComparativeStatementVM.APComparativeStatement.IsActive = true;
+                aPComparativeStatementVM.APComparativeStatement.IsDelete = false;
+                await _APComparativeStatementRepository.CreateAsync(aPComparativeStatementVM.APComparativeStatement);
+                var itemDetailRow = collection["PrNo"].Count;
+                var requestDetailRow = collection["Vendor"].Count;
+                var Qty = collection["Qty"].Count;
+                int m = 0, n = 0, o = 0, q = 0, t = 0;
+                for (int i = 0; i < itemDetailRow; i++)
+                {
+                    aPComparativeStatementVM.APCSRequests = new APCSRequest();
+                    aPComparativeStatementVM.APCSRequests.APComparativeStatement_ID = aPComparativeStatementVM.APComparativeStatement.ID; 
+                    aPComparativeStatementVM.APCSRequests.PR = Convert.ToInt32(collection["PrNo"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemDescription = Convert.ToString(collection["ItemDescription"][i]);
+                    aPComparativeStatementVM.APCSRequests.UOM = Convert.ToString(collection["UOM"][i]);
+                    aPComparativeStatementVM.APCSRequests.Indent_Quantity = Convert.ToDecimal(collection["IndentQty"][i]);
+                    aPComparativeStatementVM.APCSRequests.Total_App_Amount = Convert.ToDecimal(collection["TotalAppAmount"][i]);
+                    aPComparativeStatementVM.APCSRequests.Request = Convert.ToString(collection["CreatedBy"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemId = Convert.ToInt32(collection["ItemId"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemCode = Convert.ToString(collection["ItemCode"][i]);
+                    aPComparativeStatementVM.APCSRequests.PrDetailId = Convert.ToInt32(collection["PrDetailId"][i]);
+                    aPComparativeStatementVM.APCSRequests.LastPODate = Convert.ToDateTime(collection["LastPODate"][i]);
+                    aPComparativeStatementVM.APCSRequests.PRRefrenceNo = Convert.ToString(collection["PRRefrenceNo"][i]);
+                    var PRDetailId= Convert.ToInt32(collection["PrDetailId"][i]);
+                    // aPComparativeStatementVM.APCSRequests.LastPO = Convert.ToDateTime(collection["LastPO"][i]);
+                    // aPComparativeStatementVM.APCSRequests.LastPORate = Convert.ToInt32(collection["LastPORate"][i]);
+                    await _APCSResquestRepository.CreateAsync(aPComparativeStatementVM.APCSRequests);
+                    var item = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == Convert.ToInt32(collection["PrDetailId"][i])).ToList();
+                    if (item != null)
+                    {
+                        foreach(var itm in item)
+                        {
+                            itm.IsCSCreated = true;
+                            await _APPurchaseRequisitionDetailsRepository.UpdateAsync(itm);
+                        }
+                        
+                    }
+                    decimal Rcd=0;
+                    for (int y=0;y< requestDetailRow; y++)
+                    {
+                        APCSRequestDetail aPCSRequestDetail = new APCSRequestDetail();
+                        aPCSRequestDetail.APComparativeStatement_ID = aPComparativeStatementVM.APComparativeStatement.ID;
+                        aPCSRequestDetail.APCSRequest_ID = aPComparativeStatementVM.APCSRequests.ID;
+                        var Vcheck1= Convert.ToString(collection["Vendorcheck1"]);
+                        var Vcheck2= Convert.ToString(collection["Vendorcheck2"]);
+                        var Vcheck3= Convert.ToString(collection["Vendorcheck3"]);
+                        var Vcheck4= Convert.ToString(collection["Vendorcheck4"]);
+                        var Vcheck5= Convert.ToString(collection["Vendorcheck5"]);
+                        if (y == 0&&Vcheck1!="false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV1"][m]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV1"][m]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV1"][m]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV1"][m]);
+                            aPCSRequestDetail.Sequence = 1;
+                            Rcd += Convert.ToDecimal(collection["QtyV1"][m]);
+                            m++;
+                        }
+                        if (y == 1&&Vcheck2 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV2"][n]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV2"][n]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV2"][n]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV2"][n]);
+                            aPCSRequestDetail.Sequence = 2;
+                            Rcd += Convert.ToDecimal(collection["QtyV2"][n]);
+                            n++;
+                        }
+                        if (y == 2 && Vcheck3 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV3"][o]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV3"][o]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV3"][o]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV3"][o]);
+                            aPCSRequestDetail.Sequence = 3;
+                            Rcd += Convert.ToDecimal(collection["QtyV3"][o]);
+                            o++;
+                        }
+                        if (y == 3 && Vcheck4 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV4"][q]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV4"][q]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV4"][q]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV4"][q]);
+                            aPCSRequestDetail.Sequence = 4;
+                            Rcd += Convert.ToDecimal(collection["QtyV4"][q]);
+                            q++;
+                        }
+                        if(y==4 && Vcheck5 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV5"][t]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV5"][t]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV5"][t]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV5"][t]);
+                            aPCSRequestDetail.Sequence = 5;
+                            Rcd += Convert.ToDecimal(collection["QtyV5"][t]);
+                            t++;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 0) {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.GrandTotal = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 1;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 1) {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.GrandTotal = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 2;
+
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 2) {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.GrandTotal = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 3;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 3) {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.GrandTotal = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 4;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 4) {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.GrandTotal = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 5;
+
+                        }
+                        await _APCSRequestDetailRepository.CreateAsync(aPCSRequestDetail);
+
+                    }
+                    if (Rcd != 0) { 
+                    var itemDetail = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == PRDetailId).FirstOrDefault();
+                    itemDetail.CSBalc = itemDetail.Quantity - Rcd;
+                    itemDetail.CSRcd += Rcd;
+                    await _APPurchaseRequisitionDetailsRepository.UpdateAsync(itemDetail);
+                    }
+                }
+            }
+            else
+            {
+                APComparativeStatement _apComparativeStatement = new APComparativeStatement();
+                _apComparativeStatement = (from c in _dbContext.APComparativeStatements where c.ID == aPComparativeStatementVM.APComparativeStatement.ID select c).FirstOrDefault();
+                _apComparativeStatement.IsActive = true;
+                _apComparativeStatement.Attachment = await UploadFile(file);
+                _apComparativeStatement.UpdatedDate = DateTime.Now;
+                _apComparativeStatement.UpdatedBy = HttpContext.Session.GetString("UserId");
+                _apComparativeStatement.IsDelete = false;
+                _apComparativeStatement.OperatingId = aPComparativeStatementVM.APComparativeStatement.OperatingId;
+                _apComparativeStatement.Remarks = aPComparativeStatementVM.APComparativeStatement.Remarks;
+                _apComparativeStatement.CS = aPComparativeStatementVM.APComparativeStatement.CS;
+                _apComparativeStatement.CSDate = aPComparativeStatementVM.APComparativeStatement.CSDate;
+                _apComparativeStatement.CSValidity = aPComparativeStatementVM.APComparativeStatement.CSValidity;
+                _apComparativeStatement.Resp_ID = resp_Id;
+                _dbContext.APComparativeStatements.Update(_apComparativeStatement);
+                _dbContext.SaveChanges();
+                var rowNumber = collection["Created"].Count;
+                var existing_CSRequest = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == aPComparativeStatementVM.APComparativeStatement.ID).ToList();
+                var myList = new List<APCSRequest>();
+                if (rowNumber !=0)
+                {
+                    for (int i = 0; i < rowNumber; i++)
+                    {
+                        int ID = Convert.ToInt32(collection["ID"][i]);
+                        var requestDetail = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == aPComparativeStatementVM.APComparativeStatement.ID
+                                                                        && x.ID==ID).FirstOrDefault();
+                        myList.Add(requestDetail);
+                    }
+                }
+                if(rowNumber==0)
+                {
+                    foreach (var req in existing_CSRequest)
+                    {
+                        var request_Detail = _APCSRequestDetailRepository.Get(x => x.APCSRequest_ID == req.ID && x.APComparativeStatement_ID == req.APComparativeStatement_ID).ToList();
+                        await _APCSRequestDetailRepository.DeleteRangeAsync(request_Detail);
+                        await _APCSResquestRepository.DeleteAsync(req);
+                        var item = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == req.ItemId).FirstOrDefault();
+                        item.IsCSCreated = false;
+                        await _APPurchaseRequisitionDetailsRepository.UpdateAsync(item);
+                    }
+                }
+                int e=0,f=0,g=0,h=0, x = 0;
+                if (myList.Count > 0)
+                {
+                    int i = 0;
+                    foreach (var req in existing_CSRequest)
+                    {
+                        bool result = myList.Exists(x => x.APComparativeStatement_ID == req.APComparativeStatement_ID
+                                                    && x.Request == req.Request && x.PR == req.PR && x.ItemDescription == req.ItemDescription && x.UOM == req.UOM && x.Indent_Quantity == req.Indent_Quantity);
+                        var resultCount = myList.Count(x => x.APComparativeStatement_ID == req.APComparativeStatement_ID
+                                                    && x.Request == req.Request && x.PR == req.PR && x.ItemDescription == req.ItemDescription && x.UOM == req.UOM && x.Indent_Quantity == req.Indent_Quantity);
+                        if (!result|| resultCount>1)
+                        {
+                            var request_Detail = _APCSRequestDetailRepository.Get(x => x.APCSRequest_ID == req.ID && x.APComparativeStatement_ID == req.APComparativeStatement_ID).ToList();
+                            await _APCSRequestDetailRepository.DeleteRangeAsync(request_Detail);
+                            await _APCSResquestRepository.DeleteAsync(req);
+                            var item = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == req.ItemId).FirstOrDefault();
+                            if(item!=null)
+                              item.IsCSCreated = false;
+                            await _APPurchaseRequisitionDetailsRepository.UpdateAsync(item);
+                        }
+                        else
+                        {
+                            req.PR = Convert.ToInt32(collection["PrNo#"][i]);
+                            req.ItemDescription = Convert.ToString(collection["Description"][i]);
+                            req.UOM = Convert.ToString(collection["uOM"][i]);
+                            req.Indent_Quantity = Convert.ToDecimal(collection["IndentQuantity"][i]);
+                            req.Total_App_Amount = Convert.ToDecimal(collection["totalAppAmount"][i]);
+                            req.Request = Convert.ToString(collection["Created"][i]);
+                            req.LastPODate = Convert.ToDateTime(collection["lastPODate"][i]);
+                            //req.PRRefrenceNo = Convert.ToString(collection["PRRefrenceNo"][i]);
+                            await _APCSResquestRepository.UpdateAsync(req);
+                            i++;
+                            var req_detail = _APCSRequestDetailRepository.Get(x => x.APComparativeStatement_ID == req.APComparativeStatement_ID && x.APCSRequest_ID == req.ID).ToList();
+                            int p = 0;
+                            decimal RcdQuantiy = 0;
+                            foreach (var reqdetail in req_detail)
+                            {
+                                try
+                                {
+                                    var Vchck1 = Convert.ToString(collection["Vendorcheck1"]);
+                                    var Vchck2 = Convert.ToString(collection["Vendorcheck2"]);
+                                    var Vchck3 = Convert.ToString(collection["Vendorcheck3"]);
+                                    var Vchck4 = Convert.ToString(collection["Vendorcheck4"]);
+                                    var Vchck5 = Convert.ToString(collection["Vendorcheck5"]);
+                                    if (p == 0&& Vchck1!="false") 
+                                    { 
+                                        reqdetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][p]);
+                                        reqdetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][p]);
+                                        reqdetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][p]);
+                                        reqdetail.SaleTax = Convert.ToInt32(collection["SaleTax"][p]);
+                                        reqdetail.Freight = Convert.ToDecimal(collection["Freight"][p]);
+                                        reqdetail.POType_ID = Convert.ToInt32(collection["POType"][p]);
+                                        reqdetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][p]);
+                                        reqdetail.IsEnable = Convert.ToBoolean(collection["EnableV1"][x]);
+                                        reqdetail.Qunatity = Convert.ToDecimal(collection["qtyExistV1"][x]);
+                                        reqdetail.Rate = Convert.ToDecimal(collection["rateV1"][x]);
+                                        reqdetail.Amount = Convert.ToDecimal(collection["amountV1"][x]);
+                                        RcdQuantiy += Convert.ToDecimal(collection["qtyExistV1"][x]);
+                                        reqdetail.Sequence = 1;
+                                        x++;
+                                    }
+                                    if (p == 1&&Vchck2 != "false")
+                                    {
+                                        reqdetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][p]);
+                                        reqdetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][p]);
+                                        reqdetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][p]);
+                                        reqdetail.SaleTax = Convert.ToInt32(collection["SaleTax"][p]);
+                                        reqdetail.Freight = Convert.ToDecimal(collection["Freight"][p]);
+                                        reqdetail.POType_ID = Convert.ToInt32(collection["POType"][p]);
+                                        reqdetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][p]);
+                                        reqdetail.IsEnable = Convert.ToBoolean(collection["EnableV2"][e]);
+                                        reqdetail.Qunatity = Convert.ToDecimal(collection["qtyExistV2"][e]);
+                                        reqdetail.Rate = Convert.ToDecimal(collection["rateV2"][e]);
+                                        reqdetail.Amount = Convert.ToDecimal(collection["amountV2"][e]);
+                                        RcdQuantiy = RcdQuantiy+ Convert.ToDecimal(collection["qtyExistV2"][e]);
+                                        reqdetail.Sequence = 2;
+                                        e++;
+                                    }
+                                    if (p == 2&& Vchck3 != "false")
+                                    {
+                                        reqdetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][p]);
+                                        reqdetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][p]);
+                                        reqdetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][p]);
+                                        reqdetail.SaleTax = Convert.ToInt32(collection["SaleTax"][p]);
+                                        reqdetail.Freight = Convert.ToDecimal(collection["Freight"][p]);
+                                        reqdetail.POType_ID = Convert.ToInt32(collection["POType"][p]);
+                                        reqdetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][p]);
+                                        reqdetail.IsEnable = Convert.ToBoolean(collection["EnableV3"][f]);
+                                        reqdetail.Qunatity = Convert.ToDecimal(collection["qtyExistV3"][f]);
+                                        reqdetail.Rate = Convert.ToDecimal(collection["rateV3"][f]);
+                                        reqdetail.Amount = Convert.ToDecimal(collection["amountV3"][f]);
+                                        RcdQuantiy = RcdQuantiy + Convert.ToDecimal(collection["qtyExistV3"][f]);
+                                        reqdetail.Sequence = 3;
+                                        f++;
+                                    }
+                                    if (p == 3&& Vchck4 != "false")
+                                    {
+                                        reqdetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][p]);
+                                        reqdetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][p]);
+                                        reqdetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][p]);
+                                        reqdetail.SaleTax = Convert.ToInt32(collection["SaleTax"][p]);
+                                        reqdetail.POType_ID = Convert.ToInt32(collection["POType"][p]);
+                                        reqdetail.Freight = Convert.ToDecimal(collection["Freight"][p]);
+                                        reqdetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][p]);
+                                        reqdetail.IsEnable = Convert.ToBoolean(collection["EnableV4"][g]);
+                                        reqdetail.Qunatity = Convert.ToDecimal(collection["qtyExistV4"][g]);
+                                        reqdetail.Rate = Convert.ToDecimal(collection["rateV4"][g]);
+                                        reqdetail.Amount = Convert.ToDecimal(collection["amountV4"][g]);
+                                        RcdQuantiy = RcdQuantiy + Convert.ToDecimal(collection["qtyExistV4"][g]);
+                                        reqdetail.Sequence = 4;
+                                        g++;
+                                    }
+                                    if (p == 4 && Vchck5 != "false")
+                                    {
+                                        reqdetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][p]);
+                                        reqdetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][p]);
+                                        reqdetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][p]);
+                                        reqdetail.SaleTax = Convert.ToInt32(collection["SaleTax"][p]);
+                                        reqdetail.POType_ID = Convert.ToInt32(collection["POType"][p]);
+                                        reqdetail.Freight = Convert.ToDecimal(collection["Freight"][p]);
+                                        reqdetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][p]);
+                                        reqdetail.IsEnable = Convert.ToBoolean(collection["EnableV5"][h]);
+                                        reqdetail.Qunatity = Convert.ToDecimal(collection["qtyExistV5"][h]);
+                                        reqdetail.Rate = Convert.ToDecimal(collection["rateV5"][h]);
+                                        reqdetail.Amount = Convert.ToDecimal(collection["amountV5"][h]);
+                                        RcdQuantiy = RcdQuantiy + Convert.ToDecimal(collection["qtyExistV5"][h]);
+                                        reqdetail.Sequence = 5;
+                                        h++;
+                                    }
+                                }
+                                catch
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Freight = 0;
+                                    reqdetail.GrandTotal = 0;
+                                    reqdetail.Sequence = 1;
+                                }
+                                if (reqdetail.Vendor_ID == 0 && p == 0)
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Freight = 0;
+                                    reqdetail.GrandTotal = 0;
+                                    reqdetail.Sequence = 1;
+                                }
+                                if (reqdetail.Vendor_ID == 0 && p == 1)
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Freight = 0;
+                                    reqdetail.GrandTotal = 0;
+                                    reqdetail.Sequence = 2;
+                                }
+                                if (reqdetail.Vendor_ID == 0 && p == 2)
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Freight = 0;
+                                    reqdetail.GrandTotal = 0;
+                                    reqdetail.Sequence = 3;
+                                }
+                                if (reqdetail.Vendor_ID == 0 && p == 3)
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Sequence = 4;
+                                }if (reqdetail.Vendor_ID == 0 && p == 4)
+                                {
+                                    reqdetail.IsEnable = false;
+                                    reqdetail.Qunatity = 0;
+                                    reqdetail.Rate = 0;
+                                    reqdetail.Amount = 0;
+                                    reqdetail.Freight = 0;
+                                    reqdetail.GrandTotal = 0;
+                                    reqdetail.Sequence = 5;
+
+                                }
+                                await _APCSRequestDetailRepository.UpdateAsync(reqdetail);
+                                p++;
+                                if (RcdQuantiy > 0)
+                                {
+                                    var itemDetail = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == req.PrDetailId).FirstOrDefault();
+                                    itemDetail.CSBalc = itemDetail.Quantity - RcdQuantiy;
+                                    itemDetail.CSRcd += RcdQuantiy;
+                                    await _APPurchaseRequisitionDetailsRepository.UpdateAsync(itemDetail);
+                                }
+                            }
+                        }
+
+                    }
+                }
+                var itemDetailRow = collection["PrNo"].Count;
+                var requestDetailRow = collection["Vendor"].Count;
+                var Qty = collection["Qty"].Count;
+                int m=0,n=0,o=0,q=0,t=0;
+                for (int i = 0; i < itemDetailRow; i++)
+                {
+                    aPComparativeStatementVM.APCSRequests = new APCSRequest();
+                    aPComparativeStatementVM.APCSRequests.APComparativeStatement_ID = aPComparativeStatementVM.APComparativeStatement.ID;
+                    aPComparativeStatementVM.APCSRequests.PR = Convert.ToInt32(collection["PrNo"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemDescription = Convert.ToString(collection["ItemDescription"][i]);
+                    aPComparativeStatementVM.APCSRequests.UOM = Convert.ToString(collection["UOM"][i]);
+                    aPComparativeStatementVM.APCSRequests.Indent_Quantity = Convert.ToDecimal(collection["IndentQty"][i]);
+                    aPComparativeStatementVM.APCSRequests.Total_App_Amount = Convert.ToDecimal(collection["TotalAppAmount"][i]);
+                    aPComparativeStatementVM.APCSRequests.Request = Convert.ToString(collection["CreatedBy"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemId = Convert.ToInt32(collection["ItemId"][i]);
+                    aPComparativeStatementVM.APCSRequests.ItemCode = Convert.ToString(collection["ItemCode"][i]);
+                    aPComparativeStatementVM.APCSRequests.PrDetailId = Convert.ToInt32(collection["PrDetailId"][i]);
+                    aPComparativeStatementVM.APCSRequests.LastPODate = Convert.ToDateTime(collection["LastPODate"][i]);
+                    aPComparativeStatementVM.APCSRequests.PRRefrenceNo = Convert.ToString(collection["PRRefrenceNo"][i]);
+                    var PrDetailId = Convert.ToInt32(collection["PrDetailId"][i]);
+                    // aPComparativeStatementVM.APCSRequests.LastPO = Convert.ToDateTime(collection["LastPO"][i]);
+                    // aPComparativeStatementVM.APCSRequests.LastPORate = Convert.ToDecimal(collection["LastPORate"][i]);
+                    await _APCSResquestRepository.CreateAsync(aPComparativeStatementVM.APCSRequests);
+                    decimal RcdQuntity = 0;
+                    //aPComparativeStatementVM.APCSRequestDetails = new List<APCSRequestDetail>();
+                    for (int y = 0; y < requestDetailRow; y++)
+                    {
+                        APCSRequestDetail aPCSRequestDetail = new APCSRequestDetail();
+                        aPCSRequestDetail.APComparativeStatement_ID = aPComparativeStatementVM.APComparativeStatement.ID;
+                        aPCSRequestDetail.APCSRequest_ID = aPComparativeStatementVM.APCSRequests.ID;
+                        var Vchk1 = Convert.ToString(collection["Vendorcheck1"]);
+                        var Vchk2 = Convert.ToString(collection["Vendorcheck2"]);
+                        var Vchk3 = Convert.ToString(collection["Vendorcheck3"]);
+                        var Vchk4 = Convert.ToString(collection["Vendorcheck4"]);
+                        var Vchk5 = Convert.ToString(collection["Vendorcheck5"]);
+                        if (y == 0&& Vchk1!="false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV1"][m]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV1"][m]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV1"][m]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV1"][m]);
+                            aPCSRequestDetail.Sequence = 1;
+                            RcdQuntity+= Convert.ToDecimal(collection["QtyV1"][m]);
+                            m++;
+                        }
+                        if (y == 1 && Vchk2 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV2"][n]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV2"][n]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV2"][n]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV2"][n]);
+                            aPCSRequestDetail.Sequence = 2;
+
+                            RcdQuntity += Convert.ToDecimal(collection["QtyV2"][n]);
+
+                            n++;
+                        }
+                        if (y == 2 && Vchk3 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV3"][o]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV3"][o]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV3"][o]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV3"][o]);
+                            aPCSRequestDetail.Sequence = 3;
+
+                            RcdQuntity += Convert.ToDecimal(collection["QtyV3"][o]);
+
+                            o++;
+                        }
+                        if (y == 3 && Vchk4 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV4"][q]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV4"][q]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV4"][q]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV4"][q]);
+                            aPCSRequestDetail.Sequence = 4;
+
+                            RcdQuntity += Convert.ToDecimal(collection["QtyV4"][q]);
+
+                            q++;
+                        }
+                        if(y == 4 && Vchk5 != "false")
+                        {
+                            aPCSRequestDetail.Vendor_ID = Convert.ToInt32(collection["Vendor"][y]);
+                            aPCSRequestDetail.PaymentTerm = Convert.ToInt32(collection["PaymentTerm"][y]);
+                            aPCSRequestDetail.DeliveryTerm = Convert.ToInt32(collection["DeliveryTerm"][y]);
+                            aPCSRequestDetail.SaleTax = Convert.ToInt32(collection["SaleTax"][y]);
+                            aPCSRequestDetail.POType_ID = Convert.ToInt32(collection["POType"][y]);
+                            aPCSRequestDetail.Freight = Convert.ToDecimal(collection["Freight"][y]);
+                            aPCSRequestDetail.GrandTotal = Convert.ToDecimal(collection["VTotalAmount"][y]);
+                            aPCSRequestDetail.IsEnable = Convert.ToBoolean(collection["IsEnablV5"][t]);
+                            aPCSRequestDetail.Qunatity = Convert.ToDecimal(collection["QtyV5"][t]);
+                            aPCSRequestDetail.Rate = Convert.ToDecimal(collection["RateV5"][t]);
+                            aPCSRequestDetail.Amount = Convert.ToDecimal(collection["TotalAmountV5"][t]);
+                            aPCSRequestDetail.Sequence = 5;
+                            RcdQuntity += Convert.ToDecimal(collection["QtyV5"][t]);
+
+                            t++;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 0)
+                        {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 1;
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&&y== 1)
+                        {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 2;
+
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&&y==2)
+                        {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 3;
+
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 3)
+                        {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 4;
+
+                        }
+                        if (aPCSRequestDetail.Vendor_ID == 0&& y == 4)
+                        {
+                            aPCSRequestDetail.IsEnable = false;
+                            aPCSRequestDetail.Qunatity = 0;
+                            aPCSRequestDetail.Rate = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Amount = 0;
+                            aPCSRequestDetail.Freight = 0;
+                            aPCSRequestDetail.Sequence = 5;
+
+                        }
+                        await _APCSRequestDetailRepository.CreateAsync(aPCSRequestDetail);
+                        }
+                    if (RcdQuntity > 0)
+                    {
+                        var itemDetail = _APPurchaseRequisitionDetailsRepository.Get(x => x.Id == PrDetailId).FirstOrDefault();
+                        itemDetail.CSBalc = itemDetail.Quantity - RcdQuntity;
+                        itemDetail.CSRcd += RcdQuntity;
+                        await _APPurchaseRequisitionDetailsRepository.UpdateAsync(itemDetail);
+                    }
+                }
+                }
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> List()
+        {
+            var aPComparativeStatements = new List<APComparativeStatementVM>();
+            var CSMode = await _APComparativeStatementRepository.GetAllAsync();
+            var CSModel =  _APComparativeStatementRepository.Get(x=>!x.IsDelete&&!x.IsActive);
+            foreach(var CS in CSModel)
+            {
+                APComparativeStatementVM aPComparativeStatementVM = new APComparativeStatementVM();
+                aPComparativeStatementVM.APComparativeStatement = CS;
+                /*aPComparativeStatementVM.APCSRequestDetails = _APCSRequestDetailRepository.Get(x=>x.APComparativeStatement_ID==CS.ID).ToList();
+                aPComparativeStatementVM.APCSRequestsList = _APCSResquestRepository.Get(x=>x.APComparativeStatement_ID==CS.ID).ToList();*/
+                aPComparativeStatements.Add(aPComparativeStatementVM);
+            }
+            return View(aPComparativeStatements);
+        }
+        public async Task<IActionResult> Approve(int Id)
+        {
+            var model =  _APComparativeStatementRepository.Get(x=>x.ID==Id).FirstOrDefault();
+            var CSVendor = _APCSRequestDetailRepository.Get(x => x.APComparativeStatement_ID == Id && x.IsEnable).ToList();
+            if (CSVendor != null) 
+            { 
+            foreach (var vendor in CSVendor)
+            {
+                var checkVendor= _dbContext.APPurchaseOrders.Where(p => p.APComparativeStatementId ==vendor.APComparativeStatement_ID  && p.SupplierId== vendor.Vendor_ID).FirstOrDefault();
+                    if (checkVendor == null)
+                    {
+                        APPurchaseOrder purchaseOrder = new APPurchaseOrder();
+                        purchaseOrder.DeliveryTermId = vendor.DeliveryTerm;
+                        purchaseOrder.PaymentTermId = vendor.PaymentTerm;
+                        purchaseOrder.SupplierId = vendor.Vendor_ID;
+                        purchaseOrder.POTypeId = vendor.POType_ID;
+                        purchaseOrder.PODate = DateTime.Now;
+                        purchaseOrder.CostCenter = 1;
+                        purchaseOrder.CreatedBy = HttpContext.Session.GetString("UserId");
+                        purchaseOrder.CreatedDate = DateTime.Now;
+                        purchaseOrder.ApprovedBy = HttpContext.Session.GetString("UserId");
+                        purchaseOrder.ApprovedDate = DateTime.Now;
+                        purchaseOrder.APComparativeStatementId = vendor.APComparativeStatement_ID;
+                        purchaseOrder.CompanyId = HttpContext.Session.GetInt32("CompanyId").Value;
+                        //purchaseOrder.Status = "Approved";
+                        //purchaseOrder.ApprovedBy = HttpContext.Session.GetString("UserId");
+                        //purchaseOrder.ApprovedDate = DateTime.Now;
+                        var tax = (from t in _dbContext.AppTaxes where t.Id == vendor.SaleTax select t).FirstOrDefault();
+                        var taxAmount = ((tax.SalesTaxPercentage/100)*vendor.GrandTotal);
+
+                        purchaseOrder.GrandTotal = vendor.GrandTotal + taxAmount;
+                        purchaseOrder.Total = vendor.GrandTotal;
+                        purchaseOrder.TotalTaxAmount = taxAmount;
+                        purchaseOrder.Freight = vendor.Freight;
+                        var result = _dbContext.APPurchaseOrders.Where(x => x.Status == "Approved").ToList();
+                        if (result.Count > 0)
+                        {
+                            var PONo = _dbContext.APPurchaseOrders.Select(x => x.PONo).Max();
+                            int PO = Convert.ToInt32(PONo) + 1;
+                            purchaseOrder.PONo = PO;
+                        }
+                        else
+                        {
+                            purchaseOrder.PONo = 1;
+                        }
+                        purchaseOrder.CSNo = model.CS;
+                        _dbContext.Add(purchaseOrder);
+                    _dbContext.SaveChanges();
+                    var purcahseOrderDetail = _APCSRequestDetailRepository.Get(x => x.Vendor_ID == vendor.Vendor_ID && x.APComparativeStatement_ID == vendor.APComparativeStatement_ID && x.IsEnable).ToList();
+                    foreach (var ItemDetail in purcahseOrderDetail)
+                    {
+                        var POItem = new APPurchaseOrderItem();
+                        var _item = _APCSResquestRepository.Get(x => x.ID == ItemDetail.APCSRequest_ID).FirstOrDefault();
+                        POItem.PrNo = _item.PR;
+                        POItem.ItemDescription = _item.ItemDescription;
+                        POItem.UOM = _item.UOM;
+                        POItem.Qty = ItemDetail.Qunatity;
+                        POItem.Rate = Convert.ToDecimal(ItemDetail.Rate);
+                        POItem.TaxId = ItemDetail.SaleTax;
+                        POItem.Total = ItemDetail.Amount;
+                        POItem.TaxAmount = taxAmount;
+                        POItem.POId = purchaseOrder.Id;
+                        POItem.CreatedBy = HttpContext.Session.GetString("UserId");
+                        POItem.CreatedDate = DateTime.Now;
+                        POItem.DetailCostCenter = 1;
+                        POItem.ItemCode = _item.ItemCode;
+                        POItem.ItemId = _item.ItemId;
+                        POItem.PrDetailId = _item.PrDetailId;
+                        POItem.PRReferenceNo = _item.PRRefrenceNo;
+                        _dbContext.Add(POItem);
+                        _dbContext.SaveChanges();
+                    }
+                }
+                
+            }
+            model.IsApprove = true;
+            await _APComparativeStatementRepository.UpdateAsync(model);
+            TempData["error"] = "false";
+            TempData["message"] = "Comparative Statement has been Approved sucessfully.";
+        }
+            else
+            {
+                TempData["error"] = "true";
+                TempData["message"] = "Something went wrong.";
+            }
+            return RedirectToAction("List");
+        }
+        public async Task<IActionResult> UnApprove(int Id)
+        {
+            bool count = _APCSResquestRepository.Get(x => x.APComparativeStatement_ID == Id&&!x.IsPOApproved).Any();
+            if(count)
+            {
+                var model = _APComparativeStatementRepository.Get(x => x.ID == Id).FirstOrDefault();
+                model.IsApprove = false;
+                await _APComparativeStatementRepository.UpdateAsync(model);
+                TempData["error"] = "false";
+                TempData["message"] = "Comparative Statement has been UnApproved sucessfully.";
+            }
+            else
+            {
+                TempData["error"] = "true";
+                TempData["message"] = "Please UnApprove PO first.";
+            }
+            return RedirectToAction("List");
+        }
+        public async Task<bool> Delete(int Id)
+        {
+            var count = _APComparativeStatementRepository.Get(x => x.ID == Id).FirstOrDefault();
+            var PO = (from c in _dbContext.APPurchaseOrders where c.CSNo == count.CS && c.Status == "Approved" select c).FirstOrDefault();
+            if (PO == null)
+            {
+                var APCS = _APComparativeStatementRepository.Get(x => x.ID == Id).FirstOrDefault();
+                APCS.IsDelete = true;
+                await _APComparativeStatementRepository.UpdateAsync(APCS);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+
+        public IActionResult LastPODate(int Id)
+        {
+            var POdate =  (from p in _dbContext.APPurchaseOrderItems where p.Id==Id select p.CreatedDate).LastOrDefault();
+            var POCreatedDate = POdate.ToString(CommonHelper.DateFormat);
+
+            return Json(new { POdate = POCreatedDate });
+        }
+        public async Task<string> UploadFile(IFormFile img)
+        {
+            string filesList = "";
+            if (img != null)
+            {
+                if (img.Length > 0)
+                {
+                    var fileName = Path.GetFileName(img.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\uploads\\item-images", fileName);
+                    using (var Fstream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await img.CopyToAsync(Fstream);
+                        var fullPath = "/uploads/item-images/" + fileName;
+                        filesList += fullPath;
+                    }
+                }
+            }
+            return filesList;
+        }
+    }
+}

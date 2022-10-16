@@ -1,0 +1,98 @@
+﻿@model IEnumerable<APGRNViewModel>
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="table-responsive">
+    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th hidden> POItemId</th>
+                @*<th hidden>PurchaseInvoice Id</th>*@
+
+                <th>GRN No</th>
+                <th>GRN Date</th>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th hidden>Uom</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Balance Qty</th>
+                <th hidden>PRDetailId</th>
+                <th>Amount</th>
+                <th>S.Tax Amt</th>
+                <th>Amount</th>
+                <th hidden>Sale Tax Id</th>
+                <th>Select</th>
+                @if (ViewBag.Responsibility == "Yarn Purchase")
+                {
+                    <th hidden>Brand Id</th>
+                    <th hidden>Brand</th>
+                }
+                else
+                {
+                    <th hidden>Brand Id</th>
+                    <th hidden>Brand</th>
+
+                }
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                
+            <tr>
+                <td hidden>
+                    @Html.DisplayFor(modelItem => item.GRNItemId)
+                </td>
+                @*<td hidden>
+            @Html.DisplayFor(modelItem => item.PurchaseInvoiceId)
+        </td>*@
+                @*<td><div class="checkbox checkbox-success"><input id="check" type="checkbox"><label for="check"></label></div></td>*@
+
+                <td>@item.GRNNO</td>
+                <td>@item.Date</td>
+                <td hidden>@item.ItemId</td>
+                <td>@item.Item.Code</td>
+                <td>@item.Item.Name</td>
+                <td hidden>@item.Item.Name</td>
+                <td class="text-right">@item.GRNQty</td>
+                <td class="text-right">@item.Rate</td>
+                <td class="text-right">@item.BalanceQty</td>
+                <td hidden>@item.PRDetailId</td>
+                <td>@item.TotalPKRValue</td>
+                <td>@item.TotalSaleTax</td>
+                <td>@item.TotalValueIncTax </td>
+                <td hidden>@item.SaleTaxId</td>
+                <td><input type="checkbox" class="IsSelect" onclick="Create($(this))" /></td>
+                @if (ViewBag.Responsibility == "Yarn Purchase")
+                {
+                    <td hidden class="BrandId">@item.BrandId</td>
+                    <td hidden class="BrandName">@item.BrandName</td>
+                }
+                else
+                {
+                    <td hidden class="BrandId">0</td>
+                    <td hidden class="BrandName">" "</td>
+                }
+            </tr>
+             }
+        </tbody>
+    </table>
+</div>
+
+
+

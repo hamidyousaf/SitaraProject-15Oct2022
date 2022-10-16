@@ -1,0 +1,721 @@
+﻿<style>
+    #main {
+        display: flex;
+    }
+
+    .withscroll {
+        width: 500px;
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+
+    .t td {
+        
+            white-space:pre-wrap; word-wrap:break-word;
+    }
+    table td {
+        position: relative;
+    }
+
+        table td input {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+</style>
+
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                @*<h5>Any Name</h5>*@
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="Organizaion" class="col-form-label">Organizaion</label>
+                                <input type="text" class="form-control" id="Organizaion" data-validation="required" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="OperatingUnit" class="col-form-label">Operating Unit</label>
+                                <input type="text" class="form-control" id="OperatingUnit" data-validation="required" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="CSNum" class="col-form-label">CS #</label>
+                                <input type="text" class="form-control" id="CSNum" data-validation="required" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="Date" class="col-form-label">Date</label>
+                                <input type="text" class="form-control" id="Date" data-validation="required" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="CSValidity" class="col-form-label">CS Validity</label>
+                                <input type="text" class="form-control" id="CSValidity" data-validation="required" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            @*<div class="form-group">
+            <label class="col-form-label"></label>
+            <button type="button" class="btn btn-primary btn-block">Search</button>
+        </div>*@
+                            <label class="col-form-label"></label>
+                            <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#myModal">Search</button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal" role="dialog">
+                                <div class="modal-dialog" style="width:80%">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <div class="form-group">
+                                                <div class="col-lg-3 col-md-3">
+                                                    <input class="form-control" placeholder="Search here..."/>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                                            <div class="row">
+                                                <div class="col-md-12 col-lg-12">
+                                                    <table class="table table-bordered table-striped t">
+                                                        <tr>
+                                                            <th>PR #</th>
+                                                            <th>PR Date</th>
+                                                            <th>Ref No</th>
+                                                            <th>Request</th>
+                                                            <th>Department</th>
+                                                            <th>Store</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>1409</td>
+                                                            <td>1234</td>
+                                                            <td>Ball Point</td>
+                                                            <td>Pcs</td>
+                                                            <td>12000</td>
+                                                            <td>12000</td>
+                                                            <td><button class="btn btn-sm btn-success" type="submit">Create CS</button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>1409</td>
+                                                            <td>1234</td>
+                                                            <td>Ball Point</td>
+                                                            <td>Pcs</td>
+                                                            <td>12000</td>
+                                                            <td>12000</td>
+                                                            <td><button class="btn btn-sm btn-success" type="submit">Create CS</button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>1409</td>
+                                                            <td>1234</td>
+                                                            <td>Ball Point</td>
+                                                            <td>Pcs</td>
+                                                            <td>12000</td>
+                                                            <td>12000</td>
+                                                            <td><button class="btn btn-sm btn-success" type="submit">Create CS</button></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>1409</td>
+                                                            <td>1234</td>
+                                                            <td>Ball Point</td>
+                                                            <td>Pcs</td>
+                                                            <td>12000</td>
+                                                            <td>12000</td>
+                                                            <td><button class="btn btn-sm btn-success" type="submit">Create CS</button></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4">
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <div class="form-group">
+                                        <label for="RemarksTextArea" class="col-form-label">Remarks</label>
+                                        <textarea id="RemarksTextArea" class="form-control" rows="4" data-validation="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--    <div class="row align-items-end">
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Req. Date</label>
+                                        <input class="form-control" id="name" data-validation="required" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Item Code</label>
+                                        <input class="form-control" id="name" data-validation="required" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">CS Validity</label>
+                                        <input class="form-control" id="name" data-validation="required" />
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12 " style="top: 138px;">
+                                    <table class="table table-bordered table-striped t">
+                                        <tr>
+                                            <th>Request #</th>
+                                            <th>PR #</th>
+                                            <th>Item Description</th>
+                                            <th>UOM</th>
+                                            <th>Indent Qty</th>
+                                        </tr>
+                                        <tr>
+                                            <td>1234</td>
+                                            <td>1409</td>
+                                            <td>Ball Point</td>
+                                            <td>Pcs</td>
+                                            <td>12000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1234</td>
+                                            <td>1409</td>
+                                            <td>Ball Point</td>
+                                            <td>Pcs</td>
+                                            <td>12000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1234</td>
+                                            <td>1409</td>
+                                            <td>Ball Point</td>
+                                            <td>Pcs</td>
+                                            <td>12000</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
+                        <div class="col-md-5 col-lg-5">
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <div style="width:100%" id="main" class="withscroll">
+                                        <div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Vendor Name</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Payment Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Delivery Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Sales Tax %</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <table class="table table-bordered table-striped dataTables-example">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Qty
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Rate
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Amount
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div>
+
+                                            <div class="form-group">
+                                                <label class="col-form-label">Vendor Name</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Payment Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Delivery Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Sales Tax %</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <table class="table table-bordered table-striped dataTables-example">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Qty
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Rate
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Amount
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div>
+
+                                            <div class="form-group">
+                                                <label class="col-form-label">Vendor Name</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Payment Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Delivery Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Sales Tax %</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <table class="table table-bordered table-striped dataTables-example">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Qty
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Rate
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Amount
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div>
+
+                                            <div class="form-group">
+                                                <label class="col-form-label">Vendor Name</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Payment Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Delivery Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Sales Tax %</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <table class="table table-bordered table-striped dataTables-example">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Qty
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Rate
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Amount
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div>
+
+                                            <div class="form-group">
+                                                <label class="col-form-label">Vendor Name</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Payment Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Delivery Terms</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Sales Tax %</label>
+                                                <select id="" name="" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                </select>
+                                            </div>
+                                            <table class="table table-bordered table-striped dataTables-example">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Qty
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Rate
+                                                        </th>
+                                                        <th class="text-right">
+                                                            Amount
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input class="form-check-input" type="checkbox" value="">
+                                                        </td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right"><input type="text" placeholder=""></td>
+                                                        <td class="text-right" style="height: 35px"><input type="text" placeholder=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                                <!------------------------------------------------------------------------>
+                        <div class="col-md-3 col-lg-3">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Attachments</label>
+                                        <input type="file" class="form-control-file" id="name" data-validation="required" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Quotations</label>
+                                        <input type="file" class="form-control-file" id="name" data-validation="required" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12" style="top: 132px;">   
+                                    <table class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-right">
+                                                    Total App. Amount
+                                                </th>
+                                                <th>
+                                                    Last PO #
+                                                </th>
+                                                <th class="text-right">
+                                                    Last PO Rate
+                                                </th>
+                                                <th>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-right">
+                                                    275
+                                                </td>
+                                                <td>
+                                                    13-10-20
+                                                </td>
+                                                <td class="text-right">
+                                                    10
+                                                </td>
+                                                <td style="padding:0%">
+                                                    <span title="Delete">
+                                                        <a asp-action="" asp-controller="" class="btn btn-sm btn-danger" style=" margin-bottom: 0%;" asp-route-id="" onclick="return confirm('Are you sure you want to Delete?')"><i class="fas fa-times"></i></a>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right">
+                                                    275
+                                                </td>
+                                                <td>
+                                                    13-10-20
+                                                </td>
+                                                <td class="text-right">
+                                                    10
+                                                </td>
+                                                <td style="padding:1px">
+                                                    <span title="Delete">
+                                                        <a asp-action="" asp-controller="" class="btn btn-sm btn-danger" style=" margin-bottom: 0%;" asp-route-id="" onclick="return confirm('Are you sure you want to Delete?')"><i class="fas fa-times"></i></a>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right">
+                                                    275
+                                                </td>
+                                                <td>
+                                                    13-10-20
+                                                </td>
+                                                <td class="text-right">
+                                                    10
+                                                </td>
+                                                <td style="padding:1px">
+                                                    <span title="Delete">
+                                                        <a asp-action="" asp-controller="" class="btn btn-sm btn-danger" style=" margin-bottom: 0%;" asp-route-id="" onclick="return confirm('Are you sure you want to Delete?')"><i class="fas fa-times"></i></a>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

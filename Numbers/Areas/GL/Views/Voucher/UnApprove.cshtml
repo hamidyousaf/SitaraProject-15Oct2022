@@ -1,0 +1,173 @@
+﻿@model IEnumerable<Numbers.Entity.Models.GLVoucher>
+@{
+    ViewData["Title"] = "Un-Approve";
+    ViewData["CurrentPage"] = "Un-Approve";
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>Un-Approve Voucher</h5>
+                </div>*@
+            <div class="ibox-content table-responsive">
+                <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%" class="searchHeader">@Html.DisplayNameFor(model => model.VoucherNo)</th>
+                            <th style="width: 14%" class="text-center searchHeader">@Html.DisplayNameFor(model => model.VoucherDate)</th>
+                            <th style="width: 14%" class="text-right searchHeader">@Html.DisplayNameFor(model => model.Reference)</th>
+                            <th style="width: 30%" class="searchHeader">@Html.DisplayNameFor(model => model.Description)</th>
+                            <th style="width: 10%" class="searchHeader">@Html.DisplayNameFor(model => model.Currency)</th>
+                            <th style="width: 10%" class="text-right searchHeader">@Html.DisplayNameFor(model => model.Amount)</th>
+                            <th class="text-center" style="width: 12%">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pop-up -->
+<!-- Trigger the modal with a button -->
+<div class="modal fade" id="voucherModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <strong>Voucher Detail</strong>
+                    <span class="label label-primary"> Approved </span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox">
+                            <p id="voucherTable"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        function getVoucherDetails(id) {
+            var voucherId = id;
+            var counter = 1;
+            // AJAX request
+            $.ajax({
+                url: '/GL/Voucher/PreviewVoucher',
+                type: 'GET',
+                method: 'GET',
+                data: { id: voucherId },
+                success: function (response) {
+                    $('#voucherTable').html(response);
+                    // Display Modal
+                    $('#voucherModal').modal('show');
+                },
+                fail: function (response) {
+                    console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": false,
+                "searching": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/GL/Voucher/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                },
+                { "orderable": false, "targets": [6] }],
+
+                "columns": [
+                    { "data": "voucher", "name": "VoucherType", className: "text-center" },
+                    { "data": "voucherDate", "name": "VoucherDate", className: "text-center" },
+                    { "data": "glVouchers.reference", "name": "Reference", className: "text-left" },
+                    { "data": "glVouchers.description", "name": "Description", className: "text-left" },
+                    { "data": "glVouchers.currency", "name": "Currency", className: "text-center" },
+                    { "data": "glVouchers.amount", "name": "Amount", className: "text-right" },
+                    {
+                        "data": "glVouchers", className: "text-center",
+                        "render": function (data, row) {
+                            if (data.unapprove == true) {
+                                debugger
+                                return '<a title="Click to View Voucher Detail" onclick="getVoucherDetails(' + data.id + ');" class="btn btn-sm btn-info"><i class="fa fa-search"></i></a>    <a title="Click to Un-Approve Voucher" href="/GL/Voucher/UnApproveVoucher?id=' + data.id + '" class="btn btn-sm btn-danger" ><i class="fa fa-thumbs-down"></i></a>';
+                            } else {
+                                return '<a title="Click to View Voucher Detail" onclick="getVoucherDetails(' + data.id + ');" class="btn btn-sm btn-info"><i class="fa fa-search"></i></a>';
+                            }
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

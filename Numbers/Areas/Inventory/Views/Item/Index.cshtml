@@ -1,0 +1,139 @@
+﻿@model IEnumerable<Numbers.Entity.Models.InvItem>
+@{
+    ViewData["Title"] = "List of Items";
+    ViewData["CurrentPage"] = "Items";
+}
+
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>List of Items</h5>
+                </div>*@
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Item" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br />
+                <br />
+                <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th class="searchHeader" width="12%">Item Code</th>
+                            <th class="searchHeader" width="18%">Item Name</th>
+                            <th class="searchHeader" width="10%">Barcode</th>
+                            <th class="searchHeader" width="10%">UOM</th>
+                            <th class="searchHeader" width="10%">Make</th>
+                            <th width="10%">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                /*"order": false,*/
+                /*order: [[0, "desc"]],*/
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/Inventory/Item/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [5] }],
+
+                "columns": [
+                    { "data": "invItems.code", "name": "Code", className: "text-left" },
+                    { "data": "invItems.name", "name": "Name", className: "text-left" },
+                    { "data": "invItems.barcode", "name": "Barcode", className: "text-left" },
+                    { "data": "invItems.uom.configValue", "name": "UOM.ConfigValue", className: "text-left" },
+                    { "data": "invItems.make", "name": "Make", className: "text-left" },
+                    {
+                        "data": "invItems", className: "text-center",
+                        "render": function (data) {
+                            return "<a href='/Inventory/Item/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/Inventory/Item/Delete?id=" + data.id + "' onclick='return approveAlert();' class='btn btn-sm btn-danger m-t-n-xs'><i class='far fa-trash-alt' title='Approve'></i></a>";
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+        function approveAlert() {
+            if (confirm("Are you sure you want to Approve Sale Order?")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+}
+

@@ -1,0 +1,831 @@
+﻿@model Numbers.Entity.ViewModels.APIGPVm
+@{ ViewData["Title"] = "APIGP";
+    ViewData["CurrentPage"] = "APIGP";
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input:not([type='checkbox']) {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Inward Gate Pass (IGP)</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <input hidden id="responsbilitid" value="@ViewBag.Type" />
+            <input hidden id="ModeId" value="@ViewBag.EntityState" />
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post">
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <input type="hidden" asp-for="APIGP.Id">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3" style="padding:0px">
+                                    <div class="col-md-4 col-lg-4 Pad-rht">
+                                        @if (Model.APIGP == null)
+                                        {
+                                            if (TempData["MaxIGPNo"] != null)
+                                            {
+                                                <div class="form-group">
+                                                    <label for="Branch" class="col-form-label">IGP</label>
+                                                    <input tabindex="-1" type="text" class="form-control text-right" asp-for="APIGP.IGP" id="Branch" data-validation="required" readonly />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="form-group">
+                                                    <label for="Branch" class="col-form-label">IGP</label>
+                                                    <input tabindex="-1" type="text" class="form-control text-right" asp-for="APIGP.IGP" id="Branch" data-validation="required" value="@ViewBag.Id" readonly />
+                                                </div>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <div class="form-group">
+                                                <label for="Branch" class="col-form-label">IGP</label>
+                                                <input tabindex="-1" type="text" class="form-control text-right" asp-for="APIGP.IGP" id="Branch" data-validation="required" value="@ViewBag.Id" readonly />
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-8 col-lg-8 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="Department" class="col-form-label">IGP Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input tabindex="-1" class="form-control" type="text" asp-for="APIGP.IGPDate" id="IGPDate" data-validation="required" placeholder="Enter IGP Date..." value="@(Model.APIGP == null ? CommonHelper.CurrentDate : Model.APIGP.IGPDate.ToString(CommonHelper.DateFormat))" autocomplete="off" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 col-lg-12 Pad-rht">
+                                        <div class="form-group">
+                                            <label class="col-form-label">Bility #</label>
+                                            <input tabindex="4" type="text" class="form-control" asp-for="APIGP.Bility" id="BilityNo" data-validation="required" placeholder="Enter Bility No..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    @*<div class="col-md-4 col-lg-4 Pad-rht import" hidden>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Bility #</label>
+                                                <input type="text" class="form-control" asp-for="APIGP.Bility" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-lg-8 Pad-rht import" hidden>
+                                            <div class="form-group">
+                                                <label class="col-form-label">Bility Date</label>
+                                                <input type="text" class="form-control" asp-for="APIGP.Bility" id=readonly />
+                                            </div>
+                                        </div>*@
+                                    <div class="col-md-12 col-lg-12 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="Company" class="col-form-label">Freight type</label>
+                                            <select tabindex="9" id="Freighttype" asp-for="APIGP.FreightTypeId" class="chosen-select form-control" asp-items="ViewBag.FreightType">
+                                                <option value="0" selected>Please select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <div class="col-md-9 Pad-rht">
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label class="col-form-label">IGP Type</label>
+                                            <input asp-for="APIGP.POTypeId" type="hidden" id="POTypeid" />
+                                            <select tabindex="-1" class="chosen-select form-control" asp-items="ViewBag.PoType" id="typeimport" disabled>
+                                                <option value="0" selected>Please select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="Company" class="col-form-label">Operating Unit</label>
+                                            <select tabindex="1" autofocus asp-for="APIGP.OperatingId" class="chosen-select form-control" asp-items="ViewBag.OperatingUnit" id="OpId">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label class="col-form-label">Vendor Name</label>
+                                            <select tabindex="2" asp-for="APIGP.VendorId" class="chosen-select form-control" asp-items="ViewBag.Vendor" id="vendorId">
+                                                <option value="0">Please select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label class="col-form-label">Dc #</label>
+                                            <input tabindex="3" id="DCno" class="form-control" asp-for="APIGP.DC" data-validation="required" placeholder="Enter DC No..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="VendorDesc" class="col-form-label">Address</label>
+                                            <input tabindex="5" type="text" class="form-control" asp-for="APIGP.Address" id="VendorDesc" data-validation="required" placeholder="Enter Address..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="PONO" class="col-form-label">Driver</label>
+                                            <input tabindex="6" type="text" class="form-control" asp-for="APIGP.DriverName" id="PONO" data-validation="required" placeholder="Enter Driver..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="IGPNO" class="col-form-label">Vehicle Type</label>
+                                            <input tabindex="7" type="text" class="form-control" asp-for="APIGP.VehicleType" id="IGPNO" data-validation="required" placeholder="Enter VehicleType..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="Store" class="col-form-label">Vehicle</label>
+                                            <input tabindex="8" type="text" class="form-control" asp-for="APIGP.Vehicle" id="Store" data-validation="required" placeholder="Enter Vehicle..." autocomplete="off" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="FreightAmount pull-right" style="margin-right:1%;">
+                                            <div class="form-group">
+                                                <label class="col-auto">Freight Amount</label>
+                                                <input tabindex="10" asp-for="APIGP.FreightAmount" type="text" autocomplete="off" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" placeholder="Enter Freight Amount..." class="form-control add-comma   " />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 Pad-rht">
+                                        <div class="form-group">
+                                            <label for="Remarks" class="col-form-label">Remarks</label>
+                                            <textarea tabindex="11" style="resize:none;" class="form-control" id="Remarks" asp-for="APIGP.Remarks" rows="2" placeholder="Enter Your Remarks..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-lg-2"></div>
+                                    <div class="col-md-4 col-lg-4 Pad-rht">
+                                        <label class="col-form-label"></label>
+                                        <div class="normal">
+                                            <button tabindex="12" type="button" class="btn btn-primary btn-block" onclick="Search()" style=" margin-top: 25px; " data-toggle="modal">Add item from Po</button>
+                                        </div>
+                                        <div class="import" hidden>
+                                            <button type="button" id="AddItemBtn" class="btn btn-primary btn-block import" onclick="Search()" style=" margin-top: 25px; " data-toggle="modal">Add item from Shipment</button>
+                                        </div>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="myModal" role="dialog">
+                                            <div class="modal-dialog" style="width:80%">
+
+                                                <!-- Modal content-->
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div class="form-group">
+                                                            <div class="col-lg-3 col-md-3">
+                                                                <input class="form-control" id="myInput" placeholder="Search here..." />
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="modal-body PopupHeight" style="padding: 15px 20px 0px 20px">
+                                                        <div class="row">
+                                                            <div class="col-md-12 col-lg-12">
+                                                                <table id="ModalTable" class="table table-bordered table-striped t">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th style="width: 5%">Po No</th>
+                                                                            <th style="width: 15%">Item Description</th>
+                                                                            <th hidden style="width: 5%">Po Detail</th>
+                                                                            <th style="width: 5%">Quantity</th>
+                                                                            <th hidden style="width: 5%">Rate</th>
+                                                                            <th style="width: 5%">Rcd Qty</th>
+                                                                            <th style="width: 5%">Bal Qty</th>
+                                                                            <th style="width: 10%">Delivery Date</th>
+                                                                            <th style="width: 5%">Action</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table id="tblDetail" class="table table-bordered table-striped" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:0%" hidden></th>
+                                        <th style="width:10%">Code</th>
+                                        <th style="width:15%">Description</th>
+                                        @if (ViewBag.Responsibility == "Yarn Purchase")
+                                        {
+                                            <th style="width:15%">Brand</th>
+                                        }
+                                        <th hidden style="width:9%">Category</th>
+                                        <th style="width:10%">Po Date</th>
+                                        <th style="width:8%">Po Qty</th>
+                                        <th style="width:8%">Rcd Qty</th>
+                                        <th style="width:8%">Bal Qty</th>
+                                        <th style="width:8%">Package</th>
+                                        <th style="width:7%">Packg QTY</th>
+                                        <th style="width:8%">Igp Qty</th>
+                                        <th style="width:5%">UOM</th>
+                                        <th style="width:6%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.APIGPDetails != null)
+                                    {
+                                        @for (int i = 0; i < Model.APIGPDetails.Count; i++)
+                                        {
+                                    <tr class="removed">
+                                        <td hidden><input style="background-color: #eee;" type='hidden' /></td>
+                                        <td hidden><input style="background-color: #eee;" name="ChildId" value="@Model.APIGPDetails[i].Id" id='username' class='id' type='hidden' /></td>
+                                        <td hidden><input style="background-color: #eee;" name="PrDetailId" value="@Model.APIGPDetails[i].PrDetailId" type="hidden"></td>
+                                        <td hidden><input style="background-color: #eee;" name="ItemId" value="@Model.APIGPDetails[i].ItemId" id='username' class='id' type='hidden' /></td>
+                                        <td hidden><input style="background-color: #eee;" name="PoDetailId" value="@Model.APIGPDetails[i].PoDetailId" type="hidden" /></td>
+                                        <td hidden><input style="background-color: #eee;" name="PoId" value="@Model.APIGPDetails[i].PoNo" type="hidden" /></td>
+                                        <td><input style="background-color: #eee;" name="ItemCode" value="@Model.APIGPDetails[i].ItemCode" type='text' class="text-left" readonly /></td>
+                                        <td><input style="background-color: #eee;" name="ItemDiscription" value="@Model.APIGPDetails[i].ItemDiscription" type="text" readonly /></td>
+
+                                        @if (ViewBag.Responsibility == "Yarn Purchase")
+                                        {
+                                           <td><input style='background-color: #eee;' tabindex="-1" name='Brand' value='@Model.Brand[i]' type='text' class='text-left' readonly /></td>
+                                        }
+
+                                        <td hidden><input style="background-color: #eee;" name="Category" value="@Model.APIGPDetails[i].CategoryName" type="text" readonly /></td>
+                                        <td hidden><input style="background-color: #eee;" name="CategoryId" value="@Model.APIGPDetails[i].CategoryId" type="text" readonly /></td>
+                                        <td><input style="background-color: #eee;" name="PoDlvDate" value="@Model.APIGPDetails[i].PoDlvDate.ToString("dd-MMM-yyyy")" type="text" class='text-center' readonly autocomplete="off" /></td>
+                                        <td><input style="background-color: #eee;" name="PoQty" value="@Model.APIGPDetails[i].PoQty" type='text' class='poq text-right add-comma' readonly /></td>
+                                        <td><input style="background-color: #eee;" name="Rcd" value="@Model.TotalRecieved[i]" type='text' class='rcdq text-right add-comma' readonly /></td>
+                                        <td><input style="background-color: #eee;" name="balQty" value="@(Model.APIGPDetails[i].PoQty - Model.TotalRecieved[i])" type='text' class='balq text-right add-comma' readonly></td>
+
+
+                                        <td hidden><input type='hidden' value="@Model.TotalRecieved[i]" class='CheckRec' tabindex='-1' readonly /></td>
+                                        <td hidden><input type='hidden' value="@(Model.APIGPDetails[i].PoQty - Model.TotalRecieved[i])" class='ChechkBal' tabindex='-1' readonly></td>
+
+
+                                        <td><input tabindex="13" name="Package" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@Model.APIGPDetails[i].Packages" type='text' onchange="Multiplication($(this))" class='text-right pkg add-comma' autocomplete="off" required /></td>
+                                        <td hidden><input value="@Model.APIGPDetails[i].Packages" type='hidden' class='CheckPack' tabindex="-1" /></td>
+                                        <td><input tabindex="14" name="PackageQty" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@Model.APIGPDetails[i].PackagesQty" type='text' onchange="Multiplication($(this))" class='text-right pkgQty add-comma' autocomplete="off" required /></td>
+                                        <td hidden><input value="@Model.APIGPDetails[i].PackagesQty" type='hidden' class='ChechkPackQty' tabindex="-1" /></td>
+                                        <td><input style="background-color: #eee;" name="IGPQty" onfocus="this.oldvalue = this.value;" onchange="Calculation($(this));this.oldvalue = this.value;" value="@Model.APIGPDetails[i].IGPQty" type='text' class='igpq text-right add-comma' autocomplete="off" readonly /></td>
+
+                                        <td hidden><input value="@Model.APIGPDetails[i].IGPQty" type='hidden' class='CheckIGPQty' tabindex="-1" readonly /></td>
+
+                                        <td hidden><input style="background-color: #eee;" name="LCDetailId" value="@Model.APIGPDetails[i].ShipmentDetailId" type="hidden" /></td>
+                                        <td><input style="background-color: #eee;" name="UOM" value="@Model.UOMName[i]" type="text" class="text-center" readonly /></td>
+                                        <td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                                    </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a type="button" asp-controller="IGP" asp-action="List" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-action="Submit" asp-controller="IGP" value="@ViewBag.EntityState" class="btn btn-primary" />
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS
+{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        var prev = 0;
+        $(document).ready(function () {
+            $('#typeimport').val($('#responsbilitid').val());
+            $('input.add-comma').commaTextbox();
+            $('#POTypeid').val($('#responsbilitid').val());
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#ModalTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+            //if ($("#typeimport").find(":selected").text() == "Import") {
+            //    $(".import").show();
+            //    $(".normal").hide();
+            //    $("#BilityNo").prop('readonly', true);
+            //    $("#OpId").attr("tabindex", 1);
+            //    $("#vendorId").attr("tabindex", 2);
+            //    $("#DCno").attr("tabindex", 3);
+            //    $("#Freighttype").attr("tabindex", 4);
+            //    $("#VendorDesc").attr("tabindex", 5);
+            //    $("#PONO").attr("tabindex", 6);
+            //    $("#IGPNO").attr("tabindex", 7);
+            //    $("#Store").attr("tabindex", 8);
+            //    $("#Remarks").attr("tabindex", 9);
+            //    $("#AddItemBtn").attr("tabindex", 10);
+            //}
+            $('#typeimport').select2();
+            $('#DepId').select2();
+            $('#OrgId').select2();
+            $('#OpId').select2();
+            $('#vendorId').select2();
+
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+        })
+        $('#typeimport').on("change", function () {
+            $.each($("#tblDetail tbody tr"), function () {
+                $(this).remove();
+            });
+            if ($("#typeimport").find(":selected").text() == "Import") {
+                $(".import").show();
+                $(".normal").hide();
+            }
+            else {
+                $(".import").hide();
+                $(".normal").show();
+            }
+        });
+        $('#vendorId').on("change", function () {
+            $.each($("#tblDetail tbody tr"), function () {
+                $(this).remove();
+            });
+        });
+        function Search() {
+            var VendorId = $('#vendorId').val();
+            var type = $("#typeimport").find(":selected").text();
+            if (VendorId != "0" && type != "Please select") {
+                $.ajax({
+                    method: "GET",
+                    url: "/AP/IGP/FindPo",
+                    dataType: 'json',
+                    data: { id: VendorId, Type: type }
+                }).fail(function (res) {
+
+                }).done(function (data) {
+                        $('#ModalTable tbody tr').remove();
+                        $.each(data, function (i, item) {
+                            var ek = [];
+                            $('.Po').each(function () { ek.push($(this).val()); });
+                            var abc = ek.filter(x => x === item.a.id.toString());
+                            if (abc.length == 0) {
+                                if ($("#typeimport").find(":selected").text() == "Import") {
+                                    var row = "<tr class='removed'>" +
+                                      "<td class='text-right'>" + item.b.lcNo + "</td>" +
+                                      "<td class='text-left'>" + item.a.description + "</td>" +
+                                      "<td hidden class='text-right'>" + item.a.id + "</td>" +
+                                      "<td class='text-right'>" + item.a.shippedQty + "</td>" +
+                                      "<td class='text-right'>" + item.a.rate + "</td>" +
+                                      "<td  class='text-right'>" + 0+ "</td>" +
+                                      "<td  class='text-right'>" + item.a.shippedQty + "</td>" +
+                                      " <td class='text-right'>" + item.a.date + "</td> " +
+                                      '<td class="text-center"><input style="width: 20px; height: 22px; margin-left: 40px; "  onclick="CheckRow($(this),' + item.a.id + ');"  class="form-control " type="checkbox" style="width:20px; height:20px;" /> </td>'
+                                    "</tr>";
+                                    $("#ModalTable tbody").append(row)
+                                } else {
+                                   var row = "<tr>" +
+                                        "<td class='text-center'>" + item.b.poNo + "</td>" +
+                                        "<td class='text-left'>" + item.a.itemDescription + "</td>" +
+                                        "<td hidden class='text-right'>" + item.a.id + "</td>" +
+                                        "<td class='text-right'>" + item.a.qty + "</td>" +
+                                        "<td hidden class='text-right'>" + item.a.rate + "</td>" +
+                                       "<td  class='text-right'>" + (item.a.qty - item.a.igpBalc) + "</td>" +
+                                        "<td  class='text-right'>" + item.a.igpBalc + "</td>" +
+                                        " <td class='text-center'>" + item.a.date + "</td> " +
+                                        '<td class="text-center"><input onclick="CheckRow($(this),' + item.a.id + ');" type="checkbox" /></td>'
+                                    "</tr>";
+                                    $("#ModalTable tbody").append(row)
+
+                                }
+                            }
+                        });
+                        $('#myModal').modal('show');
+                    });
+            }
+            else {
+                swal("", "Please Select Vendor and IGP Type", "warning")
+                return false;
+            }
+        }
+        function CheckRow(row, id) {
+            row.closest("tr").remove();
+            var type = $("#typeimport").find(":selected").text();
+            $.ajax({
+                method: "GET",
+                url: "/AP/IGP/GetPoDetails",
+                data: { id: id,type:type }
+            })
+                .done(function (data) {
+                    var PO = data[0].orderItem.poId;
+                    var value = false;
+                    $('#tblDetail > tbody > tr').each(function () {
+                        var IRN = parseInt($(this).closest("tr").find('td:eq(5) input').val());
+                        if (PO != IRN) {
+                            value = true;
+                        }
+                        else
+                            value = false;
+                    });
+                    $.each(data, function (i, item) {
+                        if ($("#typeimport").find(":selected").text() == "Import") {
+
+                            if (value == false) {
+                                var row = "<tr class='removed'>";
+                                    row += "<td><input name='id'  id='username' class='id' type='hidden'  /></td>";
+                                row += "<td ><input style='background-color: #eee;' value='" + item.shipmentDetail.apShipmentId + "' class='id' type='hidden'  /></td>";
+                                row += "<td><input style='background-color: #eee;' name='prDetailId' value='" + item.orderItem.prDetailId + "' id='username' class='id' type='hidden'  /></td>";
+                                row += "<td><input style='background-color: #eee;' name='itemId' value='" + item.orderItem.itemId + "' id='username' class='id' type='hidden'  /></td>";
+                                row += "<td><input style='background-color: #eee;' name='poDetailId' value='" + item.shipmentDetail.poDetailId + "'  id='username' class='Po' type='hidden'  /></td>";
+                                row += " <td><input style='background-color: #eee;' name='poId' value='" + item.orderItem.poId + "' type='hidden' /></td> ";
+                                row += "<td><input style='background-color: #eee;' name='code' value='" + item.orderItem.itemCode + "' type='text' class='text-left' readonly /></td>";
+                                row += " <td><input style='background-color: #eee;' name='description' value='" + item.orderItem.itemDescription + "' type='text' readonly/></td> ";
+                                row += "<td hidden><input style='background-color: #eee;' name='category' type='text' value='" + item.category + "' readonly/></td>";
+                                row += "<td hidden><input name='categoryId' type='text' value='" + item.categoryId + "' readonly/></td>";
+                                row += " <td><input style='background-color: #eee;' name='poDlvDate' type='text' value='" + item.dilveryDate + "' class='text-center' readonly/></td>";
+                                row += " <td><input style='background-color: #eee;' name='poQty' value='" + item.orderItem.qty + "' type='text' class='poq text-right add-comma' readonly  /></td>";
+                                row += " <td><input style='background-color: #eee;' name='rcdQty' type='text' value='" + item.orderItem.qty + "'  class='rcdq text-right add-comma' readonly  /></td>";
+                                row += " <td><input style='background-color: #eee;' name='balQty'  type='text' value='" + item.orderItem.qty + "'  class='balq text-right add-comma' readonly></td>";
+                                row += " <td><input  name='package' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' onchange='Multiplication($(this))'  class='text-right pkg add-comma' autocomplete='off' required/></td>";
+                                row += " <td><input name='packageQty' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' onchange='Multiplication($(this))'  class='text-right pkgQty add-comma' autocomplete='off'' required/></td>";
+                                row += " <td><input style='background-color: #eee;' name='igpQty' type='text'  onfocus='this.oldvalue = this.value;' onchange='Calculation($(this));this.oldvalue = this.value;' value=" + item.orderItem.qty + " class='text-right igpq add-comma' autocomplete='off' required readonly></td>";
+                                row += "<td hidden><input style='background-color: #eee;' name='lcDetailId' value='" + item.orderItem.id + "'  id='username' class='Po' type='hidden'  /></td>";
+                                row += "<td><input style='background-color: #eee;' name='uOM' type='text' value='" + item.uom + "' class='text-center' readonly/></td>";
+                                row += '<td ><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                                row += "</tr>";
+                                $("#tblDetail tbody").append(row)
+                                $("#BilityNo").val(item.builityNo)
+
+
+                            }
+                        } else {
+                            var row = "<tr class='removed'>";
+                                row += "<td hidden><input name='id' id='username' class='id' type='hidden' /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' value='0' class='id' type='hidden' /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='prDetailId' value=" + item.orderItem.prDetailId + "  id='username' class='id' type='hidden' tabindex='-1'  /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='itemId' value=" + item.orderItem.itemId + "  id='username' class='id' type='hidden' tabindex='-1' /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='poDetailId' value=" + item.orderItem.id + "  id='username' class='Po' type='hidden' tabindex='-1' /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='poId' type='text' value=" + item.orderItem.poId + " type='hidden' tabindex='-1' /></td> ";
+                            row += "<td><input style='background-color: #eee;' name='code' value=" + item.orderItem.itemCode + " type='text' class='text-left' tabindex='-1' readonly /></td>";
+                            row += " <td><input style='background-color: #eee;' name='description' value='" + item.orderItem.itemDescription + "' type='text' tabindex='-1' readonly/></td> ";
+
+                            if (item.orderItem.brandId != 0) {
+                                row += "<td hidden><input name='BrandId' value='" + item.orderItem.brandId + "' type='text' readonly /></td>";
+                                row += "<td><input tabindex='-1' style='background-color: #eee;' name='Brand' value='" + item.brand + "' type='text' class='text-left' readonly /></td>";
+                            }
+
+
+
+                            row += "<td hidden><input style='background-color: #eee;' name='category' type='text' value=" + item.category + " tabindex='-1' readonly/></td>";
+                            row += "<td hidden><input name='categoryId' type='text' value=" + item.categoryId + " tabindex='-1' readonly/></td>";
+                            row += " <td><input style='background-color: #eee;' name='poDlvDate' type='text' value=" + item.dilveryDate + "  class='text-center' tabindex='-1' readonly/></td>";
+                            row += " <td><input style='background-color: #eee;' name='poQty' value=" + item.orderItem.qty + " type='text' class='poq text-right add-comma' tabindex='-1' readonly  /></td>";
+                            row += " <td><input style='background-color: #eee;' name='rcdQty' type='text' value=" + item.totalRecieved + "  class='rcdq text-right add-comma' tabindex='-1' readonly  /></td>";
+                            row += " <td><input style='background-color: #eee;' name='balQty'  type='text' value=" + item.orderItem.igpBalc + "  class='balq text-right add-comma' tabindex='-1' readonly></td>";
+
+                            row += " <td hidden><input type='hidden' value=" + item.totalRecieved + "  class='CheckRec' tabindex='-1' readonly  /></td>";
+                            row += " <td hidden><input type='hidden' value=" + item.orderItem.igpBalc + "  class='ChechkBal' tabindex='-1' readonly></td>";
+
+                            row += " <td><input  name='package' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' onchange='Multiplication($(this))'  class='text-right pkg add-comma' autocomplete='off' required/></td>";
+                            row += " <td><input name='packageQty' value='0'onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' type='text' onchange='Multiplication($(this))'  class='text-right pkgQty add-comma' autocomplete='off' required/></td>";
+                            row += " <td><input style='background-color: #eee;' name='igpQty' type='text'  onfocus='this.oldvalue = this.value;' onchange='Calculation($(this));this.oldvalue = this.value;' tabindex='-1'  class='text-right igpq add-comma' autocomplete='off' required readonly></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='lcDetailId' value='0'  id='username' class='Po' type='hidden'  /></td>";
+                            row += "<td><input style='background-color: #eee;' name='uOM' type='text' value=" + item.uom + "  class='text-center' tabindex='-1' readonly/></td>";
+                            row += '<td > <a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                            row += "</tr>";
+                            $("#tblDetail tbody").append(row)
+                        }
+                        $('input.add-comma').commaTextbox();
+                    });
+                    $('#myModal').modal('show');
+                });
+        }
+        @*function Calculation(row) {
+            debugger
+
+            //var i = row.closest('tr').index();
+            //i = i + 1;
+            //var acp = parseFloat($('.igpq').eq(i).val());
+            var acp = parseFloat(row.closest("tr").find('.igpq').val());
+            if (!isNaN(acp)) {
+                //var prev = row[0].oldvalue == "" ? 0 : parseFloat(row[0].oldvalue)||0.0;
+                if ((parseFloat(row.closest("tr").find('.igpq').val()) > parseFloat(row.closest("tr").find('.poq').val())) || (parseFloat(row.closest("tr").find('.igpq').val()) > parseFloat(row.closest("tr").find('.balq').val()) && parseFloat(row.closest("tr").find('.balq').val()) != 0)) {
+                    if (parseFloat(row.closest("tr").find('.igpq').val()) > parseFloat(row.closest("tr").find('.balq').val()) && parseFloat(row.closest("tr").find('.balq').val()) != 0) {
+                        row.closest("tr").find('.igpq').val("");
+                        row.closest("tr").find('.pkg').val("0");
+                        row.closest("tr").find('.pkgQty').val("0");
+                        swal("", "IGP quantity is greater than PoQty", "warning")
+                        return false;
+                    }
+                    else {
+                        row.closest("tr").find('.igpq').val("");
+                        row.closest("tr").find('.balq').val("");
+                        row.closest("tr").find('.rcdq').val("");
+                        row.closest("tr").find('.pkg').val("0");
+                        row.closest("tr").find('.pkgQty').val("0");
+
+                        swal("", "IGP quantity is greater than PoQty", "warning");
+                        return false;
+                    }
+                }
+                else {
+                    var BalQty = row.closest("tr").find('.balq').val() == "" ? 0 : parseFloat(row.closest("tr").find('.balq').val());
+                    if (BalQty == 0) {
+                        //if (prev < parseFloat($('.igpq').eq(i).val())) {
+                        //    $('.rcdq').eq(i).val($('.igpq').eq(i).val());
+                        //    BalQty = parseFloat($('.poq').eq(i).val() - $('.igpq').eq(i).val());
+                        //    $('.balq').eq(i).val(BalQty)
+                        //}
+                        BalQty = BalQty + prev;
+                        row.closest("tr").find('.balq').val(BalQty);
+                        row.closest("tr").find('.rcdq').val(row.closest("tr").find('.rcdq').val() == "" ? 0 : parseFloat(row.closest("tr").find('.rcdq').val()) - prev);
+                        if (row.closest("tr").find('.rcdq').val() == "0" || prev > parseFloat(row.closest("tr").find('.igpq').val())) {
+                            row.closest("tr").find('.rcdq').val(row.closest("tr").find('.igpq').val());
+                            BalQty = parseFloat(row.closest("tr").find('.poq').val() - row.closest("tr").find('.igpq').val());
+                            row.closest("tr").find('.balq').val(BalQty)
+                        }
+                    }
+                    else {
+                        BalQty = BalQty + prev;
+                        row.closest("tr").find('.balq').val(BalQty);
+                        row.closest("tr").find('.rcdq').val(row.closest("tr").find('.rcdq').val() == "" ? 0 : parseFloat(row.closest("tr").find('.rcdq').val()) - prev);
+                        BalQty = BalQty - parseFloat(row.closest("tr").find('.igpq').val());
+                        row.closest("tr").find('.balq').val(BalQty);
+                        row.closest("tr").find('.rcdq').val(parseFloat(row.closest("tr").find('.igpq').val()) + parseFloat(row.closest("tr").find('.rcdq').val()));
+                    }
+                }
+            }
+            else {
+                $('.igpq').eq(i).val("")
+                swal("", "Invalid number", "warning")
+                return false;
+            }
+
+        }*@
+        function Calculation(row) {
+            debugger
+            var BalQty = parseFloat(row.closest("tr").find('.balq').val().replace(/,/g, "")) || 0.0;
+            var RcdQty = parseFloat(row.closest("tr").find('.rcdq').val().replace(/,/g, "")) || 0.0;
+            var IGPQty = parseFloat(row.closest("tr").find('.igpq').val().replace(/,/g, "")) || 0.0;
+            var POQty = parseFloat(row.closest("tr").find('.poq').val().replace(/,/g, "")) || 0.0;
+            var ChechkBal = parseFloat(row.closest("tr").find('.ChechkBal').val().replace(/,/g, "")) || 0.0;
+            var CheckRec = parseFloat(row.closest("tr").find('.CheckRec').val().replace(/,/g, "")) || 0.0;
+            var CheckIGPQty = parseFloat(row.closest("tr").find('.CheckIGPQty').val().replace(/,/g, "")) || 0.0;
+            //var Rcd = parseFloat(RcdQty - prev);
+            //var Total = parseFloat(RcdQty + IGPQty);
+            debugger
+            var bqty = ChechkBal + CheckIGPQty;
+            if (IGPQty > bqty) {
+                    // parseFloat(row.closest("tr").find('.balq').val(parseFloat(row.closest("tr").find('.balq').val()) + parseFloat(prev)));
+                    // parseFloat(row.closest("tr").find('.rcdq').val(parseFloat(POQty) - parseFloat(row.closest("tr").find('.balq').val())));
+                    row.closest("tr").find('.igpq').val("");
+                    row.closest("tr").find('.pkg').val("");
+                row.closest("tr").find('.balq').val(ChechkBal);
+                row.closest("tr").find('.rcdq').val(CheckRec);
+                row.closest("tr").find('.pkgQty').val(0);
+                    /*row.closest("tr").find('.pkgQty').val("");*/
+                    swal("", "IGP quantity is greater than PoQty", "warning")
+                }
+                else {
+                    //parseFloat(row.closest("tr").find('.balq').val(parseFloat(row.closest("tr").find('.balq').val()) + parseFloat(prev)));
+                    //parseFloat(row.closest("tr").find('.balq').val(parseFloat(row.closest("tr").find('.balq').val()) - parseFloat(IGPQty)));
+                    //parseFloat(row.closest("tr").find('.rcdq').val(parseFloat(POQty) - parseFloat(row.closest("tr").find('.balq').val())));
+            }
+            $('input.add-comma').commaTextbox();
+
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+        function Validation() {
+
+            var breakOut;
+            var BalanceCheckBreakOut = false;
+            $("#form").validate({
+                rules: {
+                    igpQty: {
+                        required: true,
+                        number: true,
+                    },
+                },
+                messages: {
+                    igpQty: ""
+                }
+            });
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            if ($('#tblDetail').find('td').length != 0) {
+                $.each($("#tblDetail tbody tr"), function () {
+                    var pkg = parseFloat($(this).closest("tr").find('.pkg').val()) || 0.0;
+                    var pkgQty = parseFloat($(this).closest("tr").find('.pkgQty').val()) || 0.0;
+                    if (pkg == 0) {
+                        swal("", "Please Enter Package", "warning");
+                        breakOut = true;
+                        return false;
+                    }
+                    if (pkgQty == 0) {
+                        swal("", "Please Enter Package Quantity", "warning");
+                        breakOut = true;
+                        return false;
+                    }
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($("#VendorId").find(":selected").val() == "0") {
+                swal("", "Please Select Vendor", "warning")
+                return false;
+            }
+
+            else if ($("#typeimport").find(":selected").val() == "0") {
+                swal("", "Please Select Po type", "warning")
+                return false;
+            }
+            else if ($("#OrgId").find(":selected").val() == "0") {
+                swal("", "Please Select Organization", "warning")
+                return false;
+            }
+            else if ($("#OpId").find(":selected").val() == "0") {
+                swal("", "Please Select Operating Unit", "warning")
+                return false;
+            }
+            $("#tblDetail > tbody > tr").each(function () {
+                debugger
+                var igpQty = $(this).find(".igpq").val();
+                var poDetailId = $(this).find(".Po").val();
+                debugger
+                $.ajax({
+                    method: "GET",
+                    async: false,
+                    url: '/AP/IGP/BalanceCheck?IGPQty=' + igpQty + '&PODetailId=' + poDetailId
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        debugger
+                        if (data.status == false) {
+                            debugger
+                            BalanceCheckBreakOut = true;
+                            swal('', data.message, 'warning');
+                            return false;
+                        }
+                    }
+                });
+                if (BalanceCheckBreakOut == true) {
+                    return false;
+                }
+            });
+            if (BalanceCheckBreakOut == true) {
+                return false;
+            }
+            return true;
+        }
+        function Multiplication(row) {
+            if ($("#typeimport").find(":selected").text() == "Import") {
+                var pkg = parseFloat(row.closest("tr").find('.pkg').val().replace(/,/g, "")) || 0.0;
+                var pkgQty = parseFloat(row.closest("tr").find('.pkgQty').val().replace(/,/g, "")) || 0.0;
+                var igpQty = parseFloat(row.closest("tr").find('.igpq').val().replace(/,/g, "")) || 0.0;
+                if (pkgQty != 0 && pkg != 0) {
+                    if (pkgQty * pkg != igpQty) {
+                        row.closest("tr").find('.pkg').val(0);
+                        row.closest("tr").find('.pkgQty').val(0);
+                        swal("", "Package quantity must be equal to IGPQty", "warning")
+                    }
+                }
+            }
+            else {
+                debugger
+                var mode = $("#ModeId").val();
+                var pkg = parseFloat(row.closest("tr").find('.pkg').val().replace(/,/g, "")) || 0.0;
+                var RcdQty = parseFloat(row.closest("tr").find('.rcdq').val().replace(/,/g, "")) || 0.0;
+                var CheckPack = parseFloat(row.closest("tr").find('.CheckPack').val()) || 0.0;
+                var pkgQty = parseFloat(row.closest("tr").find('.pkgQty').val().replace(/,/g, "")) || 0.0;
+                var ChechkPackQty = parseFloat(row.closest("tr").find('.ChechkPackQty').val()) || 0.0;
+                var CheckRec = parseFloat(row.closest("tr").find('.CheckRec').val().replace(/,/g, "")) || 0.0;
+                var ChechkBal = parseFloat(row.closest("tr").find('.ChechkBal').val().replace(/,/g, "")) || 0.0;
+                var CheckIGPQty = parseFloat(row.closest("tr").find('.CheckIGPQty').val()) || 0.0;
+                var POQty = parseFloat(row.closest("tr").find('.poq').val().replace(/,/g, "")) || 0.0;
+                var iqty = pkg * pkgQty;
+                var bqty = ChechkBal + CheckIGPQty;
+                if (iqty <= bqty) {
+                    //prev = parseFloat(row.closest("tr").find('.igpq').val().replace(/,/g, "")) || 0.0;
+                    parseFloat(row.closest("tr").find('.igpq').val(pkg * pkgQty));
+                    var igpQty = parseFloat(row.closest("tr").find('.igpq').val());
+                    var balc = parseFloat(row.closest("tr").find('.balq').val().replace(/,/g, ""));
+                    var rcdq = parseFloat(row.closest("tr").find('.rcdq').val().replace(/,/g, ""));
+                    parseFloat(row.closest("tr").find('.balq').val(bqty - igpQty));
+                    if (mode == "Update") {
+                        if (POQty == RcdQty) {
+                            row.closest("tr").find('.rcdq').val(RcdQty - (CheckIGPQty - iqty));
+                        } else {
+
+                            if (CheckIGPQty > iqty) {
+                                row.closest("tr").find('.rcdq').val((CheckRec) - iqty);
+                            }
+                            if (CheckIGPQty < iqty) {
+                                row.closest("tr").find('.rcdq').val((CheckRec - CheckIGPQty) + iqty);
+                            }
+                            if (CheckIGPQty == iqty) {
+                                row.closest("tr").find('.rcdq').val(CheckRec);
+                            }
+                        }
+
+                        //parseFloat(row.closest("tr").find('.rcdq').val((CheckRec - bqty) + igpQty));
+                    } else {
+                        parseFloat(row.closest("tr").find('.rcdq').val((CheckRec) + igpQty));
+                    }
+
+                    Calculation(row);
+                } else {
+                    swal("", "IGP quantity is must be less than balance quantity!", "warning");
+                    row.closest("tr").find('.pkg').val(CheckPack);
+                    row.closest("tr").find('.pkgQty').val(ChechkPackQty);
+                    row.closest("tr").find('.balq').val(ChechkBal);
+                    row.closest("tr").find('.rcdq').val(CheckRec);
+                    $('input.add-comma').commaTextbox();
+
+                    return false;
+                }
+
+            }
+            $('input.add-comma').commaTextbox();
+        }
+        function isNumberKey(evt){
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        //$('#form').on('keyup keypress input', function (e) {
+        //    debugger
+        //    var keyCode = e.keyCode || e.which;
+        //    if (keyCode === 13) {
+        //        e.preventDefault();
+        //        return false;
+        //    }
+        //});
+        $("#form").on("submit", function (e) {
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+
+        });
+    </script>
+}

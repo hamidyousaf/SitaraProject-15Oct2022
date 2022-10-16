@@ -1,0 +1,351 @@
+﻿@model ARInvoiceViewModel
+@{
+    ViewData["Title"] = "Create Sale Invoice";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+
+<div class="col-lg-12">
+    <form id="invoice-form" method="post" asp-action="Create" asp-controller="Invoice">
+        <input asp-for="Id" type="hidden" />
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceNo"></label>
+                            <div class="input-group">
+                                @if (Convert.ToInt32(Model.InvoiceNo) == 0)
+                                {
+                                    <input value="" class="form-control on-focus-change-color text-right" tabIndex="-1" readonly />
+                                }
+                                else
+                                {
+                                    <input asp-for="InvoiceNo" class="form-control on-focus-change-color text-right" tabIndex="-1" readonly />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="InvoiceDate"  autofocus class="form-control " type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.InvoiceDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="Due Date is required" data-validation-error-msg-container="#invDate" readonly />
+                            </div>
+                            <p id="invDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label>Invoice Due Date</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="InvoiceDueDate" class="form-control custom-date-picker on-focus-change-color" type="text" value="@CommonHelper.CurrentDate" data-validation="required" data-validation-error-msg="Invoice Date is required" data-validation-error-msg-container="#dueDate" />
+                            </div>
+                            <p id="dueDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="WareHouseId"></label>
+                            <Select asp-for="WareHouseId" asp-items="@ViewBag.WareHouse" class="form-control" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="wareHouse"></p>
+                        </div>
+                    </div>
+
+                </div>
+
+                            <div class="row">
+                                <div class="col-lg-5 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerId"></label>
+                                        <Select asp-for="CustomerId" asp-items="@ViewBag.Customer" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                        <p id="customer"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="CustomerPONo"></label>
+                                        <input asp-for="CustomerPONo" class="form-control on-focus-change-color" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="OGPNo"></label>
+                                        <input asp-for="OGPNo" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color" />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="Vehicle"></label>
+                                        <input asp-for="Vehicle" class="form-control on-focus-change-color" />
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="row">
+
+                                <div class="col-lg-4 col-sm-3">
+                                    <div class="form-group" hidden>
+                                        <label asp-for="CostCenter">Cost Center</label>
+                                        <select asp-for="CostCenter" class="form-control" asp-items="ViewBag.CostCenter"></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <textarea asp-for="Remarks" rows="1" class="form-control on-focus-change-color"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4 hide">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Currency Exchange
+                                </div>
+                                <div class="panel-body">
+                                    <label asp-for="Currency"></label>
+                                    <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" class="form-control" name="Currency" data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency"></select>
+                                    <p id="currency"></p>
+                                    <label asp-for="CurrencyExchangeRate"></label>
+                                    <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Exchange rate is required" data-validation-error-msg-container="#exchangeRate" />
+                                    <p id="exchangeRate"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="p"></p>
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    @if (Model.Status != "Approved")
+                    {
+                        <div class="text-right mb-3">
+                            <a id="add-SaleOrders-popUp" class="btn btn-success" onclick="getSaleOrders();">Get items from Delivery Challan</a>
+                            @*<a id="add-invoice-item" class="btn btn-success add-purchaseReturn-item"><i class="fa fa-plus"></i></a>*@
+
+                        </div>
+                    }
+                    <!--Modal For Purchase Order Items to be loaded for selection-->
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Select Delivery Challan</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row text-center">
+                                            <div class="col-md-12">
+                                                <div class="ibox ">
+                                                    <p id="itemTable"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Delivery Challan</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input asp-for="Total" name="Total" id="Total" class="form-control text-right add-comma" readonly placeholder="0.0" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Total Discount:</label><input name="totalDiscountAmount" id="discountAmount" class="form-control text-right add-comma" readonly placeholder="0.0" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Exclv. of SaleTax Amt:</label><input name="totalExcvAmt" id="totalExcvAmt" class="form-control text-right add-comma" readonly placeholder="0.0" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Total Sales Tax:</label> <input name="totalSalesTaxAmount" id="salesTaxAmount" class="form-control text-right" readonly placeholder="0.0" /></div>
+                                    <div hidden class="col-lg-2 col-sm-3"><label hidden>Total Excise Tax:</label><input hidden name="totalExciseTaxAmount" id="exciseTaxAmount" class="form-control text-right add-comma" readonly placeholder="0.0" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Inclv. of SaleTax Amt:</label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right add-comma" readonly placeholder="0.0" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-left mb-3">
+                        <a asp-controller="Invoice" asp-action="Index" class="btn btn-white">List</a>
+                        @if (Model.Status != "Approved")
+                        {
+                            <button onclick="return validation();" type="submit" asp-action="@ViewBag.EntityState" asp-controller="Invoice" name="submit" value="@ViewBag.EntityState" class="btn btn-primary">@ViewBag.EntityState</button>
+                        }
+                        else
+                        {
+                            <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                        }
+                    </div>
+</form>
+</div>
+
+@section customJS{
+    <script src="~/js/AR/invoiceItems.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        $(document).ready(function () {
+        $("#CustomerId").select2();
+            $("#WareHouseId").select2();
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.InvoiceItems));
+        var counter = 1;
+        if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            }
+            else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+        }
+        if (items != null) {
+            for (i = 0; i < items.length; i++) {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/AR/Invoice/GetInvoiceItems',
+                    data: { id: items[i].Id, itemId: items[i].ItemId },
+                    beforeSend: function () {
+                        toggleLoader(true);
+                    }
+                }).done(function (data) {
+                    toggleLoader(false);
+                    $('#p').append(data);
+                });
+            }
+            }
+            $('input.add-comma').commaTextbox();
+        $('#add-invoice-item').on('click', function () {
+            $.post("/AR/Invoice/PartialInvoiceItems", { counter: counter }).done(function (data) {
+                $("#p").append(data);
+                counter++;
+            });
+    
+    });
+        lockOutInputs(@ViewBag.Counter);
+        
+
+    });
+        
+    $.validate();
+
+    $(function () {
+        if ("@Model.Status" == "Approved") {
+            $("form select, form input, form textarea").not(":submit").each(function (e) {
+                $(this).attr("disabled", "disabled");
+            });
+            $('.tax-lock :not(:selected)').attr('disabled','disabled');
+            $('#add-invoice-item').hide();
+        }
+    });
+
+    //for pop-up modal
+    var skipIds = [];//skip from loading table rows
+    function getSaleOrders() {
+        debugger
+        var supplierId = $('#CustomerId').val();
+        var skip = [];
+        $('.itmcde').each(function () { skip.push($(this).find(":selected").val()); });
+        var counter = 1;
+        // AJAX request
+        $.ajax({
+            url: '/AR/Invoice/GetDCByCustomerId',
+            type: 'POST',
+            method: 'POST',
+            data: { id: supplierId, skipIds: skip},
+            success: function (response) {
+                $('#itemTable').html(response);
+                // Display Modal
+                $('#saleModal').modal('show');
+            },
+            fail: function (response) {
+                // console.log('message from fail...', response.responseText);
+            }
+        });
+        counter++;
+    }
+    var counter = 50;
+    $('#button').click(function () {
+        var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+        return $(this).closest('tr').find('td').html();
+        });
+        console.log(arrayOfValues);
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (i = 0; i < arrLength; i++) {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/AR/Invoice/GetSaleOrderItems',
+                data: { saleOrderItemId: parseInt(values[i]), counter: counter },
+                beforeSend: function () {
+                    skipIds.push(values[i]);
+                    $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    $('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                $('#p').append(data);
+                $('#button').prop('disabled', false);
+                $('#saleModal').modal("hide");
+                counter++;
+                }).fail(function (error) {
+                //console.log(error.responseText);
+                });
+            
+        }
+    });
+        $('input.add-comma').commaTextbox();
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function validation() {
+            var skip = [];
+            $('.itmcde').each(function () { skip.push($(this).find(":selected").val()); });
+            if (skip.length == 0) {
+                swal("", "Item must be enter.");
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+}
+
+

@@ -1,0 +1,79 @@
+﻿<div class="modal fade" id="InsuranceModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h3 class="modal-title" id="exampleModalLabel">Insurance Info</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <input name="InsId" value="@(ViewBag.Insurnces!=null ? ViewBag.Insurnces.Id : 0)" hidden />
+                <input hidden id="CompanyId" value="@(ViewBag.Insurnces!=null ? ViewBag.Insurnces.InsuranceCompanyId : 0)"/>
+                    <div class="col-lg-3 Pad-rht">
+                        <div class="form-group">
+                            <label>Insurance Comp Name</label>
+                            <Select name="companyName" id="compName" class="form-control on-focus-change-color" asp-items="@ViewBag.Insurance" data-validation="required">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                        </div>
+                    </div>
+                    @if (ViewBag.Insurnces != null)
+                    {
+                        
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Cover Note #</label>
+                                <input name="coverNo" value="@ViewBag.Insurnces.CoverNoteNo" class="form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Cover Note Date</label>
+                                <input name="coverNoteDate" value="@(ViewBag.Insurnces == null ? CommonHelper.CurrentDate : ViewBag.Insurnces.CoverNoteDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Charges</label>
+                                <input name="charges" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@ViewBag.Insurnces.Charges" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Cover Note #</label>
+                                <input name="coverNo" class="form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Cover Note Date</label>
+                                <input name="coverNoteDate" value="@(CommonHelper.CurrentDate)" type="text" class=" form-control custom-date-picker date" required />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Charges</label>
+                                <input name="charges" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    }
+
+
+
+                </div>`
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,108 @@
+﻿@model BkgCustomer
+@{
+    ViewData["Title"] = "ChangeCustomerCNIC";
+    ViewData["CurrentPage"] = "Change Customer's CNIC";
+}
+
+<div class="row">
+    <div class="col-md-10">
+        <div class="ibox-title">
+            <h5>Update Customer's CNIC</h5>
+        </div>
+        <div class="ibox-content">
+            <form id="myForm" asp-controller="Account" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Select CNIC#</label>
+                            <div class="col-lg-8">
+                                <select asp-for="Id" class="chosen-select"  data-validation="required-number" data-validation-error-msg="CNIC is Required" data-validation-error-msg-container="#container">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <b>
+                            <span id="container"></span>
+                        </b>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label>New CNIC#</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="CNIC" class="form-control" data-mask="99999-9999999-9" onchange= "return checkCNIC();" data-validation="required" data-validation-error-msg-container="#error" />
+                            <p id="Status"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <b>
+                            <span id="error"></span>
+                        </b>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <input asp-action="ChangeCustomerCNIC" type="submit" class="btn btn-primary submit" value="Update" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/js/jquery-3.1.1.min.js"></script>
+
+@section customJS{
+    <script>
+        $.validate();
+        $(function () {
+            $('#Id').select2({
+                ajax: {
+                    type: 'GET',
+                    url: '/Booking/Api/GetCustomers',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: "Search for a Customer's CNIC",
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+        })
+
+
+        function checkCNIC() {
+            //$("#Status").html("Checking...");
+            var cnic = $("#CNIC").val();
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/Api/CheckCustomerCNICAlreadyExist/',
+                data: {cnic }
+
+            }).then (function (data) {
+                    if (data == 0) {
+                        $("#Status").html('<font color="Green"></font>');
+                        $("#CNIC").css("border-color", "Green");
+                        $(".submit").removeAttr("disabled");
+                    }
+                    else {
+                        $("#Status").html('<font color="Red">Customer with same CNIC already exists.</font>');
+                        $("#CNIC").css("border-color", "Red");
+                        $(".submit").attr("disabled", "disabled");
+                    }
+                });
+    }
+    </script>
+}

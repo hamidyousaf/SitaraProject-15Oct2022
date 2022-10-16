@@ -1,0 +1,69 @@
+﻿@model Numbers.Entity.Models.BkgReceipt
+@{
+    ViewData["Title"] = "Booking Receipt Detail";
+    ViewData["CurrentPage"] = "Receipts";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Booking Receipt Detail</h5>
+
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal">
+
+                    <div class="form-group">
+                        <label asp-for="ReceiptDate" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+                            @Html.DisplayNameFor(model => model.ReceiptDate)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ReceiptAccount" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+                            @Html.DisplayFor(model => model.ReceiptAccount)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ReceiptAmount" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+                            @Html.DisplayFor(model => model.ReceiptAmount)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Reference" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+
+                            @Html.DisplayFor(model => model.Reference)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+                            @Html.DisplayFor(model => model.Description)
+                        </div>
+                    </div>
+               
+                    <div class="form-group">
+                        <label asp-for="Status" class="col-lg-2 control-label"></label>
+                        <div class="col-lg-10">
+                            @Html.DisplayFor(model => model.Status)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-4 col-lg-offset-2">
+                            <input type="submit" value="Back" class="btn btn-white" asp-action="ReceiptList" />
+                            <input type="submit" value="Edit" class="btn btn-primary" asp-action="ReceiptCreate" asp-route-id="@Model.Id" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+

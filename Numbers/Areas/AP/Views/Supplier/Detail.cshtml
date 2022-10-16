@@ -1,0 +1,200 @@
+﻿@model APSupplierVM
+@{
+    ViewData["Title"] = "Supplier Detail";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        
+           
+                <div class="title-action col-lg-4 pull-right row  page-heading">
+                    <a asp-controller="Supplier" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print </a>*@
+                </div>
+          
+        
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form class="form-horizontal">
+
+                    @*<div class="form-group">
+            <label asp-for="PlanMonthly.TransactionNo" class="col-lg-3 control-label"></label>
+            <div class="col-lg-9">
+                @Html.DisplayFor(model => model.PlanMonthly.TransactionNo)
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlanMonthly.TransactionDate" class="col-lg-3 control-label"></label>
+            <div class="col-lg-9">
+                @Model.PlanMonthly.TransactionDate.ToString(CommonHelper.DateFormat)
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlanMonthly.SPId" class="col-lg-3 control-label"></label>
+            <div class="col-lg-9">
+                @Html.DisplayFor(model => model.PlanMonthly.SPId)
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-lg-3 control-label">Plan of</label>
+            <div class="col-lg-9">
+                @Html.DisplayFor(model => model.PlanMonthly.Planofmonth)
+            </div>
+        </di*@
+                    <div class="row">
+                        <div class="col-sm-6 text-left">
+                            <h4><span>Supplier Id #: <strong class="text-navy"> @Model.APSupplier.Id</strong></span></h4>
+                            <span><strong>Registration Date: </strong> @Model.APSupplier.RegistrationDate.ToLongDateString()</span><br />
+                            <span><strong>STRN: </strong> @Model.APSupplier.STRNNo</span><br />
+                            <span><strong>Contact # 1: </strong> @Model.APSupplier.Phone1</span><br />
+                            <span><strong>Contact # 2: </strong> @Model.APSupplier.Phone2</span><br />
+                            <span><strong>Website: </strong> @Model.APSupplier.Web</span><br />
+                            <span><strong>Countary: </strong> @ViewBag.AppCountary</span><br />
+                            <span><strong>Supplier Status: </strong> @Model.APSupplier.Status</span><br />
+                        </div>
+
+                        <div class="col-sm-6 text-right">
+                            <div class="text-left pull-right">
+                                <h4><span>Supplier Name: <strong class="text-navy"> @Model.APSupplier.Name</strong></span></h4>
+                                <span><strong>Chamber Memebership: </strong> @Model.APSupplier.ChamberMemebership</span><br />
+                                <span><strong>Business Type: </strong> @Model.APSupplier.BussinessType</span><br />
+                                <span><strong>Registered With FBR: </strong> @Model.APSupplier.Registered</span><br />
+                                <span><strong>NTN #: </strong> @Model.APSupplier.NTNNo</span><br />
+                                <span><strong>Address #: </strong> @Model.APSupplier.Address</span><br />
+                                <span><strong>City: </strong> @ViewBag.AppCity</span><br />
+                                <span><strong>GL Account: </strong> @Model.APSupplier.AccountId</span><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ibox-title mt-1">
+                        <h5><strong> Contact Person</strong></h5>
+                        <span class="label label-success pull-right status"></span>
+                    </div>
+                    <!----------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="">
+                                    <table id="tblDetail" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+
+                                                <th style="width:23%;" class="searchHeader ">Name</th>
+                                                <th style="width:8%;" class="searchHeader">Designation</th>
+                                                <th style="width:8%;" class="searchHeader">Phone #</th>
+                                                <th style="width:10%;" class="searchHeader">CNIC #</th>
+                                                <th style="width:14%;" class="searchHeader">Email</th>
+
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @if (Model.ARContactPerson != null)
+                                            {
+                                                @foreach (var item in Model.ARContactPerson)
+                                                {
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            @Html.DisplayFor(modelItem => item.PersonName)
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @item.Designation
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @item.PhoneNo
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @item.Ext
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @item.Email
+                                                        </td>
+
+
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!----------------------------------------------------->
+
+                    <div class="ibox-title mt-1">
+                        <h5><strong> Item Category</strong></h5>
+                        <span class="label label-success pull-right status"></span>
+                    </div>
+                    <!----------------------------------------------------->
+                    <div class="container-fluid">
+                        <table id="ItemCategoryTable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Level 1</th>
+                                    <th>Level 2</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.ItemCategory != null)
+                                {
+                                    @foreach (var item in ViewBag.ItemCategory)
+                                    {
+                                        <tr class="removedCat">
+
+                                            <td class="Id">
+                                                @foreach (var itm in ViewBag.listOfItemCategories)
+                                                {
+                                                    if (itm.Value == Convert.ToString(item.CategoryId))
+                                                    {
+                                                        <input type="text" readonly class="form-control Cat" name="CategoryName" value="@itm.Text" />
+                                                        <input type="hidden" readonly class="form-control" name="categoryId" value="@itm.Value" />
+                                                    }
+                                                }
+                                            </td>
+
+                                            @foreach (var itm in ViewBag.listOfItemCategories)
+                                            {
+                                                if (itm.Value == Convert.ToString(item.CategoryLevId))
+                                                {
+                                                    <td class="Id">
+                                                        <input type="text" readonly class="form-control Cat" name="CategoryName" value="@itm.Text" />
+                                                        <input type="hidden" readonly class="form-control" name="categoryId" value="@itm.Value" />
+                                                    </td>
+                                                }
+                                            }
+
+                                            @*<td>
+                                                <a class="btn btn-sm btn-danger m-t-n-xs " onclick="deleterowCat($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                            </td>*@
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <!----------------------------------------------------->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

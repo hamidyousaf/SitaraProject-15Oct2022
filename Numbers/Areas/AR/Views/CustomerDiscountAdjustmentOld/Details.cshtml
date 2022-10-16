@@ -1,0 +1,93 @@
+﻿@model CustomerDiscountAdjustmentVM
+@{
+    ViewData["Title"] = "Approved Discount Adjustment";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="ARCustomerDiscountAdjustment" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.CustomerDiscountAdjustment.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        @*<h4><span>Customer Name:<strong class="text-navy"> @Model.Customer_.Name</strong></span></h4>*@
+                        @*<span><strong>Delivery Term:</strong> @Model.DeliveryTerm.ConfigValue</span><br />
+                            <span><strong>Payment Term:</strong> @Model.PaymentTerm.ConfigValue</span><br />*@
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Transaction No. <strong class="text-navy">@Model.CustomerDiscountAdjustment.TransactionNo</strong></span></h4>
+                        <p>
+                            <span><strong>Created Date:</strong> @Model.CustomerDiscountAdjustment.CreatedDate.ToString(CommonHelper.DateFormat)</span><br />
+                        </p>
+                        <h4><span>Transaction Type. <strong class="text-navy">@Model.TransType</strong></span></h4>
+                        @*<span><strong>EndDate:</strong>@Model.EndDate.ToString(CommonHelper.DateFormat)</span><br />*@
+                        @*<span><strong>Reference No:</strong> @Model.</span><br />
+        <span><strong>Currency:</strong> @Model.Currency  @Model.CurrencyExchangeRate</span><br />*@
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th class="text-right">DiscountAmount</th>
+                                <th class="text-right">DiscountBalance</th>
+                                <th class="text-right">PaidAmount</th>
+                                <th class="text-right">TransferAmount</th>
+                                <th class="text-right">TransferToCustomer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<ARCustomerAdjustmentItem>)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Customer_.Name)
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscountAmount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiscountBalance)</td>
+                                <td>@Html.DisplayFor(modelItem => item.PaidAmount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.TransferAmount)</td>
+                                <td>@Html.DisplayFor(modelItem => item.CustomerName)</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

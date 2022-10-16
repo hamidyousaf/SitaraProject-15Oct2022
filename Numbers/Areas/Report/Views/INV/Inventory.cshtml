@@ -1,0 +1,714 @@
+﻿@{
+    ViewData["Title"] = "Inventory Reports";
+    ViewData["CurrentPage"] = "Reports";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+<div class="col-lg-12">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="report" class="form-horizontal" method="post">
+                        @*<input type="hidden" name="ReportTitle" value="StockBalance" />*@
+                        <input type="hidden" name="CompanyName" value="@companyName" />
+                        <input type="hidden" name="CompanyId" value="@companyId" />
+                        <div class="row">
+                            <div class="col-lg-5 col-md-12 col-sm-12">
+                                <div class="form-group">
+                                    <label>Report Name</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.Reports" autofocus class="form-control" id="ReportTitle" data-validation="required" name="ReportTitle">
+                                            <option disabled="disabled" selected="selected">Select Report...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <div class="col-lg-3 col-sm-6" id="divStartDate">
+                                        <div class="form-group">
+                                            <label>Start Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divEndDate">
+                                        <div class="form-group">
+                                            <label>End Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divIRNnumber">
+                                        <div class="form-group">
+                                            <label>IRN #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select autofocus class="form-control" id="IRN_Number" name="IRN_Number">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divGRNnumber">
+                                        <div class="form-group">
+                                            <label>GRN #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select autofocus class="form-control" id="GRN_Number" name="GRN_Number">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divIssueReturnNumber">
+                                        <div class="form-group">
+                                            <label>Issue #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select autofocus class="form-control" id="IssueReturnNumber" name="IssueReturnNumber">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divValue">
+                                        <div class="form-group">
+                                            <label>Value</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <input id="Value" name="Value" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divRate">
+                                        <div class="form-group">
+                                            <label>Rate</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <input id="Rate" name="Rate" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divQuantity">
+                                        <div class="form-group">
+                                            <label>Quantity</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <input autofocus class="form-control" id="Quantity" name="Quantity" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divIGPNumber">
+                                        <div class="form-group">
+                                            <label>IGP #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select id="IGPNumber" name="IGPNumber" class="form-control">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divOrderRef">
+                                        <div class="form-group">
+                                            <label>Order Ref #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select id="OrderRef" name="OrderRef" class="form-control">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divStore">
+                                        <div class="form-group">
+                                            <label></label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select id="Store" name="Store" class="form-control">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divPONumber">
+                                        <div class="form-group">
+                                            <label>PO #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select id="PONumber" name="PONumber" class="form-control">
+                                                    <option value="0">Select All</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-sm-6" id="divIGPPending">
+                                        <div class="form-group">
+                                            <label>IGP Pending/All #</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select autofocus class="form-control" id="IGPPending" name="IGPPending">
+                                                    <option value="All"> All</option>
+                                                    <option value="Pending">Pending</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-5 col-md-12 col-sm-12" id="divFromStore">
+                                        <div class="form-group">
+                                            <label>Store From</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select asp-items="@ViewBag.WareHouseFrom" autofocus class="form-control" id="FromStore" name="FromStoref">
+                                                    <option value="0" selected="selected">Select All...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 col-md-12 col-sm-12" id="divToStore">
+                                        <div class="form-group">
+                                            <label>Store To</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select asp-items="@ViewBag.WareHouseTo" autofocus class="form-control" id="ToStore" name="ToStoret">
+                                                    <option value="0" selected="selected">Select All...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row" id="typehead" style="display:none;">
+                                    <div class="col-lg-6 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Item from</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select asp-items="@ViewBag.ItemsFrom" id="Itemfrom" name="Itemfrom" data-validation="required">
+                                                    <option value="0" selected="selected">Select Item...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-sm-6" id="">
+                                        <div class="form-group">
+                                            <label>Item To</label>
+                                            <div class="input-group col-lg-12 col-sm-12">
+                                                <select asp-items="@ViewBag.ItemsTo" id="itemto" name="itemto" data-validation="required">
+                                                    <option value="999999999" selected="selected">Select Item...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        @*<div class="row">
+                            <div class="col-lg-5" id="divFromStore">
+                                <div class="form-group">
+                                    <label>From Store</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <Select  name="FromStore" id="FormStore" asp-items="@ViewBag.WareHouseFrom">
+                                            <option selected="selected" value="0">Select All</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5" id="divToStore">
+                                <div class="form-group">
+                                    <label>To Store</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <Select  name="ToStore" id="ToSotre" asp-items="@ViewBag.WareHouseTo">
+                                            <option selected="selected" value="0">Select All</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                        <div class="row" id="divLevels">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Level1" type="checkbox" checked />
+                                            <label for="Level1">Level1</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Level2" type="checkbox" checked />
+                                            <label for="Level2">Level2</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Level3" type="checkbox" checked />
+                                            <label for="Level3">Level3</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Level4" type="checkbox" checked />
+                                            <label for="Level4">Level4</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 ">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WithValue" type="checkbox" checked />
+                                            <label for="WithValue">WithValue</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 ">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WithQty" type="checkbox" checked />
+                                            <label for="WithQty">WithQty</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" id="divradio">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-lg-2">
+                                        <div class="radio radio-success">
+                                            <input name="grpRadio" type="radio" checked value="Department" />
+                                            <label>Department</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="radio radio-success">
+                                            <input name="grpRadio" type="radio" value="CostCenters" />
+                                            <label>CostCenters</label>
+                                        </div>
+                                    </div>
+                                    
+                                   
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="divRateQty">
+                            <div class="col-md-6">
+                                <div class="form-group">
+
+                                    <div class="col-lg-2" id="divRate12">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WithRate" type="checkbox" checked />
+                                            <label for="WithRate">WithRate</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2" id="divVal">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WithValue1" type="checkbox"  />
+                                            <label for="WithValue1">WithValue</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 " id="divQty">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WithQty1" type="checkbox" checked />
+                                            <label for="WithQty1">WithQty</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-lg-6 col-sm-6" id="divSelectMultipleCategory">
+                                <div class="form-group">
+                                    <label>Select Categories wise</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select autofocus asp-items="@ViewBag.Categories" id="Categories" name="Categories">
+                                            <option value="0">Select All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            @*<div class="col-lg-6 col-sm-6 " id="divSelectMultipleCategory">
+                <div class="form-group">
+                    <label>Select Categories wise</label>
+                    <div class="input-group col-lg-12">
+                        <select name="Categories" id="Categories" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+                            @*<div class="col-lg-5 col-sm-6" id="divSelectMultipleItem">
+                <div class="form-group">
+                    <label>Select Items wise</label>
+                    <div class="input-group col-lg-12">
+                        <select name="Items" id="Items" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5 col-sm-6" id="divSelectMultipleManufacture">
+                                <div class="form-group">
+                                    <label>Select Manufactures wise</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Manufacturers" id="Manufacturers" class="form-control" multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-sm-6" id="divSelectMultipleSuppliers">
+                                <div class="form-group">
+                                    <label>Select Supplier wise</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Suppliers" id="Suppliers" class="form-control">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-sm-6" id="divCostcenters">
+                                <div class="form-group">
+                                    <label>CostCenters</label>
+                                    <select id="DepId" name="CostCenters" asp-items="ViewBag.CostCenters">
+                                        <option value="0" selected>All</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-sm-6" id="divDepartment">
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <select id="DepId" name="Department" asp-items="ViewBag.Department">
+                                        <option value="0" selected>All</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-5" id="divSubDepartment">
+                                <div class="form-group">
+                                    <label class="col-form-label">Sub Department</label>
+                                    <select id="SubDepId" name="SubDepartment" asp-items="ViewBag.SubDivision">
+                                        <option value="0" selected>All</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="text-left">
+                                <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+<script src="~/js/INV/Report.js"></script>
+<script>
+    $(document).ready(function () {
+        let startDate = $('#StartDate').val();
+        let endDate = $('#EndDate').val();
+        $('#Categories').select2();
+
+        $(function () {
+            $('#IRN_Number').select2({
+                ajax: {
+                    url: '/Report/Report/GetIRNNumber',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a IRN Number',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#GRN_Number').select2({
+                ajax: {
+                    url: '/Report/Report/GetGRNNumber',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a GRN Number',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#IGPNumber').select2({
+                ajax: {
+                    url: '/Report/Report/GetIGPNumber',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a IGP Number',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#IssueReturnNumber').select2({
+                ajax: {
+                    url: '/Report/Report/GetIssueReturnNumber',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Issue Return Number',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+
+ 
+
+        //$(function () {
+        //    $('#Categories').select2({
+        //        ajax: {
+        //            url: '/Inventory/Api/GetCategories',
+        //            dataType: 'json',
+                    
+        //            placeholder: 'Search for Category',
+        //            data: function (params) {
+        //                return {
+        //                    q: params.term,// search term
+        //                    startDate: startDate,
+        //                    endDate: endDate
+        //                };
+        //            },
+        //            processResults: function (data, params) {
+        //                return {
+        //                    results: data
+        //                };
+        //            },
+        //            cache: true
+        //        }
+        //    });
+
+        //})
+
+        $(function () {
+            $('#PONumber').select2({
+                ajax: {
+                    url: '/Report/Report/GetPONumber',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a PO Number',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#OrderRef').select2({
+                ajax: {
+                    url: '/Report/Report/GetOrderRef',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Order Ref',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#Store').select2({
+                ajax: {
+                    url: '/Report/Report/GetStore',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Store',
+                    data: function (params) {
+                        return {
+                            q: params.term,// search term
+                            startDate: startDate,
+                            endDate: endDate
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+    });
+</script>
+<script>
+
+    //var byItems = $('select[name="Items"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetItems in dual-list-box
+    //$.get('/Inventory/Api/GetItemsForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Items"]').html(html);
+    //    byItems.bootstrapDualListbox('refresh');
+    //});
+
+
+    //category-wise
+    //var byCategories = $('select[name="Categories"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    //displays GetCategories in dual-list-box
+
+    //$.get('/Inventory/Api/GetCategories').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.value + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Categories"]').html(html);
+    //    $('select[name="Categories"]').find("option").eq(0).remove();//this removes 1st option in selectList
+    //    byCategories.bootstrapDualListbox('refresh');
+    //});
+
+    //supplier-wise
+    var bySuppliers = $('select[name="Suppliers"]').bootstrapDualListbox({
+        selectorMinimalHeight: 160
+    });
+    //displays supplier in dual-list-box
+    $.get('/Inventory/Api/GetSuppliers').done(function (e) {
+        var html = '';
+        $.each(e, function (i, e) {
+            html += '<option selected value="' + e.value + '"> ' + e.text + '</option>'
+        });
+        $('select[name="Suppliers"]').html(html);
+        $('select[name="Suppliers"]').find("option").eq(0).remove();//this removes 1st option in selectList
+        bySuppliers.bootstrapDualListbox('refresh');
+    });
+
+    //manufacture-wise
+    var byManufactures = $('select[name="Manufacturers"]').bootstrapDualListbox({
+        selectorMinimalHeight: 160
+    });
+    //displays GetManufactures in dual-list-box
+    $.get('/Inventory/Api/GetManufactures').done(function (e) {
+        var html = '';
+        $.each(e, function (i, e) {
+            html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+        });
+        $('select[name="Manufacturers"]').html(html);
+        byManufactures.bootstrapDualListbox('refresh');
+    });
+
+
+   
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#DepId').change(function () {
+            debugger;
+            $('#Department').select2();
+            var department = $("#DepId option:selected").val();
+            $.ajax({
+                type: 'GET',
+                url: '/GL/CostCenter/GetSubDivisions?id=' + department,
+            }).done(function (data) {
+                debugger;
+                if (data != null) {
+                    $('#SubDepId').empty();
+                    $('#SubDepId').append($('<option>', {
+                        value: 0,
+                        text: 'All'
+                    }));
+                    $.each(data, function (i, item) {
+                        $('#SubDepId').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                }
+            });
+
+        });
+    });
+</script>

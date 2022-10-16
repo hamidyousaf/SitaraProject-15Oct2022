@@ -1,0 +1,497 @@
+﻿@model Numbers.Entity.ViewModels.APIRNVM
+@{ ViewData["Title"] = "Create IRN";
+    ViewData["CurrentPage"] = "IRN";
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+            
+        }
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+   /* .table > tbody > tr > td{
+        padding:4px;
+        height:10px !important;
+    }*/
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Inspection and Receipt Note (IRN)</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post">
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-sm-3 col-lg-3">
+                            @if (Model.APIRN == null)
+                            {
+                                if (TempData["MaxIRNNo"] != null)
+                                {
+                                    <div class="form-group">
+                                        <input asp-for="APIRN.Id" class="id" type="hidden" />
+                                        <label for="IRNDate" class="col-form-label">IRN No</label>
+                                        <input tabindex='-1' class="form-control text-right" type="text" asp-for="APIRN.Id"  readonly />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-group">
+                                        <input asp-for="APIRN.Id" class="id" type="hidden" />
+                                        <label for="IRNDate" class="col-form-label">IRN No</label>
+                                        <input tabindex='-1' class="form-control text-right" type="text" asp-for="APIRN.IRNNo" value="@ViewBag.IRNNo" readonly />
+                                    </div>
+                                }
+
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <input asp-for="APIRN.Id" class="id" type="hidden" />
+                                    <label for="IRNDate" class="col-form-label">IRN No</label>
+                                    <input tabindex='-1' class="form-control text-right" type="text" asp-for="APIRN.IRNNo" value="@ViewBag.IRNNo" required readonly />
+                                </div>
+                            }
+                        </div>
+                        <div class="col-sm-3 col-lg-3">
+                            <div class="form-group">
+                                <label for="IRNDate" class="col-form-label">IRN Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input tabindex='-1' class="form-control" type="text" asp-for="APIRN.IRNDate" id="IRNDate" value="@(Model.APIRN == null ? CommonHelper.CurrentDate : Model.APIRN.IRNDate.ToString(CommonHelper.DateFormat))" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-lg-3">
+                            <div class="form-group">
+                                <label for="VendorDesc" class="col-form-label">Vendor Name</label>
+                                <select autofocus id="Vendor" asp-for="APIRN.VendorID" class="form-control" asp-items="@ViewBag.Vendor" required>
+                                    <option value="0" disabled selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                       @if (Model.APIRN == null)
+                        {
+                            <div class="col-sm-3 col-lg-3">
+                                <div class="form-group">
+                                    <label for="IGPNO" class="col-form-label">IGP #</label>
+                                    <select id="iGP" asp-for="APIRN.IGPNo" class="form-control" required>
+                                        <option value="0" selected="selected">Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                           <input hidden value="@Model.APIRN.IGPNo" id="iGPno"/>
+                            <div class="col-sm-3 col-lg-3">
+                                <div class="form-group">
+                                    <label for="IGPNO" class="col-form-label">IGP #</label>
+                                    <select id="iGP" asp-for="APIRN.IGPNo" asp-items="@ViewBag.IGPList" class="form-control" required>
+                                        <option value="0" disabled selected="selected">Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="row">
+                       <div class="col-sm-12 col-lg-6">
+                            <div class="form-group">
+                                 <label for="Remarks" class="col-form-label">Remarks</label>
+                                 <textarea  style="resize:none;" class="form-control" id="Remarks" asp-for="APIRN.Remarks" rows="2"   placeholder="Enter Your Remarks..."></textarea>
+                            </div>
+                       </div>
+                    </div>
+                        <!--------------------------------------------------------------------------------->
+                        <div class="row">
+                            <div class="table-responsive ">
+                                <table class="table table-bordered table-striped" id="tblIRN" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:0%" hidden></th>
+                                            <th style="width:0%" hidden></th>
+                                            <th style="width:0%" hidden></th>
+                                            <th style="width:0%" hidden></th>
+                                            <th style="width:0%" hidden></th>
+                                            <th style="width: 28%">Item Description</th>
+                                            @if (ViewBag.Responsibility == "Yarn Purchase")
+                                            {
+                                                <th style="width:15%">Brand</th>
+                                            }
+                                            <th style="width: 7%">UOM</th>
+                                            <th hidden style="width: 8%">Category</th>
+                                            <th style="width: 8%">IGP Qty</th>
+                                            <th style="width: 8%">Rec Qty</th>
+                                            <th style="width: 8%">Acc Qty</th>
+                                            <th style="width: 8%">Rej Qty</th>
+                                            <th style="width: 15%">Reason for Rejection</th>
+                                            <th style="width:8%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.APIRNDetails != null)
+                                        {
+                                            @for (int i = 0; i < Model.APIRNDetails.Count; i++)
+                                            {
+                                                var itemName = Model.APIRNDetails[i].ItemCode + " - " + Model.APIRNDetails[i].ItemDiscription;
+                                        <tr class="removed">
+                                            <td hidden><input asp-for="APIRNDetails[i].Id" value="@Model.APIRNDetails[i].Id" type="hidden" /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].ItemID" value="@Model.APIRNDetails[i].ItemID" type="hidden" /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].PrID" value="@Model.APIRNDetails[i].PrID" type="hidden" /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].PrDetailId" value="@Model.APIRNDetails[i].PrDetailId" type="hidden" /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].IGPDetailId" value="@Model.APIRNDetails[i].IGPDetailId" type="hidden" /></td>
+                                            <td><input style='background-color: #eee;' type="text" value="@itemName" tabindex='-1' class="text-left" readonly /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].ItemCode" type="text" value="@Model.APIRNDetails[i].ItemCode" tabindex='-1' class="text-right" readonly /></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].ItemDiscription" type="text" value="@Model.APIRNDetails[i].ItemDiscription" tabindex='-1' readonly /></td>
+                                            @if (ViewBag.Responsibility == "Yarn Purchase")
+                                            {
+                                                <td><input style='background-color: #eee;' tabindex="-1" name='Brand' value='@Model.Brand[i]' type='text' class='text-left' readonly /></td>
+                                            }
+
+                                            <td><input style='background-color: #eee;' asp-for="UOMName[i]" value="@Model.UOMName[i]" type="text" tabindex='-1' readonly /></td>
+                                            <td hidden><input name="Category" value="@Model.APIRNDetails[i].CategoryName" type="text" tabindex='-1' readonly /></td>
+                                            <td><input style='background-color: #eee;' asp-for="APIRNDetails[i].IGP_Qty" value="@Model.APIRNDetails[i].IGP_Qty" type="text" class=" igp text-right add-comma" tabindex='-1' readonly /></td>
+                                            <td> <input style='background-color: #eee;' asp-for="Rcd[i]" type="text" value="@Model.Rcd[i]" class=" rcd text-right" tabindex='-1' readonly /></td>
+                                            <td>
+                                                @if (ViewBag.Type == "Import")
+                                                {
+                                                    <input onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete='off' asp-for="APIRNDetails[i].Accepted_Qty" value="@Model.APIRNDetails[i].Accepted_Qty" onfocus="this.oldvalue = this.value;" onchange="Calculation($(this));this.oldvalue = this.value;" class=" acp text-right add-comma" type="text" tabindex='-1' readonly />
+                                                }
+                                                else
+                                                {
+                                                    <input onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete='off' asp-for="APIRNDetails[i].Accepted_Qty" value="@Model.APIRNDetails[i].Accepted_Qty" onfocus="this.oldvalue = this.value;" onchange="Calculation($(this));this.oldvalue = this.value;" class=" acp text-right add-comma" type="text" />
+                                                }
+                                            </td>
+                                            <td> <input style='background-color: #eee;' asp-for="Balc[i]" value="@Model.Balc[i]" tabindex='-1' class=" rej text-right add-comma" type="text" readonly /></td>
+                                            <td><input asp-for="APIRNDetails[i].Reason_OF_Rejection" value="@Model.APIRNDetails[i].Reason_OF_Rejection" type="text"></td>
+                                            <td hidden><input asp-for="APIRNDetails[i].CategoryId" value="@Model.APIRNDetails[i].CategoryId" type="text"></td>
+                                            <td class="text-center"> <a id="delrow" onclick="deleterow($(this));" class="btn btn-xs btn-danger m-t-n-xs text-center"> <i id="delrow" class="fa fa-trash text-center" title="Delete"></i> </a> </td>
+                                        </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!--------------------------------------------------------------------------------->
+                        <div class="row">
+                            <div class="col-md-12 col-lg-12">
+                                <a asp-controller="IRN" asp-action="List" class="btn btn-white">List</a>
+                                <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-action="Submit" asp-controller="IRN" value="Save" class="btn btn-primary" />
+                                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                            </div>
+                        </div>
+                        <!--------------------------------------------------------------------------------->
+               </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            debugger
+            $('#iGP').select2();
+            $('#Vendor').select2();
+            $('input.add-comma').commaTextbox();
+            //var igp = $("#iGPno").val();
+            //if (igp != 0) {
+            //    getIGP(igp);
+            //}
+
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+        });
+        function Calculation(row) {
+            debugger
+            var i = row.closest('tr').index();
+            var Acp = $('.acp').eq(i).val().replace(/,/g, "");
+            var Rcd = $('.rcd').eq(i).val().replace(/,/g, "");
+            var Rej = parseFloat(Rcd - Acp).replace(/,/g, "");
+            $('.rej').eq(i).val(Rej)
+            $('input.add-comma').commaTextbox();
+        }
+        $('#Vendor').on('change', function () {
+            debugger
+            $('#iGP').find('option').not(':first').remove();
+            var vendor = $('#Vendor').val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/Api/GetIGPLOV",
+                data: { vendorId: vendor }
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $('#iGP').append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+                    });
+                });
+        })
+        function Calculation(row) {
+            
+            debugger
+            var i = row.closest('tr').index();
+            var ChilId = $(".childId").eq(i).val();
+            var recieved = $('.rcd').eq(i).val();
+            if (ChilId == "" && recieved == 0) {
+                $('.rcd').eq(i).val("0")
+                $('.rej').eq(i).val($('.igp').eq(i).val());
+            }
+            
+            var acp = parseFloat($('.acp').eq(i).val().replace(/,/g, ""));
+            if (!isNaN(acp)) {
+                var prev = row[0].oldvalue.replace(/,/g, "") == "" ? 0 : parseFloat(row[0].oldvalue.replace(/,/g, ""));
+                if (parseFloat($('.acp').eq(i).val().replace(/,/g, "")) > parseFloat($('.igp').eq(i).val().replace(/,/g, "")) || parseFloat($('.acp').eq(i).val().replace(/,/g, "")) > parseFloat($('.rej').eq(i).val().replace(/,/g, "")) && parseFloat($('.rej').eq(i).val().replace(/,/g, "")) != 0 && prev < 0) {
+                    if (parseFloat($('.acp').eq(i).val().replace(/,/g, "")) > parseFloat($('.rej').eq(i).val().replace(/,/g, ""))) {
+                        $('.acp').eq(i).val("")
+                        swal("", "Quantity is greater than igp", "warning")
+                        $('.acp').eq(i).val("0")
+                        $('.rcd').eq(i).val("0")
+                        $('.rej').eq(i).val($('.igp').eq(i).val());
+
+                        return false;
+                    }
+                    else {
+                        $('.acp').eq(i).val("0")
+                        $('.rcd').eq(i).val("0")
+                        $('.rej').eq(i).val("0");
+                        swal("", "Quantity is greater than igp", "warning")
+                        return false;
+                    }
+                }
+                else {
+                    var BalQty = $('.rej').eq(i).val().replace(/,/g, "") == "" ? 0 : parseFloat($('.rej').eq(i).val().replace(/,/g, ""));
+                    if (BalQty == 0) {
+                        BalQty = BalQty + prev;
+                        $('.rej').eq(i).val(BalQty);
+                        $('.rcd').eq(i).val($('.rcd').eq(i).val() == "" ? 0 : parseFloat($('.rcd').eq(i).val().replace(/,/g, "")) - prev);
+                        if ($('.rcd').eq(i).val() == "" || $('.rcd').eq(i).val() == 0) {
+                            $('.rcd').eq(i).val($('.acp').eq(i).val());
+                            BalQty = parseFloat($('.igp').eq(i).val().replace(/,/g, "")) - parseFloat($('.acp').eq(i).val().replace(/,/g, ""));
+                            $('.rej').eq(i).val(BalQty)
+                        }
+                    }
+                    else {
+                        BalQty = BalQty + prev;
+                        $('.rej').eq(i).val(BalQty);
+                        $('.rcd').eq(i).val($('.rcd').eq(i).val() == "" ? 0 : parseFloat($('.rcd').eq(i).val().replace(/,/g, "")) - prev);
+                        BalQty = BalQty - parseFloat($('.acp').eq(i).val().replace(/,/g, ""));
+                        $('.rej').eq(i).val(BalQty);
+                        $('.rcd').eq(i).val(parseFloat($('.acp').eq(i).val().replace(/,/g, "")) + parseFloat($('.rcd').eq(i).val().replace(/,/g, "")));
+                    }
+                }
+                $('input.add-comma').commaTextbox();
+            }
+            else {
+                $('.acp').eq(i).val("")
+                swal("", "Please enter quantity!", "warning")
+                return false;
+
+            }
+
+
+        }
+        $('#iGP').on('change', function () {
+            debugger
+            $('.removed').remove();
+            var IGPId = $('#iGP').val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/IRN/GetIGPLis",
+                data: { id: IGPId }
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        if (item.type != "Import") {
+                            debugger
+                            var itemname = item.apigpDetails.itemCode + " - " + item.apigpDetails.itemDiscription;
+                            var row = "<tr class='removed'>";
+                            row += "<td hidden><input name='id'  id='username' class='id childId' type='hidden'  /></td>";
+                            row += "<td hidden><input name='igpDetailId'  id='username' value='" + item.apigpDetails.id + "' class='id' type='hidden'  /></td>";
+                            row += "<td hidden><input name='poNo'  id='username' value='" + item.apigpDetails.poNo + "' type='hidden'  /></td>";
+                            row += "<td hidden><input name='prDetailId'  id='username' value='" + item.apigpDetails.prDetailId + "' type='hidden'  /></td>";
+                            row += "<td hidden><input name='itemId'  id='username' value='" + item.apigpDetails.itemId + "' class='id' type='hidden'  /></td>";
+                            row += "<td><input style='background-color: #eee;' tabindex='-1' value='" + itemname + "'  class=' text-left' readonly /></td>";
+                            row += "<td hidden><input style='background-color: #eee;' tabindex='-1' name='code' value='" + item.apigpDetails.itemCode + "'  class=' text-right' readonly /></td>";
+                            row += " <td hidden><input style='background-color: #eee;'tabindex='-1' name='description' value='" + item.apigpDetails.itemDiscription + "'   readonly /></td> ";
+
+                            if (item.apigpDetails.brandId != 0) {
+                                row += "<td hidden><input name='BrandId' value='" + item.apigpDetails.brandId + "' type='text' readonly /></td>";
+                                row += "<td><input tabindex='-1' style='background-color: #eee;' name='Brand' value='" + item.brand + "' type='text' class='text-left' readonly /></td>";
+                            }
+
+                            row += "<td><input style='background-color: #eee;' tabindex='-1' name='uOM' value='" + item.uom + "' readonly/></td>";
+                            row += "<td hidden><input style='background-color: #eee;' name='category' tabindex='-1' type='text' value='" + item.category + "' readonly/></td>";
+                            row += " <td><input style='background-color: #eee;' name='igpQty' tabindex='-1' value='" + item.apigpDetails.igpQty + "' class='igp  text-right add-comma' readonly/></td>";
+                            row += " <td><input style='background-color: #eee;' name='received' tabindex='-1' value='0' class='rcd text-right add-comma' readonly  /></td>";
+                            row += " <td><input  name='AQty' autocomplete='off'  onfocus='this.oldvalue = this.value;' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;'  onchange='Calculation($(this));this.oldvalue = this.value;'   class='acp  text-right add-comma' type='text' required  /></td>";
+                            row += " <td><input style='background-color: #eee;'  name='rQty' tabindex='-1' value='0'  class='rej text-right' type='text add-comma' readonly/></td>";
+                                //" <td><input style='background-color: #eee;'  name='rQty' tabindex='-1' value=" + item.apigpDetails.balQty + "  class='rej text-right' type='text add-comma' readonly/></td>" +
+                            row += " <td><input name='rof' type='text'></td>";
+                            row += '<td class="text-center"> <a id="delrow" onclick="deleterow($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                            row +=  "</tr>";
+                            $("#tblIRN tbody").append(row);
+                        } else {
+                            var row = "<tr class='removed'>" +
+                                "<td><input name='id'  id='username' class='id' type='hidden'  /></td>" +
+                                "<td><input name='igpDetailId'  id='username' value=" + item.apigpDetails.id + " class='id' type='hidden'  /></td>" +
+                                "<td><input name='poNo'  id='username' value=" + item.apigpDetails.poNo + " type='hidden'  /></td>" +
+                                "<td><input name='prDetailId'  id='username' value=" + item.apigpDetails.prDetailId + " type='hidden'  /></td>" +
+                                "<td><input name='itemId'  id='username' value=" + item.apigpDetails.itemId + " class='id' type='hidden'  /></td>" +
+                                "<td><input style='background-color: #eee;' name='code' value=" + item.apigpDetails.itemCode + "  class=' text-right' readonly /></td>" +
+                                " <td><input style='background-color: #eee;' name='description' value=" + item.apigpDetails.itemDiscription + "   readonly /></td> " +
+                                "<td><input style='background-color: #eee;' name='uOM' value=" + item.uom + " readonly/></td>" +
+                                "<td><input style='background-color: #eee;' name='category' type='text' value=" + item.category + " readonly/></td>" +
+                                " <td><input style='background-color: #eee;' name='igpQty' value=" + item.apigpDetails.igpQty + " class='igp  text-right add-comma' readonly/></td>" +
+                                " <td><input style='background-color: #eee;'  name='received' value=" + item.apigpDetails.igpQty + "  class=' rcd  text-right add-comma' type='text' readonly/></td>" +
+                                " <td><input  name='AQty' value=" + item.apigpDetails.igpQty + "  onfocus='this.oldvalue = this.value;' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;'  onchange='Calculation($(this));this.oldvalue = this.value;'   class='acp  text-right add-comma' type='text' required readonly /></td>" +
+                                " <td><input style='background-color: #eee;' name='rQty' value=" + item.apigpDetails.rcdQty + " class='rej  text-right add-comma' readonly  /></td>" +
+                                " <td><input name='rof' type='text'></td>" +
+                                '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                            "</tr>";
+                            $("#tblIRN tbody").append(row);
+                        }
+                        $('input.add-comma').commaTextbox();
+                    });
+                });
+        })
+        function deleterow(row) {
+            var b = row.closest("tr").index();
+            $('.removed').eq(b).remove();
+        }
+        function Validation() {
+            debugger;
+            var check = false;
+
+            $("#form").validate({
+                rules: {
+                    AQty: {
+                        required: true,
+                        number: true,
+                    },
+                },
+                messages: {
+                    AQty: ""
+                }
+            });
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#tblIRN').find('td').length == 0) {
+                swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            if ($("#iGP").find(":selected").val() == "0") {
+                swal("", "Please Select Igp", "warning")
+                return false;
+            }
+            else if ($("#Vendor").find(":selected").val() == "0") {
+                swal("", "Please Select Vendor", "warning")
+                return false;
+            }
+            $('#tblIRN > tbody > tr').each(function (index, tr) {
+                debugger
+                var acp = $(tr).find('.acp').val();
+                if (acp == "") {
+                    debugger
+                    check = true;
+                    swal({
+                        icon: "warning",
+                        text: "Please enter quantity!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(tr).find('.acp').focus();
+                    });
+                    return false;
+                }
+
+            });
+            if (check == true) {
+                debugger;
+                return false;
+            }
+                $("#form").on("submit", function () {
+                    $("#SaveBtn").attr("disabled", true);
+                    $("#SaveBtn").val("Saving...");
+                    return true;
+                });
+            
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        
+        function getIGP(id) {
+            var vendor = $('#Vendor').val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/Api/GetIGPID",
+                data: { vendorId: vendor,igp:id }
+            }).done(function (data) {
+                debugger
+                $.each(data, function (i, item) {
+                    $('#iGP').append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+               /*     $('#iGP').val("11");*/
+                });
+            });
+            debugger
+            //$('#iGP').val("11").change();
+           // $('#iGP :selected').val(id);
+            
+        }
+
+
+        $("#form").on("submit", function () {
+            debugger
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+        });
+    </script>
+
+}

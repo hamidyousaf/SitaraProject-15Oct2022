@@ -1,0 +1,419 @@
+﻿@model PlanSpecificationVM
+@{ ViewData["Title"] = "Specification";
+    ViewData["CurrentPage"] = "Specification";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    }
+
+@using Numbers.Areas.GL.Controllers;
+@using Numbers.Repository.Helpers;
+@using Microsoft.AspNetCore.Http;
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5>@ViewBag.EntityState Specification</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>*@
+            <div class="ibox-content ibox-content-1">   
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden id="SpecificationsId" asp-for="PlanSpecifications.Id" />
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans. #</label>
+                                @if (Model.PlanSpecifications.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" value="@TempData["Code"]" data-validation="required" asp-for="PlanSpecifications.Code" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-4">
+                            <div class="form-group">
+                                <label>Transaction Date</label>
+                                <div class="input-group date" autofocus>
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="PlanSpecifications.Date" class="form-control" data-validation="required" type="text" value=@(Model.PlanSpecifications.Id == 0 ? CommonHelper.CurrentDate : Model.PlanSpecifications.Date.ToString(CommonHelper.DateFormat)) readonly tabindex="-1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Item Category 2</label>
+                                <select class="form-control" id="ItemCategoryLevel2" asp-items="ViewBag.ItemCategory2" asp-for="PlanSpecifications.ItemCategoryLevel2Id">
+                                    <option value="0" disabled>Select please..</option>
+                                </select>
+
+                            </div>
+                        </div>
+                          @if (Model.PlanSpecifications.Id != 0)
+                        {
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="col-form-label">Item Category 4</label>
+                                    <select class="form-control" id="ItemCategoryLevel4" asp-items="ViewBag.ItemCategory4"  asp-for="PlanSpecifications.ItemCategoryLevel4Id">
+                                        <option value="0" disabled>Select please..</option>
+                                    </select>
+                                    @*<input class="form-control" id="subdivision" asp-for="CostCenter.DivisionId" />*@
+
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="col-form-label">Item Category 4</label>
+                                    <select class="form-control" id="ItemCategoryLevel4"  asp-for="PlanSpecifications.ItemCategoryLevel4Id">
+                                        <option value="0" disabled>Select please..</option>
+                                    </select>
+                                    @*<input class="form-control" id="subdivision" asp-for="CostCenter.DivisionId" />*@
+
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Quality</label>
+                                <select class="form-control" id="GRQualityId" asp-items="ViewBag.GreigeQuality" asp-for="PlanSpecifications.GRQualityId">
+                                    <option value="0" disabled>Select please..</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 ml-lg-1">
+                            <label hidden> button </label>
+                            <input type="submit" value="Add" onclick="return validate();" class="btn btn-primary submit" asp-action="Create" asp-controller="Specification" />
+                        </div>
+                    </div>
+                    <div class="row"hidden>
+                       
+                        <div class="col-md-3"></div>
+                        <div class="col-lg-2 ml-lg-2" style="margin-top:21px;">
+                           
+                            @*<a value="Back" class="btn btn-white" asp-controller="CostCenter" asp-action="Index">Back</a>*@
+                            <input type="submit" value="Save" onclick="return validate();" class="btn btn-primary submit" asp-action="Create" asp-controller="Specification" />
+                            @*<button onclick="generateApArReport(0,'CostCenter','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg"><i class="fas fa-print"> Report</i></button>*@
+
+                            <a onclick="generateApArReport(0,'Specification','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg m-t-n-xs"><i class="fas fa-print" title="Print Report"> Print Report</i></a>
+                        </div>
+
+                        <!--<div class="row" style="margin-top:10px;">
+    <div class="form-group">
+        <div class="col-lg-4 ml-lg-4" style="margin-left:20px">-->
+                        @*<a value="Back" class="btn btn-white" asp-controller="CostCenter" asp-action="Index">Back</a>*@
+                        <!--<input type="submit" value="Save" class="btn btn-primary" asp-action="Create" asp-controller="CostCenter" />
+            </div>
+        </div>
+    </div>-->
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>List of Specifications</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th style="width: 8%" class="searchHeader">Trans#</th>
+                                                <th style="width: 10%" class="searchHeader">Date</th>
+                                                <th style="width: 12%" class="searchHeader">Item Category 2</th>
+                                                <th style="width: 20%" class="searchHeader">Item Category 4</th>
+                                                <th style="width: 29%" class="searchHeader">Greige Quality</th>
+                                                <th style="width: 5%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        @*<tbody>
+                                @foreach (var item in Model.CostCenterList)
+                                {
+                                    NumbersDbContext _dbcontext = new NumbersDbContext();
+
+                                    var division = new CostCenterController(_dbcontext).GetDivision(Convert.ToInt32(item.DivisionId));
+
+                                        <tr>
+                                            <td hidden>
+                                                @Html.DisplayFor(modelItem => item.Id)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(model => item.Code)
+                                            </td>
+                                            <td>
+                                                <p style="white-space: pre-line;">@Html.DisplayFor(modelItem => item.Description)</p>
+                                            </td>
+
+                                            <td>
+                                                @division
+                                            </td>
+                                            <td>
+                                                @_dbcontext.GLSubDivision.Where(x => x.Id == item.SubDivisionId).Select(a => a.Description).FirstOrDefault()
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="/GL/CostCenter/Create/@item.Id" class="btn btn-sm btn-primary m-t-n-xs"><i class="fa fa-edit"></i></a>
+
+                                            </td>
+                                        </tr>
+
+                                }
+                            </tbody>*@
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section CustomJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#ItemCategoryLevel2").select2();
+            $("#ItemCategoryLevel4").select2();
+            $("#GRQualityId").select2();
+            $(document).ready(function () {
+                var table1 = $("#Table").dataTable({
+                    lengthMenu: [
+                        [50, 100, 150, -1],
+                        [50, 100, 150, 'All'],
+                    ],
+                    "processing": true,
+                    "serverSide": true,
+                    "filter": true,
+                    "order": [[0, "desc"]],
+                    dom: "Blrtip",
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ],
+                    "ajax": {
+                        "url": "/Planning/Specification/GetSI",
+                        "type": "POST",
+                        "datatype": "json"
+                    },
+                    "language": {
+                        "decimal": "",
+                        "emptyTable": "No data available in table",
+                        "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                        "infoEmpty": "Showing 0 to 0 of 0 entries",
+                        "infoFiltered": "(filtered from _MAX_ total entries)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "_MENU_",
+                        "loadingRecords": "Loading...",
+                        "processing": "Processing...",
+                        "search": "Search:",
+                        "zeroRecords": "No matching records found",
+                        "paginate": {
+                            "first": "First",
+                            "last": "Last",
+                            "next": "Next",
+                            "previous": "Previous"
+                        },
+                        "aria": {
+                            "sortAscending": ": activate to sort column ascending",
+                            "sortDescending": ": activate to sort column descending"
+                        }
+                    },
+                    "columnDefs": [{
+
+                        "targets": '_all',
+                        "defaultContent": "-"
+                    },
+                    {
+                        "targets": [0],
+                        "visible": false
+                    },
+
+                    { "orderable": false, "targets": [5] }],
+                    
+                    "columns": [
+                        { "data": "planSpecifications.id", "name": "Id", className: "text-center" },
+                        { "data": "planSpecifications.code", "name": "Code", className: "text-center" },
+                        { "data": "date", "name": "Date", className: "text-center" },
+                        { "data": "itemCategoryLevel2", "name": "ItemCategoryLevel2Id", className: "text-left" },
+                        { "data": "itemCategoryLevel4", "name": "ItemCategoryLevel4Id", className: "text-left" },
+                        { "data": "greigeQuality", "name": "gRQualityId", className: "text-left" },
+                        {
+                            "data": "planSpecifications", className: "text-center" ,
+                            "render": function (data, row) {
+                                
+                                    return "<a href='/Planning/Specification/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                                
+                            }
+                        }
+                    ],
+
+                })
+                $('#Table thead th').each(function () {
+                    debugger;
+                    if ($(this).hasClass("searchHeader")) {
+                        var title = $(this).text();
+                        $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                    }
+                });
+                table1.api().columns().every(function () {
+                    debugger;
+                    var that = this;
+                    var searchBox = $('input', this.header());
+                    searchBox.on('keyup change clear', function () {
+                        that.search(this.value).draw()
+                    })
+                    searchBox.on('click', function (e) {
+                        e.stopPropagation();
+                    });
+                });
+            });
+
+        });
+
+    </script>
+ 
+
+    <script>
+
+
+        $(document).ready(function () {
+            $('#ItemCategoryLevel2').change(function () {
+                debugger;
+                var divisions = $("#ItemCategoryLevel2 option:selected").val();
+                if (divisions != "select..." && divisions != 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Planning/Specification/GetItemCategory4?id=' + divisions,
+                    }).done(function (data) {
+                        debugger;
+
+                        if (data != null) {
+                            $('#ItemCategoryLevel4').empty();
+                            $('#ItemCategoryLevel4').append($('<option>', {
+                                value: 0,
+                                text: "Select..."
+                            }));
+                            $.each(data, function (i, item) {
+                                $('#ItemCategoryLevel4').append($('<option>', {
+                                    value: item.id,
+                                    text: item.name
+                                }));
+                            });
+                        }
+
+
+
+                    });
+                }
+            });
+        });
+
+        function checkCode() {
+            debugger;
+           $("#Status").html("Checking...");
+        $.post("@Url.Action("checkDescriptionAlreadyExists", "CostCenter", "CostCenter")",
+            {
+                description: $("#Description").val()
+            },
+            function (data) {
+                debugger;
+            if (data == 0) {
+                $("#Status").html('<font color="Green"></font>');
+                $("#Description").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+                
+            }
+            //else {
+            //    $("#Status").html('<font color="Red">Cost Center already exists.</font>');
+            //    $("#Description").css("border-color", "Red");
+            //    $(".submit").attr("disabled", "disabled");
+            //}
+        });
+        }
+         function openReport(id) {
+            generateApArReport(id, "CostCenter", "@companyName",@companyId);
+        }
+
+        function validate() {
+            debugger;
+            var BreakOut = false;
+            var itemCategoryLevel2Id = $("#ItemCategoryLevel2").find(":selected").val();
+            var itemCategoryLevel4Id = $("#ItemCategoryLevel4").find(":selected").val();
+            var greigeQulaityId = $("#GRQualityId").find(":selected").val();
+            var specificationsId = $("#SpecificationsId").val();
+            if (itemCategoryLevel2Id == 0) {
+                swal("", "Item Category 2 must be selected.","warning");
+                return false;
+            }
+            if (itemCategoryLevel4Id == 0) {
+                swal("", "Item Category 4 must be selected.", "warning");
+                return false
+            }
+            if (greigeQulaityId == 0) {
+                swal("", "Greige Quality must be selected.", "warning");
+                return false
+            }
+            if (specificationsId == 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Planning/Specification/CheckSpecification",
+                    data: { secondCategoryId: itemCategoryLevel2Id, forthCategoryId: itemCategoryLevel4Id, greigeQualityId: greigeQulaityId },
+                    async: false,
+                    success: function (response) {
+                        debugger
+                        if (response.status == false) {
+                            swal({
+                                icon: 'warning',
+                                text: response.message,
+                                closeModal: false
+                            }).then(function () {
+                                swal.close();
+                                $('#ItemCategoryLevel2').focus();
+                            });
+                            BreakOut = true;
+                            return false;
+                        }
+                    }
+                });
+            }
+            
+            if (BreakOut) {
+                return false;
+            }
+            return true;
+
+        }
+    </script>
+
+
+
+}
+

@@ -1,0 +1,624 @@
+﻿@model GreigeIssuanceViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+@section customCSS{ 
+<style>
+    table td {
+        position: relative;
+    }
+        table td input[type=text], table td input[type=number] {
+            position: absolute;
+            bottom: 0;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+    .withscroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+</style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class="ibox-content" method="post" asp-action="Create" asp-controller="GreigeIssuance" onsubmit="return OnSubmit($(this));" >
+                <input asp-for="GreigeIssuance.Id" type="hidden" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="GreigeIssuance.TransactionNo"></label>
+                                    <div class="input-group">
+                                        @if (Model.GreigeIssuance.Id != 0)
+                                        {
+                                            <input asp-for="GreigeIssuance.TransactionNo" tabindex="-1" readonly class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            <input value="" readonly tabindex="-1" class="form-control" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="GreigeIssuance.TransactionDate"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input asp-for="GreigeIssuance.TransactionDate" readonly tabindex="-1" class="form-control" type="text" value="@(Model.GreigeIssuance.Id == 0 ? CommonHelper.CurrentDate : Model.GreigeIssuance.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-3 col-sm-3" readonly>
+                                <div class="form-group">
+                                    <label asp-for="GreigeIssuance.Specification">Production Order #<i style="color: #a94442;">*</i></label>
+                                    <Select asp-for="GreigeIssuance.SpecificationId" id="SeasonId" autofocus asp-items="@Model.SpecificationLOV" data-validation="required" data-validation-error-msg="Season is Sepecfication" data-validation-error-msg-container="#Season" readonly class="form-control select-customer">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-3" hidden>
+                                <div class="form-group">
+                                    @* <label asp-for="GreigeIssuance.process"></label>
+                <input type="text" asp-for="GreigeIssuance.process" tabindex="-1" id="SeasonId" hidden readonly class="form-control text-left hidden" />*@
+                                    <div class="form-group" hidden>
+                                        <label>Process</label>
+                                        <input tabindex="-1" asp-for="GreigeIssuance.process" class="form-control" autocomplete="off" id="Process" readonly />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-sm-3">
+                                <div class="form-group">
+                                    <label>Vendor<i style="color: #a94442;">*</i></label>
+                                        <input tabindex="-1" class="form-control" name="VendorId" id="VendorId" readonly type="hidden" />
+                                        <input tabindex="-1" class="form-control" autocomplete="off" id="VendorName" readonly />
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+
+
+                            <div hidden class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="GreigeIssuance.IssueTypeId">Issue Type</label>
+                                    <Select asp-for="GreigeIssuance.IssueTypeId" id="IssueTypeId" autofocus asp-items="@Model.IssueTypeLOV" data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        @*<option selected disabled value="0">Select...</option>*@
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+
+
+
+                            
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="GreigeIssuance.WareHouse"></label>
+                                    <Select asp-for="GreigeIssuance.WareHouseId" id="WareHouseId" onchange="getSeasons();" autofocus asp-items="@Model.WareHouseLOV" data-validation="required" data-validation-error-msg="WareHouse is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        @* <option selected value="0"></option>*@
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                            </div>
+                            @*    <div class="col-lg-1"></div>*@
+                            <div class="text-right col-lg-3 mb-2">
+                                <div class="form-group">
+                                    <label class="col-form-label"></label>
+                                    <input style=" margin-top: 25px; " type="button" class="btn btn-success" onclick="getSeasons();" value="GET FROM PRODUCTION ORDER" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <table id="DetailTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th hidden>Id</th>
+                                        <th hidden>ProductionOrderDetailId</th>
+                                        <th hidden>GRQualityId</th>
+                                        <th width="17%">Greige Quality</th>
+                                                   
+                                        <th width="10%">Required Qty</th>
+                                        <th width="10%">Available Qty</th>
+                                        <th width="10%">Issuance Qty<i style="color: white;">*</i></th>
+                                        <th width="2%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.GreigeIssuanceDetails != null)
+                                    {
+                                        @if (Model.GreigeIssuanceDetails.Count() > 0)
+                                        {
+                                            @foreach (var item in Model.GreigeIssuanceDetails)
+                                            {
+                                    <tr>
+                                        <td hidden><input class="Id" value="@item.Id" /></td>
+                                        <td hidden><input class="Idd" value="@item.ProductionOrderDetailId" type="hidden" /></td>
+                                        <td hidden><input class="SpecificationId" value="@item.GreigeQualityId" type="hidden" /></td>
+                                        <td><input value="@item.GreigeQuality.Description" style="background-color: #eee;" readonly tabindex="-1" type="text" /></td>
+                                        <td><input class="RequiredQty text-right" min="0" tabindex="-1" readonly  style="background-color: #eee;"  onchange="Calculations($(this));" value="@item.RequiredQty" type="number"  /></td>
+                                        <td hidden><input class="alreadyIssuedQtyd text-right" min="0" tabindex="-1" readonly  style="background-color: #eee;"  onchange="Calculations($(this));" value="@item.AlreadyIssuedQty" type="number"  /></td>
+                                        <td><input readonly  tabindex="-1" style="background-color: #eee;" class="AvailableQty text-right" min="0" onchange="Calculations($(this));" value="@item.AvailableQty" type="number" /></td>
+                                        <td><input class="IssuanceQty text-right" value="@item.IssuanceQty" onchange="Calculations($(this));"  type="number"  /></td>
+                                        <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                    </tr>
+                                            }
+                                        }
+                                    }
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <!-- Trigger the modal with a button -->
+                    <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Select Specifications</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-12">
+                                            <div class="ibox ">
+                                                <div class="table-responsive">
+                                                    <table id="SeasonTable" class="table table-striped table-bordered table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th hidden>Id</th>
+                                                                <th>Greige Quality</th>
+                                                                <th>Required Qty</th>
+                                                                <th>Available mtr.</th>
+                                                                <th><input type="checkbox" class="checkbox-success" id="select_all" /></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <W type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Item</W>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input hidden id="itemDetail" name="ItemDetail" />
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            
+            $("#SeasonId").select2();
+            $("#WareHouseId").select2();
+        });
+function getSeasons() {
+    
+    var seasonId = $('#SeasonId').find(":selected").val();
+
+    
+    if (seasonId != 0) {
+        var skipIds = [];
+        var WareHouseId = $("#WareHouseId").find(":selected").val();
+
+        $("#DetailTable > tbody > tr").each(function() {
+            skipIds.push($(this).find(".SpecificationId").val());
+        })
+        // AJAX request
+        $.ajax({
+            url: "/Planning/GreigeIssuance/GetSpecificationForPopUp",
+            type: "POST",
+            data: { skipIds: skipIds, WareHouseId: WareHouseId, seasonId: seasonId},
+            success: function(response) {
+                $('#SeasonTable tbody tr').remove();
+                $.each(response, function(i, item) {
+                    
+                    var Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td hidden class="SpecificationId">' + item.qualityId + '</td>';
+                    Itemrow += '<td hidden class="productionId">' + item.id + '</td>';
+
+                    Itemrow += '<td class="text-left greigeDesc">' + item.description + '</td>';
+                    Itemrow += '<td class="text-left requiredQty">' + item.requiredQty + '</td>';
+                    Itemrow += '<td class="text-left availableStock">' + item.availableStock + '</td>';
+                    Itemrow += '<td class="text-center"><input id="check" class="check-box checkbox-success text-center" type="checkbox"></td>';
+                    Itemrow += '</tr>';
+                    $('#SeasonTable tbody').append(Itemrow);
+
+                });
+                $('#saleModal').modal('show');
+
+
+                // Display Modal
+            },
+            fail: function(response) {
+                // console.log('message from fail...', response.responseText);
+            }
+        });
+        return true;
+    }
+    swal({
+        icon: 'warning',
+        text: "Please select the production order !",
+        closeModal: false
+    }).then(function() {
+        swal.close();
+        $('#SeasonId').focus();
+    });
+    return false;
+        }
+        $('#button').click(function () {
+            debugger
+            var greigeId = 0;
+            var productionId = 0;
+            var greigeDesc = "";
+            var requiredQty = 0;
+            var availableStock = 0;
+
+            var table = document.getElementById('SeasonTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            for (const element of arrayOfValues) {
+                debugger
+                $("#SeasonTable > tbody > tr").each(function () {
+                    debugger
+                    var x = Number($(this).closest("tr").find(".SpecificationId").text());
+                    if (Number(element) == x) {
+                        var greigeId = Number($(this).find(".SpecificationId").text());
+                        var productionId = Number($(this).find(".productionId").text());
+                        var greigeDesc = $(this).find(".greigeDesc").text();
+                        var requiredQty = Number($(this).find(".requiredQty").text());
+                        var availableStock = Number($(this).find(".availableStock").text());
+                        var row = "";
+                        row += '<tr>'
+                        row += '<td hidden><input class ="Id" value="0"  /></td>';
+                        row += '<td hidden><input class ="SpecificationId" value="' + greigeId + '"  /></td>';
+                        row += '<td><input type="text" value="' + greigeDesc + '" readonly  style="background-color: #eee;" tabindex="-1"  /></td>';
+                        row += '<td hidden><input class ="ProductionId" value="' + productionId + '"  /></td>';
+                        row += '<td><input class ="RequiredQty text-right" readonly  style="background-color: #eee;" tabindex="-1" type="text" value="' + requiredQty + '"  /></td>';
+                        row += '<td><input class ="AvailableQty text-right" readonly style="background-color: #eee;" tabindex="-1" type="text" value="' + availableStock + '"  /></td>';
+                        row += '<td><input class ="IssuanceQty text-right" onchange="Calculations($(this));" type="number" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" value="0"  /></td>';
+                        row += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                        row += '</tr>';
+                        $('#DetailTable tbody').append(row);
+                    }
+                });
+            
+            }
+           
+        });
+        //$('#button').click(function () {
+        //    debugger
+            
+        //    var seasonId = $("#SeasonId").find(":selected").val();
+        //    var WareHouseId = $("#WareHouseId").find(":selected").val();
+        //    var seasonDesc = $("#SeasonId").find(":selected").html();
+
+        //var table = document.getElementById('SeasonTable');
+        //var arrayOfValues = [];
+        //    arrayOfValues = $('input:checkbox:checked', table).map(function () {
+        //        return $(this).closest('tr').find('.productionId').html();
+        //});
+        //console.log(arrayOfValues);
+        //var arrLength = arrayOfValues.length;
+        //var values = [];
+        //for (i = 0; i < arrLength; i++) {
+        //    values.push(parseInt(arrayOfValues[i]));
+        //    }
+
+        //    /////////
+        //    var arrayOfValuesq = [];
+        //    arrayOfValuesq = $('input:checkbox:checked', table).map(function () {
+        //        return $(this).closest('tr').find('.SpecificationId').html();
+        //    });
+        //    console.log(arrayOfValues);
+        //    var arrLength = arrayOfValuesq.length;
+        //    var valuesq = [];
+        //    for (i = 0; i < arrLength; i++) {
+        //        valuesq.push(parseInt(arrayOfValuesq[i]));
+        //    }
+        //    /////////
+        //for (j = 0; j < arrLength; j++) {
+        //    debugger;
+        //    $.ajax({
+        //        type: 'POST',
+        //        async: false,
+        //        url: '/Planning/GreigeIssuance/GetSpecificationById',
+        //        data: { specificationId: values, qualityId: valuesq, wareHouseId: WareHouseId },
+        //        beforeSend: function () {
+        //         //   skipIds.push(values[i]);
+        //            //$('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+        //            //$('#button').prop('disabled', true);
+        //        },
+        //    }).done(function (data) {
+        //        debugger;
+        //        var Itemrow = '';
+        //        Itemrow += '<tr>';
+        //        Itemrow += '<td hidden><input class ="Id" value="' + 0 + '"  /></td>';
+        //        Itemrow += '<td hidden><input class ="Idd" value="' + data[j].idd + '"  /></td>';
+        //        Itemrow += '<td  hidden><input class ="SpecificationId" value="' + data[j].qualityIdd + '" type="hidden" /></td>';
+        //        Itemrow += '<td><input value="' + data[j].descriptiond + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+        //        Itemrow += '<td><input class ="RequiredQty text-right" min="0" tabindex="-1"  value="' + data[j].requiredQtyd + '" type="number" readonly  style="background-color: #eee;" /></td>';
+        //        Itemrow += '<td hidden><input class ="alreadyIssuedQtyd text-right" min="0" tabindex="-1"  value="' + data[j].alreadyIssuedQtyd + '" type="number" readonly  style="background-color: #eee;" /></td>';
+        //        Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[j].availableStockd + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+        //        Itemrow += '<td><input class ="IssuanceQty text-right" value="0" type="number" onchange="Calculations($(this));"  /></td>';
+        //        Itemrow += '<td class="text-center"><a id="delrow"  style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+        //        Itemrow += '</tr>';
+        //        $('#DetailTable tbody').append(Itemrow);
+        //    }).fail(function (error) {
+        //        //console.log(error.responseText);
+        //    });
+        //}
+        //});
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+
+        //onchange="Calculations($(this));"
+        function Calculations(row) {
+            debugger
+ 
+            var IssuanceQty = Number(row.closest("tr").find(".IssuanceQty").val());
+            var AvailableQty = Number(row.closest("tr").find(".AvailableQty").val());
+            var RequiredQty = Number(row.closest("tr").find(".RequiredQty").val());
+            var AlReadyissueQty = Number(row.closest("tr").find(".alreadyIssuedQtyd").val());
+            var AlreadyReq = RequiredQty - AlReadyissueQty
+            var AlreadyAvl = AvailableQty - AlReadyissueQty
+            if (IssuanceQty > AlreadyReq) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Required Qty - Already Issued Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            if (IssuanceQty > AlreadyAvl) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Available Qty - Already Issued Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            if (IssuanceQty > AvailableQty) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Available Qty!",
+                    
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+
+            }
+            if (IssuanceQty > RequiredQty) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Required Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            
+            
+
+        }
+        function OnSubmit() {
+            var BreakOut = false;
+            var VendorId = $(this).find(".VendorId").val();
+            var length = $("#DetailTable tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter one item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    //$('#SeasonId').focus();
+                });
+                return false;
+            }
+            //var length = $("#DetailTable tbody tr").each(function () {
+            //    debugger
+                
+            //   var designRun = $(this).find(".RequiredQty").val();
+            //    if (VendorId == 0) {
+            //        swal({
+            //            icon: 'warning',
+            //            text: "Please enter Vendor!",
+            //            closeModal: false
+            //        }).then(function () {
+            //          
+            //      swal.close();
+                    
+            
+            var length = $("#DetailTable tbody tr").each(function () {
+                debugger
+                var RequiredQty = $(this).find(".RequiredQty").val();
+                var AvailableQty = $(this).find(".AvailableQty").val();
+                var IssuanceQty = $(this).find(".IssuanceQty").val();
+                if (RequiredQty == 0 || RequiredQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter RequiredQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".RequiredQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (AvailableQty == 0 || AvailableQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter AvailableQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".AvailableQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (Number(IssuanceQty) > Number(AvailableQty) ) {
+                    swal({
+                        icon: 'warning',
+                        text: "Issuance quantity must be less than Available quantity!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".IssuanceQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (IssuanceQty == 0 || IssuanceQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter IssuanceQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".IssuanceQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+            });
+
+
+
+
+
+            //        });
+            //        BreakOut = true;
+            //        return false;
+            //    }
+            //    if (designRun == 0) {
+            //        swal({
+            //            icon: 'warning',
+            //            text: "Please enter Design Run!",
+            //            closeModal: false
+            //        }).then(function () {
+            //            swal.close();
+            //            $(this).find(".DesignRun").focus();
+            //        });
+            //        BreakOut = true;
+            //        return false;
+            //    }
+            //});
+            if (!BreakOut) {
+                debugger;
+                var itemDetails = [];
+                $.each($("#DetailTable tbody tr"), function () {
+                    debugger;
+                    itemDetails.push({
+                        Id: $(this).find('.Id').val(),
+                        ProductionId: $(this).find('.ProductionId').val(),
+                        //FourthItemCategoryId: $(this).find('.FourthCategoryId').val(),
+                        GreigeQualityId: $(this).find('.SpecificationId').val(),
+                        RequiredQty: $(this).find('.RequiredQty').val(),
+                        AvailableQty: $(this).find('.AvailableQty').val(),
+                        IssuanceQty: $(this).find('.IssuanceQty').val()
+                    });
+
+                });
+                debugger;
+                var model = JSON.stringify(itemDetails);
+                $("#itemDetail").val(model);
+
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").text("Saving...");
+                return true;
+            }
+            return false;
+        }
+        $("#select_all").change(function () {
+            debugger
+            //"select all" change
+            var status = this.checked; // "select all" checked status
+            $('.check-box').each(function () { //iterate all listed checkbox items
+                this.checked = status; //change ".checkbox" checked status
+            });
+        });
+
+
+         $(document).ready(function () {
+            $('#SeasonId').change(function () {
+                $('#VendorName').val("");
+                $('#VendorId').val(0);
+                var divisions = $("#SeasonId option:selected").val();
+                if (divisions != "select..." && divisions != 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Planning/GreigeIssuance/GetProcess?id=' + divisions,
+                    }).done(function (data) {
+                        if (data != null) {
+                            $('#VendorName').val(data.vendor.name);
+                            $('#VendorId').val(data.vendor.id);
+
+                        }
+
+
+
+
+                    });
+                }
+            });
+        });
+
+
+    </script>
+}

@@ -1,0 +1,373 @@
+﻿@model OutwardGatePassViewModel
+@{ ViewData["Title"] = "Create Outward Gate Pass";
+    ViewData["CurrentPage"] = "Outward Gate Pass";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="OutwardGatePass" enctype="multipart/form-data" onsubmit="return OnSubmit();">
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="OGPNo"></label>
+                            <div class="input-group">
+                                @if (Model.OGPNo != 0)
+                                {
+                                    <input tabindex="-1" asp-for="OGPNo" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" value="" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="OGPDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input tabindex="-1" asp-for="OGPDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.OGPDate.ToString(CommonHelper.DateFormat))" readonly />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label asp-for="WarehouseId"></label>
+                            <Select autofocus id="WarehouseId" asp-for="WarehouseId" asp-items="ViewBag.WareHouseLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="bCash"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 col-sm-6">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            @if (Model.Id != 0)
+                            {
+                                <Select asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                            }
+                            else
+                            {
+                                <Select asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                    <option selected value="0">Select...</option>
+                                </Select>
+                            }
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-5 col-sm-8">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input id="address" value="@Model.Address" readonly type="text"  tabindex="-1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-4">
+                        <div class="form-group">
+                            <label asp-for="SIGPId"> SIGP # </label>
+                            @if (Model.Id != 0)
+                            {
+                                <Select id="SIGPId" asp-for="SIGPId" asp-items="ViewBag.SIGPNo" class="form-control">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                            }
+                            else
+                            {
+                                <Select id="SIGPId" asp-for="SIGPId" asp-items="ViewBag.SIGPNo" class="form-control">
+                                    <option selected value="0">Select...</option>
+                                </Select>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="BuiltyNo"></label>
+                            <div class="input-group">
+                                <input  tabindex="-1" asp-for="BuiltyNo" id="builtyNo" readonly class="form-control" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="Bails"></label>
+                            <div class="input-group">
+                                <input tabindex="-1" asp-for="OGPQty" type="text" id="bails" readonly min="0" step="1" class="add-comma form-control text-right" />
+                                @*<input tabindex="-1" asp-for="BalanceBails" type="text" id="bails" readonly min="0" step="1" class="add-comma form-control text-right" />*@
+                                <input tabindex="-1" id="CheckBails" asp-for="BalanceBails" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="OGPQty"></label>
+                            <div class="input-group">
+                                <input readonly asp-for="OGPQty" type="text" id="OGPQty" min="0" step="0.01" class="add-comma form-control text-right" />
+                                <input tabindex="-1" id="CheckOGPQty" asp-for="OGPQty" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left mb-3">
+                <a asp-controller="OutwardGatePass" asp-action="Index" class="btn btn-white">List</a>
+                <button type="submit" id="SaveBtn" class="btn btn-primary">@ViewBag.EntityState</button>
+                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+            </div>
+        </div>
+    </form>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#WarehouseId").select2();
+            $("#CustomerId").select2();
+            $("#SIGPId").select2();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            //On change Warehouse
+            $('#WarehouseId').on('change', function () {
+                debugger
+                var warehouseId = $("#WarehouseId").find(":selected").val();
+                $('#CustomerId').find('option').not(':first').remove();
+                $("#address").val("");
+                $('#SIGPId').find('option').not(':first').remove();
+                $('#builtyNo').val("");
+                $('#bails').val(0);
+                $('#OGPQty').val(0);
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/OutwardGatePass/GetCustomer",
+                    data: { warehouseId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#CustomerId').append($('<option>', {
+                                value: item.id,
+                                text: item.name
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+            })
+            //On change Customer
+            $('#CustomerId').on('change', function () {
+                debugger
+                var customerId = $('#CustomerId').val();
+                var warehouseId = $("#WarehouseId").find(":selected").val();
+                $('#SIGPId').find('option').not(':first').remove();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/OutwardGatePass/GetCustomerAddress",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#address').val(data);
+                        return false;
+                    }
+                });
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/OutwardGatePass/GetSaleReturnIGPNo",
+                    data: { customerId, warehouseId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#SIGPId').append($('<option>', {
+                                value: item.id,
+                                text: item.sigpNo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+            })
+            //On change IGP
+            $('#SIGPId').on('change', function () {
+                debugger
+                $.each($('.add-comma'), function () {
+                    $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+                });
+                var sigpId = $('#SIGPId').find(":selected").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/OutwardGatePass/GetBuiltyAndBale",
+                    data: { Id: sigpId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#builtyNo').val(data.builtyNo);
+                        $('#bails').val(data.bailsBalance);
+                        $('#CheckBails').val(data.bailsBalance);
+                        $('#OGPQty').val(data.bailsBalance);
+                        $('input.add-comma').commaTextbox();
+                        return false;
+                    } else {
+                        $('#builtyNo').val("");
+                        $('#bails').val("");
+                        $('#OGPQty').val(0);
+                    }
+                });
+            })
+            //On chenge OGPQty
+            $("#OGPQty").on("change", function () {
+                debugger
+                $.each($('.add-comma'), function () {
+                    $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+                });
+                if ($("#SIGPId").find(":selected").val() == 0) {
+                    swal({
+                        icon: 'warning',
+                        text: "Enter Select the SIGP No.!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $('#SIGPId').focus();
+                        $("#OGPQty").val(0);
+                    });
+                    return false;
+                }
+                //Handle Balance Qty Calculation
+                var ogpQty = Number($(this).val());
+                var baleQty = Number($("#bails").val());
+                var CheckBails = Number($("#CheckBails").val());
+                var CheckOGPQty = Number($("#CheckOGPQty").val());
+                if (ogpQty > (CheckBails + CheckOGPQty)) {
+                    swal({
+                        icon: 'warning',
+                        text: "OGP Quantity is greater than bale quantity!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $("#OGPQty").focus();
+                        $("#OGPQty").val(0);
+                        $("#bails").val(CheckBails);
+                        $("#OGPQty").val(CheckOGPQty);
+                    });
+                    return false;
+                }
+                $("#bails").val((CheckBails + CheckOGPQty) - ogpQty);
+                $('input.add-comma').commaTextbox();
+                //----------
+            });
+            $('input.add-comma').commaTextbox();
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function OnSubmit(form) {
+            debugger;
+
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($("#WarehouseId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the Warehouse!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarehouseId').focus();
+                });
+                return false;
+            }
+            if ($("#CustomerId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the Customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if ($("#SIGPId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select SIGP #.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SIGPId').focus();
+                });
+                return false;
+            }
+            if ($("#OGPQty").val() == "" || $("#OGPQty").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter the OGP Qty.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#OGPQty').focus();
+                });
+                return false;
+            }
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+    </script>
+}

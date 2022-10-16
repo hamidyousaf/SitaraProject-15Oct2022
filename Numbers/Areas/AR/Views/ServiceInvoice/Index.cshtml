@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Numbers.Entity.Models.ARInvoice>
+
+@{
+    ViewData["Title"] = "Service Invoice";
+    ViewData["CurrentPage"] = "Invoice";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="ServiceInvoice" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped dataTables-example">
+                            <thead>
+                                <tr>
+                                    <th hidden>
+                                        @Html.DisplayNameFor(model => model.Id)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.InvoiceNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.InvoiceDate)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Customer.Name)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.ReferenceNo)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.OGPNo)
+                                    </th>
+                                    <th class="text-right">
+                                        @Html.DisplayNameFor(model => model.SalesTaxAmount)
+                                    </th>
+                                    <th class="text-right">
+                                        @Html.DisplayNameFor(model => model.GrandTotal)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Status)
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td hidden>
+                                            @Html.DisplayFor(modelItem => item.Id)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InvoiceDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Customer.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ReferenceNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OGPNo)
+                                        </td>
+                                        <td class="text-right">
+                                            @{
+                                                var usSalesTaxAmount = new System.Globalization.CultureInfo("en-US");
+                                                @string.Format(usSalesTaxAmount, "{0:N}", item.SalesTaxAmount)
+                                            }
+                                            @*@Html.DisplayFor(modelItem => item.SalesTaxAmount)*@
+                                        </td>
+                                        <td class="text-right">
+                                            @{
+                                                var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                                @string.Format(usGrandTotal, "{0:N}", item.GrandTotal)
+                                            }
+                                            @*@Html.DisplayFor(modelItem => item.GrandTotal)*@
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Status)
+                                        </td>
+                                        <td>
+                                            @if (item.Status != "Approved")
+                                            {
+                                                <a asp-action="Create" asp-controller="ServiceInvoice" asp-route-id="@item.Id" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-edit" title="Edit"></i></a>
+                                                <a asp-action="Approve" asp-controller="ServiceInvoice" asp-route-id="@item.Id" class="btn btn-sm btn-success m-t-n-xs" onclick="return confirm('Are you sure you want to Approve Service Invoice?')"><i class="fa fa-thumbs-up" title="Approve"></i></a>
+                                                <a asp-action="Delete" asp-controller="ServiceInvoice" asp-route-id="@item.Id" class="btn btn-sm btn-danger m-t-n-xs" onclick="return confirm('Are you sure you want to Delete Service Invoice?')"><i class="fa fa-trash-alt" title="Delete"></i></a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="Details" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" title="View"></i></a>
+                                                @*<a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-sm btn-success btn-lg m-t-n-xs"><i class="fa fa-print"></i></a>*@
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>

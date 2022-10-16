@@ -1,0 +1,134 @@
+﻿@model Numbers.Entity.Models.AppCompany
+
+@{ ViewData["Title"] = "Company Company Locations";
+    ViewData["CurrentPage"] = "Create Company";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox-content">
+            <form class="form-horizontal" asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <input type="hidden" asp-for="Id" />
+                            <label class="col-lg-4 control-label">Company Name</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Name" name="Name" class="form-control" autofocus />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AddressLine1" class="col-lg-4 control-label">Company Address one</label>
+                            <div class="col-lg-8">
+                                <input asp-for="AddressLine1" class="form-control" />
+                                <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="AddressLine2" class="col-lg-4 control-label">Company Address Two</label>
+                            <div class="col-lg-8">
+                                <input asp-for="AddressLine2" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Country" class="col-lg-4 control-label">Country</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Country" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="City" class="col-lg-4 control-label">City</label>
+                            <div class="col-lg-8">
+                                <input asp-for="City" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-lg-4 control-label">Email</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Email" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="IsActive" class="col-lg-4 control-label"></label>
+                            <div class="col-lg-8">
+                                <input asp-for="IsActive" class="form-control" type="checkbox" style="width:20px; height:20px;" />
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label asp-for="Phone1" class="col-lg-4 control-label">Phone1</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Phone1" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Phone2" class="col-lg-4 control-label">Phone2</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Phone2" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group ">
+                            <label asp-for="Fax" class="col-lg-4 control-label">Fax</label>
+                            <div class="col-lg-8">
+                                <input asp-for="Fax" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            @if (Model.Logo != null)
+                            {
+                                <img id="preview-img" src="@Html.DisplayFor(modelItem => Model.Logo)" alt="Upload Image" class="img-thumbnail" style=" width: 220px; height : 220px;" />
+                            }
+
+                            else if (Model.Logo == null)
+                            {
+                                <img id="preview-img" src="#" class="img-thumbnail" style=" width: 220px; height: 220px;" />
+                                @*<input style=" width:200px; height: 200px;" />*@
+                                @*<img src="~/img/items/download.png" class="img-circle" style=" width: 200px; height : 200px;" />*@
+                            }
+                            <div class="form-group" style="margin-top:5px;">
+                                <div class="col-lg-12">
+                                    <input asp-for="Logo" type="hidden" />
+                                    <input id="preview-file" name="img" type="file" />
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-lg-offset-4" style="margin-left: 36%;">
+            <div style="height:205px; width:200px;">
+                <img id="preview-img" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+                <img src="~/img/userphotos/favicon.png" id="preview-img" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+            </div>
+
+            <div class="col-lg-4">
+                <input id="preview-file" name="img" type="file" />
+            </div>
+
+        </div>*@
+
+                    </div>
+                </div>
+
+                <br />
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-4">
+                                <a class="btn btn-white" asp-action="List" asp-controller="CompanyLocations">List</a>
+                                <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

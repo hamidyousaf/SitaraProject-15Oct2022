@@ -1,0 +1,650 @@
+﻿@model AppReport
+@{
+    ViewData["Title"] = "Reports";
+    ViewData["CurrentPage"] = "Reports";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div>
+    <div class="col-lg-12">
+        <div class="ibox">
+            @*<div class="ibox-title">
+                    <h5>Preview Reports</h5>
+                </div>*@
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="report" class="form-horizontal" method="post">
+                            @*<input type="hidden" name="ReportTitle" value="SalesLedgerItemWise" />*@
+                            <input type="hidden" name="CompanyName" value="@companyName" />
+                            <input type="hidden" name="CompanyId" value="@companyId" />
+                            <input type="hidden" name="Resp_Id" value="@ViewBag.Resp_Id" />
+                            <div class="row">
+                                <div class="col-lg-5 col-md-12 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Report Name</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Reports" autofocus class="form-control" id="ReportTitle" data-validation="required" name="ReportTitle">
+                                                <option disabled="disabled" selected="selected">Select Report...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-2" id="divPrNo">
+                                    <div class="form-group">
+                                        <label id="FormNo"></label>
+                                        <input name="PrNo" id="PrNo" class="chosen-select form-control text-right">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-sm-3" id="divRefrenceNo">
+                                    <div class="form-group">
+                                        <label id="refNo">Ref No</label>
+                                        <input name="RefrenceNo" id="RefrenceNo" class="chosen-select form-control text-right">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3" id="divInsuranceNo">
+                                    <div class="form-group">
+                                        <label id="InsNo">Insurance No</label>
+                                        <input name="InsuranceNo" id="InsuranceNo" class="chosen-select form-control text-right">
+                                    </div>
+                                </div>
+                                <div class="col-lg-3" id="divApproveRejected">
+                                    <div class="form-group">
+                                        <label>Approve/Rejected</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select autofocus class="form-control" id="ApproveRejected" data-validation="required" name="ApproveRejected">
+                                                <option value="1" selected="selected">Approve</option>
+                                                <option value="0">Rejected</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3" id="divReportType">
+                                    <div class="form-group">
+                                        <label>With/Without Invoice/Both</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select autofocus class="form-control" id="WorwOInvoice" data-validation="required" name="WorwOInvoice">
+                                                <option value="WInvoice" selected="selected">With Invoice</option>
+                                                <option value="WOInvoice">Without Invoice</option>
+                                                <option value="both">Both</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3" id="divGRNOrPayment">
+                                    <div class="form-group">
+                                        <label>Aging From GRN/Payment</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select autofocus class="form-control" id="GRNOrPayment" data-validation="required" name="GRNOrPayment">
+                                                <option value="WInvoice" selected="selected">Aging from GRN</option>
+                                                <option value="WOInvoice">Aging from Payment</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                             
+                                <div class="col-lg-3" id="divType">
+                                    <div class="form-group">
+                                        <label>Local/International</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select autofocus class="form-control" id="SupplierType" data-validation="required" name="SupplierType">
+                                                <option value="Local" selected="selected">Local</option>
+                                                <option value="International">International</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3" id="divRegistered">
+                                    <div class="form-group">
+                                        <label>Registered/Non Registered</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select autofocus class="form-control" id="IsRegistered" data-validation="required" name="IsRegistered">
+                                                <option value="1" selected="selected">Registered</option>
+                                                <option value="0">Non-Registered</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <div class="row">
+                                        <div class="col-md-6 col-sm-6" id="divStartDate">
+                                            <div class="form-group">
+                                                <label>Start Date</label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6" id="divEndDate">
+                                            <div class="form-group">
+                                                <label>End Date</label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" id="divMonths">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month1" type="checkbox" checked />
+                                                <label for="Month1">Month1</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month2" type="checkbox" checked />
+                                                <label for="Month2">Month2</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month3" type="checkbox" checked />
+                                                <label for="Month3">Month3</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month4" type="checkbox" checked />
+                                                <label for="Month4">Month4</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month5" type="checkbox" checked />
+                                                <label for="Month5">Month5</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="checkbox checkbox-success">
+                                                <input name="Month6" type="checkbox" checked />
+                                                <label for="Month6">Month6</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="row">
+                                <div class="col-lg-5 col-sm-6" id="divItems">
+                                    <div class="form-group">
+                                        <label>Select Items</label>
+                                        <div class="input-group col-lg-12 ">
+                                            <select asp-items="@ViewBag.Items" id="Item" name="Item">
+                                                <option value="0" selected="selected">Select All...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-sm-6" id="divCategory">
+                                    <div class="form-group">
+                                        <label>Select Categories wise</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Categories" id="Categories" name="Categories">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6" id="divCategory4">
+                                    <div class="form-group">
+                                        <label>Select Categories wise</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Categories4" id="Categories4" name="Categories4">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="row" id="divYarnDo">
+                                <div class="col-lg-5 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Select Weaving Contract#</label>
+                                        <div class="input-group col-lg-12 ">
+                                            <select asp-items="@ViewBag.Contract" id="Contract" name="Contract">
+                                                <option value="0" selected="selected">Select All...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*<div class="col-lg-6 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select Weaver Name</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Weaver" id="Weaver" name="Weaver">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>*@
+                                <div class="col-lg-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Select DO/Issue</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.IssueNo" id="IssueNo" name="IssueNo">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-6" id="divIRNNo">
+                                    <div class="form-group">
+                                        <label>Select IRN NO</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.IrnNo" id="IrnNo" name="IrnNo">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-6" id="divPONo">
+                                    <div class="form-group">
+                                        <label>Select by PoNo</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.PoNo" id="PoNo" name="PoNo">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">f
+                                <div class="col-lg-6 col-sm-6" id="divIGP">
+                                    <div class="form-group">
+                                        <label>Select by IGP</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.IGP" id="IGP" name="IGP">
+                                                s
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         
+
+
+                            
+                            <div class="row" id="divmontlyplanning">
+                                <div class="col-lg-5 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select MP#</label>
+                                        <div class="input-group col-lg-12 ">
+                                            <select asp-items="@ViewBag.MpNo" id="MpNo" name="MpNo">
+                                                <option value="0" selected="selected">Select All...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-5 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select SP# </label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.SpNo" id="SpNo" name="SpNo">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Plan Of Month </label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Planof" id="Planof" name="Planof">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="col-lg-5 col-sm-6" >
+                                    <div class="form-group">
+                                        <label> Select GreigeQuality</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.SeasonalGreigeQuality" id="SeasonalGreigeQuality" name="SeasonalGreigeQuality">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* <div class="col-lg-5 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Season</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Seasonwise" id="Seasonwise" name="Seasonwise">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            </div>
+
+
+
+
+
+
+
+                               <div class="row" id="divSeanalplanning">
+                                <div class="col-lg-6 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select SP#</label>
+                                        <div class="input-group col-lg-12 ">
+                                            <select asp-items="@ViewBag.SeasonalNo" id="SeasonalNo" name="SeasonalNo">
+                                                <option value="0" selected="selected">Select All...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select GreigeQuality</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.GreigeQuality" id="GreigeQuality" name="GreigeQuality">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6" >
+                                    <div class="form-group">
+                                        <label>Select Season</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.Season" id="Season" name="Season">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-6" id="divSuppliers">
+                                    <div class="form-group">
+                                        <label>Select by Suppliers</label>
+                                        <div class="input-group col-lg-12">
+                                            <select name="Suppliers" id="Suppliers" asp-items="@ViewBag.Suppliers">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-5 col-sm-6 " id="divItems">
+                <div class="form-group">
+                    <label>Select Items wise</label>
+                    <div class="input-group col-lg-12">
+                        <select name="Items" id="Items" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+
+                                <dliv class="col-lg-6 col-sm-6 " id="divCity">
+                                    <div class="form-group">
+                                        <label>Select City</label>
+                                        <div class="input-group col-lg-12">
+                                            <select name="Cities" id="Cities" asp-items="@ViewBag.Cities">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </dliv>
+                                <div class="col-lg-6 col-sm-6" id="divCountry">
+                                    <div class="form-group">
+                                        <label>Select Country</label>
+                                        <div class="input-group col-lg-12">
+                                            <select name="Countries" id="Countries" asp-items="@ViewBag.Countries">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @*<div class="col-lg-5 col-sm-6" id="~">
+                <div class="form-group">
+                    <label>Select Categories wise</label>
+                    <div class="input-group col-lg-12">
+                        <select name="Categories" id="Categories" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+                                <div class="col-lg-5 col-sm-6 " id="divManufacturers">
+                                    <div class="form-group">
+                                        <label>Select Manufactures wise</label>
+                                        <div class="input-group col-lg-12">
+                                            <select name="Manufacturers" id="Manufacturers" asp-items="@ViewBag.Manufactures">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5 col-sm-6" id="divCostCenters">
+                                    <div class="form-group">
+                                        <label>Select Cost Center</label>
+                                        <div class="input-group col-lg-12 col-sm-12">
+                                            <select asp-items="@ViewBag.CostCenters" name="CostCenters" id="CostCenters">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-5 col-sm-6" id="divCostCenters">
+                <div class="form-group">
+                    <label>Select Cost Center</label>
+                    <div class="input-group col-lg-12">
+                        <select name="CostCenters" id="CostCenters" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+                                <div class="col-lg-6 col-sm-6 " id="divDepartments">
+                                    <div class="form-group">
+                                        <label>Select Department</label>
+                                        <div class="input-group col-lg-12">
+                                            <select name="Departments" id="Departments" asp-items="@ViewBag.Departments">
+                                                <option value="0" selected="selected">Select All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*<div class="row">
+            <div class="col-lg-5">
+                <div class="form-group">
+                    <label>Select by Cities</label>
+                    <div class="input-group col-lg-12">
+                        <select name="Cities" id="Cities" class="form-control" multiple="multiple">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                            <div class="row">
+                                <div class="text-left">
+                                    <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+<script src="~/js/IMP/Report.js"></script>
+<script src="~/js/AP/Report.js"></script>
+<script>
+    //var byItems = $('select[name="Items"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetItems in dual-list-box
+    //$.get('/Inventory/Api/GetItemsForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Items"]').html(html);
+    //    byItems.bootstrapDualListbox('refresh');
+    //});
+
+
+    //category-wise
+    //var byCategories = $('select[name="Categories"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetCategories in dual-list-box
+    //$.get('/Inventory/Api/GetCategories').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.value + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Categories"]').html(html);
+    //    $('select[name="Categories"]').find("option").eq(0).remove();//this removes 1st option in selectList
+    //    byCategories.bootstrapDualListbox('refresh');
+    //});
+
+    //manufacture-wise
+    //var byManufactures = $('select[name="Manufacturers"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetManufactures in dual-list-box
+    //$.get('/Inventory/Api/GetManufactures').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Manufacturers"]').html(html);
+    //    byManufactures.bootstrapDualListbox('refresh');
+    //});
+</script>
+
+<script>
+    //by suppliers
+    //var bySupplier = $('select[name="Suppliers"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160,
+    //});
+    ////displays Items in dual-list-box
+    //$.get('/AP/Api/GetSuppliersForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Suppliers"]').html(html);
+    //    bySupplier.bootstrapDualListbox('refresh');
+    //});
+
+    //by cities
+    //var byCity = $('select[name="Cities"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160,
+    //});
+    ////displays Items in dual-list-box
+    //$.get('/AR/Api/GetCities').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Cities"]').html(html);
+    //    byCity.bootstrapDualListbox('refresh');
+    //});
+
+</script>
+<script>
+    ////CostCenters-wise
+    //var byCostCenters = $('select[name="CostCenters"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetCategories in dual-list-box
+    //$.get('/AP/Api/GetCostCenterForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="CostCenters"]').html(html);
+    //    $('select[name="CostCenters"]').find("option").eq(0).remove();//this removes 1st option in selectList
+    //    byCostCenters.bootstrapDualListbox('refresh');
+    //});
+
+    //Departments-wise
+    //var byDepartments = $('select[name="Departments"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetManufactures in dual-list-box
+    //$.get('/AP/Api/GetDepartmentsForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Departments"]').html(html);
+    //    byDepartments.bootstrapDualListbox('refresh');
+    //});
+    ////GetCities-wise
+    //    var byCities = $('select[name="Cities"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    //displays GetManufactures in dual-list-box
+    //$.get('/AP/Api/GetCities').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Cities"]').html(html);
+    //    byCities.bootstrapDualListbox('refresh');
+    //});
+
+    ////GetCities-wise
+    //var byCountries = $('select[name="Countries"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetManufactures in dual-list-box
+    //$.get('/AP/Api/GetCountries').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Countries"]').html(html);
+    //    byCountries.bootstrapDualListbox('refresh');
+    //});
+
+</script>
+
+
+

@@ -1,0 +1,653 @@
+﻿@model BaleInformation
+
+@{
+    ViewData["Title"] = "List of FGS";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+@using Numbers.Areas.GL.Controllers;
+@using Numbers.Repository.Helpers;
+@using Microsoft.AspNetCore.Http;
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5> Finished Goods Input</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden asp-for="Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.TransactionNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="WarehouseId"></label>
+                                <Select tabindex="-1" disabled id="WarehouseId" asp-for="WarehouseId" asp-items="@Model.WareHouseLOV" class="form-control">
+                                    @*<option selected disabled value="0">Select...</option>*@
+                                </Select>
+                                <Select tabindex="-1" id="HideWarehouseId" asp-for="WarehouseId" asp-items="@Model.WareHouseLOV" class="form-control">
+                                    @*<option selected disabled value="0">Select...</option>*@
+                                </Select>
+                                <p id="bCash"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Production Order #</label>
+                                <select autofocus asp-for="ProductionOrderId" id="ProductionOrderId" asp-items="@ViewBag.ProductionOrders" onchange="GetProdutionData();" class="chosen-select form-control">
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Item Category 2</label>
+                                <select autofocus asp-for="ItemCategory2" id="ItemcategorySecondL" onchange="getFourthCategory()" asp-items="@ViewBag.ItemCategory2" class="chosen-select form-control">
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        @*@if (ViewBag.ItemCategory3 != null)
+                        {
+                            <div class="col-lg-2 col-sm-3 Pad-rht">
+                                <input id="id" hidden />
+                                <div class="form-group">
+                                    <label> Item Category 3</label>
+                                    <select asp-for="ItemCategory3" asp-items="@ViewBag.ItemCategory3" id="ItemcategorythirdL" class="chosen-select form-control">
+                                        <option value="0" selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-2 col-sm-3 Pad-rht">
+                                <input id="id" hidden />
+                                <div class="form-group">
+                                    <label> Item Category 3</label>
+                                    <select asp-for="ItemCategory3" id="ItemcategorythirdL" class="chosen-select form-control">
+                                        <option value="0" selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }*@
+
+
+                    </div>
+                    <div class="row">
+                        @if (ViewBag.ItemCategory4 != null)
+                        {
+                            <div class="col-lg-4 col-sm-6 Pad-rht">
+                                <div class="form-group">
+                                    <label>Item Category 4</label>
+                                    <select id="ItemcategoryfourthL" asp-items="@ViewBag.ItemCategory4" asp-for="ItemCategory4" class="chosen-select form-control">
+                                        <option value="0" selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-4 col-sm-6 Pad-rht">
+                                <div class="form-group">
+                                    <label>Item Category 4</label>
+                                    <select id="ItemcategoryfourthL" asp-for="ItemCategory4" class="chosen-select form-control">
+                                        <option value="0" selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        @if (ViewBag.Items != null)
+                        {
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Item</label>
+                                    <select class="form-control" asp-items="@ViewBag.Items" id="Item" asp-for="ItemId">
+                                        <option value="0" disabled selected="selected">Select..</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Item</label>
+                                    <select class="form-control" id="Item" asp-for="ItemId">
+                                        <option value="0" disabled selected="selected">Select..</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-lg-2" >
+                            <div class="form-group">
+                                <label class="col-form-label">Prod Qty</label>
+                                <input class="form-control text-right" asp-for="ProductionQty" value="0" id="ProductionQty" type="number" readonly />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">BaleType</label>
+                                <select class="form-control" id="BaleType" asp-items="@ViewBag.BaleType" asp-for="BaleType">
+                                    <option value="0" disabled selected="selected">Select..</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-2" hidden>
+                            <div class="form-group">
+                                <label class="col-form-label">Bale#</label>
+                                <input type="text" asp-for="BaleNumber" oninput="this.value = this.value.toUpperCase()" id="BaleNo" class="form-control" autocomplete="off" />
+                                <input type="hidden" asp-for="BaleNumber" oninput="this.value = this.value.toUpperCase()" id="CheckBaleNo" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label>Product Type</label>
+                                <Select asp-for="ProductTypeId" id="Prod_Id" asp-items="@ViewBag.ProductTypeLOV" onchange="GetCustomer()" class="form-control" data-validation="required" data-validation-error-msg="Product Type is required" data-validation-error-msg-container="#PType">
+                                </Select>
+                                <p id="PType"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Meter/Bale</label>
+                                <input type="text" asp-for="Meters" id="BaleMeter" onchange="GetFGSCalData();" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">No Of Bale</label>
+                                <input type="text" asp-for="NoOfBale" id="NoOfBale" onchange="GetFGSCalData();"  class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Total FGS Qty</label>
+                                <input type="text" asp-for="TotalFGSQty" id="TotalFGSQty" value="0" readonly class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Bal Prod Qty</label>
+                                <input type="text" asp-for="BalProductionQty" id="BalProductionQty" readonly class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2" hidden>
+                            <div class="form-group">
+                                <label class="col-form-label">ProductionOrderNo</label>
+                                <input type="text" asp-for="ProductionOrderNo" id="ProductionOrderNo" readonly class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Lot #</label>
+                                <input type="text" asp-for="LotNo" id="LotNo" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <br />
+                            <button class="btn btn-primary" onclick="return Validation();" id="btnSave" asp-controller="FGSScreen" asp-action="Create">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th style="width: 6%" class="searchHeader">Prod#</th>
+                                                <th style="width: 6%" class="searchHeader">ID</th>
+                                                <th style="width: 9%" class="searchHeader">Date</th>
+                                                <th style="width: 9%" class="searchHeader">Level 2</th>
+                                                <th style="width: 9%" class="searchHeader">Level 3</th>
+                                                <th style="width: 9%" class="searchHeader">Level 4</th>
+                                                <th style="width: 17%" class="searchHeader">Item</th>
+                                                <th style="width: 8%" class="searchHeader">Type</th>
+                                                <th style="width: 8%" class="searchHeader">Bale#</th>
+                                                <th style="width: 8%" class="searchHeader">Mtr/Bale</th>
+                                                <th style="width: 12%">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#Itemcategory").select2();
+            $("#ItemcategorySecondL").select2();
+            $("#ItemcategoryfourthL").select2();
+            $("#ItemcategorythirdL").select2();
+            $("#Item").select2();
+            $("#BaleType").select2();
+            $("#ProductionOrderId").select2();
+            $("#HideWarehouseId").hide();
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            $("#BaleNo").on("change",function () {
+                debugger
+                var baleNo = $(this).val();
+                var checkBaleNo = $("#CheckBaleNo").val();
+
+                if (baleNo == checkBaleNo) {
+                    $('#BaleNo').focus(baleNo);
+                    return true;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "/Inventory/FGSScreen/CheckBaleNo",
+                    data: { baleNo }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        if (data.status != true) {
+                            swal({
+                                icon: 'warning',
+                                text: data.message,
+                                closeModal: false
+                            }).then(function () {
+                                swal.close();
+                                $('#BaleNo').focus();
+                                $('#BaleNo').val("");
+                            });
+                            return false;
+                        }
+
+                    }
+                });
+            });
+
+        });
+
+        function getFourthCategory() {
+            debugger
+            var productionOrderId = $("#ProductionOrderId").find(":selected").val();
+            var ItemcategorySecondL = $("#ItemcategorySecondL").find(":selected").val();
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/FGSScreen/GetFourthCategoryFromPO",
+                data: { productionOrderId: productionOrderId, ItemcategorySecondL: ItemcategorySecondL }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#ItemcategorythirdL').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+        }
+        //Loading 3rd Level Category
+        //$('#ItemcategorySecondL').on('change', function () {
+        //    debugger
+        //    $('.removedItem').remove();
+        //    $('#ItemcategorythirdL').find('option').not(':first').remove();
+        //    $('#ItemcategoryfourthL').find('option').not(':first').remove();
+        //    var item = $('#ItemcategorySecondL').val();
+        //    $.ajax({
+        //        method: "GET",
+        //        url: "/Inventory/ItemPricing/GetItem",
+        //        data: { Id: item, level: 3 }
+        //    }).done(function (data) {
+        //        $.each(data, function (i, item) {
+        //            $('#ItemcategorythirdL').append($('<option>', {
+        //                value: item.id,
+        //                text: item.text
+        //            }));
+        //        });
+        //    });
+
+        //})
+        //Loading 4th Level Category
+        //$('#ItemcategorythirdL').on('change', function () {
+        //    debugger
+        //    $('.removedItem').remove();
+        //    $('#ItemcategoryfourthL').find('option').not(':first').remove();
+
+        //    var item = $('#ItemcategorythirdL').val();
+        //    $.ajax({
+        //        method: "GET",
+        //        url: "/Inventory/ItemPricing/GetItem",
+        //        data: { Id: item, level: 4 }
+        //    })
+        //        .done(function (data) {
+        //            $.each(data, function (i, item) {
+        //                $('#ItemcategoryfourthL').append($('<option>', {
+        //                    value: item.id,
+        //                    text: item.text
+        //                }));
+        //            });
+        //            debugger
+        //            $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+        //        });
+        //})
+
+        $('#ItemcategoryfourthL').on('change', function () {
+            debugger
+            var item = $('#ItemcategoryfourthL').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItems",
+                data: { Id: item }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#Item').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+
+
+            });;
+        })
+
+        //$('#btnSave').on('click', function () {
+        //    debugger
+
+        //    if (item == "0" || item == null) {
+        //        return;
+        //    }
+        //    $.ajax({
+        //        method: "GET",
+        //        url: "/Inventory/FGSScreen/GetBaleList",
+
+        //    }).done(function (data) {
+        //        $.each(data, function (i, item) {
+        //            $('#Item').append($('<option>', {
+        //                value: item.id,
+        //                text: item.text
+        //            }));
+        //        });
+
+
+        //    });;
+        //})
+
+        function GetProdutionData() {
+            debugger
+            var item = $('#ProductionOrderId').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/FGSScreen/GetProdutionData",
+                data: { Id: item }
+            }).done(function (data) {
+                $("#BalProductionQty").val(data.balProductionQty);
+                $("#ProductionQty").val(data.productionQty);
+                $("#ProductionOrderNo").val(data.productionOrderNo);
+            
+             
+            });;
+        }
+
+
+        function GetFGSCalData() {
+            debugger
+          //BaleMeter  NoOfBale  TotalFGSQty
+            
+           
+            var ProductionQty =    $("#ProductionQty").val();
+            var ProductionOrderNo =    $("#ProductionOrderNo").val();
+            var BaleMeter = $("#BaleMeter").val();
+            var NoOfBale = $("#NoOfBale").val();
+           
+            var ttotal = NoOfBale * BaleMeter;
+            $("#TotalFGSQty").val(ttotal);
+            var TotalFGSQty = $("#TotalFGSQty").val();
+            var bal = ProductionQty - TotalFGSQty;
+            $("#BalProductionQty").val(bal);
+
+            
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/Inventory/FGSScreen/GetBaleList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [10] }
+                    ],
+                columns: [
+                    
+                    { "data": "id", "name": "Id", className: "text-center hidden" },
+                    { "data": "productionOrderNo", "name": "productionOrderNo", className: "text-center " },
+                    { "data": "transactionNo", "name": "TransactionNo", className: "text-center " },
+                    { "data": "transactionDate", "name": "TransactionDate", className: "text-center " },
+                    { "data": "level2", "name": "ItemCategory2", className: "text-left" },
+                    { "data": "level3", "name": "ItemCategory3", className: "text-left" },
+                    { "data": "level4", "name": "ItemCategory4", className: "text-left" },
+                    { "data": "itemId", "name": "ItemId", className: "text-left" },
+                    { "data": "baleType", "name": "BaleType", className: "text-center" },
+                    { "data": "baleNo", "name": "BaleNumber", className: "text-right" },
+                    { "data": "baleMeter", "name": "Meters", className: "text-right" },
+                    
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data, row) {
+                           
+                            return "<a href='/Inventory/FGSScreen/Index?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a> <a href='/Inventory/FGSScreen/Delete?id=" + data + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>    ";
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+
+
+
+
+
+        function Validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#ItemcategorySecondL').find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select second category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategorySecondL').focus();
+                });
+                return false;
+            }
+            else if ($("#ItemcategorythirdL").find(":selected").val() == "0") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select third category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategorythirdL').focus();
+                });
+                return false;
+            }
+            else if ($("#ItemcategoryfourthL").find(":selected").val() == "0") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select fourth category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategoryfourthL').focus();
+                });
+                return false;
+            }
+            else if ($("#Item").find(":selected").val() == "0") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Item').focus();
+                });
+                return false;
+            }
+            if ($('#BaleType').find(':selected').val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Bale Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#BaleType').focus();
+                });
+                return false;
+            }
+            //if ($('#BaleNo').val() <= 0) {
+            //    swal({
+            //        icon: 'warning',
+            //        text: "Please enter Bale No.!",
+            //        closeModal: false
+            //    }).then(function () {
+            //        swal.close();
+            //        $('#BaleNo').focus();
+            //    });
+            //    return false;
+            //}
+            if ($('#BaleMeter').val() <= 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter Meter/Bale!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#BaleMeter').focus();
+                });
+                return false;
+            }
+            return true;
+        }
+      
+    </script>
+}
+
+

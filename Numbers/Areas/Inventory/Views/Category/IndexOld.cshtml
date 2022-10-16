@@ -1,0 +1,94 @@
+﻿@model IEnumerable<InvItemCategories>
+@{
+    ViewData["Title"] = "List of Categories";
+    ViewData["CurrentPage"] = "Categories";
+    InventoryHelper helper = new InventoryHelper(ViewBag.DbContext,Convert.ToInt32(ViewBag.Company));
+    
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>List of Categories</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br /><br />
+                <table class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Id)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ParentId)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CategoryLevel)
+                            </th>
+                           
+                            <th>
+                                @Html.DisplayNameFor(model => model.IsActive)
+                            </th>
+                           
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+
+                            @if (item.ParentId != null)
+                            {
+                                var seq = helper.GetParent(item.ParentId,item.Name);
+                                if (seq != "")
+                                {
+                                    <td>
+                                        @seq
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+                            else
+                            {
+                                <td>
+                                    #
+                                </td>
+                            }
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CategoryLevel)
+                            </td>
+
+                            <td>
+                                @Html.DisplayFor(model => item.IsActive)
+                            </td>
+
+                            <td>
+                                <a asp-controller="Category" asp-action="Create" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                @*<a asp-action="Delete" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to delete this Category?')"><i class="far fa-trash-alt" title="Delete"></i></a>*@
+                            </td>
+                         </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>

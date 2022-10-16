@@ -1,0 +1,612 @@
+﻿@model APLC
+@{ ViewData["Title"] = "Create Letter Of Credit";
+    ViewData["CurrentPage"] = "Letter Of Credit";
+}
+<style>
+    table td input {
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        border: none;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .t td {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    table td {
+        position: relative;
+    }
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Letter Of Credit</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <input asp-for="Id" hidden />
+                                    <div class="row" style="margin-top:10px">
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="col-lg-4 col-sm-4" style="padding:0px">
+                                                @if (Model.Id == 0)
+                                                {
+                                                    <div class="form-group">
+                                                        <label>Trans #</label>
+                                                        <label></label>
+                                                        <input asp-for="TransctionNo" tabindex="-1" class="chosen-select form-control text-right" value="@ViewBag.Id" readonly>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="form-group">
+                                                        <label>Trans #</label>
+                                                        <label></label>
+                                                        <input asp-for="TransctionNo" tabindex="-1" class="chosen-select form-control text-right" readonly>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="col-lg-8 col-sm-8" style="padding: 0px 0px 0px 10px">
+                                                <input class="id" type="hidden" />
+                                                <div class="form-group">
+                                                    <label>LC #</label>
+                                                    <input autofocus asp-for="LCNo" maxlength="20" class="form-control" id="lcNo" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>LC Open Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input asp-for="LCOpenDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate :Model.LCOpenDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>Latest Shipment Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input asp-for="LatestShipmentDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate :Model.LatestShipmentDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*<div class="col-lg-3 col-sm-6 Pad-rht">
+            <div class="form-group">
+                <label>LC Close Date</label>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input asp-for="LCCloseDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate :Model.LCCloseDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                </div>
+            </div>
+        </div>*@
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>LC Expiry Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input asp-for="LCExpiryDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate:Model.LCExpiryDate.ToString(CommonHelper.DateFormat))" type="text"  class=" form-control custom-date-picker date" required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>LC Type</label>
+                                                <select asp-for="LCTypeId" class="chosen-select form-control" id="LCTypeId" asp-items="ViewBag.LCType" required>
+                                                    <option value="0">Please select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>Bank Name</label>
+                                                <select asp-for="BankId" class="chosen-select form-control" id="BankId" asp-items="ViewBag.Bank" required>
+                                                    <option value="0">Please select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="form-group">
+                                                <label>Po</label>
+                                                @if (ViewBag.Selectlist == 0)
+                                                {
+                                                    <select asp-for="POId" class="chosen-select form-control" onchange="GetPO()" id="poId" asp-items="ViewBag.PO" required>
+                                                        <option value="0">Please select</option>
+                                                    </select>
+                                                }
+                                                else
+                                                {
+                                                    <select asp-for="POId" disabled class="chosen-select form-control" onchange="GetPO()" id="poId" asp-items="ViewBag.PO" >
+                                                        <option value="0">Please select</option>
+                                                    </select>
+                                                }
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-12 Pad-rht">
+                                            <div class="form-group">
+                                                <label>Vendor</label>
+                                                <input asp-for="VendorName" tabindex="-1" class="form-control text-right" id="vendorId" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                                            <div class="form-group">
+                                                <label>FC Amount</label>
+                                                <input asp-for="FCAmount" onchange="CalculatePKR()" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control text-right" id="FCAmt">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                                            <div class="form-group">
+                                                <label>PKR Amount</label>
+                                                <input tabindex="-1" asp-for="PKRAmount" class="form-control text-right" id="PkRAmt" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                                            <div class="col-sm-4" style="padding:0px">
+                                                <div class="form-group">
+                                                    <label>EIF #</label>
+                                                    <input asp-for="EIFNo"  onpaste="return false;" ondrop="return false;" class="form-control" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-8" style="padding: 0px 0px 0px 10px">
+                                                <div class="form-group">
+                                                    <label>EIF Date</label>
+                                                    <div class="input-group">
+                                                        <input asp-for="EIFDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate :Model.EIFDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" autocomplete="off" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                                            <div class="form-group">
+                                                <label -for="Attachment">Attachment</label>
+                                                <div class="custom-file">
+                                                    <input type="file" name="File" multiple class="form-control custom-file-input" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-sm-6 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Remarks</label>
+                                            <textarea style="resize:none;" asp-for="Remarks" class="form-control" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="col-lg-12 col-sm-12" style="margin-top: 5px;">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                Currency Exchange
+                                            </div>
+                                            <div class="panel-body">
+                                                <label asp-for="CurrencyId"> Currency</label>
+                                                <input tabindex="-1" asp-for="CurrencyName" class="form-control" id="currencyId" readonly />
+                                                <label asp-for="ExchangeRate">Exchange Rate</label>
+                                                <input asp-for="ExchangeRate" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" id="ExchRate" placeholder="1.0" onchange="CalculatePKR()" class="form-control on-focus-change-color" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:20px">
+                            <div class="col-lg-12">
+                                <a asp-controller="letterOfCredit" asp-action="List" class="btn btn-white">List</a>
+                                <input type="submit" name="submit" onclick="return Validation()" asp-action="Submit" asp-controller="LetterOfCredit" value="Save" class="btn btn-primary" />
+                                <button type="button" onclick="Insurance()" class="btn btn-primary">Insurance Info</button>
+                                <button type="button" onclick="Expense()" class="btn btn-primary">Add Expense</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input id="expenseDetails" name="expenseDetails" hidden />
+                    <input id="total" name="total" hidden />
+                    @{
+                        await Html.RenderPartialAsync("_partialInsuranceInfo");
+                    }
+
+                </form>
+                <div class="modal fade" id="ExpenseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header ">
+                                <h3 class="modal-title" id="exampleModalLabel">Expense</h3>
+                                <h3 class="modal-title" id="exampleModalLabel"></h3>
+                                <div class="row">
+                                        <div class="col-sm-4 Pad-rht">
+                                            <input type="number" id="searchExpense" onkeypress="return isNumberKey(event)" onpaste="return true;" ondrop="return true;" autocomplete="off" class="form-control" />
+                                        </div>
+                                        <div class="col-sm-4 Pad-rht">
+                                            <button type="button" onclick="SearchExpense()" class="btn btn-primary btn-sm">Search</button>
+                                        </div>
+                                </div>
+                                <button type="button" class="close closemodel" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Expense Date</label>
+                                            <div class="input-group">
+                                                <input id="ExpDate" value=" @(CommonHelper.CurrentDate)" type="text" class=" form-control custom-date-picker date" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Expense Favour</label>
+                                            <div class="input-group">
+                                                <input id="ExpFavour" type="text" class=" form-control" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 Pad-rht">
+                                        <div class="form-group">
+                                            <label>GL Code</label>
+                                            <Select id="GLCode" onchange="GetAccountName();" class="form-control on-focus-change-color" asp-items="@ViewBag.GLCode" data-validation="required">
+                                                <option selected disabled>
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Account Name</label>
+                                            <input tabindex="-1" id="AccName" readonly class="form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            <input id="ExpAmt" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Remarks</label>
+                                            <textarea style="resize: none;" id="LCRemarks" class="form-control" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 Pad-rht">
+                                        <div class="form-group">
+                                            <button id="addExpense" onclick="addExpense()" class="btn btn-success" style="margin-top:23px"><i class="fa fa-plus"></i> </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table id="tblExpense" style="table-layout:fixed" class="table table-bordered t">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Favour</th>
+                                            <th>GL Code</th>
+                                            <th>Account Name</th>
+                                            <th>Expense Amount</th>
+                                            <th >Remarks</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                      @if (ViewBag.Expense!= null)
+                                       {
+                                           foreach (var item in ViewBag.Expense)
+                                           {
+                                        <tr>
+                                            @{
+                                                var dateAndTime = item.ExpenseDate;
+                                                var date = dateAndTime.ToString("dd/MM/yyyy");
+                                            }
+                                            <td hidden><input value="@item.Id" class="Id" /></td>
+                                            <td><input value="@date" name="" class="ExpenseDate" readonly /></td>
+                                            <td><input value="@item.ExpenseFavour" class="ExpenseFavour" readonly /></td>
+                                            <td hidden><input name="GLCode" class="GLCode" value="@item.GLCode" readonly /></td>
+                                            @foreach (var acount in ViewBag.Accounts)
+                                            {
+                                                if (acount.Id == Convert.ToInt32(item.GLCode))
+                                                {
+                                                    <td><input value="@acount.Code-@acount.Name" readonly /></td>
+                                                }
+
+
+                                            }
+                                            <td><input name="AccountName" class="AccountName" value="@item.AccountName" readonly /></td>
+                                            <td><input name="ExpenseAmount" class="ExpenseAmount text-right" value="@item.ExpenseAmount" readonly /></td>
+                                            <td><input value="@item.Remarks" class="Remarks" /></td>
+                                            <td><a class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleteExpenseRow($(this));" title="Delete"></i></a></td>
+                                        </tr>
+                                           }
+                                       }
+                                    </tbody>
+                                </table>
+                                @*<input hidden name="rowcounter" id="rowcounter" />*@
+                            </div>
+                            <br />
+                            <div id="EA">
+                                <hr />
+                                <div class="row">
+                                    <div class="col-lg-4" style="margin-left: 50%;">
+                                        <div class="form-group">
+                                            <label>Total Amount</label>
+                                            <input tabindex="-1" name="TotalAmount" readonly id="TotalAmt" class=" clear form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+ @section customJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+    $(document).ready(function () {
+        $('#LCTypeId').select2();
+        $('#BankId').select2();
+        $('#poId').select2();
+
+        $(".date").datepicker({
+            })
+        debugger
+        if ($("#CompanyId").val()!=0)
+             $("#compName").val($("#CompanyId").val());
+        })
+    function ClearExpense() {
+            $("#GLCode").val("");
+            $("#AccName").val("");
+            $("#ExpAmt").val("");
+            $("#ExpDate").val("@CommonHelper.CurrentDate");
+        $('#ExpFavour').val("");
+       // $('#LCRemarks').html("");
+        $('#LCRemarks').val('').change();
+
+        }
+    function Expense() {
+            $('#ExpenseModal').modal('show')
+        }
+    function Insurance() {
+            $('#InsuranceModal').modal('show')
+        }
+    function addExpense () {
+        debugger
+        $('.search').remove();
+            var glcode = $("#GLCode").val();
+            var glcodeName = $("#GLCode").find(":selected").text();
+            var account = $("#AccName").val();
+            var expense = $("#ExpAmt").val();
+            var date = $("#ExpDate").val();
+            var favour = $('#ExpFavour').val();
+            var remarks = $("#LCRemarks").val();
+            if (glcode == null) {
+                swal("", "Please Select Account", "warning")
+                return false;
+            }
+            else if (expense == "") {
+                swal("", "Please Enter Expense", "warning")
+                return false;
+            }
+
+            var Itemrow = '';
+            Itemrow += '<tr class="removed">';
+            Itemrow += '<td hidden><input name="expId" value="0" class="Id" hidden></td>';
+            Itemrow += '<td><input class="ExpenseDate" readonly name="expDate" value=' + date + '></td>';
+            Itemrow += '<td><input class="ExpenseFavour" readonly name="expDate" value=' + favour + '></td>';
+            Itemrow += '<td hidden><input class="text-right GLCode" readonly name="glCode" value=' + glcode + ' ></td>';
+            Itemrow += '<td><input class="text-left" readonly name="glCode" value="' + glcodeName + '" ></td>';
+            Itemrow += '<td><input class="text-left AccountName" readonly name="accountName" value=' + account + '></td>';
+            Itemrow += '<td><input class="text-right ExpenseAmount" readonly name="expAmount" value=' + expense + '></td>';
+            Itemrow += '<td><input name="expRemarks" id="Remarks" class="Remarks" value=' + remarks + '></td>';
+            Itemrow += '<td><a onclick="deleteExpenseRow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+            Itemrow += '</tr>';
+            $('#tblExpense tbody').append(Itemrow);
+            ClearExpense();
+            ExpenseCalculaion();
+        };
+    function GetAccountName() {
+            var id = $("#GLCode").val();
+            $.ajax({
+                url: '/AP/GRN/GetAccountName?id=' + id,
+                type: 'GET',
+            }).done(function (data) {
+                $('#AccName').val(data);
+            });
+        }
+    function GetPO() {
+        var id = $("#poId").val();
+        debugger
+            $.ajax({
+                url: '/AP/LetterOfCredit/GetPO?id=' + id,
+                type: 'GET',
+            }).done(function (data) {
+                debugger
+                $('#vendorId').val(data.vendorName);
+                $('#currencyId').val(data.currency);
+                $('#ExchRate').val(Number(data.currencyExchangeRate).toFixed(2));
+            });
+        }
+    function CalculatePKR() {
+            debugger
+            var exhangeRate = $('#ExchRate').val();
+            var fcAmount = $('#FCAmt').val();
+            var multiple = Number(Number(exhangeRate) * Number(fcAmount)).toFixed(4);
+            $('#PkRAmt').val(multiple);
+        }
+     function deleterow(row) {
+            var i = row.closest('tr').index();
+            var ExpenseAmount = Number($('.ExpenseAmount').eq(i).val());
+            var TotalAmount = ($('#TotalAmt').val())
+            var Add = Number(Number(TotalAmount) - Number(ExpenseAmount)).toFixed(4);
+            $('#TotalAmt').val(Add);
+            var i = row.closest("tr").index();
+            $('.removed').eq(i).remove();
+                }
+     function Validation() {
+            debugger
+
+            //$("#form").validate({
+            //    rules: {
+            //        igpQty: {
+            //            required: true,
+            //            number: true,
+            //        },
+            //    },
+            //    messages: {
+            //        igpQty: ""
+            //    }
+            //});
+              if ($('#lcNo').val() == "") {
+                swal("", "Please Enter LC No", "warning")
+                return false
+              }
+              else if ($("#LCTypeId").find(":selected").val() == "0") {
+                  swal("", "Please Select LC type", "warning")
+                  return false;
+              }
+              else if ($("#BankId").find(":selected").val() == "0") {
+                  swal("", "Please Select Bank", "warning")
+                  return false;
+              }
+            if ($("#poId").find(":selected").val() == "0") {
+                swal("", "Please Select Po", "warning")
+                return false;
+            }
+            else if ($('#ExchRate').val() == "0.00" || $('#ExchRate').val() == "") {
+                swal("", "Please Enter Exchange Rate", "warning")
+                return false;
+            }
+            else if ($('#FCAmt').val() == "0.00" || $('#FCAmt').val() == "") {
+                swal("", "Please Enter FC Ammount", "warning")
+                return false
+            }
+            else {
+                var formdetails = [];
+                
+                $.each($("#tblExpense tbody tr"), function () {
+                    debugger;
+                    var from = $(this).find('.ExpenseDate').val().split("/");
+                    var f = new Date(from[2], from[1] - 1, from[0]);
+                    formdetails.push({
+                        Id: $(this).find('.Id').val(),
+                        ExpenseFavour: $(this).find('.ExpenseFavour').val(),
+                        GLCode: $(this).find('.GLCode').val(),
+                        AccountName: $(this).find('.AccountName').val(),
+                        ExpenseAmount: $(this).find('.ExpenseAmount').val(),
+                        Remarks: $(this).find('.Remarks').val(),
+                        ExpenseDate: f,
+                    });
+
+                });
+                debugger
+                var model = JSON.stringify(formdetails);
+                $("#expenseDetails").val(model);
+                $('#total').val($('#TotalAmt').val());
+                return true;
+            }
+                }
+     function deleteExpenseRow(row) {
+                    debugger
+            row.closest("tr").remove();
+            ExpenseCalculaion();
+                }
+     function isNumberKey(evt) {
+                    //evt = (evt) ? evt : window.event;
+                    var charCode = (evt.which) ? evt.which : evt.keyCode;
+                    if (charCode == 8 || charCode == 37) {
+                        return true;
+                    } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                        return false;
+                    } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                        return false;
+                    }
+                    return true;
+                }
+     function ExpenseCalculaion() {
+                    var sum = 0;
+                    $.each($("#tblExpense tbody tr"), function () {
+                        var abc = $(this).find(".ExpenseAmount").val();
+                        sum = Number(Number(sum) + Number(abc)).toFixed(4);
+                        $('#TotalAmt').val(sum);
+                    });
+     }
+     function SearchExpense() {
+         var value = $("#searchExpense").val();
+         $.ajax({
+             method: "GET",
+             url: "/AP/LetterOfCredit/Search",
+             data: { id: value }
+         }).done(function (data) {
+             $('.removed').remove();
+             debugger
+             if (data.length>0) {
+                 $.each(data, function (i, item) {
+                     var Itemrow = '';
+                     Itemrow += '<tr class="search">';
+                     Itemrow += '<td><input class="ExpenseDate" readonly  value=' + item.expenseDate + '></td>';
+                     Itemrow += '<td><input class="ExpenseFavour" readonly  value=' + item.expenseFavour + '></td>';
+                     Itemrow += '<td><input class="text-left" readonly  value="' + item.glCode + '" ></td>';
+                     Itemrow += '<td><input class="text-left AccountName" readonly  value=' + item.accountName + '></td>';
+                     Itemrow += '<td><input class="text-right ExpenseAmount" readonly  value=' + item.expenseAmount + '></td>';
+                     Itemrow += '<td><input  class="Remarks" readonly value=' + item.remarks + '></td>';
+                     Itemrow += '<td ><a onclick="deleteExpenseRow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+                     Itemrow += '</tr>';
+                     $('#tblExpense tbody').append(Itemrow);
+                     ClearExpense();
+                     ExpenseCalculaion();
+                 });
+                 
+             }
+             else {
+                 var Itemrow = '';
+                 Itemrow += '<tr class="search">No Result Found.</tr>';
+                 $('#tblExpense tbody').append(Itemrow);
+                 ClearExpense();
+             }
+         });
+
+        }
+        $(".closemodel").on("click", function () {
+            $("#searchExpense").empty();
+            $('.search').remove();
+        });
+    </script>
+}

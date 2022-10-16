@@ -1,0 +1,62 @@
+﻿            @*<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">*@
+
+<ul id="myUL">
+
+                @{
+                    var counter = 0;
+                    // Model.ResponsibilitiesList;
+                    foreach (var item in ViewBag.Responsibilites)
+                    {
+                        if (counter == 0)
+                        {
+                            <li>
+                                <a href="~/Dashboard/Index/@item.Resp_Id" class="list-group-item list-group-item-action">
+                                    <h4 class=" text-info">
+                                        @item.Resp_Name-@item.Company.Name
+                                    </h4>
+                                </a>
+                            </li>
+
+                            counter++;
+                            if (counter == 3)
+                            {
+                                counter = 0;
+                            }
+                            continue;
+                        }
+                        if (counter == 1)
+                        {
+                            <li>
+                                <a href="~/Dashboard/Index/@item.Resp_Id" class=" list-group-item list-group-item-action ">
+                                    <h4 class=" text-primary  ">
+                                        @item.Resp_Name-@item.Company.Name
+                                    </h4>
+                                </a>
+                            </li>
+                            counter++;
+                            if (counter == 3)
+                            {
+                                counter = 0;
+                            }
+                            continue;
+                        }
+                        if (counter == 2)
+                        {
+                            <li>
+                                <a href="~/Dashboard/Index/@item.Resp_Id" class="list-group-item list-group-item-action ">
+                                    <h4 class=" text-danger ">
+                                        @item.Resp_Name-@item.Company.Name
+                                    </h4>
+                                </a>
+                            </li>
+                            counter++;
+                            if (counter == 3)
+                            {
+                                counter = 0;
+                            }
+                            continue;
+                        }
+                    }
+                }
+            </ul>
+

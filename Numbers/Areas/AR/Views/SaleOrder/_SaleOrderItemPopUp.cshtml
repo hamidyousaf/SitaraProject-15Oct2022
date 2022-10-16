@@ -1,0 +1,125 @@
+﻿@model IEnumerable<InventoryViewModel>
+@using System.Globalization
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id="DivId">
+    <div class="table-responsive">
+        <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th hidden >Item Id</th>
+                    <th>Item Code</th>
+                    <th>Item Desc</th>
+                    <th width="5%">Bale Type</th>
+                    <th width="5%">Mtr/Bale</th>
+                    <th width="5%">Available Stock</th>
+                    <th width="5%">Rate</th>
+
+                    <th width="5%">Total Mtr</th>
+                    <th width="5%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td hidden>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td class="text-left">
+                            @Html.DisplayFor(modelItem => item.Code)
+                        </td>
+                        <td class="text-left">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td class="text-left">
+                            @Html.DisplayFor(modelItem => item.BaleType)
+                        </td>
+                        <td class="text-right">
+                            @Html.DisplayFor(modelItem => item.Meters)
+                        </td>
+                        <td class="text-right">
+                            @Html.DisplayFor(modelItem => item.TempBales)
+                        </td>
+                        <td class="text-right">
+                            @Html.DisplayFor(modelItem => item.Rate)
+                        </td>
+                        <td class="text-right">
+                            @{
+                                var total = item.Meters * item.TempBales;
+                            }
+                            @total.ToString("N", new CultureInfo("en-US"))
+                        </td>
+                        <td class="text-center"><input type="checkbox" onclick="CheckRow($(this), @item.Id , @item.Meters);" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $("#select_all").change(function () {
+        debugger
+        //"select all" change
+        var status = this.checked; // "select all" checked status
+        $('.checkbox').each(function () { //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+    function CheckRow(row, id, m) {
+        debugger
+        row.closest("tr").remove();
+        $.ajax({
+            method: "GET",
+            url: "/AR/SaleOrder/GetDetails",
+            data: { ItemId: id, Meters: m }
+        })
+            .done(function (data) {
+                $.each(data, function (i, item) {
+                    debugger
+                    var row = "<tr class='removed'>" +
+                        "<td hidden><input type='hidden' style='background-color: #eee;' name='SOItemId' value='0' type='text' class='text-right' tabindex='-1' readonly /></td>" +
+                        "<td hidden><input type='hidden' style='background-color: #eee;' name='ItemId' value=" + item.id + " type='text' class='text-right itemid' readonly tabindex='-1' /></td>" +
+                        "<td hidden><input type='hidden' style='background-color: #eee;' name='BaleId' value=" + item.baleId + " type='text' class='text-right baleId' readonly tabindex='-1' /></td>" +
+                        "<td hidden><input style='background-color: #eee;' name='Code' value='" + item.code + "' type='text' class='text-left code' readonly tabindex='-1' /></td>" +
+                        "<td><input style='background-color: #eee;' name='Name' value='" + item.name + "' type='text' class='name' readonly tabindex='-1' /></td> " +
+                        "<td><input style='background-color: #eee;' name='BaleType' type='text' value='" + item.baleType + "' class='baleType' readonly tabindex='-1' /></td>" +
+                        "<td><input style='background-color: #eee;' name='AvailableStock' type='text' value='" + item.tempBales + "'  class='availableStock text-right' readonly  tabindex='-1' /></td>" +
+                        "<td hidden><input style='background-color: #eee;' name='BookedStock' type='text' class='bookedStock text-right'  value='0' readonly  tabindex='-1' /></td>" +
+                        "<td><input style='background-color: #eee;' name='BalanceStock' type='text' class='text-right balanceStock' value='0' readonly  tabindex='-1' /></td>" +
+                        "<td><input style='background-color: #eee;' name='Meters' type='text' value=" + item.meters + "  class='text-right meters' readonly  tabindex='-1' /></td>" +
+                        "<td><input  onpaste='return false; ' ondrop='return false;'  name='SaleQty' onchange='Calculations($(this));'  type='text'  class='text-right saleQty' value='0' autocomplete='off'></td>" +
+
+                        "<td hidden><input name='PricingRate' type='hidden' value=" + item.rate + "  class='text-right pricingRate' readonly tabindex='-1' /></td>" +
+                        "<td><input onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;'  onchange='RateCalculation($(this));  ConversionCalculation($(this));' name='Rate' type='number' min='1.00' step='0.01' value=" + item.rate + "  class='text-right rate' autocomplete='off' /></td>" +
+
+                        "<td><input onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;'  onchange='ConversionCalculation($(this)); ' name='Conversion' type='number' min='1.00' step='0.01' value='1'  class='text-right conversion' autocomplete='off' /></td>" +
+                        "<td><input style='background-color: #eee;' name='Price' type='text' value='0'  class='text-right price ' readonly  tabindex='-1' /></td>" +
+                        "<td><input style='background-color: #eee;' name='UOMQty' type='text' value='0'  class='text-right uOMQty' readonly  tabindex='-1' /></td>" +
+
+                        "<td hidden><input style='background-color: #eee;' name='TotalAmount' readonly  type='text' value='0' class='text-right totalAmount '  tabindex='-1'></td>" +
+                        "<td><input style='background-color: #eee;' name='TotalMeter' readonly  type='text' value='0' class='text-right totalMeter'  tabindex='-1'></td>" +
+                        "<td><input style='background-color: #eee;' name='TotalMeterAmount' readonly  type='text' value='0' class='text-right totalMeterAmount'  tabindex='-1'></td>" +
+                        '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                    "</tr>";
+                    $("#tblDetail tbody").append(row);
+                });
+                
+                $('#myModal').modal('show');
+            });
+    }
+</script>

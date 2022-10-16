@@ -1,0 +1,288 @@
+﻿@{
+    ViewData["Title"] = "Trial Balance";
+    ViewData["CurrentPage"] = "Trial Balance";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.EntityState Trial Balance</h5>
+                </div>*@
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post" asp-action="Create" asp-controller="Report">
+                    <input type="hidden" name="ReportTitle" value="TrialBalance" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input autofocus class="form-control radio-primary" name="AccountSelection" checked="checked" data-validation="required" type="radio" value="All" id="AllAccount" onclick="allAccount();" />
+                                    <label>All Account</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input class="form-control radio-primary" name="AccountSelection" data-validation="required" type="radio" value="Selection" id="AccountSelection" onclick="selectAccount();" />
+                                    <label>Account Selection</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="chosen-select" id="StartCode" data-validation="required" name="StartCode">
+                                        <option>Please select account...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ending Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="chosen-select" id="EndCode" data-validation="required" name="EndCode">
+                                        <option>Please select account...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Year</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="Year" class="chosen-select form-control" id="accountYear" data-validation="required" data-validation-error-msg="Year is required" data-validation-error-msg-container="#year">
+                                        <option value="All">Please select a year</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" name="StartDate" id="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" name="EndDate" id="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-2">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="Level1" type="checkbox" checked />
+                                        <label for="Level1">Level 1</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="Level2" type="checkbox" checked />
+                                        <label for="Level2">Level 2</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="Level3" type="checkbox" checked />
+                                        <label for="Level3">Level 3</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="Level4" type="checkbox" checked />
+                                        <label for="Level4">Level 4</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="IsOpening" type="checkbox" checked />
+                                        <label>Trial With Opening</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="IsClosing" type="checkbox" checked />
+                                        <label>Trial With Closing</label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4" style="display:none">
+                                    <div class="checkbox checkbox-success">
+                                        <input name="HideInactive" type="checkbox">
+                                        <label for="HideInactive">Hide In-active accounts</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="text-left">
+                            <input type="button" id="saveReport" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $('#accountYear').on('click', function () {
+            $('#accountYear').find('option').not(':first').remove();
+            $.ajax({
+                dataType: 'json',
+                url: "/GL/Api/GetYear",
+            })
+                .done(function (data) {
+                    data = [...new Set(data.map(item => item.text))];
+                    $.each(data, function (i, item) {
+
+                        $('#accountYear').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                });
+        });
+        $('#accountYear').on('change', function () {
+            debugger
+            var Year = $('#accountYear').val();
+            var Start = $('#StartDate').val();
+            var StartDate = Start.split('-');
+            $('#StartDate').val(StartDate[0] + "-" + StartDate[1] + "-" + Year);
+            var End = $('#EndDate').val();
+            var EndDate = End.split('-');
+            $('#EndDate').val(EndDate[0] + "-" + EndDate[1] + "-" + Year);
+        });
+        allAccount(); //load all accounts
+
+        //Select 2 for account selection
+    $(function () {
+        var startCode = $('#StartCode');
+        var endCode = $('#EndCode');
+        bindSelect2(startCode,'/GL/ChartofAccount/GetAccounts');
+        bindSelect2(endCode,'/GL/ChartofAccount/GetAccounts');
+    });
+        //$('#StartCode').select2({
+        //    width: 'resolve',
+        //    ajax: {
+        //        url: '/GL/ChartofAccount/GetAccounts',
+        //        dataType: 'json',
+        //        delay: 250,
+        //        placeholder: {
+        //            id: '-1', // the value of the option
+        //            text: 'Select an option'
+        //        },
+        //        processResults: function (data, params) {
+        //            return {
+        //                results: data
+        //            };
+        //        },
+        //        cache: true
+        //    }
+        //});
+        //$('#EndCode').select2({
+        //    width: 'resolve',
+        //    ajax: {
+        //        url: '/GL/ChartofAccount/GetAccounts',
+        //        dataType: 'json',
+        //        delay: 250,
+        //        placeholder: {
+        //            id: '-1', // the value of the option
+        //            text: 'Select an option'
+        //        },
+        //        processResults: function (data, params) {
+        //            return {
+        //                results: data
+        //            };
+        //        },
+        //        cache: true
+        //    }
+        //});
+
+        function generateReport123() {
+            //if ((document.getElementById("AccountSelection").checked == true) &&
+            //    ((document.getElementById("StartAccunt") == undefined)
+            //            || document.getElementById("EndingAccount") == undefined)) {
+            //    alert("Please select 'Start Account' and 'Ending Account' to view report");
+            //}
+            $.post('/GL/Api/Create',
+                $("#report").serialize()).done(function (data) {
+                    debugger
+                    var reportURL = "@ViewBag.ReportPath"
+                    reportURL += "?Id=";
+                    reportURL += data;
+                    window.open(reportURL, "_blank");
+                });;
+
+        }
+
+
+        ////Toggle data Function
+        function allAccount() {
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetAccount",
+                data: { isFirst:true }
+            })
+                .done(function (data) {
+                    var option = new Option(data.text, data.id, true, true);
+                    $('#StartCode').append(option).trigger('change');
+                    $('#StartCode').trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: data
+                        }
+                    });
+                });
+
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetAccount",
+                data: { isLast: true }
+            })
+                .done(function (data) {
+                    var option = new Option(data.text, data.id, true, true);
+                    $("#EndCode").append(option).trigger('change');
+                    $("#EndCode").trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: data
+                        }
+                    });
+                });
+
+            $("#StartCode").prop("disabled", true);
+            $("#EndCode").prop("disabled", true);
+        }
+
+        function selectAccount() {
+            $("#StartCode").prop("disabled", false);
+            $("#EndCode").prop("disabled", false);
+        }
+    </script>
+
+}

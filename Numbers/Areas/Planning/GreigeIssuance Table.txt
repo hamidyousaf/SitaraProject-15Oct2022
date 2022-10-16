@@ -1,0 +1,51 @@
+
+CREATE TABLE [dbo].[GreigeIssuance](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[TransactionNo] [int] NULL,
+	[TransactionDate] [datetime2](7) NULL,
+	[SpecificationId] [int] NULL,
+	[VendorId] [int] NULL,
+	[IssueTypeId] [int] NULL,
+	[WareHouseId] [int] NULL,
+	[process] [nvarchar](100) NULL,
+	[productionId] [int] NULL,
+	[CreatedBy] [nvarchar](450) NULL,
+	[CreatedDate] [datetime2](7) NULL,
+	[UpdatedDate] [datetime2](7) NULL,
+	[UpdatedBy] [nvarchar](450) NULL,
+	[ApprovedBy] [nvarchar](450) NULL,
+	[ApprovedDate] [datetime2](7) NULL,
+	[UnApprovedBy] [nvarchar](450) NULL,
+	[UnApprovedDate] [datetime2](7) NULL,
+	[IsActive] [bit] NULL,
+	[IsDeleted] [bit] NULL,
+	[CompanyId] [int] NULL,
+	[Resp_Id] [int] NULL,
+	[IsApproved] [bit] NULL,
+ CONSTRAINT [PK_GreigeIssuance] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+
+CREATE TABLE [dbo].[GreigeIssuanceDetail](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[GreigeIssuanceId] [int] NULL,
+	[ProductionOrderDetailId] [int] NULL,
+	[GreigeQualityId] [int] NULL,
+	[RequiredQty] [decimal](18, 0) NULL,
+	[AvailableQty] [decimal](18, 0) NULL,
+	[IssuanceQty] [decimal](18, 0) NULL,
+ CONSTRAINT [PK_GreigeIssuanceDetail] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+

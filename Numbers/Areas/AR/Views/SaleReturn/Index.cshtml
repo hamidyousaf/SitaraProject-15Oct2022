@@ -1,0 +1,142 @@
+﻿@model SaleReturn
+@{
+    ViewData["Title"] = "List of Sale Return Items";
+    ViewData["CurrentPage"] = "Sale Return Items";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="SaleReturn" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="8%">@Html.DisplayNameFor(model => model.TransactionNo)</th>
+                                <th class="searchHeader" width="10%">@Html.DisplayNameFor(model => model.SRDate)</th>
+                                <th class="searchHeader" width="24%">@Html.DisplayNameFor(model => model.CustomerId)</th>
+                                <th class="searchHeader" width="8%">@Html.DisplayNameFor(model => model.IGP.IGPNo)</th>
+                                <th class="searchHeader" width="8%">@Html.DisplayNameFor(model => model.BuiltyNo)</th>
+                                <th class="searchHeader" width="8%">@Html.DisplayNameFor(model => model.Bails)</th>
+                                <th class="searchHeader" width="10%">@Html.DisplayNameFor(model => model.Status)</th>
+                                <th width="14%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/AR/SaleReturn/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [7] },
+                    {
+                        targets: [5],
+                        render: $.fn.dataTable.render.number(',','.', 0, '')
+                    }
+                ],
+                columns: [
+                    { "data": "saleReturn.transactionNo", "name": "TransactionNo", className: "text-center" },
+                    { "data": "date", "name": "SRDate", className: "text-center" },
+                    { "data": "saleReturn.customer.name", "name": "Customer.Name", className: "text-left" },
+                    { "data": "saleReturn.igp.igpNo", "name": "IGP.IGPNo", className: "text-right" },
+                    { "data": "saleReturn.builtyNo", "name": "BuiltyNo", className: "text-right" },
+                    { "data": "saleReturn.bails", "name": "Bails", className: "text-right" },
+                    { "data": "saleReturn.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "saleReturn", className: "text-center",
+                        "render": function (data, row) {
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/AR/SaleReturn/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AR/SaleReturn/Approve?id=" + data.id + "' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up'  title='Approve'></i></a>    <a  href='/AR/SaleReturn/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a>";
+                                } else {
+                                    return "<a href='/AR/SaleReturn/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>";
+                                }
+                            }
+                            else {
+                                return '<a href="/AR/SaleReturn/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>  <a href="@ViewBag.ReportPath' + data.id + '" target="_blank" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-print" title="Sale Return"></i></a>';
+                            }
+
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

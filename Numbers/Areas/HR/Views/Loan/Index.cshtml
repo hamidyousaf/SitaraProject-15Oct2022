@@ -1,0 +1,82 @@
+﻿@model IEnumerable<HRLoan>
+@{
+    ViewData["Title"] = "List of Loan";
+    ViewData["CurrentPage"] = "Loan";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>List of Loan</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Loan" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br /><br />
+                <table class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.LoanNo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Employee.Name)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.LoanDate)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.PerMonthInstalment)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.LoanAmount)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Remarks)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LoanNo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Employee.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LoanDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PerMonthInstalment)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LoanAmount)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Remarks)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Status)
+                            </td>
+                            <td>
+                                <a asp-action="Create" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit"></i></a>
+                                <a asp-action="Delete" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to delete this Loan?')"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

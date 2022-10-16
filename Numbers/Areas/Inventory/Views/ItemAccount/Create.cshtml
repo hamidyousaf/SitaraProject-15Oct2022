@@ -1,0 +1,238 @@
+﻿@model InvItemAccount
+@{
+    ViewData["Title"] = "Create Item Account";
+    ViewData["CurrentPage"] = "Item Accounts";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5>@ViewBag.EntityState Item Account</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <input type="hidden" asp-for="Id" />
+                                <div class="form-group">
+                                    <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="Name" class="form-control" data-validation="required" data-validation-error-msg="Name is required" data-validation-error-msg-container="#name" autofocus />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                        <span id="name"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="GLAssetAccountId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select id="GLAssetAccountId" name="GLAssetAccountId" class="form-control" asp-for="GLAssetAccountId" asp-items="@ViewBag.ListOfAccount" data-validation="required" data-validation-error-msg="Asset account is required" data-validation-error-msg-container="#aaccount">
+                                            <option selected="selected" disabled>Select...</option>
+                                        </select>
+                                        <span asp-validation-for="GLAssetAccountId" class="text-danger"></span>
+                                        <span id="aaccount"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="GLSaleAccountId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select name="GLSaleAccountId" class="form-control" asp-for="GLSaleAccountId" asp-items="@ViewBag.ListOfAccount" data-validation="required" data-validation-error-msg="Sale account is required" data-validation-error-msg-container="#saccount">
+                                            <option selected="selected" disabled>Select...</option>
+                                        </select>
+                                        <span asp-validation-for="GLSaleAccountId" class="text-danger"></span>
+                                        <span id="saccount"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="GLCostofSaleAccountId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-items="@ViewBag.ListOfAccount" name="GLCostofSaleAccountId" class="form-control" asp-for="GLCostofSaleAccountId" data-validation="required" data-validation-error-msg="Cost of sale account is required" data-validation-error-msg-container="#csaccount">
+                                            <option selected="selected" disabled>Select...</option>
+                                        </select>
+                                        <span asp-validation-for="GLCostofSaleAccountId" class="text-danger"></span>
+                                        <span id="csaccount"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="GLWIPAccountId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-items="@ViewBag.ListOfAccount" name="GLWIPAccountId" class="form-control" asp-for="GLWIPAccountId" data-validation="required" data-validation-error-msg="Work In Progress account is required" data-validation-error-msg-container="#wipaccount">
+                                            <option selected="selected" disabled>Select...</option>
+                                        </select>
+                                        <span asp-validation-for="GLWIPAccountId" class="text-danger"></span>
+                                        <span id="wipaccount"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label asp-for="IsActive" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-4">
+                                        <div class="checkbox checkbox-success">
+                                            <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked" />
+                                            <label for="IsActive"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-2">
+                                <a value="Back" class="btn btn-white" asp-controller="ItemAccount" asp-action="Index">List</a>
+                                <button id="SaveBtn" onclick="return Validation();" type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="ItemAccount">@ViewBag.EntityState</button>
+                                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+<script>
+    $.validate();
+    $(document).ready(function () {
+        $('#GLAssetAccountId').select2();
+        $('#GLSaleAccountId').select2();
+        $('#GLCostofSaleAccountId').select2();
+        $('#GLWIPAccountId').select2();
+        $("#SaveBtn").focus(function () {
+            $("#SaveBtnFocus").val("ON");
+        });
+        $("#SaveBtn").blur(function () {
+            $("#SaveBtnFocus").val('OFF');
+        });
+    })
+    function Validation() {
+        debugger
+        var SaveBtnFocus = $("#SaveBtnFocus").val();
+        if (SaveBtnFocus == "OFF") {
+            return false;
+        }
+            return true;
+    }
+    @*$(function () {
+        debugger
+        // bind GLaccounts select2
+        var gLAssetAccountId = $('#GLAssetAccountId');
+        var gLSaleAccountId = $('#GLSaleAccountId');
+        var gLCostofSaleAccountId = $('#GLCostofSaleAccountId');
+        bindSelect2(gLAssetAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.GLAssetAccountId);
+        bindSelect2(gLSaleAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.GLSaleAccountId);
+        bindSelect2(gLCostofSaleAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.GLCostofSaleAccountId);
+    });*@
+        //$('#GLAssetAccountId').select2({
+        //    placeholder: "Select an account",
+        //    ajax: {
+        //        url: '/GL/Api/GetAccounts',
+        //        dataType: 'json',
+        //        delay: 250,
+        //        placeholder: 'Search for a an item',
+        //        processResults: function (data, params) {
+        //            return {
+        //                results: data
+        //            };
+        //        },
+        //        cache: true
+        //    }
+        //});
+            @*var GLAssetAccountId = $('#GLAssetAccountId');
+                    var id = @Model.GLAssetAccountId;
+            $.ajax({
+                type: 'GET',
+                url: '/GL/Api/GetAccount?id=' + id
+            }).then(function (data) {
+                var option = new Option(data.text, data.id, true, true);
+                GLAssetAccountId.append(option).trigger('change');
+                GLAssetAccountId.trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });*@
+       
+
+    @*$(function () {
+        $('#GLSaleAccountId').select2({
+            placeholder: "Select an account",
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        })
+        var GLSaleAccountId = $('#GLSaleAccountId');
+        var id=@Model.GLSaleAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLSaleAccountId.append(option).trigger('change');
+            GLSaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });*@
+    @*$(function () {
+        $('#GLCostofSaleAccountId').select2({
+            placeholder: "Select an account",
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        })
+    
+        var GLCostofSaleAccountId = $('#GLCostofSaleAccountId');
+        var id=@Model.GLCostofSaleAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLCostofSaleAccountId.append(option).trigger('change');
+            GLCostofSaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });*@
+
+
+
+</script>
+}

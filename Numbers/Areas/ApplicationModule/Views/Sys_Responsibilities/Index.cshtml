@@ -1,0 +1,678 @@
+﻿@model Numbers.Entity.Models.Responsibilities
+
+@{ ViewData["Title"] = "Company Responsibilities";
+    ViewData["CurrentPage"] = "Create Responsibilities";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .jsgrid-cell {
+            padding: 0px;
+            padding-left: 5px;
+            padding-right: 2px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .select2-selection__arrow {
+            display: none;
+        }
+    </style>
+}
+
+<div class="ibox-content">
+    <form class="form-horizontal" asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div>
+            <input type="hidden" asp-for="Resp_Id" />
+        </div>
+        <div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Resp Name</label>
+                    <div class="col-lg-8">
+                        <input asp-for="Resp_Name" name="Resp_Name" autofocus class="form-control" />
+                        <span asp-validation-for="Resp_Name" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label asp-for="Description" class="col-lg-4 control-label">Description</label>
+                    <div class="col-lg-8">
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label asp-for="Effective_From_Date" class="col-lg-4 control-label">Effective From Date</label>
+                    <div class="col-lg-8">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input asp-for="Effective_From_Date" class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.Resp_Id == 0 ? CommonHelper.CurrentDate : Model.Effective_From_Date.ToString(CommonHelper.DateFormat)) />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label asp-for="Effective_To_Date" class="col-lg-4 control-label">Effective To Date</label>
+                    <div class="col-lg-8">
+                        <input asp-for="Effective_To_Date" class="form-control custom-date-picker" data-validation="required" type="text" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label for="Module_Id" class="col-lg-4 control-label">Menu</label>
+                    <div class="col-lg-8">
+                        <select name="Menu_Id" asp-for="Menu_Id" id='Menu_Id' class="form-control select-item">
+                            <option disabled selected>Select Please..</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label for="Module_Id" class="col-lg-4 control-label">Type</label>
+                    <div class="col-lg-8">
+                        <select asp-for="TypeId" asp-items="@ViewBag.POType" id='TypeId' class="form-control select-item">
+                            <option disabled selected>Select Please..</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label for="Module_Id" class="col-lg-4 control-label">Company</label>
+                    <div class="col-lg-8">
+                        <select asp-for="CompanyId" asp-items="@ViewBag.Companies" id='CompanyId' class="form-control select-item">
+                            <option disabled selected>Select Please..</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6" >
+                <div class="form-group">
+                    <label class="col-lg-4 control-label">Item Category </label>
+                    <div class="col-lg-8">
+                        <select id="RespDetails" name="Details" class="form-control" asp-items="@ViewBag.ItemCategory">
+                            <option selected="selected" value="0">Select...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-1">
+                <div class="col-lg-2">
+                    <a id="addDetail" class="btn btn-success"><i class="fa fa-plus"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ibox-content">
+
+                @*<div class="wrapper wrapper-content animated fadeIn">*@
+                <div class="table-info">
+                    <div class="tab-content ">
+                        <div id="quot" class="tab-pane fade in active">
+                            <div class="container-fluid table-responsive">
+                                <table id="tblItemCategory" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th>Item Category</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.ResponsibilityItemCategory != null)
+                                        {
+                                            foreach (var item in Model.ResponsibilityItemCategory)
+                                            {
+                                                <tr>
+                                                    <td id="RespDetailId" name"RespDetailId" class="RespDetailId" value="@item.Id" hidden>0</td>
+                                                    <td hidden> <input id="ItemCategoryId" name="ItemCategoryId" value="@item.ItemCategory.Id" class="form-control ItemCategoryId" /></td>
+                                                    <td> <input id="ItemCategory" name="ItemCategory" value="@item.ItemCategory.Code - @item.ItemCategory.Name" class="form-control ItemCategory" /></td>
+                                                    <td><a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>  <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>  </td>
+                                                </tr>
+                                            }
+                                        }
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*</div>*@
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="jsGrid"></div>
+            </div>
+        </div>
+
+        <input type="hidden" name="VoucherDetail" value="@ViewBag.VoucherDetail" />
+        <input type="hidden" name="DeletedVoucherDetail" value="" />
+        <input type="hidden" name="VoucherType" value="@ViewBag.VoucherType" />
+        <div class="m-b-lg"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-lg-4 col-lg-offset-4">
+                        <a class="btn btn-white" asp-action="List" asp-controller="Sys_Responsibilities">List</a>
+                        <input type="submit" value=@ViewBag.EntityState class="btn btn-primary" onclick="setGridValues();" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section customJS{
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var itemId = $('#Menu_Id');
+            bindSelect2(itemId, '/ApplicationModule/Api/GetAppMenus', '/ApplicationModule/Api/GetAppMenu?id=', '@ViewBag.ItemId');
+
+    });
+    </script>
+<script>
+    $("#RespDetails").select2();
+
+    $("#addDetail").click(function () {
+        $("#RespDetails").select2();
+
+        var id = $("#RespDetails").val();
+        var ItemCategoryId = $('#RespDetails option:selected').val();
+        var ItemCategoryVal = $('#RespDetails option:selected').text();
+        if (ItemCategoryId != 0) {
+            debugger
+            var Itemrow = '';
+            Itemrow = '';
+            Itemrow += '<tr>';
+            Itemrow += '<td id="RespDetailId" name="RespDetailId" class="RespDetailId" Value="0" hidden></td>';
+            Itemrow += '<td hidden > <input id="ItemCategoryId" name="ItemCategoryId"  value=' + ItemCategoryId + ' class ="form-control ItemCategoryId"   /></td>';
+            Itemrow += '<td  > <input id="ItemCategory" readonly name="ItemCategory" value="' + ItemCategoryVal + '" class ="form-control ItemCategory" readonly /></td>';
+            Itemrow += '<td><a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>        <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>    </td>';
+            Itemrow += '</tr>';
+
+            $('#tblItemCategory tbody').append(Itemrow);
+            deleteItem();
+
+        }
+        //$("#RespDetails option").remove();
+
+    });
+
+    function deleteItem() {
+        $("#tblItemCategory tr").each(function () {
+            var ItemCategoryId = $(this).closest("tr").find(".ItemCategoryId").val();
+            $('#RespDetails option[value="' + ItemCategoryId + '"]').remove();
+        });
+
+    }
+
+    function deleterow(row) {
+        debugger;
+      
+        var optionValue = $(row).closest("tr").find(".ItemCategoryId").val();
+        var optionText = $(row).closest("tr").find(".ItemCategory").val();
+        $('#RespDetails').append(new Option(optionText, optionValue));
+        //$("<option>", { value: '', selected: true }).prependTo("#RespDetails");
+        //$("#RespDetails option").eq(2).before($("<option></option>").val(optionValue).text(optionText));
+
+        $(row).closest("tr").remove();
+    }
+</script>
+
+    <!-- db script of grid-->
+    <script>
+        var accountId;
+      //  var seqId = 10;
+        var seqId = 1;
+        var accounts = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Accounts));
+        (function () {
+            var db = {
+                loadData: function (filter) {
+                    return $.grep(this.grid, function (grid) {
+                        return (!filter.Name);
+                    });
+                },
+
+                insertItem: function (insert) {
+                    this.grid.push(insert);
+                },
+
+                updateItem: function (update) {
+                    update.AccountId = accountId;
+                    return update;
+                    console.log(update);
+                },
+
+                deleteItem: function (deletingClient) {
+                    var clientIndex = $.inArray(deletingClient, this.grid);
+                    this.grid.splice(clientIndex, 1);
+                }
+
+            };
+
+            window.db = db;
+
+            db.accounts = accounts;
+            db.costcenters = [
+                { name: "Cost center 1", id: 0 },
+                { name: "Cost center 2", id: 2 },
+                { name: "Cost center 3", id: 3 }
+            ];
+            db.subaccounts = [
+                { name: "", id: 1 }
+            ];
+            db
+
+            db.grid = JSON.parse($("input[name=VoucherDetail").val());
+
+            var rows = JSON.parse($("input[name=VoucherDetail").val());
+            var lastrow = rows.length - 1;
+            if (lastrow != -1) {
+                var newSeq = rows[lastrow]["Sequence"];
+             //   seqId = newSeq + 10;
+                seqId = newSeq + 1;
+            }
+        }());
+
+        $(function () {
+            var RequireCostCenter = 0;
+              var subaccount =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubAccount));
+            //var subaccount = [];
+            var subaccounts =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubAccounts));
+            //var subaccounts = [];
+            var costcenters =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Costcenters));
+            //var costcenters = [];
+            var departments = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Departments));
+            var SubDepartments = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubDepartments));
+            //var voucherDetail = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.VoucherDetail));
+            var voucherDetail = JSON.parse($("input[name=VoucherDetail").val());
+            //var subaccounts = "";
+            $("#jsGrid").jsGrid({
+                height: "90%",
+                width: "100%",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: true,
+                inserting: true,
+                css:"",
+                pageSize: 15,
+                pageButtonCount: 5,
+                scroll: true,
+                deleteConfirm: "Do you really want to delete?",
+                data: voucherDetail,
+               /* controller: voucherDetail,*/
+                onDataLoaded: function (arg) {
+                   // updateDrop();
+                },
+                onItemInserted: function (arg) {
+
+                },
+                onItemUpdated: function (arg) {
+                },
+                onItemDeleted: function (arg) {
+                    var deletedId = $("input[name=DeletedVoucherDetail]").val();
+                    if (deletedId == "")
+                        $("input[name=DeletedVoucherDetail]").val(arg.item.Id);
+                    else {
+                        $("input[name=DeletedVoucherDetail]").val(deletedId.concat(",",arg.item.Id));
+                    }
+                },
+                fields: [
+                    { name: "Id", type: "text", width: 0, visible: false },
+                    {
+                        name: "Sequence", visible:false, title: "Seq", width: 30, type: "number", validate: "required", align: "center", sorter: "number"
+
+                    },
+                    {
+                        name: "AccountName", visible: false, title: "Account Name", width: 150, type: "select2", validate: "required", display: "AccountName"
+                    },
+                    {
+                        name: "SubAccountIdName", visible: false, title: "Sub Account", width: 100, type: "select", items: subaccounts, validate: "required", valueField: "Id", textField: "Description"
+                    },
+                    //department
+                    {
+                        name: "DepartmentId", title: "Department", width: 100, type: "select", items: departments, validate: "required", valueField: "Id", textField: "Name",
+                        insertTemplate: function () {
+
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartment?id=' + input.val()
+                                }).then(function (data) {
+                                    grid.fields[5].insertControl.empty();
+                                  //  grid.fields[5].insertControl.append($("<option />").val(0).text("N/A"));
+                                    grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                    for (var i = 0; i < data.length; i++) {
+
+                                        grid.fields[5].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartment?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[5].editControl.empty();
+                                    grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+                                   // grid.fields[5].editControl.append($("<option />").val(0).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        grid.fields[5].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+                            });
+                            //if (args != 0) {
+                            //    $.ajax({
+                            //        type: 'GET',
+                            //        url: '/GL/Voucher/GetDepartmentById?id=' + args
+                            //    }).then(function (data) {
+                            //
+
+                            //        grid.fields[4].editControl.empty();
+                            //        //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                            //        for (var i = 0; i < data.length; i++) {
+                            //            // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                            //            grid.fields[4].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].name));
+                            //        }
+                            //    });
+                            //} else {
+                            //    grid.fields[4].editControl.empty();
+                            //    grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                            //}
+                            return input;
+                        },
+                    },
+
+                    //Sub Depart
+                    {
+                        name: "SubDepartmentId", title: "Sub Depart", width: 100, type: "select", items: SubDepartments, validate: "required", valueField: "Id", textField: "Name",
+
+                        insertTemplate: function () {
+
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + input.val()
+                                }).then(function (data) {
+                                    grid.fields[6].insertControl.empty();
+                                   // grid.fields[6].insertControl.append($("<option />").val(1).text("N/A"));
+
+                                    for (var i = 0; i < data.length; i++) {
+
+
+                                        grid.fields[6].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[6].editControl.empty();
+                                  //  grid.fields[6].editControl.append($("<option />").val(0).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+
+                                        grid.fields[6].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+
+                            });
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartmentById?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[5].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[5].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].name));
+                                    }
+                                });
+                            }
+                            else {
+                                grid.fields[5].editControl.empty();
+                                grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+                            }
+                            return input;
+                        },
+
+                    },
+
+                    {
+                        name: "CostCenterId", title: "Cost Center", width: 100, type: "select", items: costcenters, validate: [
+                            "required",
+                            function (value, item) {
+                                //var input = this.__proto__.editTemplate.call(this);
+                                //var grid = this._grid;
+
+                                if (RequireCostCenter != 0 && item.CostCenterId == 0) {
+                                    alert('Select Cost Center..');
+                                    return;
+                                }
+
+                                return 1;
+                            }
+                        ], valueField: "Id", textField: "Description",
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[6].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[6].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].description));
+                                    }
+                                });
+                            } else {
+                                grid.fields[6].editControl.empty();
+                                grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+                            }
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[6].editControl.empty();
+                                    //  grid.fields[6].editControl.append($("<option />").val(0).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+
+                                        grid.fields[6].editControl.append($("<option />").val(data[i].id).text(data[i].code));
+                                    }
+                                });
+
+                            });
+                            return input;
+                        },
+                    } ,
+                    //Sub Account
+                    {
+                        name: "Description", type: "text", width: 100,
+                        insertTemplate: function () {
+                            var input = this.__proto__.insertTemplate.call(this);
+                            input.val($("textarea[name=Description").val());
+                            input.attr("maxlength", $("textarea[name=Description").attr('maxlength'));
+                            return input;
+                        },
+                        editTemplate: function (value, data) {
+                            var input = this.__proto__.editTemplate.call(this);
+                            input.val(value);
+                            input.attr("maxlength", $("textarea[name=Description").attr('maxlength'));
+                            return input;
+                        }
+                    },
+                    { type: "control" }
+                ]
+            });
+        });
+
+        function updateDrop() {
+
+            var debit = 0;
+            var credit = 0;
+            var rows = $("#jsGrid").jsGrid("option", "data");
+            var length = rows.length;
+            for (var i = 0; i < length; i++) {
+                var row = rows[i];
+                debit += parseFloat(row["Debit"]);
+                credit += parseFloat(row["Credit"]);
+            }
+            $("#TotalDebit").html(Math.round((debit) * 100) / 100);
+            $("#TotalCredit").html(Math.round((credit) * 100) / 100);
+            var difference = Math.round((debit - credit) * 100) / 100;
+            $("#TotalDifference").html(difference);
+        }
+        function submitVoucher() {
+            var items = $("#jsGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=VoucherDetail]").val(json); //set JS tree data to hidden field
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+
+            $(".jsgrid-mode-button").click();
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(".jsgrid-grid-header").css("overflow-x", "scroll");
+        });
+    </script>
+    <script>
+        function check(form) {
+
+            var chk = 1;
+            var SubAccount = $("#Nic").val();
+            var Department = $("#dateofbirth").val();
+            var SubDepartment = $("#dateofjoining").val();
+            var CostCenter = $("#firstpay").val();
+
+            if (SubAccount == "") {
+
+                $.notify("Please Fill CNIC Field", "error");
+                chk = 0;
+            }
+            if (Department == "0001-01-01") {
+
+                chk = 0;
+                $.notify("Please Fill Date of Birth Field", "error");
+            }
+            if (SubDepartment == "0001-01-01") {
+                chk = 0;
+                $.notify("Please Fill Date of Joining Field", "error");
+            }
+            if (CostCenter == 0) {
+
+                chk = 0;
+                $.notify("Please Fill Department Field", "error");
+            }
+
+            if (chk == 0) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+    </script>
+    <script>
+        function setGridValues() {
+            setUniversityGrid();
+        }
+        function setUniversityGrid() {
+            var items = $("#jsGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=VoucherDetail]").val(json);
+        }
+    </script>
+
+}

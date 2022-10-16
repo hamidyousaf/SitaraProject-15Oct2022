@@ -1,0 +1,518 @@
+﻿@model RegisterViewModel
+@{
+    ViewBag.Title = "Register to Numbers Portal";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h3>Edit records in Numbers</h3>
+                    <p>Update as per requirements.</p>
+                </div>*@
+            <div class="ibox-content ibox-content-">
+                <form class="form-horizontal" asp-action="Register" enctype="multipart/form-data" asp-controller="Account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="text" asp-for="Id" name="Id" hidden />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="FullName" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="FullName" class="form-control" />
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="UserName" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="UserName" class="form-control" />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Password" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Password" class="form-control" />
+                                    <span asp-validation-for="Password" id="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="ConfirmPassword" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ConfirmPassword" class="form-control" data-validation="required" />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                </div>
+                                <label class="col-md-8 text-danger">Password Length 10 Letters, one letter must be capital and one special character like @@ # , use alphanumeric.</label>
+                            </div>
+                            <div class="form-group" hidden>
+                                <label asp-for="UserRoles" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="UserRoles" class="form-control" asp-for="UserRoles" asp-items="@ViewBag.RoleName"></select>
+                                    <span asp-validation-for="UserRoles" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="@Html.DisplayFor(modelItem => Model.Photo)" id="preview-img" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+                            @*else if (Model.Photo == null)
+            {
+                <img src="~/img/userphotos/download.png" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+            }*@
+                            @*<img src="@Html.DisplayFor(modelItem => Model.Photo)" alt="Oops...Something went wrong while displaying picture" width="150" height="150" />*@
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input name="img" type="file" asp-for="Photo" id="preview-file" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class=" col-lg-3 ">
+                            <div class="form-group">
+
+                                <div class="col-lg-1">
+                                    <input class="checkbox" asp-for="AllDepartment" id="AllDepartment" />
+                                    <span class="text-danger"></span>
+                                </div>
+                                <label class="col-lg-6 control-label">All Department</label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-3" style="margin-left:20px;">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Responsibility</label>
+                                <div class="col-lg-8">
+                                    <select id="RespDetails" name="Details" class="form-control" asp-items="@ViewBag.Responsibility">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Remarks</label>
+                                <div class="col-lg-8">
+                                    <input class="form-control" id="RemarksId" />
+                                    <span class="text-danger"></span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                       
+                        <div class="col-lg-1">
+                            <div class="col-lg-2">
+                                <a id="addDetail" class="btn btn-success"><i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    <div class="row">
+                        <div class="ibox-content">
+
+                            @*<div class="wrapper wrapper-content animated fadeIn">*@
+                            <div class="table-info">
+                                <div class="tab-content ">
+                                    <div id="quot" class="tab-pane fade in active">
+                                        <div class="container-fluid">
+                                            <table id="tblResponsibility" style="table-layout:fixed" class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden>Id</th>
+                                                        <th>Responsibility</th>
+                                                        @*<th>Responsibility key</th>*@
+                                                        <th>Date From</th>
+                                                        <th>Date To</th>
+                                                        <th>Remarks</th>
+                                                        <th>Approve</th>
+                                                        <th>UnApprove</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.Sys_ResponsibilitiesDetailList)
+                                                    {
+                                                        var fromDate = (item.Date_from.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat));
+                                                        var toDate = (item.Date_To.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat));
+
+                                                        <tr>
+
+                                                            @*<td id="RespId" name="RespId" class="RespId" value="@item.Id" hidden></td>*@
+                                                            <td hidden> <input id="RespId" name="RespId" value="@item.Id" class="form-control RespId" /></td>
+                                                            <td hidden> <input id="ResponsibilityId" name="ResponsibilityId" value="@item.ResponsibilityId" class="form-control ResponsibilityId" /></td>
+                                                            <td> <input id="Responsibility" name="Responsibility" value="@item.Responsibility" class="form-control Responsibility" readonly /></td>
+                                                            <td> <input id="DateFrom" name="DateFrom" value="@fromDate" class="form-control DateFrom" readonly /></td>
+                                                            <td> <input id="DateTo" name="DateTo" value="@toDate" class="form-control DateTo" readonly /></td>
+                                                            <td> <input id="Remarks" name="Remarks" value="@item.Remarks" class="form-control" readonly /></td>
+
+                                                            @if (item.Approve == true)
+                                                            {
+                                                                <td><input onclick="CheckApprove($(this));" type="checkbox" checked /></td>
+                                                                <td hidden><input name="Approve" class="Approve" value="on" /></td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td><input onclick="CheckApprove($(this));" type="checkbox" /></td>
+                                                                <td hidden><input name="Approve" class="Approve" value="off" /></td>
+                                                            }
+                                                            @if (item.UnApprove == true)
+                                                            {
+                                                                <td><input onclick="CheckUnApprove($(this));" type="checkbox" checked /></td>
+                                                                <td hidden><input class="UnApprove" name="UnApprove" value="on" /></td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td><input onclick="CheckUnApprove($(this));" type="checkbox" /></td>
+                                                                <td hidden><input class="UnApprove" name="UnApprove" value="off" /></td>
+                                                            }
+                                                            <td class="text-center"><a id="delrow" @*onclick="deleterow(@item.Id);" *@ class="btn btn-danger m-t-n-xs"> <i id="delrow" @*onclick="deleterow(@item.Id);" *@ class="fa fa-trash" title="Delete"></i> </a>  <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>  </td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @*</div>*@
+                        </div>
+                    </div>
+
+                    @* DepartMent Working *@
+                <div class="row">
+                    <div class="col-lg-4" style="margin-left:20px;">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Department </label>
+                            <div class="col-lg-8">
+                                <select id="DepDetails" name="Details" class="form-control" asp-items="@ViewBag.Departments">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" style="margin-left:20px;">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Sub Department </label>
+                            <div class="col-lg-8">
+                                <select id="SubDepDetails" name="SubDepDetails" class="form-control" asp-items="@ViewBag.Departments">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="col-lg-2">
+                            <a id="addDepDetail" class="btn btn-success"><i class="fa fa-plus"></i></a>
+                        </div>
+                    </div>
+
+                </div>
+                    <div class="row">
+                        <div class="ibox-content">
+                            <textarea style="display:none" name="IdsDepDeleted" id="IdsDepDeleted"></textarea>
+                            <div class="table-info">
+                                <div class="tab-content ">
+                                    <div id="quot" class="tab-pane fade in active">
+                                        <div class="container-fluid">
+                                            <table id="tblDepartment" style="table-layout:fixed" class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden>Id</th>
+                                                        <th>Department</th>
+                                                        <th>Sub Department</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.SysUserDepartment)
+                                                    {
+                                                    <tr>
+
+                                                        @*<td id="RespId" name="RespId" class="RespId" value="@item.Id" hidden></td>*@
+                                                        <td hidden> <input id="DepId" name="DepId" value="@item.Id" class="form-control DepId" /></td>
+                                                        <td hidden> <input id="DepartmentId" name="DepartmentId" value="@item.DepartmentId" class="form-control DepartmentId" /></td>
+                                                        <td> <input id="Department" name="Department" value="@item.Department" class="form-control Department" readonly /></td>
+                                                        <td hidden> <input id="SubDepartmentId" name="SubDepartmentId" value="@item.SubDepartmentId" class="form-control SubDepartmentId" /></td>
+                                                        <td> <input id="SubDepartment" name="SubDepartment" value="@item.SubDepartment" class="form-control SubDepartment" readonly /></td>
+                                                        <td class="text-center"><a id="delrow" @*onclick="deleterow(@item.Id);" *@ class="btn btn-danger m-t-n-xs"> <i id="delrow" @*onclick="deleterow(@item.Id);" *@ class="fa fa-trash" title="Delete"></i> </a>  <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>  </td>
+                                                    </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-2">
+                                    @*<a class="btn btn-white" onclick="javascript:window.history.back();">Back</a>*@
+                                    @*<a class="btn btn-white" asp-action="Index">Back</a>*@
+                                    <input type="submit" value="Back" class="btn btn-white" asp-controller="Account" asp-action="Index" />
+                                    <input type="submit" asp-action="EditRegisteredUser" value="Update" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        $(document).ready(function () {
+            
+            $("#RespDetails").select2();
+            $("#DepDetails").select2();
+            $("#SubDepDetails").select2();
+
+            $("#addDetail").click(function () {
+                $("#RespDetails").select2();
+                
+                var id = $("#RespDetails").val();
+                var ResponsibilityVal = $('#RespDetails option:selected').text();
+                var ResponsibilityId = $('#RespDetails option:selected').val();
+                //alert(ResponsibilityVal);
+                //alert(id);
+                $.ajax({
+                    url: '/Account/GetResponsibilities/' + id,
+                    type: 'GET',
+                }).done(function (data) {
+                    var remarks = $("#RemarksId").val();
+                    //alert(data.effective_From_Date);
+                    var Itemrow = '';
+                    Itemrow = '';
+                    Itemrow += '<tr>';
+                    // Itemrow += '<td id="RespId" name="RespId" class="RespId" hidden>0</td>';
+                    Itemrow += '<td  hidden> <input id="RespId" name="RespId" value=' + 0 + ' class ="form-control RespId"   /></td>';
+                    Itemrow += '<td  hidden> <input id="ResponsibilityId" name="ResponsibilityId" value=' + ResponsibilityId + ' class ="form-control ResponsibilityId" readonly  /></td>';
+                    Itemrow += '<td  > <input id="Responsibility" name="Responsibility" value="' + ResponsibilityVal + '" class ="form-control Responsibility" readonly   /></td>';
+                    //Itemrow += '<td > <input name="ResponsibilityKey"    class ="form-control ResponsibilityKey"   /></td>';
+                    Itemrow += '<td> <input id="DateFrom" name="DateFrom"  value=' + data.effective_From_Date + '  class ="form-control DateFrom" readonly /></td>';
+                    Itemrow += '<td> <input id="DateTo" name="DateTo" value=' + data.effective_To_Date + '   class ="form-control DateTo" readonly /></td>';
+                    Itemrow += '<td> <input id="Remarks" name="Remarks" value="' + remarks + '"  class="form-control" readonly /></td>';
+
+                    Itemrow += '<td text-center><input onclick="CheckApprove($(this));" type="checkbox" /></td>';
+                    Itemrow += '<td hidden><input name="Approve"  class="Approve" value="off"/></td>';
+
+                    Itemrow += '<td text-center><input onclick="CheckUnApprove($(this));" type="checkbox" /></td>';
+                    Itemrow += '<td hidden><input name="UnApprove" class="UnApprove" value="off"/></td>';
+
+                    Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>        <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>    </td>';
+
+                    Itemrow += '</tr>';
+
+                    $('#tblResponsibility tbody').append(Itemrow);
+                });
+
+                deleteItem();
+                //$("#RespDetails option").remove();
+               
+            });
+
+            $("#addDepDetail").click(function () {
+                $("#RespDepDetails").select2();
+
+                var id = $("#DepDetails").val();
+                var DepartmentVal = $('#DepDetails option:selected').text();
+                var DepartmentId = $('#DepDetails option:selected').val();
+                var SubDepartmentVal = $('#SubDepDetails option:selected').text();
+                var SubDepartmentId = $('#SubDepDetails option:selected').val();
+                debugger;
+                if (DepartmentVal == "Select...") {
+
+                    swal("", "Please Select Department first", "warning");
+
+                } else if (SubDepartmentVal == "Select...") {
+
+                    swal("", "Please Select Sub Department first", "warning");
+                } else {
+                    //alert(ResponsibilityVal);
+                    //alert(id);
+                    $.ajax({
+                        url: '/Account/GetResponsibilities/' + id,
+                        type: 'GET',
+                    }).done(function (data) {
+                        var remarks = $("#RemarksId").val();
+                        //alert(data.effective_From_Date);
+                        var Itemrow = '';
+                        Itemrow = '';
+                        Itemrow += '<tr>';
+                        // Itemrow += '<td id="RespId" name="RespId" class="RespId" hidden>0</td>';
+                        Itemrow += '<td  hidden> <input id="DepId" name="DepId" value=' + 0 + ' class ="form-control DepId"   /></td>';
+                        Itemrow += '<td  hidden> <input id="DepartmentId" name="DepartmentId" value=' + DepartmentId + ' class ="form-control DepartmentId" readonly  /></td>';
+                        Itemrow += '<td  > <input id="Department" name="Department" value="' + DepartmentVal + '" class ="form-control Department" readonly   /></td>';
+                        Itemrow += '<td  hidden> <input id="SubDepartmentId" name="SubDepartmentId" value=' + SubDepartmentId + ' class ="form-control SubDepartmentId" readonly  /></td>';
+                        Itemrow += '<td  > <input id="SubDepartment" name="SubDepartment" value="' + SubDepartmentVal + '" class ="form-control SubDepartment" readonly   /></td>';
+
+                        Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>        <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>    </td>';
+
+                        Itemrow += '</tr>';
+
+                        $('#tblDepartment tbody').append(Itemrow);
+                    });
+
+                    deleteDepartmentItem();
+                    //$("#RespDetails option").remove();
+                }
+            });
+
+            deleteItem();
+            deleteDepartmentItem();
+
+            $('#DepDetails').change(function () {
+                debugger;
+                var department = $("#DepDetails option:selected").val();
+                $.ajax({
+                    type: 'GET',
+                    url: '/GL/CostCenter/GetSubDivisions?id=' + department,
+                }).done(function (data) {
+                    debugger;
+                    if (data != null) {
+                        $('#SubDepDetails').empty();
+                        $('#SubDepDetails').append($('<option>', {
+                            value: 0,
+                            text: "Select..."
+                        }));
+                        $.each(data, function (i, item) {
+                            $('#SubDepDetails').append($('<option>', {
+                                value: item.id,
+                                text: item.name
+                            }));
+                        });
+                    }
+                });
+
+            });
+
+        });
+
+    </script>
+
+    <script>
+ 
+        $("#tblResponsibility tbody").on('click', '#delrow', function () {
+            
+            $(this).closest('tr').remove();
+            var itemId = $(this).closest("tr").find(".RespId").val();
+            if (itemId != null) {
+                debugger;
+                ids.push(itemId);
+                $('#IdsDeleted').text(ids);
+            } 
+        });
+        $("#tblDepartment tbody").on('click', '#delrow', function () {
+            debugger;
+            $(this).closest('tr').remove();
+            var itemId = $(this).closest("tr").find(".DepId").val();
+            if (itemId != null) {
+                debugger;
+                idsDep.push(itemId);
+                $('#IdsDepDeleted').text(idsDep);
+            }
+        });
+    </script>
+
+    <script>
+
+        function editrow(row) {
+            debugger;
+            row.closest("tr").find("#Responsibility").attr("readonly", false);
+            row.closest("tr").find("#DateFrom").attr("readonly", false);
+            row.closest("tr").find("#DateTo").attr("readonly", false);
+            row.closest("tr").find("#Remarks").attr("readonly", false);
+
+            row.closest("tr").find("#doneEdit").show();
+            row.closest("tr").find("#editrow").hide();
+
+        }
+        function doneEdit(row) {
+            
+            debugger;
+            row.closest("tr").find("#DetailDescription").attr("readonly", true);
+            row.closest("tr").find("#DateFrom").attr("readonly", true);
+            row.closest("tr").find("#DateTo").attr("readonly", true);
+            row.closest("tr").find("#Remarks").attr("readonly", true);
+
+            row.closest("tr").find("#doneEdit").hide();
+            row.closest("tr").find("#editrow").show();
+        }
+
+
+    </script>
+
+    <script>
+        //Method to delete the list item
+        function deleteItem( ) {
+            $("#tblResponsibility tr").each(function () {
+                debugger;
+                var ResponsibilityId = $(this).closest("tr").find(".ResponsibilityId").val();
+                $('#RespDetails option[value="' + ResponsibilityId + '"]').remove();
+            });
+           
+        }
+        function deleteDepartmentItem() {
+            $("#tblDepartment tr").each(function () {
+                var subDepartmentId = $(this).closest("tr").find(".SubDepartmentId").val();
+                $('#SubDepDetails option[value="' + subDepartmentId + '"]').remove();
+            });
+
+        }
+        function CheckApprove(row) {
+            debugger
+            var index = row.closest("tr").index();
+            var val = row.closest("tr").find('.Approve').val()
+
+            if (val == "on") {
+                row.closest("tr").find('.Approve').val("off");
+            } else if (val == "off") {
+                row.closest("tr").find('.Approve').val("on");
+            } else {
+                row.closest("tr").find('.Approve').val("");
+            }
+        }
+        function CheckUnApprove(row) {
+            debugger
+            var index = row.closest("tr").index();
+            var val = row.closest("tr").find('.UnApprove').val();
+            if (val == "on") {
+                row.closest("tr").find('.UnApprove').val("off");
+            } else if (val == "off") {
+                row.closest("tr").find('.UnApprove').val("on");
+            } else {
+                row.closest("tr").find('.UnApprove').val("");
+            }
+        }
+    </script>
+
+}
+
+
+
+

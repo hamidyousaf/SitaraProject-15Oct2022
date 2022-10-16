@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Numbers.Entity.ViewModels.RulesGroupVm>
+@{
+    ViewData["Title"] = "List";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                    <div class="text-center">
+                        @*<h5>List of SecurityProfiles</h5>*@
+
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="RulesApproval" asp-action="Index"><strong>Create New</strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sys_Rules_Approval.Id)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sys_Rules_Approval.Rule_Name)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sys_Rules_Approval.Description)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Sys_Rules_Approval.Type)
+                                </th>
+
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sys_Rules_Approval.Id)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sys_Rules_Approval.Rule_Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sys_Rules_Approval.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Sys_Rules_Approval.Type)
+                                    </td>
+
+                                    <td>
+                                        <a asp-action="Index" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Sys_Rules_Approval.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="DeleteProfile" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Sys_Rules_Approval.Id"><i class="fa fa-trash" title="Delete"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

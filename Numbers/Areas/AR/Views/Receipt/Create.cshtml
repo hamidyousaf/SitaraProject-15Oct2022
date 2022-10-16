@@ -1,0 +1,621 @@
+﻿@model ARReceiptViewModel
+@{ ViewData["Title"] = "Create Receipt";
+    ViewData["CurrentPage"] = "Receipt";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="Receipt" enctype="multipart/form-data">
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="ReceiptNo"></label>
+                            <div class="input-group">
+                                @if (Model.ReceiptNo == 0)
+                                {
+                                    <input Value="" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input asp-for="ReceiptNo" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="ReceiptDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="ReceiptDate" data-validation="required" data-validation-error-msg="Receipt Date is required" data-validation-error-msg-container="#rDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.ReceiptDate.ToString(CommonHelper.DateFormat))"  />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="BankCashAccountId"></label>
+                            <Select asp-for="BankCashAccountId" tabindex="1" data-validation="required" data-validation-error-msg="Bank Cash is required" data-validation-error-msg-container="#bCash" class="form-control">
+                                <option selected disabled>Select...</option>
+                            </Select>
+                            <p id="bCash"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="FourthLevelAccountId"></label>
+                            <Select asp-for="FourthLevelAccountId" asp-items="Model.FourthLevelAccountLOV" tabindex="1" data-validation="required" data-validation-error-msg="Bank Cash is required" data-validation-error-msg-container="#bCash" class="form-control">
+                                <option selected disabled>Select...</option>
+                            </Select>
+                            <p id="bCash"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3" hidden>
+                        <div class="form-group">
+                            <label asp-for="PaymentModeId"></label>
+                            <Select asp-for="PaymentModeId" asp-items="@ViewBag.PaymentMode" class="form-control">
+                                <option selected value="0"></option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="DocumentNo"></label>
+                            <input asp-for="DocumentNo" type="text" tabindex="2" class="form-control" />
+                        </div>
+                    </div>
+
+                    
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Item Category</label>
+                            <Select name="ItemCategory1" asp-for="ItemCategoryId" tabindex="3" asp-items="@ViewBag.CategoryList" id="ItemCategory" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#ItemCategory">
+                                <option selected disabled>Select...</option>
+                            </Select>
+                            <p id="ItemCategory"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CityId">City</label>
+                            <Select asp-for="CityId" name="CityId" asp-items="@ViewBag.AppCities" tabindex="4" id="City1" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#City">
+                                <option selected disabled>Select...</option>
+                            </Select>
+                            <p id="City"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select asp-for="CustomerId" name="Customerid" tabindex="5" asp-items="@ViewBag.Custmer" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2">
+                        <div class="form-group">
+                            <label> Sale Person</label>
+                            <div class="input-group">
+                                <input asp-for="SalePerson" class="form-control " id="SalePerson" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2">
+                        <div class="form-group">
+                            <label -for="ReceiptTotal">Received Total</label>
+                            <input asp-for="TotalReceivedAmount" name="TotalReceivedAmount" tabindex="6" onkeypress="return isNumberKey(event)" id="ReceiptAmount" class="form-control text-right" />
+                        </div>
+                    </div>
+                   
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-2">
+                        <div class="form-group">
+                            <label -for="ReceiptTotal">Remarks</label>
+                            <input asp-for="Remarks" name="Remarks" tabindex="6" id="Remarks" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2" hidden>
+                        <div class="form-group">
+                            <label> Customer Balance</label>
+                            <div class="input-group">
+                                <input class="form-control text-right" id="CustomerBalance" value="0.00" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-2" style="margin-top:10px;" hidden>
+                        <div class="form-group">
+                            <label> </label>
+                            <div class="input-group">
+                                <button id="addclick" type="button" tabindex="7" class="btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="row">
+            <div class="col-lg-2 col-sm-12">
+                <div class="form-group">
+                    <label -for="ReceiptTotal">Received Total</label>
+                    <input asp-for="TotalReceivedAmount" name="TotalReceivedAmount" class="form-control" />
+                </div>
+            </div>
+            <div class="col-lg-10 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Remarks"></label>
+                    <textarea asp-for="Remarks" rows="1" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>*@
+
+                    <div class="spinner-border text-danger"></div>
+                </div>
+                <div class="row" hidden>
+                    <div class="col-md-12 col-lg-12">
+                        <div>
+                            <table id="tblDetail" class="table table-bordered table-striped withscroll" style=" width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Sale Person</th>
+                                        <th>Item Category</th>
+                                        <th>City</th>
+                                        <th>Receipt Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+                @*<div class="col-lg-2 col-sm-4 hide">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Currency Exchange
+                            </div>
+                            <div class="panel-body">
+                                <label asp-for="Currency"></label>
+                                <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" class="form-control" name="Currency" data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency"></select>
+                                <p id="currency"></p>
+                                <label asp-for="CurrencyExchangeRate"></label>
+                                <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Exchange rate is required" data-validation-error-msg-container="#exchangeRate" />
+                                <p id="exchangeRate"></p>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+
+
+            <div class="ibox-title" hidden>
+                <h5 class="font-bold">Receipt Invoices</h5>
+                <p id="p"></p>
+            </div>
+
+            <div class="text-right mb-3" hidden>
+                <a class="btn btn-success" onclick="getUnpaidInvoices();">Get items from Invoice</a>
+                @*<a id="add-Receipt-invoice" class="btn btn-success add-Receipt-invoice"><i class="fa fa-plus"></i></a>*@
+            </div>
+            <!--Page level calculations like total amount  etc-->
+            <div class="ibox"hidden>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-lg-12 justify-content-end">
+                            @* <div class="col-lg-2 col-sm-4"> <label asp-for="TotalReceivedAmount"></label> <input asp-for="TotalReceivedAmount" name="TotalReceivedAmount" id="TotalReceivedAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>*@
+                            @*<div hidden class="col-lg-2"><label hidden asp-for="InvoiceAdjusted"></label> <input hidden asp-for="InvoiceAdjusted" name="InvoiceAdjusted" id="InvoiceAdjusted" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>*@
+                            <div class="col-lg-2 col-sm-4"><label>Grand Total</label> <input id="GrandTotal" class="form-control text-right" readonly placeholder="0.00" tabIndex="-1" /></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+            <div class="container">
+                <!-- Trigger the modal with a button -->
+                <!-- Modal -->
+                <div class="modal fade" id="invoiceModal" role="dialog" style="margin-left:0px">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Pending Invoices</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row text-center">
+                                    <div class="col-md-12">
+                                        <div class="ibox ">
+                                            <p id="itemTable"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+
+            @*<div class="row">
+
+                    <div class="col-lg-4 col-sm-4">
+                        <div class="form-group">
+                            <label asp-for="Attachment"></label>
+                            <div class="input-group">
+                                <input asp-for="Attachment" type="file" name="Attachment" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+
+            <div class="text-left mb-3">
+                <a asp-controller="Receipt" asp-action="Index" tabindex="8" class="btn btn-white">List</a>
+                @if (Model.Status != "Approved")
+                {
+                    <button onclick="ReceiptForm()" type="button" tabindex="9" class="btn btn-primary">@ViewBag.EntityState</button> }
+                else
+                {
+                    <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" tabindex="9" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>}
+            </div>
+        </div>
+    </form>
+
+</div>
+@section customJS{
+    <script src="~/js/AR/receiptInvoices.js"></script>
+    <script>
+        $.validate();
+
+    $(function () {
+        // bind customer select2
+
+        //var select2 = $('#CustomerId');
+        //bindSelect2(select2, '/AR/Api/GetCustomers', '/AR/Api/GetCustomer?id=', @Model.CustomerId);
+        // bind bankCash account select2
+        var bankCashAccountId = $('#BankCashAccountId');
+        bindSelect2(bankCashAccountId, '/GL/Api/GetCashBankAccounts','/GL/Api/GetCashBankAccount?id=' ,@Model.BankCashAccountId);
+    });
+
+        $(function () {
+               if ("@Model.Status" == "Approved") {
+                   $("form select, form input, form textarea").not(":submit").each(function (e) {
+                       $(this).attr("disabled", "disabled");
+                   });
+               }
+        });
+       @*$('#CustomerId').select2({
+            placeholder: 'Select a customer',
+            width: 'resolve',
+            ajax: {
+                url: '/AR/Api/GetCustomers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if ("@ViewBag.Id" != null)
+            {
+                var id = "@ViewBag.Id";
+            }
+        var accountSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetCustomer?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+          //to disable everyField after approval
+
+    </script>
+    <script>
+         //Select For BankCashAccountId
+        $('#BankCashAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for the Bank Account',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+         // Fetch the preselected item, and add to the control
+        @*var id = @Model.BankCashAccountId;
+        var accountSelect = $('#BankCashAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetCashBankAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+            });*@
+        var skipIds = [];//skip from loading table rows
+        function getUnpaidInvoices() {
+            var customerId = $('#CustomerId').val();
+            var counter = 1;
+            // AJAX request
+            $.ajax({
+                url: '/AR/Receipt/GetUnpaidInvoicesByCustomerId',
+                type: 'POST',
+                method:'POST',
+                data: { id: customerId, skipIds: skipIds },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#invoiceModal').modal('show');
+                },
+                fail: function (response) {
+                    //console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+        $('#button').click(function () {
+            var table = document.getElementById('invoiceTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            var arrLength = arrayOfValues.length;
+           var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (i = 0; i < arrLength; i++) {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/AR/Receipt/GetSaleInvoice?saleInvoiceItemId=' + parseInt(values[i]),
+                    beforeSend: function () {
+                        skipIds.push(values[i]);
+                        $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        $('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+                    $('#p').append(data);
+                    $('#button').prop('disabled', false);
+                    $('#invoiceModal').modal("hide");
+                }).fail(function (error) {
+                   // console.log(error.responseText);
+                });
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#CustomerId').select2();
+            $('#FourthLevelAccountId').select2();
+            var invoices = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Invoices));
+            if (invoices != null) {
+                for (i = 0; i < invoices.length; i++) {
+                    $.ajax({
+                        type: 'GET',
+                        async: false,
+                        url: '/AR/Receipt/GetReceiptInvoices',
+                        data: { id: invoices[i].Id, invoiceId: invoices[i].InvoiceId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+        });
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+
+
+    @* Script to Get Customer Balance on Create mode *@
+    <script>
+
+        $('#customerid').on('change', function () {
+            // $('#iGP').find('option').not(':first').remove();
+            var cusid = $('#customerid').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetCustomerBalance",
+                data: { customerId: cusid }
+            }).done(function (data) {
+                $('#CustomerBalance').val(data);
+            });
+        })
+    </script>
+
+    @* Script to Get Customer Balance on edit mode *@
+    @*<script>
+            debugger
+            if (@ViewBag.Id !=null) {
+                var cusid = @ViewBag.Id;
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/Api/GetCustomerBalance",
+                    data: { customerId: cusid }
+                }).done(function (data) {
+                    debugger
+                    $('#CustomerBalance').val("");
+                    $('#CustomerBalance').val(data);
+                });
+            }
+        </script>*@
+
+
+    @* Script for Get Customers on change of cities *@
+    <script>
+        $('#City1').on('change', function () {
+            // $('#iGP').find('option').not(':first').remove();
+            var CityId = $('#City1').val();
+            var CategoryId = $('#ItemCategory').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetCustomersCityAndCategoryWise",
+                data: { CityId: CityId, CategoryId: CategoryId }
+            }).done(function (data) {
+                $('#customerid').find('option').remove();
+                $('#customerid').append($('<option>', {
+                    value: "",
+                    text: "Select..."
+                }));
+                $.each(data, function (i, item) {
+
+                    $('#customerid').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+        })
+    </script>
+
+    @* Script to Get SalePerson Balance on Create mode *@
+    <script>
+
+        $('#customerid').on('change', function () {
+            // $('#iGP').find('option').not(':first').remove();
+            var cusid = $('#customerid').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetSalePersonbyCustomer",
+                data: { CustomerId: cusid }
+            }).done(function (data) {
+                $('#SalePerson').val("");
+                $('#SalePerson').val(data);
+            });
+        })
+    </script>
+
+    @* To append row one by one in table *@
+    <script>
+        $('#addclick').on('click', function () {
+            //if ($("#DepId").find(":selected").text() != "Please select") {
+            if ($('#ItemCategory').val() == null || $('#ItemCategory').val() == '') {
+                swal('', 'Please select Item Category', 'warning');
+                return false
+            }
+            else if ($('#City1').val() == null || $('#City1').val() == '') {
+                swal('', 'Please select City', 'warning');
+                return false;
+            } else if ($('#customerid').val() == null || $('#customerid').val() == '') {
+                swal('', 'Please select Customer', 'warning');
+                return false
+            }
+            var CustomerId = $('#customerid').val();
+            var CustomerName = $('#customerid').find(":selected").text();
+            var SalePerson = $('#SalePerson').val();
+            var ItemCategory = $('#ItemCategory').find(":selected").text();
+            var ItemCategoryId = $('#ItemCategory').val();
+            var CityId = $('#City1').val();
+            var CityName = $('#City1').find(":selected").text();
+            var ReceiptAmount = $('#ReceiptAmount').val();
+            var value = false;
+
+            if (value == false) {
+
+                //var i = Number($("#counter").val());
+                //$("#counter").val(i + 1);
+                var row = "<tr class='removed'>" +
+                    "<td hidden><input name='id'  id='username' class='id'  /></td>" +
+                    "<td><input style='background-color: none; border:none;' tabindex='-1' class='cusname' name='CustomerName' value='" + CustomerName + "' readonly /></td>" +
+                    "<td hidden><input style='background-color: none; border:none;' tabindex='-1' class='cusId'   name='CustomerIds' value='" + CustomerId + "' readonly /></td>" +
+                    "<td><input style='background-color: none; border:none;' tabindex='-1' name='SalePerson' value='" + SalePerson + "' readonly /></td>" +
+                    "<td hidden><input style='background-color: #eee; border:none;' tabindex='-1' name='CategoryId' value='" + ItemCategoryId + "' readonly /></td>" +
+                    "<td><input style='background-color: #eee; border:none;' tabindex='-1' name='ItemCategory' value='" + ItemCategory + "' readonly /></td>" +
+                    " <td hidden><input style='background-color: #eee; border:none;' tabindex='-1' data-toggle='popover' name='CityId' value='" + CityId + "' readonly /></td> " +
+                    " <td><input style='background-color: #eee; border:none;' tabindex='-1' data-toggle='popover' name='CityName' value='" + CityName + "' readonly /></td> " +
+                    "<td><input style='background-color: #eee; border:none;' tabindex='-1' name='ReceiptAmount' onkeypress='return isNumberKey(event)' onkeyup = 'calculateGrandTotal()' value='" + ReceiptAmount + "' /></td>" +
+                    '<td > <a id="delrow" onclick="deleterow($(this));"  style=" margin-top:0px"class="btn btn-xs btn-danger m-t-n-xs"> <i class="fa fa-trash" title="Delete"></i></a> </td>' +
+                    "</tr>";
+                $("#tblDetail tbody").append(row);
+                $('#customerid').find(":selected").remove();
+                $('#customerid').focus();
+            }
+            calculateGrandTotal();
+        })
+
+        function deleterow(row) {
+            var cusname = $(row).closest("tr").find(".cusname").val();
+            var cusId = $(row).closest("tr").find(".cusId").val();
+
+            $('#customerid').append($('<option>', {
+                value: cusId,
+                text: cusname
+            }));
+            //$('#customerid').find(":selected").remove();
+            row.closest("tr").remove();
+
+            cusId = "";
+            cusname = "";
+            calculateGrandTotal();
+        }
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            //change selectboxes to selectize mode to be searchable
+            $("#ItemCategory").select2();
+            $("#City1").select2();
+            $("#customerid").select2();
+            //  $("#ItemCategory").select2();
+        })
+    </script>
+
+}

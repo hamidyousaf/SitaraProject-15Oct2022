@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Bank Reconsilation";
+    ViewData["CurrentPage"] = "Bank Reconsilation";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                @*<div class="ibox-title">
+                    <h5>@ViewBag.EntityState Ledger</h5>
+                </div>*@
+                <div class="ibox-content">
+                    <form id="report" class="form-horizontal" method="post" asp-action="Create" asp-controller="Report">
+                        <input type="hidden" name="ReportTitle" value="Realization" />
+                        <input type="hidden" name="CompanyName" value="@companyName" />
+                        <input type="hidden" name="CompanyId" value="@companyId" />
+                     
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Account</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Code" class="chosen-select" id="StartCode" data-validation="required" data-validation-error-msg="Start Account is required" data-validation-error-msg-container="#saccount">
+                                            @*<option value="0">Please select  account</option>*@
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                  
+                        <div class="row">
+                           
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="text-left">
+                                <input type="button" id="saveReport" value="Preview" class="btn btn-primary preview" onclick="return generateReport();" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@section customJS{
+    <script>
+
+    </script>
+    <script>        
+         //Select 2 for account selection
+    
+        $('#StartCode').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/GL/Api/GetBankGLAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.text,
+                                id: item.id
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+         ////Toggle data Function
+        function allAccount() {
+
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetBankGLAccounts",
+                data: { isFirst:true }
+            })
+            .done(function (data) {
+                var option = new Option(data.text, data.code, true, true);
+                $('#StartCode').append(option).trigger('change');
+                $('#StartCode').trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+
+          
+
+            //$("#StartCode").prop("disabled", true);
+            //$("#EndCode").prop("disabled", true);
+        }
+        //call selectAccount() to disable both "starCode" and "EndCode"
+        function selectAccount() {
+            //$("#StartCode").prop("disabled", false);
+           // $("#EndCode").prop("disabled", false);
+        }
+
+
+        function generateReport1() {
+                $.post('/GL/Api/Create',
+                $("#report").serialize()).done(function (data) {
+                    var reportURL = "@ViewBag.ReportPath"
+                    reportURL += "?Id=";
+                    reportURL += data;
+                    window.open(reportURL, "_blank");
+                });;
+
+        }
+        //function generateReport() {
+        //    var accountId = $("#AccountId").val();
+        //    var startDate = $("#StartDate").val();
+        //    var endDate = $("#EndDate").val();
+        //    var reportURL = "http://localhost:53525/ReportViewer?Report=Ledger";
+        //    reportURL += "&StartDate=" + startDate;
+        //    reportURL += "&EndDate=" + endDate;
+        //    reportURL += "&Id=" + accountId;
+        //    window.open(reportURL, "_blank");
+        //}
+
+    </script>
+}

@@ -1,0 +1,252 @@
+﻿@{
+    ViewData["Title"] = "On Screen Trial Balance  ";
+    ViewData["CurrentPage"] = "On Screen Trial Balance";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;}
+<style type="text/css">
+    .control-label {
+        text-align: left !important;
+    }
+
+    .modal-body {
+        overflow-y: scroll;
+        overflow-x: scroll;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 8px;
+    }
+
+    
+
+    /*tr:nth-child(even) {
+        background-color: white;
+    }*/
+
+    #tc {
+        text-align: center;
+        color: dimgray;
+    }
+
+    .table-body {
+        overflow-y: scroll;
+        overflow-x: scroll;
+    }
+    .tablefont {
+    font-size:12px;
+    width:15%;
+    text-align:center;
+    }
+</style>
+<script src="~/js/GL/OnScreenTrialLedger.js"></script>
+<div class="col-lg-12" sstyle="padding-right:0px">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>@ViewBag.EntityState On Screen Trial Balance  </h5>&nbsp;
+
+            @*<a class="btn btn-success" onclick="getAccounts();">Get Accounts</a>*@
+        </div>
+        <div class="ibox-content">
+            <form id="report" class="form-horizontal" method="post" asp-action="Create" asp-controller="Report">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input class="form-control custom-date-picker" id="StartDate" data-validation="required" type="text" name="StartDate" value=@CommonHelper.CurrentDate />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input class="form-control custom-date-picker" id="EndDate" data-validation="required" type="text" name="EndDate" value=@CommonHelper.CurrentDate />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" style="margin-top:20px">
+
+                        <div class="col-lg-2">
+                            <div class="checkbox checkbox-success">
+                                <input name="Level1" id="Level1" type="checkbox" checked />
+                                <label for="Level1">Level 1</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="checkbox checkbox-success">
+                                <input name="Level2" id="Level2" type="checkbox" checked />
+                                <label for="Level2">Level 2</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="checkbox checkbox-success">
+                                <input name="Level3" id="Level3" type="checkbox" checked />
+                                <label for="Level3">Level 3</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="checkbox checkbox-success">
+                                <input name="Level4" id="Level4" type="checkbox" checked />
+                                <label for="Level4">Level 4</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-2" style="display:none">
+                            <div class="checkbox checkbox-success">
+                                <input name="HideInactive" id="HideTrue" type="checkbox">
+                                <label for="HideInactive">Hide In-active accounts</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <a class="btn btn-success" onclick="getAccounts1();">Refresh</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12" style="border:3px solid gray;border-radius:10px;padding-left:0px">
+                        <div class="col-lg-6" style="padding-right:2px;padding-left:0px;width:50%;">
+                            <div class="col-lg-12 bg-light" style="padding-right:0px;padding-left:5px">
+                                @*<h5 style="height:400px;">Accounts</h5>*@
+                                <div class="table-body" name="tblAccounts" style="height:540px;width:100%;">
+                                    <h3><u>Accounts</u></h3>
+
+                                    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                        <table class="table table-striped" style="table-layout:fixed;" name="tblAccounts" id="tblAccounts">
+                                            <thead class="bg-primary">
+                                                <tr>
+                                                    <th  >
+                                                        Code
+                                                    </th>
+                                                    <th  >
+                                                        Name
+                                                    </th>
+                                                    <th class="tablefont">
+                                                        Openning
+                                                    </th>
+                                                    <th class="tablefont">
+                                                        Debit
+                                                    </th>
+                                                    <th class="tablefont">
+                                                        Credit
+                                                    </th>
+                                                    <th class="tablefont">
+                                                        Clossing
+                                                    </th>
+                                                    <th class="tablefont">
+                                                        Action
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6" style="padding-right:0px">
+                            <div class="row">
+                                <div class="col-lg-12 " style="padding-left:0px">
+                                    <div class="table-body " name="tblLedger" style="height:300px;">
+                                        <h3><u>Ledger:</u></h3>
+                                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                            <table  class="table table-striped" name="tblLedger" id="tblLedger">
+                                                <thead class="bg-warning">
+                                                    <tr>
+                                                        <th  >
+                                                            Date
+                                                        </th>
+                                                        <th  >
+                                                            Type
+                                                        </th>
+                                                        <th class="tablefont">
+                                                            No
+                                                        </th>
+                                                        <th  >
+                                                            Reference
+                                                        </th>
+                                                      
+                                                        <th class="tablefont">
+                                                            Debit
+                                                        </th>
+                                                        <th class="tablefont">
+                                                            Credit
+                                                        </th>
+                                                        <th class="tablefont">
+                                                            Balance
+                                                        </th>
+                                                        <th class="tablefont">
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 ">
+                                    <div class="table-body" name="tblVoucher" style="height:200px;">
+                                        <h3><u>Voucher:</u></h3>
+                                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                                            <table  class="table table-striped" name="tblVoucher" id="tblVoucher">
+                                                <thead class="bg-danger">
+                                                    <tr>
+                                                        <th>
+                                                            Account Code
+                                                        </th>
+                                                        <th>
+                                                            Account Name
+                                                        </th>
+                                                        <th>
+                                                            Ref #
+                                                        </th>
+                                                        <th>
+                                                            Narration
+                                                        </th>
+                                                        <th>
+                                                            Dr
+                                                        </th>
+                                                        <th>
+                                                            Cr
+                                                        </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+
+    <script src="~/js/GL/OnScreenTrialLedger.js"></script>
+
+}

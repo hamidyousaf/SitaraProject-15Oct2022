@@ -1,0 +1,75 @@
+﻿@{
+    var reportHeader = "";
+    ViewData["Title"] = ViewBag.ReportType;
+    if (ViewBag.ReportType == "BookingReceipt")
+    {
+        ViewData["CurrentPage"] = "Receipt";
+        reportHeader = "Booking Receipt";
+    }
+    else if (ViewBag.ReportType == "ReceiptAgainstBooking")
+    {
+        ViewData["CurrentPage"] = "Receipt Against Booking";
+        reportHeader = "Receipt Against Booking";
+    }
+    else if (ViewBag.ReportType == "CashPurchaseSale")
+    {
+        ViewData["CurrentPage"] = "Cash Purchase/Sale";
+        reportHeader = "Cash Purchase Sale";
+    }
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@reportHeader</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    @if (ViewBag.ReportType == "BookingReceipt")
+                    {
+                        <input type="hidden" name="ReportTitle" value="ReceiptRegister" />
+                    }
+                    else if (ViewBag.ReportType == "ReceiptAgainstBooking")
+                    {
+                        <input type="hidden" name="ReportTitle" value="ReceiptAgainstBooking" />
+                    }
+                    else if (ViewBag.ReportType == "CashPurchaseSale")
+                    {
+                        <input type="hidden" name="ReportTitle" value="CashPurchaseSale" />
+                    }
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

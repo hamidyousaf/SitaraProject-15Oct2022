@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "Cash Purchase Sale";
+    ViewData["CurrentPage"] = "Cash Purchase/Sale";
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5> Cash Purchase Sale</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    <input type="hidden" name="ReportTitle" value="CashPurchaseSale" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

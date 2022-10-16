@@ -1,0 +1,87 @@
+﻿@using Numbers.Helpers
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["CurrentPage"] = "Dashboard/Index";
+   // Layout = null;
+}
+<div class="modal" id="responsibilityModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Default Values for Company/Branch:</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row px-3">
+                    <input id="id" type="hidden" />
+                    <div class="form-group">
+                        <label> Responsibility</label>
+                        <select tabindex="6" name="subMenu" asp-items="@ViewBag.Resp" class="form-control select-item">
+                            <option disabled selected>Select Please..</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row px-3">
+                    <label class="mb-1 control-label">
+                        Cost Center:
+                    </label>
+                    <select class="form-control mb-4 col-md-12" id="ddlBranch"></select>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSubmit">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        $(document).ready(function () {
+            debugger;
+            $('#responsibilityModal').modal('show');
+             var itemId = $('#subMenuId');
+            bindSelect2(itemId, '/ApplicationModule/Api/GetItems', '/ApplicationModule/Api/GetItem?id=', '@ViewBag.ItemId');
+});
+    </script>
+    <script>
+        $("#btnSubmit").on("click", function () {
+            var companyId = $("#ddlCompany option:selected").val();
+            var branchId = $("#ddlBranch option:selected").val();
+            if (companyId == 0 || branchId == 0) {
+                $.toast({
+                    type: 'error',
+                    title: 'Required',
+                    subtitle: 'Please Select Branch Or Company first!',
+                    content: '',
+                    delay: 5000,
+                    position: 'top-right',
+
+                });
+            }
+            else {
+                localStorage.setItem("companyId", companyId);
+                localStorage.setItem("branchId", branchId);
+
+                $("#company-list").val(companyId).change();
+                $("#branch-list").val(branchId).change();
+
+                var formData = new FormData();
+                formData.append("COMPANY_ID", companyId);
+                formData.append("Branch_id", branchId);
+
+                AjaxPost("/Home/SetDefaultValus", formData, function (response) {
+                    if (response.result == "success") {
+
+                        $('#defaultValuesModal').modal('hide');
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,1434 @@
+﻿@model APGRNViewModel
+@using Numbers.Areas.AR.Controllers
+@{ ViewData["Title"] = "Create GRN"; }
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+        .select-width select2-container {
+            width: 100% !important;
+        }
+    </style>
+}
+<style>
+    .chosen-select {
+        width: 100%;
+    }
+
+    .table-responsive {
+        max-height: 300px;
+    }
+
+    .t td {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    table td {
+        position: relative;
+    }
+
+        table td input:not([type='checkbox']) {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="invoice-form" method="post" asp-action="Create" onsubmit=" return submitdetails();" asp-controller="GRN">
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="IRNNo" id="IRNNO" type="hidden" />
+                    <input value="@ViewBag.Responsibility" id="Responsibility" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="row">
+                                @if (Model.Id != 0)
+                                {
+                                <div class="col-lg-1 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>GRN #</label>
+                                        <div class="input-group">
+                                            <input tabindex='-1' class="form-control on-focus-change-color" readonly tabIndex="-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                else
+                                {
+                                    if (ViewBag.Id != null)
+                                    {
+                                <div class="col-lg-1 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>GRN #</label>
+                                        <div class="input-group">
+                                            <input tabindex='-1' asp-for="GRNNO" value="@ViewBag.Id" data-validation="required number" class="form-control on-focus-change-color text-right" readonly tabIndex="-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                    }
+                                    else
+                                    {
+                                <div class="col-lg-1 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>GRN #</label>
+                                        <div class="input-group">
+                                            <input tabindex='-1' class="form-control on-focus-change-color" readonly tabIndex="-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                }
+                                }
+
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>GRN Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="GRNDate" readonly autofocus class="form-control on-focus-change-color" type="text" value="@(ViewBag.Id == null ? CommonHelper.CurrentDate : Model.GRNDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="Due Date is required" data-validation-error-msg-container="#GRNDate" />
+                                        </div>
+                                        <p id="grnDate"></p>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-1 col-sm-1 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label>PO NO</label>
+                                        <input asp-for="IRNNo" class="form-control  on-focus-change-color" type="text" data-validation="required" data-validation-error-msg="Invoice Date is required" data-validation-error-msg-container="#dueDate" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Operating Unit</label>
+                                        <select asp-for="OperationId" class="chosen-select form-control" asp-items="ViewBag.OperatingUnit">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label>Department</label>
+                                        <select asp-for="DepartmentId" class="chosen-select form-control" id="department" asp-items="ViewBag.Department">
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label asp-for="CostCenter">Cost Center</label>
+                                        <select asp-for="CostCenter" class="form-control" asp-items="ViewBag.CostCenter"></select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Vendor Name</label>
+                                        <div class="select-width">
+                                            <Select asp-for="VendorName" id="supplierId" class="form-control" asp-items="@ViewBag.Vendor" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse">
+                                                <option selected disabled>
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                        </div>
+                                        <p id="dueDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>WareHouse</label>
+                                        <div class="select-width">
+                                            <Select required asp-for="Warehouse" id="WareHouseId" class="form-control" asp-items="@ViewBag.Warehouse" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse">
+                                                <option selected disabled value="0">
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                        </div>
+                                        <p id="dueDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-12 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <textarea style="resize:none;" asp-for="Remarks" rows="2" class="form-control on-focus-change-color"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+
+
+                            </div>
+
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="panel panel-default" style="display:none">
+                                <div class="panel-heading">
+                                    Currency Exchange
+                                </div>
+                                <div class="panel-body">
+                                    <label asp-for="Currency"></label>
+                                    <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" class="form-control" name="Currency" data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency"></select>
+                                    <p id="currency"></p>
+                                    <label asp-for="CurrencyExchangeRate"></label>
+                                    <input asp-for="CurrencyExchangeRate" placeholder="1.0" onkeypress="calculateexpense()" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Exchange rate is required" data-validation-error-msg-container="#exchangeRate" />
+                                    <p id="exchangeRate"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Status != "Approved")
+                    {
+                        <div class="text-right mb-3">
+                            <a id="add-SaleOrders-popUp" class="btn btn-success" onclick="getPurchaseOrders();">Get items from IRN</a>
+
+                        </div>}
+                    <input hidden id="purchasedetails" name="Details" type="text" />
+
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    <div class="row">
+                        @*<div class="col-md-12 col-lg-12">*@
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive">
+                            <table id="tblDetail" class="table table-bordered table-striped " style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th hidden></th>
+                                        <th hidden></th>
+                                        <th>Code</th>
+                                        <th style="width:10%">Description</th>
+                                        @if (ViewBag.Responsibility == "Yarn Purchase")
+                                        {
+                                            <th style="width:5%">Brand</th>
+                                        }
+                                        <th>Location</th>
+                                        <th width="7%">Qty</th>
+                                        <th hidden>Indent Qty</th>
+                                        <th width="7%">Rej Qty</th>
+                                        <th>Acc Qty</th>
+                                        <th hidden>Bal Qty</th>
+                                        <th width="7%">Rate</th>
+                                        <th width="7%">Value</th>
+                                        <th>S.T %</th>
+                                        <th>S.T Amount</th>
+                                        <th> Total Value</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.APGRNItems != null)
+                                    {
+                                        NumbersDbContext _dbcontext = new NumbersDbContext();
+                                        ApiController brand = new ApiController(_dbcontext);
+                                        @for (int i = 0; i < Model.APGRNItems.Count; i++)
+                                        {
+                                        var brnd = brand.GetBrand(Model.APGRNItems[i].BrandId);
+                                    <tr>
+                                        <td hidden><input name="IRNItemId" value="@Model.APGRNItems[i].IRNItemId" id="IRNItemId" class="id IRNItemId" type="hidden" /></td>
+                                        <td hidden><input name="GRNItemId" value="@Model.APGRNItems[i].Id" id="GRNItemId" class="id GRNItemId" type="hidden" /></td>
+                                        <td hidden><input style="background-color: #eee;" name='ItemId' value="@Model.APGRNItems[i].ItemId" class="form-control" readonly /></td>
+                                        <td><input style="background-color: #eee;" name='ItemCode' value="@Model.APGRNItems[i].Item.Code" readonly /></td>
+                                        <td><input style="background-color: #eee;" name='ItemDescription' value="@Model.APGRNItems[i].Item.Name" readonly /></td>
+                                        @if (ViewBag.Responsibility == "Yarn Purchase")
+                                        {
+                                            <td><input style='background-color: #eee;' name='Brand' value='@brnd' type='text' class='text-left' readonly /></td>
+                                        }
+
+                                        <td>
+                                            <select name="LocationId" id="LocationId" asp-items="@ViewBag.Locations" asp-for="@Model.APGRNItems[i].LocationId" class="form-control m-b LocationId">
+                                                <option value="0" selected>Select...</option>
+                                            </select>
+                                        </td>
+                                        <td><input style="background-color: #eee;" name='GRNQty' value="@Model.APGRNItems[i].GRNQty" class="GRNQty text-right add-comma" readonly /></td>
+                                        <td hidden> <input style="background-color: #eee;" name='IRNQty' value="@Model.APGRNItems[i].GRNQty" class="IRNQty text-right add-comma" readonly /></td>
+                                        <td> <input style="background-color: #eee;" name='RejectedQty' value="@Model.APGRNItems[i].RejectedQty" class="RejectedQty text-right add-comma" readonly /></td>
+                                        <td> <input style="background-color: #eee;" name='AcceptedQty' value="@Model.APGRNItems[i].AcceptedQty" class="AcceptedQty text-right add-comma" readonly /></td>
+                                        <td hidden> <input style="background-color: #eee;" name='BalanceQty' value="@Model.APGRNItems[i].BalanceQty" class="BalanceQty text-right add-comma" readonly /></td>
+                                        <td> <input style="background-color: #eee;" name='Rate' value="@Model.APGRNItems[i].Rate" class="Rate text-right add-comma" readonly /></td>
+                                        <td> <input style="background-color: #eee;" name='Value' value="@Model.APGRNItems[i].Total_" class="value text-right add-comma" readonly /></td>
+                                        <td>
+                                            <select asp-for="@Model.APGRNItems[i].SaleTax" name="SaleTax" asp-items="@ViewBag.Tax" class="form-control m-b SelectTax salTx" onchange="Calculation($(this))">
+                                                <option value="0" selected>Select...</option>
+                                            </select>
+                                        </td>
+                                        <td> <input style="background-color: #eee;" name='SaleTaxAmount' value="@Model.APGRNItems[i].SaleTaxAmount" class="salTaxAmt text-right add-comma" readonly /></td>
+                                        <td> <input style="background-color: #eee;" name='TotalValue' value="@Model.APGRNItems[i].Total_" class="tltvalue text-right add-comma" readonly /></td>
+                                        <td hidden> <input style="background-color: #eee;" name='pRDetailId' value="@Model.APGRNItems[i].PRDetailId" class="value text-right" readonly /></td>
+                                        <td hidden> <input class='taxID' value="@Model.APGRNItems[i].SaleTax" readonly /></td>
+                                        <td> <a @*onclick="deleterow($(this));"*@ class="btn btn-danger m-t-n-xs remove-row"> <i class="fa fa-trash" title="Delete"></i> </a> </td>
+                                    </tr>
+                                        }
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr style='font-weight: bold'>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-right ItemTotal">Total:</td>
+                                        <td class="text-right ItemTotal">0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        @*</div>*@
+                    </div>
+
+                    <!--Modal For Purchase Order Items to be loaded for selection-->
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Select IRN Items</h4>
+                                    </div>
+                                    <div class="modal-body PopupHeight">
+                                        <div class="row text-center">
+                                            <div class="col-md-12">
+                                                <div class="ibox ">
+                                                    <p id="itemTable"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoice</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input id="expenseDetails" name="expenseDetails" hidden />
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input tabindex='-1' asp-for="Total" name="Total1" id="Total1" class="form-control text-right add-comma" readonly placeholder="0.0000" onchange="getNewGtotal();" /></div>
+                                        <div class="col-lg-2 col-sm-3"><label>Total Sales Tax:</label> <input tabindex='-1' asp-for="TotalSaleTax" name="totalSalesTax" onchange="calculateGrandTotal();" id="totalSalesTax" class="form-control text-right add-comma" placeholder="0.0000" readonly /></div>
+                                        <div class="col-lg-2 col-sm-3"><label>Freight</label><input tabindex='-1' asp-for="Freight" name="Freight" onchange="calculateGrandTotal();" id="Freight" class="form-control text-right" placeholder="0.0000" readonly /></div>
+                                        <div class="col-lg-2 col-sm-3"><label>Total Expense:</label><input tabindex='-1' asp-for="TotalExpense" onchange="calculateGrandTotal();" name="totalexpense" id="exciseTaxAmount" class="form-control text-right add-comma" readonly placeholder="0.0000" /></div>
+                                        <div hidden class="col-lg-2 col-sm-3"><label>Total Value:</label><input asp-for="TotalValue" onchange="calculateGrandTotal();" name="TotalValue" id="TotalValue" class="form-control text-right add-comma" readonly placeholder="0.0000" /></div>
+                                        <div hidden class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right add-comma" readonly placeholder="0.0000" /></div>
+                                        <div class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input tabindex='-1' asp-for="TotalPKRValue" name="TotalPKRValue" id="TotalPKRValue" class="form-control text-right add-comma" readonly placeholder="0.0000" /></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-left mb-3">
+                        <a asp-controller="GRN" asp-action="Index" class="btn btn-white">List</a>
+                        @if (Model.Status != "Approved")
+                        {
+                            <button id="SaveBtn" type="submit" asp-action="@ViewBag.EntityState" asp-controller="GRN" name="submit" value="@ViewBag.EntityState" class="btn btn-primary"> @ViewBag.EntityState </button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                         }
+                        else
+                        {
+
+                        }
+
+                        <button type="button" data-toggle="modal" onchange="getExpense();" data-target="#ExpenseModal" class="btn btn-primary hidden">Add Expense</button>
+
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="modal fade" id="ExpenseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header ">
+                            <h3 class="modal-title" id="exampleModalLabel">Expense</h3>
+                            <div class="row">
+                                <div class="col-sm-4 Pad-rht">
+                                    <input id="searchExpense" onkeypress="return isNumberKey(event)" onpaste="return true;" ondrop="return true;" autocomplete="off" class="form-control" />
+                                </div>
+                                <div class="col-sm-4 Pad-rht">
+                                    <button type="button" onclick="SearchExpense()" class="btn btn-primary btn-sm">Search</button>
+                                </div>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-2 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Expense Date</label>
+                                        <div class="input-group">
+                                            <input autofocus id="ExpDate" value=" @(CommonHelper.CurrentDate)" type="text" class=" form-control custom-date-picker date" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Expense Favour</label>
+                                        <div class="input-group">
+                                            <input id="ExpFavour" type="text" class=" form-control" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label>GL Code</label>
+                                        <Select id="GLCode" onchange="GetAccountName();" class="form-control on-focus-change-color" asp-items="@ViewBag.GLCode" data-validation="required">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                        @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Account Name</label>
+                                            <input tabindex="-1" id="AccName" readonly class="form-control on-focus-change-color" />
+                                        </div>
+                                    </div>*@
+                                <div class="col-lg-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Amount</label>
+                                        <input id="ExpAmt" class="form-control on-focus-change-color add-comma" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 Pad-rht">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <textarea style="resize:none;" id="LCRemarks" class="form-control" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 Pad-rht">
+                                    <div class="form-group">
+                                        <button id="addExpense" onclick="addExpense()" class="btn btn-success" style="margin-top:23px"><i class="fa fa-plus"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <table id="tblExpense" style="table-layout:fixed" class="table table-bordered t">
+                                <thead>
+                                    <tr>
+                                        <th style="width:0%"></th>
+                                        <th>Date</th>
+                                        <th>Favour</th>
+                                        <th>GL Code</th>
+                                        @*<th>Account Name</th>*@
+                                        <th>Expense Amount</th>
+                                        <th style="width:0%"></th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (ViewBag.Expenses != null)
+                                    {
+                                        foreach (var item in ViewBag.Expenses)
+                                        {
+                                            <tr>
+
+                                                <td><input name="expId" value="@item.Id" class="id" hidden></td>
+
+                                                <td><input class="form-control ExpenseDate" readonly name="expDate" value="@item.ExpenseDate"></td>
+
+                                                <td><input class="form-control ExpenseFavour" readonly name="expDate" value="@item.ExpenseFavour"></td>
+
+                                                <td><input class="form-control text-right GLCode" readonly name="glCode" value="@item.GLCode"></td>
+ 
+                                                <td><input class="form-control text-right ExpenseAmount add-comma" readonly name="expAmount" value="@item.ExpenseAmount"></td>
+
+                                                <td><input name="expRemarks" class="Remarks" hidden value="@item.Remarks"></td>
+
+                                                <td><a style="padding: 0px 4px;margin-top:-8px" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow($(this));" title="Delete"></i></a></td>
+ 
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                           
+                        </div>
+                        <br />
+                        <div id="EA">
+                            <hr />
+                            <div class="row">
+                                <div class="col-lg-4" style="margin-left: 50%;">
+                                    <div class="form-group">
+                                        <label>Total Amount</label>
+                                        <input tabindex="-1" name="TotalAmount" readonly id="TotalAmt" class=" clear form-control on-focus-change-color add-comma" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+
+                        </div>
+                        <input id="BrandId" type="hidden" />
+                        <input id="Brand" type="hidden" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section customJS{
+    <script src="~/js/AR/invoiceItems.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script src="~/js/AP/GRN.js"></script>
+    <script>
+     function calculateexpense() {
+            debugger;
+            for (var i = 50; i < 100; i++) {
+                var el = document.getElementById('AcceptedQty'+i);
+                if (el != null) {
+                    RejectQty(i);
+
+                } else {
+                }
+            }
+            calculateGrandTotal();
+        }
+
+
+     $('#button').click(function () {
+            var table = document.getElementById('invoiceTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            var arrLength = arrayOfValues.length;
+            var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (i = 0; i < arrLength; i++) {
+                var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+
+
+                $.ajax({
+                    type: 'POST',
+                    async: false,
+                    url: '/AP/Purchase/GetPurchaseOrderItems',
+                    data: { purchaseInvoiceItemId: parseInt(values[i]), counter: counter },
+                    beforeSend: function () {
+                        skipIds.push(values[i]);
+                        $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        $('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+
+                    $.ajax({
+                        type: 'POST',
+                        async: false,
+                        url: '/AP/PurchaseForm/GetItemById?id=' + data.itemId,
+
+                    }).done(function (data1) {
+
+                        var row = "<tr><td hidden name='ItemId1'  class='ItemId'>" + data.itemId + "</td><td  class='itemt' value=" + data1.name + " >" + data1.name
+                            + "</td><td></td><td name='stock1' class='stock'>" + data1.stockQty + "</td><td name='SQM1' class='SQM '>" + data1.boxInSQM + "</td><td></td><td></td><td >" + data1.unit + "</td><td name='Rate1' hidden class='Rate'>" + data1.avgRate + "</td><td name='Total1'  class='Total'>" + data.total + "</td><td name='Discount1' hidden class='Discount'>" + data.discountAmount + "</td><td></td><td name='NetTotal1' hidden class='NetTotal'>" + data.total_ + "</td><td ><i class='fa fa-trash ' id='remove-row'></i></td></tr>";
+
+                        $("#tblpurchase >tbody").append(row);
+                        $('td.add-comma').commaTextbox();
+                    });
+
+                    $('#button').prop('disabled', false);
+                    $('#returnModal').modal("hide");
+                    counter++;
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+            }
+        });
+     $("#tblpurchase").on('click', '#remove-row', function () {
+            $(this).closest('tr').remove();
+            counter--;
+        });
+    </script>
+    <script>
+     function addExpense() {
+            debugger
+         var glcode = $("#GLCode").find(":selected").text();
+         var account = $("#AccName").val();
+         var expense = $("#ExpAmt").val();
+         var date = $("#ExpDate").val();
+         var favour = $('#ExpFavour').val();
+         var remarks = $("#LCRemarks").val();
+         if (glcode == null) {
+             swal("", "Please Select Account", "warning")
+             return false;
+         }
+         else if (expense == "") {
+             swal("", "Please Enter Expense", "warning")
+             return false;
+         }
+         var Itemrow = '' +
+            '<tr class="removed">' +
+            '<td><input name="expId" class="id" hidden></td>' +
+            '<td><input tabindex="-1" class="form-control ExpenseDate" readonly name="expDate" value="' + date + '"></td>' +
+            '<td><input tabindex="-1" class="form-control ExpenseFavour" readonly name="expDate" value="' + favour + '" ></td>' +
+            '<td><input tabindex="-1" class="form-control text-right GLCode" readonly name="glCode" value="' + glcode + '" ></td>' +
+            //Itemrow += '<td><input tabindex="-1" class="form-control text-right AccountName" readonly name="accountName" value=' + account + '></td>';
+            '<td><input tabindex="-1" class="form-control text-right ExpenseAmount add-comma" readonly name="expAmount" value="' + expense + '" ></td>' +
+            '<td><input name="expRemarks" class="Remarks"  hidden value=' + remarks + '></td>' +
+            '<td><a style="padding: 0px 4px;margin-top:-8px" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>' +
+            '</tr>';
+         $('#tblExpense tbody').append(Itemrow);
+         $('input.add-comma').commaTextbox();
+            ClearExpense();
+            var sum = 0;
+            $.each($("#tblExpense tbody tr"), function () {
+                var abc = $(this).find(".ExpenseAmount").val();
+                sum = Number(Number(sum.replace(/,/g, "")) + Number(abc.replace(/,/g, ""))).toFixed(4);
+                $('#TotalAmt').val(sum);
+            });
+            $('#TotalAmt').val(sum);
+            $('#exciseTaxAmount').val(sum);
+            calculateGrandTotal();
+        };
+     function ClearExpense() {
+            $("#GLCode").val("");
+            $("#AccName").val("");
+            $("#ExpAmt").val("");
+            $("#ExpDate").val("@CommonHelper.CurrentDate");
+           $('#ExpFavour').val("");
+        }
+     function getNewGtotal() {
+            debugger;
+            var sum = 0;
+            $.each($("#tblExpense tbody tr"), function () {
+                var abc = $(this).find(".ExpenseAmount").text();
+                sum = Number(Number(sum.replace(/,/g, "")) + Number(abc.replace(/,/g, ""))).toFixed(4);
+
+                $('#TotalAmt').val(sum);
+                $('#exciseTaxAmount').val(sum);
+
+            });
+            $('#TotalAmt').val(sum);
+            $('#exciseTaxAmount').val(sum);
+            calculateGrandTotal();
+        }
+     $(document).ready(function () {
+            debugger;
+            $('#department').select2();
+             $('#OperationId').select2();
+             $('input.add-comma').commaTextbox();
+
+             $("#SaveBtn").focus(function () {
+                 $("#SaveBtnFocus").val("ON");
+             });
+             $("#SaveBtn").blur(function () {
+                 $("#SaveBtnFocus").val('OFF');
+             });
+        });
+     function deleterow() {
+            var counter = $('#rowcounter').val();
+            $("#delrow").closest("tr").remove();
+         counter = Number(counter.replace(/,/g, "")) - 1;
+            $('#rowcounter').val(counter);
+            var sum = 0;
+            $.each($("#tblExpense tbody tr"), function () {
+                var abc = $(this).find(".ExpenseAmount").text();
+                sum = Number(Number(sum.replace(/,/g, "")) + Number(abc.replace(/,/g, ""))).toFixed(4);
+
+                $('#TotalAmt').val(sum);
+                $('#exciseTaxAmount').val(sum);
+
+            });
+            $('#TotalAmt').val(sum);
+            $('#exciseTaxAmount').val(sum);
+            calculateGrandTotal();
+        }
+
+    </script>
+    <script>
+        $(document).ready(function () {
+//$('input.add-comma').commaTextbox();
+         debugger
+         $('.SelectTax option:not(:selected)').attr('disabled', true);
+          var Location =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Location));
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.InvoiceItems));
+         loadTax()
+        // loadLocation();
+        var counter = 1;
+        if (items != null) {
+        if (items.length == 0) {
+            counter = counter;
+        } else if (items.length != 0) {
+            counter = items.length + 1;
+        }
+    }
+
+        $('#add-invoice-item').on('click', function () {
+        $.post("/AP/GRN/PartialInvoiceItems", { counter: counter }).done(function (data) {
+            debugger;
+            $("#p").append(data);
+            counter++;
+        });
+
+});
+        lockOutInputs(@ViewBag.Counter);
+});
+    </script>
+    <script>
+        $(document).ready(function () {
+           // $('input.add-comma').commaTextbox();
+        debugger
+         loadTax();
+         loadLocation();
+         $('.SelectTax option:not(:selected)').attr('disabled', true);
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.InvoiceItems));
+        if (items != null) {
+            for (i = 0; i < items.length; i++) {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/AP/GRN/GetInvoiceItems',
+                    data: { id: items[i].Id, itemId: items[i].ItemId },
+                    beforeSend: function () {
+                        toggleLoader(true);
+                    }
+                }).done(function (data) {
+                    toggleLoader(false);
+                    debugger;
+                    $('#p').append(data);
+                });
+            }
+        }
+
+    });
+    </script>
+    <script>
+     $.validate();
+     $("#WareHouseId").select2();
+     $("#supplierId").select2();
+    $(function () {
+    // bind customer select2
+    @*var select2 = $('#CustomerId');
+        bindSelect2(select2, '/AR/Api/GetCustomers','/AR/Api/GetCustomer?id=', @Model.CustomerId);*@
+
+    });
+    $(function () {
+        if ("@Model.Status" == "Approved") {
+            $("form select, form input, form textarea").not(":submit").each(function (e) {
+                $(this).attr("disabled", "disabled");
+            });
+            $('.tax-lock :not(:selected)').attr('disabled','disabled');
+            $('#add-invoice-item').hide();
+        }
+        });
+
+    //for pop-up modal
+    var skipIds = [];//skip from loading table rows
+    function getPurchaseOrders() {
+            debugger
+            if ($('#tblDetail tbody').find('tr').length != 0) {
+               // swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            var supplierId = $('#supplierId').val();
+        var counter = 1;
+        // AJAX request
+            debugger;
+
+        $.ajax({
+            url: '/AP/GRN/GetPurchaseOrdersByCustomerId',
+            type: 'POST',
+            method: 'POST',
+            data: { id: supplierId, skipIds: skipIds },
+            success: function (response) {
+                debugger;
+                $('#itemTable').html(response);
+                // Display Modal
+                $('#saleModal').modal('show');
+            },
+            fail: function (response) {
+                // console.log('message from fail...', response.responseText);
+            }
+        });
+        counter++;
+    }
+        //for pop-up modal for expense
+    var skipIds = [];//skip from loading table rows
+    function getExpense() {
+            var counter = 1;
+            // AJAX request
+            debugger;
+
+            $.ajax({
+                url: '/AP/GRN/GetPurchaseOrdersByCustomerId',
+                type: 'POST',
+                method: 'POST',
+                data: { id: supplierId, skipIds: skipIds },
+                success: function (response) {
+                    debugger;
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#ExpenseModal').modal('show');
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var formdetails = [];
+            $.each($("#tblDetail tbody tr"), function () {
+                formdetails.push({
+                    ItemId: $(this).find('.ItemId').html(),
+                    ItemCode: $(this).find('.ItemCode').html(),
+                    PrDetailId: $(this).find('.PrDetailId').html(),
+                    ItemDescription: $(this).find('.ItemDescription').html(),
+                    Qty: $(this).find('.IndentQty').html(),
+                    Rate: $(this).find('.Rate').html(),
+                    Total: $(this).find('.value').html(),
+                    //Id: $(this).find('.id').html(),
+                    LineTotal: $(this).find('.value').html(),
+                    NetTotal: $(this).find('.value').html(),
+                });
+            });
+            var model = JSON.stringify(formdetails);
+            $("#tblDetail").val(model);
+            var supplierId = $('#supplierId').val();
+            var wareHouseId = $('#WareHouseId').find(":selected").val();
+            if (supplierId = "" || supplierId == null) {
+                swal("", "Supplier Must Required!", "info");
+                return false;
+            }
+            if (wareHouseId == 0) {
+                swal("", "Please select the Warehouse!", "info");
+                return false;
+            }
+            
+            if (formdetails.length <= 0) {
+                swal("", "Enter At Least One Record!", "info");
+                return false;
+            }
+            if ($("#LocationId").val() == 'Select...') {
+                swal("", "Please select location!", "error");
+                return false;
+            }
+            else {
+
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").val("Saving...");
+
+            }
+
+            debugger;
+            var formdetails = [];
+            $.each($("#tblExpense tbody tr"), function () {
+                formdetails.push({
+                    ExpenseFavour: $(this).find('.ExpenseFavour').val(),
+                    GLCode: $(this).find('.GLCode').val(),
+                    AccountName: $(this).find('.AccountName').val(),
+                    ExpenseAmount: $(this).find('.ExpenseAmount').val(),
+                    Remarks: $(this).find('.Remarks').val(),
+                    ExpenseDate: $(this).find('.ExpenseDate').val(),
+                });
+
+            });
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+
+            var model = JSON.stringify(formdetails);
+            $("#expenseDetails").val(model);
+            return true;
+        }
+    </script>
+    <script>
+        function GetAccountName() {
+            var id = $("#GLCode").val();
+            $.ajax({
+                url: '/AP/GRN/GetAccountName?id=' + id,
+
+                type: 'GET',
+            }).done(function (data) {
+                debugger;
+                $('#AccName').val(data);
+            });
+        }
+    </script>
+
+    <script>
+     function Create(row) {
+         debugger;
+        var TaxList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TaxList));
+        var Location =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Locations));
+        var IRNItemId = row.closest("tr").find('td:eq(0)').html();
+        var IRNNo = row.closest("tr").find('td:eq(1)').html();
+        var ItemId = row.closest("tr").find('td:eq(2)').html();
+        var ItemCode = row.closest("tr").find('td:eq(3)').html();
+        var ItemDescription = row.closest("tr").find('td:eq(4)').text();
+        var Value = 0.0000;
+        // var UOM = row.closest("tr").find('td:eq(7)').text();
+         var Quantity = Number(row.closest("tr").find('td:eq(5)').text()).toFixed(2);
+         var GrnQty = Number(row.closest("tr").find('td:eq(6)').text()).toFixed(2);
+         var Rate = Number(row.closest("tr").find('td:eq(10)').text()).toFixed(2);
+         var Value = Number(row.closest("tr").find('td:eq(9)').text()).toFixed(2);
+        var CreatedBy = row.closest("tr").find('td:eq(8)').text();
+         var RejectedQty = Number(row.closest("tr").find('td:eq(7)').text()).toFixed(2);
+         var AcceptedQty = Number(row.closest("tr").find('td:eq(8)').text()).toFixed(2);
+         var BalanceQty = Number(row.closest("tr").find('td:eq(9)').text()).toFixed(2);
+         var PRDetailId = Number(row.closest("tr").find('td:eq(12)').text());
+         var taxId = Number(row.closest("tr").find('td:eq(13)').text());
+         var frieght = Number(row.closest("tr").find('td:eq(14)').text()).toFixed(2);
+         var LocationId = Number(row.closest("tr").find('td:eq(15)').text())
+
+         debugger
+         $.ajax({
+             type: "GET",
+             url: "/AP/GRN/GetBrand",
+             data: { IRNDetailId: IRNItemId },
+             async: false
+         }).done(function (data) {
+             debugger
+             if (data != null) {
+
+                 $('#BrandId').val(data.brandId);
+                 $('#Brand').val(data.brand.configValue);
+                 return false;
+             }
+         });
+         debugger
+         var BrandId = Number($("#BrandId").val());
+         var Brand = $("#Brand").val();
+         Value = Number(parseFloat(Rate) * parseFloat(BalanceQty)).toFixed(2);
+         
+        var value = false;
+         $('#tblDetail > tbody > tr').each(function () {
+             debugger;
+             var IRN = $(this).closest("tr").find('.IRNNo').val();
+            if (IRNNo != IRN) {
+                value = true;
+            }
+            else
+                value = false;
+        });
+         if (value == false) {
+             row.closest("tr").remove();
+            var row = "<tr>";
+            row += "<td hidden > <input name='IRNItemId' id='IRNItemId' class='IRNItemId' value=" + IRNItemId + " readonly/></td>";
+            row += "<td hidden > <input name='GRNItemId' id='GRNItemId' class='GRNItemId' value=" + 0 + " readonly/></td>";
+            row += "<td hidden > <input style='background-color: #eee;' name='ItemId' id='ItemId' class='ItemId' value=" + ItemId + " readonly/></td>";
+            row += "<td> <input name='ItemCode' style='background-color: #eee;' id='ItemCode' class='ItemCode' value='" + ItemCode + "' readonly/></td>";
+            row += "<td> <input style='background-color: #eee;' name='ItemDescription' id='ItemDescription' class='text-left ItemDescription'  value='" + ItemDescription + "' readonly /></td>";
+
+            if (BrandId != 0) {
+                row += "<td hidden> <input name='BrandId' type='hidden' value='" + BrandId + "' /></td>";
+                row += "<td><input style='background-color: #eee;' name='Brand' class='text-left'  value='" + Brand + "' readonly /></td>";
+            }
+
+
+
+
+
+
+
+            row += '<td><select id="LocationId" name="LocationId" class="LocationId form-control"><option selected="selected">Select...</option></select></td>';
+            row += "<td  > <input style='background-color: #eee;' name='GRNQty' id='GRNQty' class='GRNQty text-right add-comma'  value=" + BalanceQty + " readonly/></td>";
+            row += "<td hidden > <input  name='IRNQty' id='IRNQty' class='IRNQty text-right add-comma'  value=" + BalanceQty + " /></td>";
+            row += "<td> <input style='background-color: #eee;' name='RejectedQty' id='RejectedQty' class='RejectedQty text-right add-comma'  value=" + RejectedQty + " readonly /></td>";
+            row += "<td> <input style='background-color: #eee;' name='AcceptedQty' id='AcceptedQty' class='AcceptedQty text-right add-comma'  value=" + AcceptedQty + " readonly /></td>";
+            row += "<td hidden> <input style='background-color: #eee;' name='BalanceQty' id='BalanceQty' class='BalanceQty text-right add-comma'  value=" + 0 + " readonly /></td>";
+            row += "<td> <input style='background-color: #eee;' name='Rate' id='Rate' class='Rate text-right add-comma'  value=" + Rate + " readonly /></td>";
+            row += "<td> <input style='background-color: #eee;' name='Value' id='Value' class='value text-right add-comma'  value=" + Value + " readonly /></td>";
+                @*"<td> <input  name='saleTax' id='SaleTax' onchange='Calculation($(this));' class='form-control salTx text-right' /></td>"value=" + data.taxId +onchange="Calculation($(this))"  " +*@
+            row += '<td><select id="SaleTax" name="saleTax" class="SelectTax"><option selected="selected">Select...</option></select></td>';
+            row += "<td> <input style='background-color: #eee;' name='saleTaxAmount' id='SaleAmt' class='salTaxAmt text-right add-comma' readonly /></td>";
+            row += "<td> <input style='background-color: #eee;' name='totalValue' class='tltvalue text-right add-comma' readonly /></td>";
+            row += "<td hidden> <input style='background-color: #eee;' name='PRDetailId' id='PRDetailId' class='value text-right '  value=" + PRDetailId + " readonly /></td>";
+            row += "<td hidden> <input class='taxID'  value=" + taxId + " readonly /></td>";
+            row += "<td hidden> <input class='locationID'  value=" + LocationId + " readonly /></td>";
+            row += "<td hidden> <input class='IRNNo' name='IRNNo'  value=" + IRNNo + " readonly /></td>";
+            row += '<td> <a id="delrow"  class="btn btn-danger m-t-n-xs remove-row"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+            row += "</tr>";
+            $("#tblDetail tbody").append(row);
+            $("#IRNNO").val(IRNNo);
+            $("#Freight").val(frieght);
+            GetRowFooter();
+            $('input.add-comma').commaTextbox();
+
+            var table = document.getElementById("tblDetail");
+            var row = table.rows[table.rows.length - 2]
+            debugger;
+            if ($("#Responsibility").val() == "Yarn Purchase") {
+                for (var j = 0; j < Location.length; j++) {
+                    optionText = Location[j].Text;
+                    optionValue = Location[j].Value;
+                    $(row).find('td:eq(7)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                }
+
+                for (var j = 0; j < TaxList.length; j++) {
+                    optionText = TaxList[j].Name;
+                    optionValue = TaxList[j].Id;
+                    $(row).find('td:eq(15)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                }
+            } else {
+                for (var j = 0; j < Location.length; j++) {
+                    optionText = Location[j].Text;
+                    optionValue = Location[j].Value;
+                    $(row).find('td:eq(5)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                }
+
+                for (var j = 0; j < TaxList.length; j++) {
+                    optionText = TaxList[j].Name;
+                    optionValue = TaxList[j].Id;
+                    $(row).find('td:eq(13)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                }
+            }
+            
+          loadTax();
+          loadLocation();
+          //  $('input.add-comma').commaTextbox();
+           // loadLocation(ItemId)
+        }
+         else {
+             $('.IsSelect').prop('checked', false);
+            swal("", "Please Select Same IRN", "warning")
+        }
+    }
+
+     $("#tblDetail tbody").on('click', '.remove-row', function () {
+            debugger;
+            $(this).closest('tr').remove();
+            var itemId = $(this).closest("tr").find(".PRItemId").val();
+            if (itemId != null) {
+                ids.push(itemId);
+                $('#IdsDeleted').text(ids);
+
+            }
+            GetRowFooter();
+            counter--;
+        });
+
+     function Calculation(row) {
+        debugger
+        var id = $(row).closest("tr").find(".SelectTax").val()
+        var i = row.closest('tr').index();
+         var Value = $(row).closest("tr").find(".value").val().replace(/,/g, "");
+        $.ajax({
+            url: '/AR/Api/GetTaxValues',
+            dataType: "json",
+            data: { "id": id },
+            method: 'GET',
+            success: function (data) {
+                var salesTaxPercentage = parseFloat(data.salesTaxPercentage) || 0.0;
+                var TaxAmt = parseFloat((salesTaxPercentage / 100) * parseFloat(Value)) || 0.0;
+                var LineTotal = parseFloat(Value) + parseFloat(TaxAmt);
+                $('.salTaxAmt').eq(i).val(parseFloat(TaxAmt).toFixed(2));
+                //$('.ItemTotal').html(LineTotal);
+                $('.tltvalue').eq(i).val(parseFloat(LineTotal).toFixed(2));
+                GetRowFooter();
+
+                $('input.add-comma').commaTextbox();
+
+            },
+            error: function (err) {
+                console.log(err);
+                alert(err);
+            }
+        });
+
+        @*var TaxAmount = Number((Number(SaleTax) / 100) * Number(Value)).toFixed(4);
+
+        var TotalAmount = Number(Number(Value) + Number(TaxAmount)).toFixed(4);
+        *@
+         $('input.add-comma').commaTextbox();
+    }
+
+     var counter = 50;
+
+     $('#button').click(function () {
+        var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        console.log(arrayOfValues);
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (i = 0; i < arrLength; i++) {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/AP/GRN/GetPurchaseOrderItems',
+                data: { purchaseOrderItemId: parseInt(values[i]), counter: counter },
+                beforeSend: function () {
+                    skipIds.push(values[i]);
+
+                },
+            }).done(function (data) {
+                debugger;
+                $('#p').append(data);
+                $('#button').prop('disabled', false);
+                $('#saleModal').modal("hide");
+                counter++;
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+    });
+
+    //On change Qty
+     $("#tblDetail tbody").on("change", ".GRNQty", function () {
+        debugger;
+        var id = $('#Id').val();
+        var totalbalanceQty = 0.00;
+        var IRNItemId = Number($(this).closest("tr")
+            .find(".IRNItemId").val());
+        var indentQty = Number($(this).closest("tr")
+            .find(".GRNQty").val().replace(/,/g,"")).toFixed(4);
+        var irnQty = Number($(this).closest("tr")
+            .find(".IRNQty").val().replace(/,/g, "")).toFixed(4);
+        var rate = Number($(this).closest("tr")
+            .find(".Rate").val().replace(/,/g, "")).toFixed(4);
+         var value = Number(indentQty * rate).toFixed(4);
+        $(this).closest("tr")
+            .find(".value").val(value);
+        if (parseInt(grnItemQty) == 0 && id != 0) {
+            grnItemQty = irnQty;
+        }
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '/AP/Api/GetGRNBalanceQty?id=' + IRNItemId
+        }).done(function (data) {
+            if (data != "NotFound") {
+                debugger;
+                totalbalanceQty = Number(Number(data.received_Qty) - Number(data.grnQty) + Number(grnItemQty)).toFixed(4);
+                $(this).closest("tr").find(".IRNQty").val(totalbalanceQty);
+            }
+        });
+
+        var grnQty = Number($(this).closest("tr")
+            .find(".GRNQty").val().replace(/,/g, "")).toFixed(4);
+        var grnval = totalbalanceQty;
+        var rejQty = Number($(this).closest("tr")
+            .find(".RejectedQty").val().replace(/,/g, "")).toFixed(4);
+        var accQty = $('#AcceptedQty' + counter).val();
+        if (parseInt(grnQty) <= parseInt(grnval)) {
+            if (parseInt(grnQty) != 0) {
+                var AccepQty = Number(grnval) - Number(grnQty);
+                $(this).closest("tr")
+                    .find(".BalanceQty").val(AccepQty);
+                var SaleTax = $(this).closest("tr").find('.salTx').val();
+                if (SaleTax != "") {
+                    var Value = $(this).closest("tr")
+                        .find('.value').val();
+                    var TaxAmount = Number((Number(SaleTax) / 100) * Number(Value)).toFixed(4);
+                    $(this).closest("tr")
+                        .find('.salTaxAmt').val(TaxAmount);
+                    var TotalAmount = Number(Number(Value) + Number(TaxAmount)).toFixed(4);
+                    $(this).closest("tr")
+                        .find('.tltvalue').val(TotalAmount);
+                    $('.ItemTotal').html(TotalAmount);
+                }
+            } else {
+                $('#BalanceQty' + counter).val((0).toFixed(4));
+                // $('#AcceptedQty' + counter).val(Number(grnval).toFixed(4));
+                $('#GRNQty' + counter).val(Number(grnval).toFixed(4));
+                swal("", "GRN qty must be greater than 0", "warning");
+            }
+        } else {
+            $(this).closest("tr").find(".GRNQty").val(Number(irnQty).toFixed(4));
+            $(this).closest("tr").find(".IRNQty").val(Number(irnQty).toFixed(4));
+            $(this).closest("tr").find(".BalanceQty").val(0.0000);
+            value = irnQty * rate
+            $(this).closest("tr").find(".value").val(Number(value).toFixed(4));
+            swal("", "GRN Qty Must be less than or Equal to IRN Qty", "warning");
+        }
+
+        //if (parseInt(indentQty) <= parseInt(totalbalanceQty)) {
+        //    var balanceQty = Number(totalbalanceQty - indentQty).toFixed(4);
+        //    $(this).closest("tr")
+        //        .find(".BalanceQty").val(balanceQty);
+        //}
+        //else {
+        //    $(this).closest("tr").find(".GRNQty").val(Number(irnQty).toFixed(4));
+        //    $(this).closest("tr").find(".IRNQty").val(Number(irnQty).toFixed(4));
+        //    $(this).closest("tr").find(".BalanceQty").val(0.0000);
+        //    value = irnQty * rate
+        //    $(this).closest("tr").find(".value").val(Number(value).toFixed(4));
+        //    swal("", "Qty Must be less than or Equal to IRN Qty", "warning");
+        //}
+        GetRowFooter();
+        if (TotalAmount != "") {
+            $('#').html(TotalAmount);
+        }
+    });
+
+     function GetRowFooter() {
+        debugger;
+        var Total = 0.0000;
+        var SaleTax = 0.0000;
+        $.each($("#tblDetail tbody tr"), function () {
+            debugger;
+            var rowtotal = Number($(this).find('.value').val().replace(/,/g, ""));
+            var saleTax = Number($(this).find('.salTaxAmt').val().replace(/,/g, ""));
+            Total = Number(Number(Total) + rowtotal).toFixed(2);
+            SaleTax = Number(Number(SaleTax) + saleTax).toFixed(2);
+        });
+        $('#NetPayable').val(Total);
+        $('#totalSalesTax').val(SaleTax);
+         Number($('#Total1').val(Total)).toFixed(2);
+        $.each($("#tblDetail tfoot tr"), function () {
+            debugger;
+            $(this).closest("tr").remove();
+            var row = "<tr style='font-weight: bold'>";
+            if ($("#Responsibility").val() == "Yarn Purchase") {
+                row += "<td></td>";
+            }
+            row += "<td></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td ></td>";
+            row += "<td class='text-right'>Total:</td> ";
+            row += "<td class='text-right ItemTotal'>" + Total + "</td> ";
+            row += "<td ></td>";
+            row += "</tr>";
+            $("#tblDetail tfoot ").append(row);
+           // $('input.add-comma').commaTextbox();
+
+        });
+         calculateGrandTotal();
+         $('input.add-comma').commaTextbox();
+
+    }
+
+     function calculateGrandTotal1() {
+
+         var Total = Number($('#Total1').val().replace(/,/g, ""));
+         var totalSaleTax = Number($('#totalSalesTax').replace(/,/g, ""));
+         var freight = Number($('#Freight').val().replace(/,/g, ""));
+         var exciseTaxAmount = Number($('#exciseTaxAmount').val().replace(/,/g, ""));
+        var grandTotal = Total + totalSaleTax + freight + exciseTaxAmount
+         }
+
+     function loadTax() {
+        var TaxList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TaxList));
+        $.each($("#tblDetail tbody tr"), function () {
+            debugger;
+            var taxId = Number($(this).find('.SelectTax').val().replace(/,/g, ""));
+                // var taxId = $(this).closest("tr").find(".calculateTax").val();
+                // $('#TaxId').append(new Option(optionText, optionValue));
+            for (var j = 0; j < TaxList.length; j++) {
+                    debugger;
+                    optionText = TaxList[j].Name;
+                    optionValue = TaxList[j].Id;
+                    $(this).find('#TaxId').append(new Option(optionText, optionValue));
+                }
+            if (taxId != 0) {
+                    $(this).find('.calculateTax').val(taxId);
+            }
+
+        });
+
+         GetRowFooter();
+         $('input.add-comma').commaTextbox();
+
+     }
+     function loadTax() {
+         debugger;
+         $.each($("#tblDetail tbody tr"), function () {
+             var itemId = Number($(this).find('.taxID').val().replace(/,/g, ""));
+             if (itemId != 0) {
+                 $(this).find('.SelectTax').val(itemId);
+
+             }
+             $(this).find('.SelectTax option:not(:selected)').attr('disabled', true);
+
+             Calculation($(this))
+         });
+        }
+        function loadLocation() {
+         debugger;
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var itemId = Number($(this).find('.locationID').val());
+                if (itemId != 0 && !isNaN(itemId)) {
+                 $(this).find('.LocationId').val(itemId);
+                    $(this).find('.LocationId option:not(:selected)').attr('disabled', true);
+                }
+                var itemIdForEdit = Number($(this).find('.LocationId').val());
+                if (itemIdForEdit != 0 && !isNaN(itemIdForEdit)) {
+                    $(this).find('.LocationId').val(itemIdForEdit);
+                    $(this).find('.LocationId option:not(:selected)').attr('disabled', true);
+             }
+         });
+     }
+
+     @*function loadLocation() {
+         debugger;
+         var Location =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Locations));
+        $.each($("#tblDetail tbody tr"), function () {
+            debugger;
+            var locationId = Number($(this).find('.locationID').val());
+
+            for (var j = 0; j < Location.length; j++) {
+                    debugger;
+                optionText = Location[j].Text;
+                optionValue = Location[j].Value;
+                $(this).find('#LocationId').append(new Option(optionText, optionValue));
+                }
+
+            });
+
+     }*@
+
+     //function loadLocation(itemId) {
+     //    debugger;
+     //    $.each($("#tblDetail tbody tr"), function () {
+     //        if (itemId != null) {
+     //            $.ajax({
+     //                url: '/Inventory/Api/GetItem',
+     //                dataType: "json",
+     //                data: { "id": itemId },
+     //                method: 'GET',
+     //                success: function (data) {
+     //                    debugger;
+     //                    var locationID = parseFloat(data.locationIfTrue);
+
+     //                    $('.LocationId').eq(i).val(locationID);
+
+     //                }
+     //            });
+     //        }
+
+     //        if (itemId != 0) {
+     //            $(this).find('.LocationId').val(itemId);
+
+     //        }
+     //        $(this).find('.LocationId option:not(:selected)').attr('disabled', true);
+     //    });
+     //}
+
+     //$("#invoice-form").on("submit", function () {
+     //    $("#SaveBtn").attr("disabled", true);
+     //    $("#SaveBtn").val("Saving...");
+
+     //});
+     $(document).ready(function () {
+         $('.modal').on('shown.bs.modal', function () {
+             $(this).find('[autofocus]').focus();
+         });
+     });
+     function SearchExpense() {
+         var value = $("#searchExpense").val();
+         $.ajax({
+             method: "GET",
+             url: "/AP/GRN/Search",
+             data: { id: value }
+         }).done(function (data) {
+             $('.removed').remove();
+             debugger
+             if (data.length > 0) {
+                 $.each(data, function (i, item) {
+                     var Itemrow = '';
+                     Itemrow += '<tr class="search">';
+                     Itemrow += '<td><input hidden class="text-left AccountName" readonly value=' + item.accountName + '></td>';
+                     Itemrow += '<td><input class="ExpenseDate" readonly  value=' + item.expenseDate + '></td>';
+                     Itemrow += '<td><input class="ExpenseFavour" readonly  value=' + item.expenseFavour + '></td>';
+                     Itemrow += '<td><input class="text-left GLCode" readonly  value="' + item.glCode + '" ></td>';
+                     Itemrow += '<td><input class="text-right ExpenseAmount add-comma" readonly  value=' + item.expenseAmount + '></td>';
+                     Itemrow += '<td><input hidden class="Remarks" readonly value=' + item.remarks + '></td>';
+                     Itemrow += '<td ><a onclick="deleteExpenseRow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+                     Itemrow += '</tr>';
+                     $('#tblExpense tbody').append(Itemrow);
+                     $('input.add-comma').commaTextbox();
+                     ClearExpense();
+                     ExpenseCalculaion();
+                 });
+
+             }
+             else {
+                 var Itemrow = '';
+                 Itemrow += '<tr class="search">No Result Found.</tr>';
+                 $('#tblExpense tbody').append(Itemrow);
+                 ClearExpense();
+             }
+         });
+
+     }
+     $(".closemodel").on("click", function () {
+         $("#searchExpense").empty();
+         $('.search').remove();
+     });
+     function ClearExpense() {
+            $("#GLCode").val("");
+            $("#AccName").val("");
+            $("#ExpAmt").val("");
+            $("#ExpDate").val("@CommonHelper.CurrentDate");
+        $('#ExpFavour').val("");
+       // $('#LCRemarks').html("");
+        $('#LCRemarks').val('').change();
+
+     }
+     function ExpenseCalculaion() {
+         var sum = 0;
+         $.each($("#tblExpense tbody tr"), function () {
+             var abc = $(this).find(".ExpenseAmount").val();
+             sum = Number(Number(sum) + Number(abc)).toFixed(4);
+             $('#TotalAmt').val(sum);
+            // $('input.add-comma').commaTextbox();
+         });
+     }
+     function deleteExpenseRow(row) {
+         debugger
+         row.closest("tr").remove();
+         ExpenseCalculaion();
+     }
+    </script>
+
+}

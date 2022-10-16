@@ -1,0 +1,53 @@
+﻿@model ARReceiptViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Approved Receipt";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="Receipt" asp-action="Index" class="btn btn-white">List</a>
+                    <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6 col-lg-9">
+                        <h4><span>Customer Name:&nbsp;<strong class="text-navy"> @ViewBag.Customer</strong></span></h4>
+                        <span><strong>Bank Cash:&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;</strong>@ViewBag.BankCash</span><br />
+                        <span><strong>Item Category:&emsp;&emsp;</strong>@ViewBag.Category</span><br />
+                        <span><strong>City: &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</strong>@ViewBag.City</span><br />
+                        <span><strong>Sale Person:&emsp;&emsp;&emsp;&nbsp;</strong>@Model.SalePerson</span><br />
+                     @*   <span><strong>Payment Mode:</strong> @Model.PaymentMode.ConfigValue</span><br />*@
+                    </div>
+                    <div class="col-sm-6 col-lg-3 text-left">
+                        <h4><span>Receipt No. &emsp;&emsp;&emsp;&emsp;<strong class="text-navy">@Model.ReceiptNo</strong></span></h4>
+                        <span><strong>Receipt Date:&emsp;&emsp;&emsp;&nbsp;&nbsp;</strong> @Model.ReceiptDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>Document No:&emsp;&emsp;&emsp;</strong> @Model.DocumentNo</span><br />
+                        @*<span><strong>Document Date:</strong> @Model.DocumentDate.ToString(CommonHelper.DateFormat)</span><br />*@
+                    <span><strong>Received Amount:&emsp;&nbsp;</strong> @Model.TotalReceivedAmount.ToString("N", new CultureInfo("en-US"))</span><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

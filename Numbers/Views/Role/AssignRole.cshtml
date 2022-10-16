@@ -1,0 +1,73 @@
+﻿@model RoleViewModel
+@{
+    ViewData["Title"] = "Setup Permission for User Role";
+}
+
+<h2>@*Setup Permission for User Role*@ [<span class="h4">@ViewBag.RoleName</span>]</h2>
+<div class="text-center col-lg-10">
+
+</div>
+<div class="col-lg-10">
+    <form method="post">
+        <div id="treeView">
+        </div>
+        <br />
+        <div class="row ">
+            <div class="text-center col-lg-1">
+                <input asp-for="Menus" name="Menus" type="hidden" />
+                <input asp-for="RoleId" name="RoleId" type="hidden">
+                @*<a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Role" asp-action="AssignRole" onclick="submitMe();"><strong>Save</strong></a>*@
+                <a asp-controller="Role" asp-action="Index" class="btn btn-white pull-left m-t-n-xs">Back</a>
+
+            </div>
+            <div class="text-center col-lg-1">
+                <input type="submit" value="Save" class="btn btn-primary pull-left m-t-n-xs" asp-controller="Role" asp-action="AssignRole" onclick="submitMe();">
+            </div>
+
+        </div>
+    </form>
+</div>
+
+
+@section customCSS{
+    <link href="~/css/plugins/jsTree/style.min.css" rel="stylesheet">
+}
+
+@section customJS{
+    <script src="~/lib/jsTree/jstree.min.js"></script>
+    <script>
+        $("#treeView").jstree({
+            "core": {
+                "data": {
+                    "url": function (node) {
+                        return "/Account/GetMenus?roleId=@Model.RoleId";
+                    },
+                    "data": function (node) {
+                        return { 'id' : node.id };
+                    }
+                },
+                "check_callback": true,
+                "themes": { "stripes": true },
+                "animation": 0,
+            },
+            checkbox: {
+                three_state: false, // to avoid that fact that checking a node also check others
+                whole_node: false,  // to avoid checking the box just clicking the node 
+                //tie_selection: false // for checking without selecting and selecting without checking
+            },
+            "plugins": ["checkbox"]
+        });
+    </script>
+    <script>
+        function submitMe() {
+
+            var checked_ids = [];
+            checked_ids = $("#treeView").jstree("get_checked", null, true);
+            $("input[name=Menus]").val(checked_ids);
+
+        }
+    </script>
+
+}
+<br />
+<hr />

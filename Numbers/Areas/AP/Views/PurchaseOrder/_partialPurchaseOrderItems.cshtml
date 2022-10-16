@@ -1,0 +1,150 @@
+﻿@model APPurchaseOrderViewModel
+
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}{1}","purchase-Order",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            
+            <div class="col-lg-12">
+                <div class="col-lg-2 col-sm-6">
+                    <div class="form-group">
+                        <input asp-for="PRItemId" type="hidden" name="PRItemId" id=@string.Format("{0}{1}","PRItemId",ViewBag.Counter) />
+                        <label asp-for="ItemId"></label>
+                        <Select asp-for="ItemId" name="ItemId" id='@string.Format("{0}{1}","ItemId",ViewBag.Counter)' onchange="getItemDetails(this.id)" class="form-control select-item" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_item",ViewBag.Counter)>
+                            <option selected disabled>
+                                Select...
+                            </option>
+                        </Select>
+                        <p id=@string.Format("_item{0}",ViewBag.Counter)></p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="DeliveryDate"></label>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input asp-for="DeliveryDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.DeliveryDate.ToString(CommonHelper.DateFormat))" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="HSCode"></label>
+                    <input asp-for="HSCode" name="HSCode" id='@string.Format("{0}{1}","HSCode",ViewBag.Counter)' onkeyup="calculateLineTotal(@ViewBag.Counter)" required class="form-control text-right calculate-total dependent" type="number" />
+                </div>
+
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="Qty"></label>
+                    <input asp-for="Qty"  min="0" name="Qty" id='@string.Format("{0}{1}","Qty_",ViewBag.Counter)' onkeyup="calculateLineTotal(@ViewBag.Counter)" required class="form-control text-right calculate-total dependent" type="number" />
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="Rate"></label>
+                    <input asp-for="Rate" min="0" name="Rate" id='@string.Format("{0}{1}","Rate_",ViewBag.Counter)' onkeyup="calculateLineTotal(@ViewBag.Counter)" required class="form-control text-right calculate-total dependent" type="number" />
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="Total_"></label>
+                    <input asp-for="Total_"  min="0" name="Total_" id='@string.Format("{0}{1}","Total_",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-4 col-md-6 col-lg-6 ">
+                    <div class="form-group">
+                        <label>Cost Center</label>
+                        <Select asp-for="DetailCostCenter" name="DetailCostCenter" id='@string.Format("{0}{1}", "DetailCostCenter", ViewBag.Counter)' class="form-control text-right  dependent" asp-items="@(new SelectList(Model.CostCenterList,"Id","Description"))" >
+                                ">
+                            <option value="0">
+                                N/A
+                            </option>
+                            @*<option value="0">No Tax</option>*@
+                        </Select>
+                        <p id=@string.Format("_taxSlab{0}",ViewBag.Counter)></p>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2 ">
+                    <div class="form-group">
+                        <label asp-for="TaxId"></label>
+                        <Select asp-for="TaxId" name="TaxId" id='@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)' onchange="calculateTax(@ViewBag.Counter)" class="form-control text-right calculate-total dependent" asp-items="@(new SelectList(Model.TaxList,"Id","Name"))" data-validation="required" data-validation-error-msg="Tax is required" data-validation-error-msg-container=@string.Format("#_taxSlab{0}",ViewBag.Counter)>
+                            <option selected disabled>
+                                Select...
+                            </option>
+                            @*<option value="0">No Tax</option>*@
+                        </Select>
+                        <p id=@string.Format("_taxSlab{0}",ViewBag.Counter)></p>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="TaxAmount"></label>
+                    <input asp-for="TaxAmount" min="0" name="TaxAmount" id='@string.Format("{0}{1}","TaxAmount_",ViewBag.Counter)' readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="NetTotal"></label>
+                    <input asp-for="NetTotal" min="0" name="NetTotal" id='@string.Format("{0}{1}","NetTotal",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                </div>
+
+                <div class="col-sm-4 col-md-6 col-lg-2 col-lg-offset-8">
+                    <label asp-for="FCValue"></label>
+                    <input asp-for="FCValue" min="0" name="FCValue" id='@string.Format("{0}{1}","FCValue",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                </div>
+
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="PKRValue"></label>
+                    @*     <input asp-for="LineTotal" name="LineTotal" id='@string.Format("{0}{1}","LineTotal_",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />*@
+                    <input asp-for="PKRValue" min="0" name="PKRValue" id='@string.Format("{0}{1}","PKRValue",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/AP/purchaseOrderItems.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+<script>
+    $(document).ready(function () {
+        _applySelect($('#ItemId' + @ViewBag.Counter));
+        //bind item select2
+        var itemId = $('#ItemId' +@ViewBag.Counter);
+        bindSelect2(itemId, '/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', '@ViewBag.ItemId');
+        //lock fields
+        lockOutInputs(@ViewBag.Counter);
+    });
+     @*var counter = @ViewBag.Counter;
+        var itemId='@ViewBag.ItemId';
+        //preselected item
+        var selectVal = $('#ItemId' + counter);
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetItem?id=' + itemId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            selectVal.append(option).trigger('change');
+            selectVal.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+            });*@
+</script>

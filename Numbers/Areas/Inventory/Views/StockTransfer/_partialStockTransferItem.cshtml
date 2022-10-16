@@ -1,0 +1,92 @@
+﻿@model InvStockTransferViewModel
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+<div id=@string.Format("{0}{1}","current-item",ViewBag.Counter) class="border border-danger">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox-content">
+                <!--Remove button-->
+                <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+                <div class="row form-group">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-sm-3 col-md-6 col-lg-5">
+                                <input type="hidden" asp-for="StockTransferId" name="StockTransferId" id=@string.Format("{0}{1}", "StockTransferId", ViewBag.Counter) />
+                                <input type="hidden" asp-for="StockTransferItemId" name="StockTransferItemId" id=@string.Format("{0}{1}", "StockTransferItemId", ViewBag.Counter) />
+                                <label asp-for="ItemId"></label>
+                                <select name="ItemId" asp-for="ItemId" id='@string.Format("{0}{1}", "ItemId", ViewBag.Counter)' onchange="getItemValues(this.id, $(this).val())" class="form-control select-item" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("#_item{0}", ViewBag.Counter)>
+                                    <option disabled selected>Select an item...</option>
+                                </select>
+                                <p id=@string.Format("_item{0}", ViewBag.Counter)></p>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="UOM"></label>
+                                    <input type="hidden" asp-for="UOM" name="UOM" id=@string.Format("{0}{1}", "UOMId_", ViewBag.Counter) />
+                                    <input name="UOM_Value" readonly class="form-control" id=@string.Format("{0}{1}", "UOM_Value", ViewBag.Counter) tabIndex="-1" />
+                                </div>
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="Stock"></label>
+                                    <input asp-for="Stock" name="Stock" id=@string.Format("{0}{1}", "Stock_", ViewBag.Counter) class="form-control text-right" readonly type="text" tabIndex="-1" />
+                                </div>
+                                <div class="col-sm-3 col-md-6 col-lg-2">
+                                    <label asp-for="Qty"></label>
+                                    <input asp-for="Qty" name="Qty" id=@string.Format("{0}{1}", "Qty_", ViewBag.Counter) class="form-control text-right" type="number" />
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                    <label asp-for="Remarks"></label>
+                                    <textarea asp-for="Remarks" name="Remarks" rows="1" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script src="~/js/INV/stockTransferItem.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+<script>
+    $(document).ready(function () {
+        _applySelect($('#ItemId' +@ViewBag.Counter));
+          //bind item select2
+        var itemId = $('#ItemId' +@ViewBag.Counter);
+        bindSelect2(itemId, '/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', '@ViewBag.ItemId');
+     });
+        @*var counter = @ViewBag.Counter;
+        var itemId='@ViewBag.ItemId';
+        //preselected item
+        var selectVal = $('#ItemId' + counter);
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetItem?id=' + itemId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            selectVal.append(option).trigger('change');
+            selectVal.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+</script>

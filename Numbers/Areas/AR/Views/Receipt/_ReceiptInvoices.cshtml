@@ -1,0 +1,78 @@
+﻿@model ARReceiptViewModel
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}{1}","receipt-invoice",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            <div>
+                <div class="col-lg-6">
+                    <div class="col-lg-3 col-md-6 col-sm-3">
+                        <div class="form-group">
+                            <input asp-for="ReceiptItemId" type="hidden" name="ReceiptItemId" id=@string.Format("{0}{1}","ReceiptItemId",ViewBag.Counter) />
+                            <input asp-for="InvoiceId" name="InvoiceId" id='@string.Format("{0}{1}","InvoiceId",ViewBag.Counter)' hidden />
+                            <label asp-for="InvoiceNo"></label>
+                            <input asp-for="InvoiceNo" name="InvoiceNo" id='@string.Format("{0}{1}","InvoiceNo",ViewBag.Counter)' readonly class="form-control text-right select-item" tabIndex="-1" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceDate"></label>
+                            <div class="input-group date">
+                                <input asp-for="InvoiceDate" name="InvoiceDate" id="@string.Format("{0}{1}","InvoiceDate_",ViewBag.Counter)" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.InvoiceDate.ToString(CommonHelper.DateFormat))" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-3">
+                        <label asp-for="InvoiceAmount"></label>
+                        <input asp-for="InvoiceAmount" name="InvoiceAmount" id='@string.Format("{0}{1}","InvoiceAmount_",ViewBag.Counter)' readonly class="form-control text-right" type="number" tabIndex="-1" />
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-3">
+                        <label asp-for="Balance"></label>
+                        <input asp-for="Balance" name="Balance" id='@string.Format("{0}{1}","Balance_",ViewBag.Counter)' readonly class="form-control text-right" type="number" tabIndex="-1" />
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="col-lg-8 col-md-6 col-lg-3">
+                        <label asp-for="ReceiptAmount"></label>
+                        <input asp-for="ReceiptAmount" name="ReceiptAmount" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" id='@string.Format("{0}{1}","ReceiptAmount_",ViewBag.Counter)' onchange="calculateTax(@ViewBag.Counter)" class="form-control text-right calculate-total payment" />
+                    </div>
+                    <div class="col-sm-4 col-md-6 col-lg-3 hide">
+                        <div class="form-group">
+                            <label asp-for="TaxId"></label>
+                            <Select name="TaxId" asp-for="TaxId" id='@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)' onchange="calculateTax(@ViewBag.Counter)" class="form-control" asp-items="@(new SelectList(Model.TaxList,"Id","Name"))">
+                            <option selected disabled>Select</option>
+                            </Select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-6 col-lg-3 hide">
+                        <label >Inc. Tax Amt</label>
+                        <input asp-for="TaxAmount" name="TaxAmount" id='@string.Format("{0}{1}","TaxAmount_",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-lg-3">
+                        <label asp-for="LineTotal"></label>
+                        <input asp-for="LineTotal" name="LineTotal" id='@string.Format("{0}{1}","LineTotal_",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/AR/receiptInvoices.js"></script>

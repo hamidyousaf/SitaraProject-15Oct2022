@@ -1,0 +1,317 @@
+﻿@model ARSaleReturnViewModel
+@{
+    ViewData["Title"] = "Create Sales Return";
+    ViewData["CurrentPage"] = "Sales Return";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+
+<div class="col-lg-12">
+    <form method="post" asp-action="Create" asp-controller="SalesReturn">
+        <input asp-for="Id" type="hidden" />
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label asp-for="ReturnNo"></label>
+                            <div class="input-group">
+                                <input asp-for="ReturnNo" value="@(TempData["ReturnNo"]==null?1:TempData["ReturnNo"])" readonly data-validation="required number" class="form-control" tabIndex="-1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label asp-for="ReturnDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="ReturnDate" autofocus data-validation="required" data-validation-error-msg="Return Date is required" data-validation-error-msg-container="#rDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.ReturnDate.ToString(CommonHelper.DateFormat))" />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label asp-for="WareHouseId"></label>
+                            <Select asp-for="WareHouseId" asp-items="@ViewBag.WareHouse" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse" class="form-control">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="wareHouse"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label asp-for="ReferenceNo"></label>
+                            <input asp-for="ReferenceNo" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select asp-for="CustomerId" asp-items="@ViewBag.Customer" name="CustomerId" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="customer"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-sm-12">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea asp-for="Remarks" rows="4" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="spinner-border text-danger"></div>
+            </div>
+            <div class="col-lg-2 col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Currency Exchange
+                    </div>
+                    <div class="panel-body">
+                        <label asp-for="Currency"></label>
+                        <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" asp-for="Currency" class="form-control" name="Currency">
+                        </select> 
+                        <p id="currency"></p>
+                        <label asp-for="CurrencyExchangeRate"></label>
+                        <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ibox-title">
+            <h5 class="font-bold">Return Items</h5>
+        </div>
+        <p id="p"></p>
+        <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+        <div class="text-right mb-3">
+            <a id="add-saleReturn-popUp" class="btn btn-success" onclick="getInvoicesToReturn();">Get items from Invoice</a>
+            @*<a id="add-saleReturn-item" class="btn btn-success add-saleReturn-item"><i class="fa fa-plus"></i></a>*@
+        </div>
+        <!--Page level calculations like total amount  etc-->
+        <div class="ibox">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-lg-2 col-sm-4"> <label asp-for="Total"></label> <input asp-for="Total" name="Total" id="Total" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1"/></div>
+                        @*<div class="col-lg-2"><label asp-for="TotalDiscountAmount"></label> <input asp-for="TotalDiscountAmount" name="TotalDiscountAmount" id="TotalDiscountAmount" class="form-control text-right" readonly placeholder="Total Discount Amount" tabIndex="-1"/></div>*@
+                        <div class="col-lg-2 col-sm-4"><label asp-for="TotalSalesTaxAmount"></label> <input asp-for="TotalSalesTaxAmount" name="TotalSalesTaxAmount" id="TotalSalesTaxAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1"/></div>
+                        <div class="col-lg-2 col-sm-4"><label asp-for="GrandTotal"></label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+        <!-- Modal -->
+        <div class="container">
+            <!-- Trigger the modal with a button -->
+            <div class="modal fade" id="invoiceModal" role="dialog" style="margin-left:0px">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Sale Return Invoices</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    <div class="ibox ">
+                                        <p id="itemTable"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-left mb-3">
+            <a asp-controller="SalesReturn" asp-action="Index" class="btn btn-white">List</a>
+            @if (Model.Status != "Approved")
+            {
+                <button type="submit" class="btn btn-primary">@ViewBag.EntityState</button>
+            }
+            else
+            {
+                <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+            }
+        </div>
+    </form>
+</div>
+
+@section customJS{
+    @*<script src="https://code.jquery.com/jquery-3.4.1.js"></script>*@
+    @*<script src="~/js/jquery-3.1.1.min.js"></script>*@
+    <script src="~/js/AR/saleReturnItems.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        $.validate();
+        @*$(function () {
+          // bind customer select2 
+        var select2 = $('#CustomerId');
+        bindSelect2(select2, '/AR/Api/GetCustomers','/AR/Api/GetCustomer?id=', @Model.CustomerId);
+        });*@
+
+        @*$('#CustomerId').select2({
+            placeholder: 'Select a customer',
+            width: 'resolve',
+            ajax: {
+                url: '/AR/Api/GetCustomers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if ("@ViewBag.Id" != null)
+            {
+                var id = "@ViewBag.Id";
+            }
+        var accountSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetCustomer?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+        //for pop-up modal
+         var skipIds = [];//skip from loading table rows
+        function getInvoicesToReturn() {
+            var customerId = $('#CustomerId').val();
+            var counter = 1;
+            // AJAX request
+            $.ajax({
+                url: '/AR/SalesReturn/GetInvoicesToReturnByCustomerId',
+                type: 'POST',
+                method:'POST',
+                data: { id: customerId, skipIds: skipIds },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#invoiceModal').modal('show');
+                },
+                fail: function (response) {
+                    console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+         $('#button').click(function () {
+            var table = document.getElementById('invoiceTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            var arrLength = arrayOfValues.length;
+           var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (i = 0; i < arrLength; i++) {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/AR/SalesReturn/GetSaleInvoiceItems?saleInvoiceItemId=' + parseInt(values[i]),
+                    beforeSend: function () {
+                        skipIds.push(values[i]);
+                        $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        $('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+                    $('#p').append(data);
+                    $('#button').prop('disabled', false);
+                    //$('#invoiceModal').modal("hide");
+                }).fail(function (error) {
+                    console.log(error.responseText);
+                });
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#CustomerId').select2();
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            var counter = 1;
+            if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            } else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+            }
+            $('#add-saleReturn-item').on('click', function () {
+                $.post("/AR/SalesReturn/PartialSaleReturnItems", { counter: counter }
+                ).done(function (data) {
+                    $("#p").append(data);
+                    counter++;
+                }).fail(function (data) {
+                    //console.log(data.responseText);
+                });
+            });
+            //lockOutInputs(@ViewBag.Counter);
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            if (items != null) {
+                for (i = 0; i < items.length; i++) {
+                    $.ajax({
+                        type: 'GET',                      
+                        url: '/AR/SalesReturn/GetReturnItems',
+                        async:false,
+                        data: { id: items[i].Id, itemId: items[i].ItemId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+        });
+
+        //disabled every fiels after Approved
+         $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+                $('#add-saleReturn-item').hide();
+                $('#add-saleReturn-popUp').hide();
+            }
+        });
+    </script>
+
+}

@@ -1,0 +1,97 @@
+﻿@model GRGRNInvoice
+@using Numbers.Entity
+@{
+    ViewData["Title"] = "Approved Invoice";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="GRNInvoice" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Vendor: <strong class="text-navy"> @Model.GRN.Vendor.Name</strong></span></h4>
+                        <span><strong>Invoice Date: </strong> @Model.PurchaseDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>GRN #: </strong> @Model.GRN.TransactionNo</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Invoice #: <strong class="text-navy">@Model.PurchaseNo</strong></span></h4>
+                        <span><strong>Supplier Inv #:</strong>@Model.SupplierInvoiceNo</span><br />
+                        <span><strong>Supplier Inv Date:</strong>@Model.SupplierInvoiceDate.ToString(CommonHelper.DateFormat)</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th width="16%">Item Code</th>
+                                <th width="24%">Item Description</th>
+                                <th width="10%">Quantity</th>
+                                <th width="10%">Rate/Meter</th>
+                                <th width="10%">Amount</th>
+                                <th width="10%">Total Penalty Amount</th>
+                                <th width="10%">Net Penalty Amount</th>
+                                <th width="10%">Less Yarn Price</th>
+                                <th width="10%">Net Payable Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<GRGRNInvoiceDetail>)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Item.Code)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Item.Name)
+                                </td>
+                                <td class="text-right">
+                                    @Html.DisplayFor(modelItem => item.Quantity)
+                                </td>
+                                <td class="text-right">
+                                    @Html.DisplayFor(modelItem => item.RatePerMeter)
+                                </td>
+                                <td class="text-right">
+                                    @Html.DisplayFor(modelItem => item.Amount)
+                                </td>
+                                <td class="text-right">
+                                    @Html.DisplayFor(modelItem => item.TotalPenaltyAmount)
+                                </td>
+                                <td class="text-right">
+                                    @Html.DisplayFor(modelItem => item.NetPenaltyAMount)
+                                </td>
+                                <td class="text-right">
+                                    @item.LessYarnPrice
+                                </td>
+                                <td class="text-right">
+                                    @item.NetPayableAmount
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,277 @@
+﻿
+
+@{
+    Layout = null;
+    ViewBag.Title = "Responsibility";
+}
+<br />
+<br />
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbers | Responsibility</title>
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    @*<link href="~/css/font-awesome.css" rel="stylesheet">*@
+
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+
+    <link href="~/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <style>
+
+        #checkBox {
+            margin-left: -148px;
+        }
+
+        h3, h4, h5 {
+            margin-top: -6px;
+            margin-bottom: -6px;
+            font-weight: 600;
+        }
+        .page-background-class {
+            background-image: url(~/img/SitaraLogoTransparent.png)
+        }
+
+        @*.hero-image {
+            background-image: url("../img/loginBackground.png");
+            background-color: #cccccc;
+            transition-property: all;
+            height: 500px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        *@
+        .hero-image {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image::before {
+            content: "";
+            background-image: url("../img/LoginBackgroudImage.jpg");
+            @*background-image: url("../img/backgroung.jpg");
+            *@ background-size: cover;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            bottom: 0px;
+            left: 0px;
+            opacity: 0.9;
+        }
+
+ /*       #myInput {
+            background-image: url('/css/searchicon.png');
+            background-position: 10px 12px;
+            background-repeat: no-repeat;
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+        }
+*/
+        #myUL {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            #myUL li a {
+                border: 1px solid #ddd;
+                margin-top: -1px; /* Prevent double borders */
+                background-color: #f6f6f6;
+                padding: 12px;
+                text-decoration: none;
+                font-size: 18px;
+                color: black;
+                display: block
+            }
+
+                #myUL li a:hover:not(.header) {
+                    background-color: #eee;
+                }
+    </style>
+</head>
+@*<body class="gray-bg">*@
+<body class="hero-image">
+    <div class="modal fadeInDown" id="responsibilityModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="color: darkcyan;">
+                <div class="modal-header" style="height:55px;">
+                    <div class="col-lg-5">
+                        <h3 class="modal-title">Select Responsibilities:</h3>
+
+                    </div>
+                    <div class="col-lg-5 pull-right">
+                        <!--<input type="text" name="name" value="" class="form-control" onkeyup="myFunction()" placeholder="Search Responsibility"--> @*autocomplete="off"*@ <!--id="myInput" />-->
+                        <select class="form-control" asp-items="ViewBag.Company" onchange="GetResponsibility()" id="CompanyId" data-validation="required" data-validation-error-msg="Company is required" data-validation-error-msg-container="#itcompany">
+                            <option selected="selected" value="0" disabled>Select...</option>
+                        </select>
+                    </div>
+                    @*<div class="col-lg-2">
+                <button class="btn btn-primary" onclick="refresh();">Refresh</button>
+            </div>*@
+                </div>
+                <div class="modal-body">
+                    <div class="row px-3">
+                        <input id="id" type="hidden" />
+                        <div class="list-group" style=" margin-bottom: 10px;height:400px; overflow-y: scroll;">
+                            <p id="itemTable"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-group" hidden>
+                        <input type="submit" asp-action="Index" asp-controller="Dashboard" class="btn btn-primary block full-width m-b" value="Enter" />
+                    </div>
+                </div>
+            </div>
+                    </div>
+                </div>
+                <!--<div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <label hidden></label><br /><br /><br /><br /><br /><br />
+            <h2>Responsibility</h2>
+            <form asp-action="Index" asp-controller="DashBoard" method="post" onsubmit=" return submitdetails()" class="form-horizontal" role="form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>-->
+                @*<div class="form-group">
+            <input type="submit" class="btn btn-primary block full-width m-b" value="Enter" />
+        </div>*@
+                <!--</form>
+        </div>
+    </div>-->
+                <!-- Mainly scripts -->
+                <script src="~/js/jquery-3.1.1.min.js"></script>
+                <script src="~/js/bootstrap.min.js"></script>
+                <script src="~/lib/jquery-form-validator/jquery.form-validator.min.js"></script>
+
+</body>
+</html>
+<script src="~/js/INV/storeIssueItem.js"></script>
+<script src="~/js/site.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+ 
+<script>
+        $(document).ready(function () { 
+
+            $('#responsibilityModal').modal('show');
+            var itemId = $('#Resp_Id');
+            bindSelect2(itemId, '/ApplicationModule/Api/GetItems', '/ApplicationModule/Api/GetItem?id=', '@ViewBag.ItemId');
+});
+</script>
+<script>
+    function submitdetails() {
+        var resp = $("#Resp_Id").val();
+        if (resp == "Select Please.." || resp == null) {
+            //   swal("", "Select Responsibility!", "info");
+            alert("Please Select Responsibility.");
+            return false;
+        }
+    }
+    function GetResponsibility() {
+        debugger;
+        var companyId = Number($("#CompanyId").find(":selected").val());
+        if (companyId == 0) {
+            swal({
+                icon: 'warning',
+                text: "Please Select the Company!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $('#CompanyId').focus();
+            });
+            return false;
+        }
+        // AJAX request
+        $.ajax({
+            url: '/Dashboard/GetResponsibility',
+            type: 'POST',
+            method: 'POST',
+            data: { companyId},
+            success: function (response) {
+                $('#itemTable').html(response);
+            },
+            fail: function (response) {
+                // console.log('message from fail...', response.responseText);
+            }
+        });
+    }
+</script>
+<script>
+    $("#btnSubmit").on("click", function () {
+        var companyId = $("#ddlCompany option:selected").val();
+        var branchId = $("#ddlBranch option:selected").val();
+        if (companyId == 0 || branchId == 0) {
+            $.toast({
+                type: 'error',
+                title: 'Required',
+                subtitle: 'Please Select Branch Or Company first!',
+                content: '',
+                delay: 5000,
+                position: 'top-right',
+
+            });
+        }
+        else {
+            localStorage.setItem("companyId", companyId);
+            localStorage.setItem("branchId", branchId);
+            $("#company-list").val(companyId).change();
+            $("#branch-list").val(branchId).change();
+            var formData = new FormData();
+            formData.append("COMPANY_ID", companyId);
+            formData.append("Branch_id", branchId);
+            AjaxPost("/Home/SetDefaultValus", formData, function (response) {
+                if (response.result == "success") {
+
+                    $('#defaultValuesModal').modal('hide');
+                }
+            });
+        }
+    });
+    function refresh() {
+        
+        var search = $('#Search').val();
+        window.location.href = "/Dashboard/Responsibility?q=" + search + "";
+    }
+    //$('#Search').keypress(function () {
+        
+    //    var search = $('#Search').val();
+    //    //if (search != "") {
+    //        window.location.href = "/Dashboard/Responsibility?q=" + search + "";
+    //    //}
+
+    //});
+ 
+</script>
+<script>
+    $.validate();
+</script>
+
+<script>
+    function myFunction() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+</script>

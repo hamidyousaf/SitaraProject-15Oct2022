@@ -1,0 +1,477 @@
+﻿@model InvBOMViewModel
+@{
+    ViewData["Title"] = "Create BOM";
+    ViewData["CurrentPage"] = "BOM";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+        select[readonly] option, select[readonly] optgroup {
+            display: none;
+        }
+
+        .table-responsive {
+            max-height: 300px;
+        }
+
+        .t td {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="formId" method="post" asp-action="Create" asp-controller="BOM" enctype="multipart/form-data" onsubmit="return submitdetails()">
+                    <input asp-for="InvBOM.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label asp-for="InvBOM.TransactionNo"></label>
+                                    @if (Model.InvBOM.Id != 0)
+                                    {
+                                        <input asp-for="InvBOM.TransactionNo" readonly class="form-control" />
+                                    }
+                                    else
+                                    {
+                                        <input readonly class="form-control" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="InvBOM.TransactionDate"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="InvBOM.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="InvBOM.SecondItemCategoryId"></label>
+                                <select asp-for="InvBOM.SecondItemCategoryId" class="chosen-select form-control" id="secondcategoryId" asp-items="ViewBag.SecondLevelCategoryLOV" onchange="GetThirdLevel();"  required>
+                                    <option selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="InvBOM.FourthItemCategoryId"></label>
+                                <select asp-for="InvBOM.FourthItemCategoryId" class="chosen-select form-control" id="fourthCategoryId" asp-items="ViewBag.FourthLevelCategoryLOV" required>
+                                    <option value="0" selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+
+
+
+                    <br />
+                    <hr />
+                    <div class="row">
+
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Nature</label>
+                                <select class="chosen-select form-control" id="natureId" asp-items="ViewBag.Nature" required>
+                                    <option value="0" selected disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                       
+
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="form-group">
+                                    <label>Item</label>
+                                    <select class="chosen-select form-control itm"  id="itemId">
+                                        <option value="0" selected disabled>Please select</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                      
+                        <div class="col-lg-2 col-sm-3 ">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="col-form-label">Quantity</label>
+                                    <input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0"   type="number" class="form-control text-right" id="qntyId" data-validation="required" autocomplete="off" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 ">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="col-form-label">UOM</label>
+                                    <input tabindex="-1" class="form-control" id="uomName" readonly />
+                                    <input id="uomId" hidden />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group col-lg-1" style="margin-left:auto">
+                            <label class="control-label">  </label>
+                            <div>
+                                <a class="btn btn-primary" onclick="AddItem();" style="margin-top:4px">Add</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                            <table id="tblBOMDetail" class="table table-bordered table-striped withscroll">
+                                <thead>
+                                    <tr>
+                                        <th style="width:45%">Item Description</th>
+                                        <th style="width:15%">Quantity</th>
+                                        <th style="width:15%">UOM</th>
+                                        <th style="width:15%">Nature</th>
+                                        <th style="width:10%">Action</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.InvBOMDetail != null)
+                                    {
+
+                                        @foreach (var item in Model.InvBOMDetail)
+                                        {
+                                            <tr>
+                                            <td class ="Id" hidden>@item.Id</td>
+
+                                            <td class ="ItemId" hidden>@item.ItemId</td>
+                                            <td class="ItemName">@item.Item.Code - @item.Item.Name</td>
+
+                                           <td class ="quantity text-right" >@item.Quantity</td>
+
+                                           <td class="uomId text-right" hidden>@item.UOMId</td>
+                                            <td class="uom text-right">@item.UOM.ConfigValue</td>
+
+                                            <td class ="natureId" hidden>@item.NatureId</td>
+                                            <td class ="natureName">@item.Nature.ConfigValue</td>
+
+                                            <td class ="text-center">
+                                            <a class="btn btn-sm btn-danger m-t-n-xs " onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a asp-controller="BOM" asp-action="Index" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()"   value="Save" class="btn btn-primary" />
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                            <input hidden id="detail" name="Detail" />
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#secondcategoryId").select2();
+            $("#fourthCategoryId").select2();
+            $("#natureId").select2();
+            $("#itemId").select2();
+
+            $('#fourthCategoryId').on('change', function () {
+                $("#tblBOMDetail > tbody > tr").remove();
+                $('#itemId').find('option').not(':first').remove();
+                var item = $('#fourthCategoryId').val();
+                if (item == "0" || item == null) {
+                    return;
+                }
+                $.ajax({
+                    method: "GET",
+                    url: "/Inventory/ItemPricing/GetItems",
+                    data: { Id: item }
+                }).done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#itemId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                    
+
+                });;
+            })
+
+            $('#fourthCategoryId').on('change', function () {
+
+                $('#itemId').find('option').not(':first').remove();
+                var catId = $('#fourthCategoryId').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/Api/GetItemsByCategoryId",
+                    data: { categoryId: catId }
+                }).done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#itemId').append($('<option>', {
+                            value: item.id,
+                            text: item.name + " " + item.brand
+                        }));
+                    });
+                });
+                $('#itemId').val(0).trigger('change.select2');
+            })
+
+            $('#itemId').change(function () {
+                var itemId = $('#itemId').val();
+                $.ajax({
+                    type: 'POST',
+                    async: false,
+                    url: '/Inventory/Adjustment/GetItemById?id=' + itemId,
+
+                }).done(function (data) {
+                    if (data != null) {
+                        $('#uomName').val(data.code);
+                        $('#uomId').val(data.unit);
+                    }
+                    else {
+
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function AddItem() {
+            var ItemId = $("#itemId").find(":selected").val();
+            var ItemName = $("#itemId").find(":selected").text();
+
+            var quantity = $("#qntyId").val();
+            var uom = $("#uomId").val();
+            var uomName = $("#uomName").val();
+
+            var natureId = $("#natureId").find(":selected").val();
+            var natureName = $("#natureId").find(":selected").text();
+
+            if (natureId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Nature!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#natureId').focus();
+                });
+                return false;
+            }
+            if (ItemId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item !",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#itemId').focus();
+                });
+                return false;
+            }
+
+            if (quantity == 0 || quantity == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Quantity  !",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#qntyId').focus();
+                });
+                return false;
+            }
+
+
+            item_data = '';
+            item_data += '<tr>';
+            item_data += '<td class ="Id" hidden>0</td>';
+
+            item_data += '<td class ="ItemId" hidden>' + ItemId + '</td>';
+            item_data += '<td class ="ItemName">' + ItemName + '</td>';
+
+            item_data += '<td class ="quantity text-right" >' + quantity + '</td>';
+
+            item_data += '<td class ="uomId text-right" hidden >' + uom + '</td>';
+            item_data += '<td class ="uom text-right" >' + uomName + '</td>';
+
+            item_data += '<td class ="natureId" hidden>' + natureId + '</td>';
+            item_data += '<td class ="natureName">' + natureName + '</td>';
+
+            item_data += '<td class ="text-center">';
+            item_data += '<a class="btn btn-sm btn-danger m-t-n-xs " onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            item_data += '</tr>';
+            /**/
+            $("#tblBOMDetail > tbody").append(item_data);
+
+            ClearTextBox();
+
+
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function ClearTextBox() {
+            $('#itemId').val(0).trigger('change.select2');
+            $("#qntyId").val("");
+            $("#uomId").val("");
+            $('#natureId').val(0).trigger('change.select2');
+        }
+
+
+    </script>
+
+
+    <script>
+        function Validation() {
+            var secondcategory = $("#secondcategoryId").val();
+            var fourthCategory = $("#fourthCategoryId").val();
+            var nature = $('#natureId').val();
+
+            if (secondcategory == 0) {
+                swal("", "Please select Second Category!", "warning");
+                return false;
+            }
+
+            if (fourthCategory == 0) {
+                swal("", "Please select Fourth Category!", "warning");
+                return false;
+            }
+
+            else {
+                $("#formId").on("submit", function () {
+                    $("#SaveBtn").attr("disabled", true);
+                    $("#SaveBtn").val("Saving...");
+                });
+                return true;
+            }
+
+        }
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var BOMdetails = [];
+            $.each($("#tblBOMDetail tbody tr"), function () {
+                BOMdetails.push({
+                    Id: $(this).find('.Id').html(),
+                    ItemId: $(this).find('.ItemId').html(),
+                    Quantity: $(this).find('.quantity').html(),
+                    UOMId: $(this).find('.uomId').html(),
+                    NatureId: $(this).find('.natureId').html()
+                });
+            });
+
+            var model = JSON.stringify(BOMdetails);
+            $("#detail").val(model);
+
+
+        }
+
+
+
+        function GetThirdLevel() {
+            $("#tblBOMDetail > tbody > tr").remove();
+            debugger
+            $('#fourthCategoryId').find('option').not(':first').remove();
+            var secondLevel = $('#secondcategoryId').val();
+            $.ajax({
+                type: 'GET',
+                url: '/AR/SaleOrder/GetFourthLevel?id=' + secondLevel
+            }).then(function (data) {
+                var thirdCat = $("#fourthCategoryId");
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    thirdCat.append($("<option />").val(data[i].value).text(data[i].text));
+                }
+                $('#fourthCategoryId').val(0).trigger('change.select2');
+
+            });
+
+        }
+
+
+     
+
+ 
+
+    </script>
+
+}
+
+
+

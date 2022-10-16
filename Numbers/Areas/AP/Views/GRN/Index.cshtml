@@ -1,0 +1,156 @@
+﻿@model IEnumerable<Numbers.Entity.Models.APGRN>
+
+@{ ViewData["Title"] = "GRN";
+    ViewData["CurrentPage"] = "GRN";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value; }
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="GRN" asp-action="Create"> <strong> Create New </strong> </a>
+                </div>
+                <br />
+                <br />
+                <table class="table table-bordered table-striped" style=" width:100%" id="GRNTable">
+                    <thead>
+                        <tr>
+                            <th style="width:8%" class="searchHeader">GRN #</th>
+                            <th style="width:10%" class="searchHeader">GRN Date</th>
+                            <th style="width:8%" class="searchHeader">IRN #</th>
+                            <th style="width:10%" class="searchHeader">Total</th>
+                            <th style="width:10%" class="searchHeader">Tax Amnt</th>
+                            <th style="width:10%" class="searchHeader">Freight</th>
+                            <th style="width:10%" class="searchHeader">GrandTotal</th>
+                            <th style="width:10%" class="searchHeader">Status</th>
+                            <th style="width:10%" class="searchHeader">CreatedBy</th>
+                            <th style="width:14%">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 =  $("#GRNTable").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AP/GRN/GetGRNList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [9] },
+                    {
+                        targets: [3, 4, 5],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }],
+
+                "columns": [
+                    { "data": "apgrn.grnno", "name": "GRNNO", className: "text-center" },
+                    { "data": "date", "name": "GRNDate", className: "text-center" },
+                    { "data": "apgrn.irnNo", "name": "IRNNo", className: "text-center" },
+                    { "data": "apgrn.total", "name": "Total", className: "text-right" },
+                    { "data": "apgrn.totalTaxAmount", "name": "TotalTaxAmount", className: "text-right" },
+                    { "data": "apgrn.freight", "name": "Freight", className: "text-right" },
+                    { "data": "apgrn.grandTotal", "name": "GrandTotal", className: "text-right" },
+                    { "data": "apgrn.status", "name": "Status", className: "text-center" },
+                    { "data": "createdBy", "name": "CreatedBy", className: "text-center" },
+                    {
+                        "data": "apgrn", className: "text-center",
+                        "render": function (data, row) {
+                            debugger
+                            if (data.status == "Created") {
+                                if (data.approve == true) {
+                                    return "<div style=''> <a href='/AP/GRN/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/AP/GRN/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs' onclick='return confirm('Are you sure you want to Approve GRN?')' > <i class='fa fa-thumbs-up' title='Approve'></i></a >    <a href = '/AP/GRN/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs' onclick='return confirm('Are you sure you want to Delete GRN?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >    <a href='@ViewBag.ReportUrl/Viewer?Report=GRN&cId=1&id=" + data.id + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a> </div > ";
+                                } else {
+                                    return "<div style=''> <a href='/AP/GRN/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href = '/AP/GRN/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs' onclick='return confirm('Are you sure you want to Delete GRN?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >    <a href='@ViewBag.ReportUrl/Viewer?Report=GRN&cId=1&id=" + data.id + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a> </div > ";
+                                }
+                            }
+                            else if (data.status == "Approved") {
+                                return "<a href='/AP/GRN/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href=@ViewBag.ReportPath"+ data.voucherId+" class='btn btn-primary'><i class='fa fa - print'></i> Voucher</a>";
+                            }
+
+                        }
+                    }
+                ],
+
+            })
+
+
+            $('#GRNTable thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+
+
+        });
+    </script>
+}
+

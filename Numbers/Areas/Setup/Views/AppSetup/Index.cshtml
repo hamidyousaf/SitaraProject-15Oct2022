@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewData["Title"] = "App Setup";
+    ViewData["CurrentPage"] = "App Setup";
+}
+<style>
+    .scroll {
+        float: left;
+        overflow-y: auto;
+        height: 630px;
+        margin-bottom:30px;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5>Update App Setup</h5>
+            </div>*@
+            <div class="ibox-content ">
+                <form method="post" asp-action="Update" asp-controller="AppSetup">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-3">
+                            <div class="form-group">
+                                <label>Company</label>
+                                <select class="chosen-select form-control" onchange="GetCompanySetup()" asp-items="ViewBag.Company" id="CompanyId" required>
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="itemTable"></p>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS {
+    <script>
+        $.validate();
+        $(document).ready(function () {
+            $("#CompanyId").select2();
+        })
+        function GetCompanySetup() {
+            debugger;
+            var companyId = Number($("#CompanyId").find(":selected").val());
+            if (companyId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Company!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CompanyId').focus();
+                });
+                return false;
+            }
+            // AJAX request
+            $.ajax({
+                url: '/Setup/AppSetup/GetCompanySetup',
+                type: 'POST',
+                method: 'POST',
+                data: { companyId },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+        }
+    </script>
+}

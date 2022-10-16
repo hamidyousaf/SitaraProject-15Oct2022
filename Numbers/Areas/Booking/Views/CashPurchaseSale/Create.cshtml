@@ -1,0 +1,474 @@
+﻿@model BkgCashPurchaseSale
+
+@{
+    ViewData["Title"] = "Cash Purchase Sale";
+    ViewData["CurrentPage"] = "Cash Purchase/Sale Vehicle";
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Cash Purchase/Sale Vehicle</h5>
+
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="col-md-6">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="TransDate" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+
+                                    <div class="input-group date">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        @*<input type="text" class="form-control custom-date-picker" asp-for="TransDate" data-validation="required" data-validation-error-msg="Trans. date is required" value=@DateTime.Now.Date.ToString("dd-MMM-yyyy")>*@
+                                        <input type="text" class="form-control custom-date-picker" data-validation="required" asp-for="TransDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.TransDate.ToString(CommonHelper.DateFormat))>
+                                        <span asp-validation-for="TransDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BookingNo" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+                                    <input asp-for="BookingNo" data-validation="required" onchange="checkBookingNo();" class="form-control" />
+                                    <span asp-validation-for="BookingNo" class="text-danger"></span>
+                                    <div class="row">
+                                        <label></label>
+                                        <div class="col-sm-10">
+                                            <p id="Status" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="BookingDate" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+
+                                    <div class="input-group date">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" data-validation="required" class="form-control custom-date-picker" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.BookingDate.ToString(CommonHelper.DateFormat)) asp-for="BookingDate">
+                                        <span asp-validation-for="BookingDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CustomerId" class="col-lg-4 control-label">Supplier</label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" data-validation="required" asp-for="CustomerId">
+                                        <option selected="selected" value="">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <input asp-for="VehicleId" type="hidden" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label asp-for="ItemId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" data-validation="required" asp-for="ItemId">
+                                        <option selected="selected" value="">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="ItemId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="EstimatedPurchase" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="EstimatedPurchase"   class="form-control"  data-validation="required" data-validation-allowing="range[1.00;10000000];float" data-validation-error-msg="Estimated Purchase is required." data-validation-error-msg-container="#estimate"/>
+                                    <span asp-validation-for="EstimatedPurchase" class="text-danger"></span>
+                                    <span id="estimate"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="BookingRemarks" class="col-lg-12 control-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <textarea asp-for="BookingRemarks" data-validation="required" class="form-control"></textarea>
+                                    <span asp-validation-for="BookingRemarks" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>Vehicle Receiving Information.</h5>
+
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="row">
+                                        <div class="col-md-6">
+
+                                        </div>
+                                        <div class="col-md-6">
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="IGPDate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+
+                                                    <div class="input-group date">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </span>
+                                                        <input type="text" asp-for="IGPDate" class="form-control   custom-date-picker" data-validation="required" data-validation-error-msg="IGP Date is required" data-validation-error-msg-container="#igpdate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.IGPDate.ToString(CommonHelper.DateFormat))>
+                                                        <span asp-validation-for="IGPDate" class="text-danger"></span>
+                                                        <span id="igpdate"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="IGPNo" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="IGPNo" class="form-control" data-validation="required" data-validation-error-msg="IGP No is required." data-validation-error-msg-container="#igpNo" />
+                                                    <span asp-validation-for="IGPNo" class="text-danger"></span>
+                                                    <span id="igpNo"></span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="EngineNo" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="EngineNo" data-validation="required" class="form-control" />
+                                                    <span asp-validation-for="EngineNo" class="text-danger"></span>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="ChassisNo" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input type="text" asp-for="ChassisNo" name="ChassisNo" data-validation="required" class="form-control" />
+                                                    <span asp-validation-for="ChassisNo" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="InvoiceNo" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="InvoiceNo" data-validation="required" class="form-control" />
+                                                    <span asp-validation-for="InvoiceNo" class="text-danger"></span>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label asp-for="ReceivingRemarks" class="col-lg-12 control-label"></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <div class="form-group">
+                                                    <div class="col-lg-12">
+                                                        <textarea asp-for="ReceivingRemarks" data-validation="required" class="form-control"></textarea>
+                                                        <span asp-validation-for="ReceivingRemarks" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-lg-4 col-lg-offset-2">
+
+                                                <a value="Cancel" asp-action="Index" class="btn btn-white">List </a>
+
+                                                <input id="submit" type="submit" asp-action="Create" value=@ViewBag.EntityState class="btn btn-primary submit" />                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="hr-line-dashed"></div>
+
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section customJS{
+    <script>
+
+        $.validate();
+        // Select For Vehicle Customer
+        $(function () {
+            $('#ItemId').select2({
+             placeholder: "Select an item",
+            ajax: {
+                url: '/Booking/Api/GetItems',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a an item',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.ItemId;
+        var accountSelect = $('#ItemId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/GetItem/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+        $(function () {
+            var type = 'Supplier';
+            $('#CustomerId').select2({
+                placeholder: "Select a supplier",
+            ajax: {
+                url: '/Booking/Api/GetCustomers',
+                data: {type},
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a supplier',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.CustomerId;
+        var customerSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/GetCustomer/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            customerSelect.append(option).trigger('change');
+            customerSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+        function checkBookingNo() {
+            // $("#Status").html("Verifying Booking No...");
+            $.post("@Url.Action("CheckBookingNoAlreadyExists", "CashPurchaseSale", "Booking")",
+                {
+                    bookingNo: $('input[name=BookingNo]').val()
+                },
+                function (data) {
+
+                    //console.log(data);
+                    //return false;
+                    if (data) {
+                        if (data.bookingNo != null) {
+                            var bookingDate = data.bookingDate;
+                            var vehicleId = data.id;
+                            var remarks = data.remarks;
+                            $("#Status").html('<font color="Green"></font>');
+                            $("#BookingNo").css("border-color", "green");
+                            //Assign values to input fields
+                            $("#VehicleId").val(vehicleId);
+                            $("#BookingDate").val(dateFormat(bookingDate));
+                            $("#BookingRemarks").val(remarks);
+                            $("#submit").prop("disabled", false);
+                            readOnlyFields();
+                            checkIgp(vehicleId);
+                            getItemId(data.itemId);
+                            getSupplierId(data.customerId);
+                            //If these fields are not empty data is readonly and vice versa
+                        }
+                    }
+                    else {
+                        $("#Status").html('<font color="Red">Booking Number not found.</font>');
+                        $("#BookingNo").css("border-color", "Red");
+                        //$("#submit").prop("disabled", true);
+                        $("#submit").prop("disabled",true);
+                        $("#EngineNo").val(null);
+                        $("#ChassisNo").val(null);
+                        $("#VehicleId").val(null);
+                        $("#BookingDate").val(null);
+                        $("#BookingRemarks").val(null);
+                        checkIgp();
+                        //$("#VehicleId").val(null);
+                    }
+                })
+            // Fetch the preselected item, and add to the control
+            
+        }
+        function getItemId(itemId) {
+            var itemSelect = $('#ItemId');
+                $.ajax({
+                    type: 'GET',
+                    url: '/Booking/API/GetItem/' + itemId
+                }).then(function (data) {
+                    var option = new Option(data.text, data.id, true, true);
+                    itemSelect.append(option).trigger('change');
+                    itemSelect.trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: data
+                        }
+                    });
+                });
+        }
+        function getSupplierId(supplierId) {
+            var supplierSelect = $('#CustomerId');
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/Api/GetCustomer/' + supplierId
+            }).then(function (data) {
+                var option = new Option(data.text, data.id, true, true);
+                supplierSelect.append(option).trigger('change');
+                supplierSelect.trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+        }
+        function readOnlyFields() {
+            //var chassis = $("#ChassisNo").val();
+            //if (chassis != '0') {
+            //    $("#BookingRemarks").prop("readonly", true);
+            //    $("#BookingDate").prop("readonly", true);
+            //    $("#IGPDate").prop("readonly", true);
+            //    $("#IGPNo").prop("readonly", true);
+            //    $("#EngineNo").prop("readonly", true);
+            //    $("#ChassisNo").prop("readonly", true);
+            //    $("#InvoiceNo").prop("readonly", true);
+            //    $("#ReceivingRemarks").prop("readonly", true);
+            //    $("#ItemId").prop('readonly', true);
+            //    $("#CustomerId").prop('readonly', true);
+            //}
+            //else {
+            //    $("#BookingRemarks").prop("readonly", false);
+            //    $("#BookingDate").prop("readonly", false);
+            //    $("#IGPDate").prop("readonly", false);
+            //    $("#IGPNo").prop("readonly", false);
+            //    $("#EngineNo").prop("readonly", false);
+            //    $("#ChassisNo").prop("readonly", false);
+            //    $("#InvoiceNo").prop("readonly", false);
+            //    $("#ReceivingRemarks").prop("readonly", false);
+            //    $("#ItemId").prop("readonly", false);
+            //    $("#CustomerId").prop("readonly", false);
+            //}
+        }
+        function checkIgp(vehicleId) {
+                $.post("@Url.Action("CheckIgp", "CashPurchaseSale", "Booking")",
+                    {
+                        bookingNo: vehicleId
+                },
+                function (data) {
+                    if (data) {
+                        if (data.vehicleId != null) {
+                            var engine = data.engineNo;
+                            var chassis = data.chassisNo;
+                            var igpDate = data.igpDate;
+                            var invoiceNo = data.invoiceNo;
+                            var remarks = data.description;
+
+                            //Assign values to input fields
+                            $("#EngineNo").val(engine);
+                            $("#ChassisNo").val(chassis);
+                            $("#IGPNo").val(data.igpNo);
+                            $("#IGPDate").val(dateFormat(igpDate));
+                            $("#InvoiceNo").val(invoiceNo);
+                            $("#ReceivingRemarks").val(remarks);
+                            readOnlyFields();
+
+                        }
+                    }
+                    else {
+                        $("#EngineNo").val(null);
+                        $("#ChassisNo").val(null);
+                        $("#IGPNo").val(null);
+                        $("#IGPDate").val(null);
+                        $("#InvoiceNo").val(null);
+                        $("#ReceivingRemarks").val(null);
+                    }
+                })
+        }
+    </script>
+}

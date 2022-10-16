@@ -1,0 +1,513 @@
+﻿@model Numbers.Entity.ViewModels.VMARCommissionPayment
+@using System.Globalization;
+@namespace CommonHelper.FormatDate
+@{ ViewData["Title"] = "Create Commission Agent Payment";
+    ViewData["CurrentPage"] = "Commission Agent Payment";
+}
+
+<style>
+    table td {
+        position: relative;
+    }
+
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    .disable-select {
+        background: #eee;
+        pointer-events: none;
+        touch-action: none;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+            </div>*@
+                <span class="label label-success pull-right status"></span>
+            
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post" onsubmit="return validate();">
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <input type="hidden" asp-for="Id">
+
+                        <div class="col-lg-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Trans #</label>
+                                @if (Model.TransactionNo == 0)
+                                {
+                                    <input tabindex="-1" type="text" class="form-control text-right" value="" readonly />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" type="text" class="form-control text-right" asp-for="TransactionNo" readonly />
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>Transaction Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" asp-for="StartDate" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" asp-for="EndDate" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        @*<div class="col-lg-3" style="float:right">
+                                <label></label>
+                                <div class="text-right">
+                                    <a id="get-commissionAgent-popUp" class="btn btn-primary" onclick="ShowModel();">Get Commission Agent Payment</a>
+                                </div>
+                            </div>*@
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Item Category</label>
+                                <select autofocus asp-for="CategoryId" onchange="GetCommissionAgent()" id="CategoryId" asp-items="@ViewBag.ItemCategory2" class="chosen-select form-control">
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>City</label>
+                                <select autofocus asp-for="CityId" onchange="GetCommissionAgent()" id="CityId" name="ci" asp-items="@ViewBag.City" class="chosen-select form-control">
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>Commission Agent</label>
+                                <select autofocus asp-for="AgentId" id="AgentId" asp-items="@ViewBag.Agent" class="chosen-select form-control">
+                                    <option selected="selected" value="0" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-lg-12">
+                            <label></label>
+
+                            <button type="button" class="btn btn-primary" id="AddClick" style="margin-top:4px">Add</button>
+                        </div>
+
+                    </div>
+
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th class="searchHeader " hidden>Receipt Id</th>
+                                                <th style="width: 10%" class="searchHeader">Receipt Date</th>
+                                                <th class="searchHeader" hidden>Customer Id</th>
+                                                <th style="width: 25%" class="searchHeader">Customer</th>
+                                                <th class="searchHeader" hidden>Item Category Id</th>
+                                                <th style="width: 10%" class="searchHeader">Item Category</th>
+                                                <th class="searchHeader" hidden>City Id</th>
+                                                <th style="width: 10%" class="searchHeader">City</th>
+                                                <th style="width: 10%" class="searchHeader">Receipt Amount</th>
+                                                <th style="width: 10%" class="searchHeader">Commission Amount</th>
+                                                <th style="width: 10%" class="searchHeader">Payment Amount</th>
+                                                <th style="width: 5%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.DetailList != null)
+                                            {
+                                                foreach (var items in Model.DetailList)
+                                                {
+                                                    <tr class='removed'>
+                                                        <td hidden><input tabindex="-1" name='Id1' id='Id1' class='id' value="@items.Id" /></td>
+                                                        <td hidden><input tabindex="-1" name='CommisionPaymentId1' id='CommisionPaymentId1' value="@items.CommissionPaymentId" /></td>
+                                                        <td hidden><input tabindex="-1" name='ReceiptId1' id='ReceiptId1' value="@items.ReceiptId" readonly /></td>
+                                                        <td><input tabindex="-1" name='receiptDate' style='width: 100%; border:none;' id='receiptDate' value="@items.ReceiptDate.ToString("dd-MMM-yyyy")" readonly /> </td>
+                                                        <td hidden><input tabindex="-1" name='customerId1' id='customerId' readonly value="@items.CustomerId" /></td>
+                                                        <td><input tabindex="-1" name='customerName' style='width: 100%;border:none;' value="@items.CustomerName" id='customerName' readonly /></td>
+                                                        <td hidden><input tabindex="-1" name='categoryId1' id='categoryId' value="@items.CategoryId" readonly /></td>
+                                                        <td><input tabindex="-1" name='categoryName' style='width: 100%; border:none;' value="@items.CategoryName" id='categoryName' readonly /></td>
+                                                        <td hidden><input tabindex="-1" name='cityid1' id='cityid1' value="@items.Cityid" readonly /></td>
+                                                        <td><input tabindex="-1" name='cityName' style='width: 100%; border:none;' id='cityName' value="@items.CityName" readonly /></td>
+                                                        <td>
+                                                            <input tabindex="-1" name='receiptAmount1' style='width: 100%; border:none;' id='receiptAmount1' value="@items.ReceiptAmount.ToString("N",new CultureInfo("en-US"))
+
+
+
+" class='text-right receiptAmount' readonly />
+                                                        </td>
+                                                        <td><input tabindex="-1" name='commissionAmount1' style='width: 100%; border:none;' id='commissionAmount1' value="@items.CommissionAmount.ToString("N",new CultureInfo("en-US"))" class='text-right' readonly /></td>
+                                                        <td hidden><input tabindex="-1" value="@items.CommissionAmount" type="hidden" class='text-right CheckCommission' readonly /></td>
+                                                        <td><input name='paymentAmount1' style='width: 100%; border:none;' id='paymentAmount1' value="@items.PaymentAmount.ToString("N",new CultureInfo("en-US"))" onchange="Calculation($(this));" class='text-right CheckPayment' /></td>
+                                                        @*<td hidden><input value="@items.PaymentAmount" type="hidden" class='text-right CheckPayment' /></td>*@
+                                                        <td> <a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs width:100%"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i></a> </td>
+                                                    </tr>
+                                                }
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a type="button" asp-controller="CommissionAgentPayment" asp-action="Index" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-controller="CommissionAgentPayment" asp-action="Create" class="btn btn-primary" />
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            if ($('#TransactionTypeId').find(':selected').val() != "0") {
+                $('#TransactionTypeId').attr('disabled', true);
+            }
+            $('#StartDate').change();
+            $("#CategoryId").select2();
+            $("#CityId").select2();
+            $("#AgentId").select2();
+
+        });
+        $('#StartDate').change(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/AR/CustomerDiscount/GetFormatedDate',
+                data: { date: $('#StartDate').val() }
+            }).then(function (data) {
+                $('#EndDate').datepicker('setDate', data);
+            });
+        })
+        function ShowModel() {
+            if ($('#TransactionTypeId').find(':selected').val() != "0") {
+                $('#invoiceModal').modal('show');
+            }
+        }
+        function GetCommissionAgent() {
+            var catogoryId = $("#CategoryId").find(":selected").val();
+            var cityId = $("#CityId").find(":selected").val();
+
+            $('#AgentId').find('option').not(':first').remove();
+
+            $.ajax({
+                method: "GET",
+                url: '/AR/CommissionAgentPayment/GetCommissionAgent',
+                data: { catogoryId, cityId }
+            }).done(function (data) {
+                debugger
+                if (data.length != 0) {
+                    $.each(data, function (i, item) {
+                        debugger
+                        $('#AgentId').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                } else {
+                    $('#AgentId').val(0).trigger('change.select2');
+                }
+            });
+
+        }
+        function Calculation(row) {
+            debugger
+            var commission = Number(row.closest("tr").find(".CheckCommission").val());
+            var payment = Number(row.closest("tr").find(".CheckPayment").val());
+            if (payment > commission) {
+                swal("", "Payment amount must be less than commission amount.", "warning");
+                row.closest("tr").find(".CheckPayment").val(0);
+                return false;
+            }
+        }
+        function Create(row) {
+            debugger
+            row.closest("tr").remove();
+            var ComAgPayGenId = row.closest("tr").find('td:eq(0)').html();
+            var TranNo = row.closest("tr").find('td:eq(1)').html();
+            var TranDate = row.closest("tr").find('td:eq(2)').html();
+            var ComAgent = row.closest("tr").find('td:eq(3)').html();
+            var city = row.closest("tr").find('td:eq(4)').html();
+            var ComAmount = row.closest("tr").find('td:eq(5)').html();
+            var ComPeriod = row.closest("tr").find('td:eq(6)').html();
+            if ($('#statushdn').val() == 'Update') {
+                var UtilizedAmount = row.closest("tr").find('td:eq(7)').html();
+            } else {
+                var UtilizedAmount = '0';
+            }
+            var BalTotal = row.closest("tr").find('td:eq(8)').html();
+            var row = "<tr>" +
+                "<td hidden> <input name='CommissionAgentPaymentGenerationId' tabindex='-1' class='form-control CommissionAgentPaymentGenerationId' value='" + ComAgPayGenId + "' readonly/></td>" +
+                "<td><input name='TranNo' tabindex='-1' class='form-control TranNo' value='" + TranNo + "' readonly/></td>" +
+                "<td hidden><input tabindex='- 1' class='form - control transDate' value= '" + TranDate + "' readonly /></td>" +
+                "<td><input name='ComAgent' tabindex='-1' class='form-control ComAgent' value='" + ComAgent + "' readonly/></td>" +
+                "<td><input name='city' tabindex='-1' class='form-control city' value='" + city + "' readonly/></td>" +
+                "<td><input name='ComAmount' tabindex='-1' class='form-control ComAmount' value='" + ComAmount + "' readonly/></td>" +
+                "<td hidden><input name='comPeriod' tabindex='-1' class='form-control comPeriod' value='" + ComPeriod + "' readonly/></td>" +
+                "<td hidden><input name='CommissionBalancehdn' tabindex='-1' class='form-control CommissionBalancehdn' value='" + BalTotal + "' type='hidden'/></td>" +
+                "<td><input name='CommissionBalance' tabindex='-1' class='form-control CommissionBalance' value='" + BalTotal + "' readonly/></td>" +
+                "<td hidden><input name='PaidAmounthdn' class='form-control PaidAmounthdn' value='" + UtilizedAmount + "' type='hidden'/></td>" +
+                "<td hidden><input name='PaidAmounthdnDef' class='form-control PaidAmounthdnDef'  value='" + UtilizedAmount + "' type='hidden'/></td>" +
+                "<td><input name='PaidAmount' onkeypress='return isNumberKey(event)'  onpaste='return false;' ondrop='return false;' onkeyup='PAmount($(this));' class='form-control PaidAmount' value='" + UtilizedAmount + "' /></td>" +
+                "<td class='text-center'><a onclick='deleterow($(this));' style='margin-top:0px' class='btn btn-sm btn-danger m-t-n-xs'>Delete</a></td>" +
+                "</tr>"
+            $("#tblDetail tbody").append(row);
+            CheckType();
+        }
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+            debugger
+            var ComAgPayGenId = row.closest("tr").find('.CommissionAgentPaymentGenerationId').val();
+            var TranNo = row.closest("tr").find('.TranNo').val();
+            var TranDate = row.closest("tr").find('.transDate').val();
+            var ComAgent = row.closest("tr").find('.ComAgent').val();
+            var city = row.closest("tr").find('.city').val();
+            var ComAmount = row.closest("tr").find('.ComAmount').val();
+            var ComPeriod = row.closest("tr").find('.comPeriod').val();
+            var ComBalancehdn = row.closest("tr").find('.CommissionBalancehdn').val();
+            var ComBalance = row.closest("tr").find('.CommissionBalance').val();
+            var PaidAmounthdn = row.closest("tr").find('.PaidAmounthdn').val();
+            var PaidAmounthdnDef = row.closest("tr").find('.PaidAmounthdnDef').val();
+            var PaidAmount = row.closest("tr").find('td:eq(11)').val();
+            var row = "<tr>" +
+                "<td hidden> '" + ComAgPayGenId + "</td>" +
+                "<td>" + TranNo + "</td>" +
+                "<td>" + TranDate + "</td>" +
+                "<td>" + ComAgent + "</td>" +
+                "<td hidden>" + city + "'</td>" +
+                "<td>" + ComAmount + "</td>" +
+                "<td>" + ComPeriod + "</td>" +
+                "<td>" + PaidAmounthdnDef + "</td>" +
+                "<td>" + ComBalancehdn + "</td>" +
+                "<td><input type='checkbox' class='IsSelect' onclick='Create($(this))' /></td>" +
+                "</tr>"
+            $("#comAgPayGenTable tbody").append(row);
+        }
+
+        function PAmount(row) {
+            var PAmount = Number(row.closest("tr").find('.PaidAmount').val());
+            var PAmounthdn = Number(row.closest("tr").find('.PaidAmounthdn').val());
+            var PaidAmounthdnDef = Number(row.closest("tr").find('.PaidAmounthdnDef').val());
+            var ComBalance = Number(row.closest("tr").find('.CommissionBalance').val());
+            var ComBalancehdn = Number(row.closest("tr").find('.CommissionBalancehdn').val());
+            debugger
+            if (PAmount > ComBalancehdn) {
+                swal("", "Paid Amount must be less than Commission Balance", "warning");
+                row.closest("tr").find('.PaidAmount').val(Number(PaidAmounthdnDef.toFixed(4)));
+                row.closest("tr").find('.PaidAmounthdn').val(Number(PaidAmounthdnDef.toFixed(4)))
+                row.closest("tr").find('.CommissionBalance').val(Number(ComBalancehdn.toFixed(4)));
+
+                return false
+            }
+            let newPAmount = PAmounthdn - PAmount;
+            let remainingAmount = ComBalance + Number(newPAmount.toFixed(4))
+            row.closest("tr")
+                .find(".CommissionBalance").val(Number(remainingAmount.toFixed(4)))
+            row.closest("tr").find('.PaidAmounthdn').val(Number(PAmount.toFixed(4)))
+        };
+
+        function CloseTransaction(row) {
+            debugger
+            var closeRow = row.closest("tr").find('.CommissionAgentPaymentGenerationId').val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CommissionAgentPayment/ClosedPayment',
+                data: { id: closeRow }
+            }).done(function (data) {
+                if (data == true) {
+                    row.text("Closed");
+                    row.removeAttr("onclick", true)
+                    row.removeClass("btn-danger");
+                    row.addClass("btn-default")
+                    row.closest("tr").find(".PaidAmount").attr("readonly", true);
+                    row.closest("tr").find(".TransferAmount").attr("readonly", true);
+                    row.closest("tr").find(".TransToCustomer").attr("disabled", true);
+                    row.closest("tr").find(".TransferAmount").val(0);
+                    row.closest("tr").find(".PaidAmount").val(0);
+                }
+            });
+        }
+        function CheckType() {
+            debugger
+            var TransactionType = $('#TransactionTypeId').find(':selected').text();
+            $('#tblDetail tbody tr').each(function () {
+                var comBalance = $(this).find(".CommissionBalancehdn").val();
+                var PaidAmounthdnDef = $(this).find(".PaidAmounthdnDef").val();
+                if (TransactionType == "Payment") {
+                    $(this).find(".PaidAmount").attr("readonly", false);
+                    $(this).find(".PaidAmount").val(PaidAmounthdnDef);
+                } else {
+                    $(this).find(".PaidAmount").attr("readonly", true);
+                    $(this).find(".PaidAmount").val(PaidAmounthdnDef);
+                    $(this).find(".CommissionBalance").val(comBalance);
+                }
+            });
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        function Validation() {
+            debugger
+            var TransactionType = $('#TransactionTypeId').find(':selected').text();
+            var PAmount = Number($(".PaidAmount").val());
+            if (PAmount == 0 && TransactionType == 'Payment') {
+                swal("", "Please Enter Paid Amount!", "warning");
+                return false
+            }
+        }
+        function validate() {
+            debugger
+            var length = $("#Table > tbody > tr").length;
+            var breakOut = false;
+            if (length == 0) {
+                swal("", "Item must be enter at least one!", "warning");
+                return false;
+            }
+
+            $("#Table > tbody > tr").each(function () {
+                debugger
+                var payment = $(this).closest("tr").find(".CheckPayment").val();
+                if (payment < 1) {
+                    breakOut = true;
+                    return false;
+                }
+            })
+
+            if (breakOut == true) {
+                swal("", "Payment amount cannot be zero!", "warning");
+                return false;
+            }
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+            return true;
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#AddClick').on('click', function () {
+                debugger
+                if ($("#AgentId").find(":selected").text() != "Select...") {
+                    var StartDate = $('#StartDate').val();
+                    var EndDate = $('#EndDate').val();
+                    var CategoryId = $('#CategoryId').val();
+                    var CityId = $('#CityId').val();
+                    var AgentId = $('#AgentId').val();
+                    var value = false;
+
+
+
+                    var length = $("#Table > tbody > tr").find(".receiptId");
+
+                    if (value == false) {
+
+                        $.ajax({
+                            method: "GET",
+                            url: "/AR/CommissionAgentPayment/GetReceiptData",
+                            data: { StartDate: StartDate, EndDate: EndDate, CategoryId: CategoryId, CityId: CityId, AgentId: AgentId }
+                        }).done(function (data) {
+                            if (data.length != 0) {
+                                debugger;
+                                $.each(data, function (i, item) {
+                                    debugger;
+                                    var breakOut = false;
+                                    $("#Table > tbody > tr").each(function () {
+                                        debugger
+                                        var receiptId = $(this).find(".receiptId").val();
+                                        var receiptAmount = ($(this).find(".receiptAmount").val());
+                                        if (receiptId == item.id && receiptAmount == item.receiptAmount) {
+                                            debugger
+                                            breakOut = true;
+                                            return false;
+                                        }
+                                    });
+                                    debugger
+                                    if (breakOut != true) {
+
+                                        var row = "<tr class='removed'>" +
+                                            "<td hidden><input tabindex='-1' name='Id'  id='Id' value=" + item.id + "  class='id receiptId'  /></td>" +
+                                            "<td hidden><input tabindex='-1' name='ReceiptId'  id='ReceiptId' value=" + item.id + "  class='id' readonly  /></td>" +
+                                            "<td ><input  tabindex='-1' name='receiptDate' style='width: 100%; border:none;' id='receiptDate' value='" + item.receiptDate + "' readonly   /> </td>" +
+                                            "<td hidden><input tabindex='-1' name='customerId'   id='customerId' value=" + item.customerId + "  readonly  /></td>" +
+                                            "<td ><input  tabindex='-1' name='customerName' style='width: 100%;border:none;'  id='customerName' value='" + item.customerName + "' readonly  /></td>" +
+                                            "<td hidden><input tabindex='-1' name='categoryId'   id='categoryId' value=" + item.categoryId + " readonly /></td>" +
+                                            "<td ><input tabindex='-1' name='categoryName' style='width: 100%; border:none;'  id='categoryName' value='" + item.categoryName + "' readonly   /></td>" +
+                                            "<td hidden ><input tabindex='-1' name='cityid'  id='cityid' value=" + item.cityId + "  readonly  /></td>" +
+                                            "<td ><input tabindex='-1' name='cityName' style='width: 100%; border:none;' id='cityName' value='" + item.cityName + "'  readonly   /></td>" +
+                                            "<td ><input tabindex='-1' name='receiptAmount' style='width: 100%; border:none;'  id='receiptAmount' value=" + item.receiptAmount + " class='text-right receiptAmount' readonly   /></td>" +
+                                            "<td ><input tabindex='-1' name='commissionAmount' style='width: 100%; border:none;'  id='commissionAmount' value=" + item.commissionAmount + " class='text-right' readonly   /></td>" +
+                                            "<td hidden><input tabindex='-1' value=" + item.commissionAmount + " type='hidden' class='text-right CheckCommission' readonly /></td>" +
+                                            "<td ><input name='paymentAmount' style='width: 100%; border:none;' id='paymentAmount'onchange='Calculation($(this));' value=" + 0 + " class='text-right CheckPayment' /></td>" +
+                                            '<td > <a id="delrow" onclick="deleterow($(this));"  style=" margin-top:0px"class="btn btn-xs btn-danger m-t-n-xs width:100%"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i></a> </td>' +
+                                            "</tr>";
+                                        $("#Table tbody").append(row);
+                                    }
+
+                                });
+                            }
+                            else {
+                                swal("", "There is no data found!", "warning");
+                                return false;
+                            }
+                        });
+                    }
+
+                }
+                else {
+                    swal("", "Please Select Commission Agent", "warning");
+                }
+            })
+
+        });
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+    </script>
+}

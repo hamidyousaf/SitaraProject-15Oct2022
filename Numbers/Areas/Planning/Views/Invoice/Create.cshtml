@@ -1,0 +1,406 @@
+﻿@model PlanInvoiceViewModel
+@using Numbers.Areas.AR.Controllers
+@{ ViewData["Title"] = "Create Purchase";
+    ViewData["CurrentPage"] = "Purchases Invoice";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    var userId = Context.Session.GetString("UserId");
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input:not([type='checkbox']) {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form id="Form" method="post" asp-area="Planning" asp-action="Create" asp-controller="Invoice" onsubmit=" return submitdetails()" typeof="multiple">
+                    <input asp-for="PlanInvoice.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="PlanInvoice.InvoiceNo"></label>
+                                        <div class="input-group">
+                                            @if (Model.PlanInvoice.Id == 0)
+                                            {
+                                                <input class="form-control" readonly tabIndex="-1" />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="PlanInvoice.InvoiceNo" class="form-control text-right" readonly tabIndex="-1" />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="PlanInvoice.InvoiceDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="PlanInvoice.InvoiceDate" id="InvoiceDate" autofocus class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.PlanInvoice.Id == 0 ? CommonHelper.CurrentDate : Model.PlanInvoice.InvoiceDate.ToString(CommonHelper.DateFormat)) />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="PlanInvoice.ProductionOrderId"></label>
+                                        <Select asp-for="PlanInvoice.ProductionOrderId" onchange="GetDataFromIssuance()" id="ProductionOrderId" asp-items="Model.ProductionOrderLOV" class="form-control">
+                                            <option value="0" selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 col-sm-12">
+                                    <div class="form-group">
+                                        <label asp-for="Vendor"></label>
+                                        <input id="Vendor" value="@Model.Vendor" name="Vendor" tabindex="-1" readonly class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-lg-4 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        <input id="Address" @Model.Address tabindex="-1" readonly class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-12">
+                                    <div class="form-group">
+                                        <label asp-for="PlanInvoice.Remarks"></label>
+                                        <textarea asp-for="PlanInvoice.Remarks" style="resize:none;" rows="1" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <div class="form-group">
+                                        <label -for="Attachment">Attachment</label>
+                                        <div class="custom-file">
+                                            <input type="file" name="File" multiple class="form-control custom-file-input" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @*<div class="col-md-12 col-lg-12">*@
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive">
+                            <table id="Table" class="table table-bordered table-striped " style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th width="20%">Greige Quality</th>
+                                        <th width="20%">Item</th>
+                                        <th width="20%">Issued Greige Qty</th>
+                                        <th width="20%">Rate</th>
+                                        <th width="20%">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                                <!-- <tfoot>
+                                    <tr>
+                                        <td></td>
+
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right;">Total:</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>-->
+                            </table>
+                        </div>
+                        @*</div>*@
+                    </div>
+
+                    <!--End Of Modal-->
+                    <div class="text-left mb-2">
+                        <a asp-controller="GRNInvoice" asp-action="Index" class="btn btn-white">List</a>
+                        <input type="submit" id="SaveBtn" value="Save" class="btn btn-primary" />
+                        <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                    </div>
+                    <input hidden id="detail" name="Detail" />
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script src="~/js/site.js"></script>
+    <script src="~/js/AP/purchaseItems.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#ProductionOrderId').select2();
+    });
+    </script>
+
+    <script>
+        function GetDataFromIssuance() {
+            debugger
+            $('#Table > tbody > tr').remove();
+            var productionOrderId = $("#ProductionOrderId").find(":selected").val();
+            if (productionOrderId != 0) {
+                $.ajax({
+                    type: 'POST',
+                    async: false,
+                    url: '/Planning/Invoice/GetDataFromIssuance?id=' + productionOrderId,
+
+                }).done(function (data1) {
+                    debugger
+                    row = '';
+                    row += '<tr>';
+                    row += '<td hidden><input class ="Id" value="0" /></td>';
+                    row += '<td hidden><input class ="ItemId" value="' + data1.item.id + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly  class ="greigeContractQuality" value="' + data1.item.code  + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly  class ="greigeContractQualityDesc" value="' + data1.item.name  + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="Quantity text-right" value="' + data1.quantity + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="RatePerMeter text-right" value="' + data1.rateOfConversionIncTax + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="Amount text-right" value="' + data1.amount + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="TotalPenaltyAmount text-right" value="' + data1.totalPenaltyAmount + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="NetPenaltyAMount text-right" value="' + (data1.amount - data1.totalPenaltyAmount).toFixed(2) + '" /></td>';
+                    row += '<td style="height: 40px;"><input  tabindex="-1" style="background-color: #eee;" readonly class ="LessYarnPrice text-right" value="' + (data1.lessYarnPrice).toFixed(2) + '" /></td>';
+                    row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="NetPayableAmount text-right" value="' + (data1.netPayableAmount).toFixed(2) + '" /></td>';
+                    $('#Table tbody').append(row);
+
+                    $("#Vendor").val(data1.grgrn.vendor.name);
+                    $("#Address").val(data1.grgrn.vendor.address);
+
+                });
+            }
+        }
+        function submitdetails() {
+            debugger;
+            var grnId = $("#GRNId").find(":selected").val();
+            if (grnId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select GRN!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GRNId').focus();
+                });
+                return false;
+            }
+            var formdetails = [];
+            $.each($("#Table tbody tr"), function () {
+                formdetails.push({
+                    Id: $(this).find('.Id').val(),
+                    ItemId: $(this).find('.ItemId').val(),
+                    Quantity: $(this).find('.Quantity').val(),
+                    RatePerMeter: $(this).find('.RatePerMeter').val(),
+                    Amount: $(this).find('.Amount').val(),
+                    TotalPenaltyAmount: $(this).find('.TotalPenaltyAmount').val(),
+                    NetPenaltyAMount: $(this).find('.NetPenaltyAMount').val(),
+                    LessYarnPrice: $(this).find('.LessYarnPrice').val(),
+                    NetPayableAmount: $(this).find('.NetPayableAmount').val(),
+                });
+            });
+            var model = JSON.stringify(formdetails);
+            $("#detail").val(model);
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+            return true;
+        }
+    </script>
+
+    <script>
+
+        //On change Qty
+        $("#tblDetail tbody").on("change", ".IndentQty", function () {
+
+            debugger;
+            var id = $('#Id').val();
+            var totalbalanceQty = 0.00;
+            var GRNItemId = Number($(this).closest("tr")
+                .find(".GRNItemId").val());
+
+            var indentQty = Number($(this).closest("tr")
+                .find(".IndentQty").val()).toFixed(4);
+            var grnQty = Number($(this).closest("tr")
+                .find(".GRNQty").val()).toFixed(4);
+            var rate = Number($(this).closest("tr")
+                .find(".Rate").val()).toFixed(4);
+            var taxValue = Number($(this).closest("tr")
+                .find(".TaxValue").val()).toFixed(4);
+            var value = Number(indentQty * rate).toFixed(4);
+            var grandTotal = Number(Number(value) + Number(taxValue)).toFixed(4);
+            $(this).closest("tr")
+                .find(".value").val(value);
+            //$(this).closest("tr")
+            //    .find(".GrandTotalValue").val(grandTotal);
+            var taxId = $(this).closest("tr")
+                .find(".calculateTax").val();
+            if (parseInt(grnItemQty) == 0 && id != 0) {
+                grnItemQty = grnQty;
+            }
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AP/Api/GetPRBalanceQty?id=' + GRNItemId
+            }).done(function (data) {
+                if (data != "NotFound") {
+                    debugger;
+                    totalbalanceQty = Number(((data.grnQty) - Number(data.purchaseQty)) + parseInt(grnItemQty)).toFixed(4);
+                    $(this).closest("tr").find(".GRNQty").val(totalbalanceQty);
+                }
+            });
+            //grnQty = Number($(this).closest("tr")
+            //    .find(".GRNQty").val()).toFixed(4);
+            if (parseInt(indentQty) <= parseInt(totalbalanceQty)) {
+                var balanceQty = Number(totalbalanceQty - indentQty).toFixed(4);
+                $(this).closest("tr")
+                    .find(".BalanceQty").val(balanceQty);
+            }
+            else {
+                $(this).closest("tr").find(".IndentQty").val(Number(grnQty).toFixed(4));
+                $(this).closest("tr").find(".GRNQty").val(Number(grnQty).toFixed(4));
+                $(this).closest("tr").find(".BalanceQty").val(0.0000);
+                value = grnQty * rate
+                $(this).closest("tr").find(".value").val(Number(value).toFixed(4));
+                $(this).closest("tr").find(".GrandTotalValue").val(Number(value + Number(taxValue)).toFixed(4));
+                swal("", "Qty Must be less than or Equal to GRN Qty", "warning");
+            }
+
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Api/GetTaxValues?id=' + taxId
+            }).done(function (data) {
+                debugger;
+                if (data != "NotFound") {
+                    slabVal = data.salesTaxPercentage.toFixed(2);
+                }
+                else {
+                    slabVal = 0.00;
+                }
+            });
+            var totalvalue = $(this).closest("tr")
+                .find(".value").val();
+            var fedPercentage = $(this).closest("tr")
+                .find(".FedPercentage").val();
+            var taxAmount = ((slabVal / 100) * totalvalue).toFixed(2);
+            var lineAfter = (Number(totalvalue) + Number(taxAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".TaxAmount").val(taxAmount);
+
+            //Calculate fed %
+            var fedPercentage = ((fedPercentage / 100) * lineAfter).toFixed(2);
+            var fedAmount = (Number(lineAfter) + Number(fedPercentage)).toFixed(2);
+
+            $(this).closest("tr")
+                .find(".AmountWFed").val(fedPercentage);
+            var lineTotal = (Number(lineAfter) + Number(fedAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".Total").val(fedAmount);
+
+            GetRowFooter();
+        });
+
+    </script>
+    <script>
+
+        // function GetRowFooter() {
+        //    debugger;
+        //    var Total = 0.0000;
+        //    var TaxValue = 0.0000;
+        //    var GrandTotalValue = 0.0000;
+        //     $.each($("#tblDetail tbody tr"), function () {
+        //        debugger;
+        //         var rowtotal = Number($(this).find('.value').val().replace(/,/g, ""));
+        //         var rowTaxtotal = Number($(this).find('.TaxValue').val().replace(/,/g, ""));
+        //         Total = Number(Number(Total) + rowtotal).toFixed(4);
+        //         TaxValue = Number(Number(TaxValue) + rowTaxtotal).toFixed(4);
+        //         GrandTotalValue = Number(Number(GrandTotalValue) + rowtotal + rowTaxtotal ).toFixed(4);
+        //     });
+        //     $('#NetPayable').val();
+        //     $('#NetPayable').val(GrandTotalValue);
+        //     $('#Total1').val(Total);
+        //     $.each($("#tblDetail tfoot tr"), function () {
+        //         debugger;
+        //         $(this).closest("tr").remove();
+        //         var row = "<tr style='font-weight: bold'>";
+        //         row += "<td></td>";
+        //         row += "<td ></td>";
+        //         if ($("#Responsibility").val() == "Yarn Purchase") {
+        //            row += "<td></td>";
+        //         }
+        //         row += "<td ></td>";
+        //         row += "<td ></td>";
+        //         row += "<td hidden></td>";
+        //         row += "<td style'text-aligin: right;'>Total:</td> ";
+        //         row += "<td class='text-right' >" + Total + "</td> ";
+        //         row += "<td class='text-right' >" + TaxValue + "</td> ";
+        //         row += "<td class='text-right' >" + GrandTotalValue + "</td> ";
+        //         row += " <td ></td> ";
+        //         row += "</tr>";
+        //         $("#tblDetail tfoot ").append(row);
+
+        //    });
+
+        //}
+        function Validation() {
+            debugger
+            $("#form").validate({
+
+            });
+            if ($("#OrgId").find(":selected").val() == "0") {
+                swal("", "Please Select Organization", "warning")
+                return false;
+            }
+            else if ($("#OpId").find(":selected").val() == "0") {
+                swal("", "Please Select Operating Unit", "warning")
+                return false;
+            }
+            else if ($("#DepId").find(":selected").val() == "0") {
+                swal("", "Please Select Departemnt", "warning")
+                return false;
+            }
+            @*else if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Select Item", "warning")
+                return false;
+            }*@
+            else {
+                return true;
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").val("Saving...");
+            }
+        }
+    </script>
+}
+
+

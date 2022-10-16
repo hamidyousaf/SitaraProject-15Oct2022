@@ -1,0 +1,421 @@
+﻿@model APPaymentViewModel
+@{
+    ViewData["Title"] = "Create Payment";
+    ViewData["CurrentPage"] = "Supplier Payments";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="FormId" method="post" asp-action="Create" asp-controller="Payment" enctype="multipart/form-data">
+                    <input asp-for="Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="row">
+                                @if (ViewBag.PurchaseNumber != null)
+                                {
+                                    <div class="col-lg-2 col-sm-3">
+                                        <div class="form-group">
+                                            <label asp-for="PaymentNo"></label>
+                                            <div class="input-group">
+                                                <input autofocus readonly class="form-control" tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-3">
+                                        <div class="form-group">
+                                            <label asp-for="PaymentNo"></label>
+                                            <div class="input-group">
+                                                <input autofocus asp-for="PaymentNo" Value="@TempData["PaymentNo"]" readonly class="form-control" tabindex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="PaymentDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="PaymentDate"  data-validation="required" data-validation-error-msg="Payment Date is required" data-validation-error-msg-container="#pDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.PaymentDate.ToString(CommonHelper.DateFormat))" />
+                                        </div>
+                                        <p id="pDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="BankCashAccountId"></label>
+                                        <Select asp-for="BankCashAccountId" data-validation="required" data-validation-error-msg="Bank Cash is required" data-validation-error-msg-container="#bCash" class="form-control">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                        <p id="bCash"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="PaymentModeId"></label>
+                                        <Select asp-for="PaymentModeId" asp-items="@ViewBag.PaymentMode" data-validation="required" data-validation-error-msg="Payment Mode is required" data-validation-error-msg-container="#pMode" class="form-control">
+                                            <option selected disabled>Please select</option>
+                                        </Select>
+                                        <p id="pMode"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Operating Unit</label>
+                                        <select asp-for="OperationId" class="chosen-select form-control" asp-items="ViewBag.OperatingUnit">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="SupplierId">Vendor</label>
+                                        <Select asp-for="SupplierId" name="SupplierId" class="form-control" data-validation="required" data-validation-error-msg="Supplier is required" data-validation-error-msg-container="#supplier">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                        <p id="supplier"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="DocumentNo"></label>
+                                        <input asp-for="DocumentNo" class="form-control" data-validation="required" data-validation-error-msg="Document No is required" data-validation-error-msg-container="#docNo" />
+                                        <p id="docNo"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="DocumentDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="DocumentDate" data-validation="required" data-validation-error-msg="Document Date is required" data-validation-error-msg-container="#dDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.DocumentDate.ToString(CommonHelper.DateFormat))" />
+                                        </div>
+                                        <p id="dDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3" hidden>
+                                    <div class="form-group">
+                                        <label>Department</label>
+                                        <select asp-for="DepartmentId" class="chosen-select form-control" id="department" asp-items="ViewBag.Department">
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="form-group">
+                                        <label asp-for="Remarks"></label>
+                                        <textarea asp-for="Remarks" style="resize:none;" rows="1" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 hide">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Currency Exchange
+                                </div>
+                                <div class="panel-body">
+                                    <label asp-for="Currency"></label>
+                                    <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" class="form-control" name="Currency" data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency"></select>
+                                    <p id="currency"></p>
+                                    <label asp-for="CurrencyExchangeRate"></label>
+                                    <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Exchange rate is required" data-validation-error-msg-container="#exchangeRate" />
+                                    <p id="exchangeRate"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-title">
+                        <h5 class="font-bold">Purchase Invoices</h5>
+                        <p id="p"></p>
+                    </div>
+                    <div class="text-right mb-3">
+                        <a onclick="getUnpaidInvoices();" id="add-UnpaidInvoice-item" class="btn btn-success">Get items from Invoice</a>
+                        @*<a id="add-Payment-invoice" class="btn btn-success add-Payment-invoice"><i class="fa fa-plus"></i></a>*@
+                    </div>
+                    <!--Page level calculations like total amount  etc-->
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-3 col-sm-3"> <label asp-for="TotalPaidAmount"></label> <input asp-for="TotalPaidAmount" name="TotalPaidAmount" id="TotalPaidAmount" class="form-control text-right add-comma" readonly placeholder="0.0" tabindex="-1" /></div>
+                                    <div hidden class="col-lg-2 col-sm-3"><label hidden asp-for="InvoiceAdjusted"></label> <input hidden asp-for="InvoiceAdjusted" value="0.0" name="InvoiceAdjusted" id="InvoiceAdjusted" class="form-control text-right" readonly placeholder="0.0" tabindex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label asp-for="TotalTaxAmount"></label><input asp-for="TotalTaxAmount" name="TotalTaxAmount" id="TotalTaxAmount" class="form-control text-right add-comma" readonly placeholder="0.0" tabindex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label asp-for="GrandTotal"></label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right add-comma" readonly placeholder="0.0" tabindex="-1" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <!-- Modal -->
+                        <div class="modal fade" id="invoiceModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Pending Invoices</h4>
+                                    </div>
+                                    <div class="modal-body PopupHeight">
+                                        <div class="row text-center">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="ibox">
+                                                    <p id="itemTable"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Attachment"></label>
+                                <div class="input-group">
+                                    <input asp-for="Attachment" type="file" name="Attachment" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-left mb-3">
+                        <a asp-controller="Payment" asp-action="Index" class="btn btn-white">List</a>
+                        @if (Model.Status != "Approved")
+                        {
+                            <button onclick="PaymentForm()" type="button" id="submit-invoice-btn" class="btn btn-primary add-saleOrder-item">@ViewBag.EntityState</button>
+                        }
+                        else
+                        {
+                            <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+    <script src="~/js/AP/paymentInvoices.js"></script>
+    <script>
+        $.validate();
+        $(function () {
+        // bind customer select2
+        var select2 = $('#SupplierId');
+        bindSelect2(select2, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', @Model.SupplierId);
+        // bind bankCash account select2
+        var bankCashAccountId = $('#BankCashAccountId');
+        bindSelect2(bankCashAccountId, '/GL/Api/GetCashBankAccounts','/GL/Api/GetCashBankAccount?id=' ,@Model.BankCashAccountId);
+      });
+    @*$('#SupplierId').select2({
+        placeholder: 'Select a supplier',
+        width: 'resolve',
+        ajax: {
+            url: '/AP/Api/GetSuppliers',
+            dataType: 'json',
+            delay: 250,
+            placeholder: {
+                id: '-1', // the value of the option
+                text: 'Select an option'
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        }
+    });
+    if ("@ViewBag.Id" != null)
+        {
+        var id = "@ViewBag.Id";
+        console.log(id);
+        }
+    var accountSelect = $('#SupplierId');
+    $.ajax({
+        type: 'GET',
+        url: '/AP/Api/GetSupplier?id=' + id
+    }).then(function (data) {
+        var option = new Option(data.text, data.id, true, true);
+        accountSelect.append(option).trigger('change');
+        accountSelect.trigger({
+            type: 'select2:select',
+            params: {
+                data: data
+            }
+        });
+    });*@
+
+     //to disable everyField after approval
+         $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                    $('#add-UnpaidInvoice-item').hide();
+                });
+            }
+        });
+    </script>
+    <script>
+        //Select For BankCashAccountId
+    //$('#BankCashAccountId').select2({
+    //    ajax: {
+    //        url: '/GL/Api/GetCashBankAccounts',
+    //        dataType: 'json',
+    //        delay: 250,
+    //        placeholder: 'Search for the Bank Account',
+    //        processResults: function (data, params) {
+    //            return {
+    //                results: data
+    //            };
+    //        },
+    //        cache: true
+    //    }
+    //});
+        // Fetch the preselected item, and add to the control
+    @*var id = @Model.BankCashAccountId;
+    var accountSelect = $('#BankCashAccountId');
+    $.ajax({
+        type: 'GET',
+        url: '/GL/Api/GetCashBankAccount?id=' + id
+    }).then(function (data) {
+        var option = new Option(data.text, data.id, true, true);
+        accountSelect.append(option).trigger('change');
+        accountSelect.trigger({
+            type: 'select2:select',
+            params: {
+                data: data
+            }
+        });
+    });*@
+
+    var skipIds = [];//skip from loading table rows
+    function getUnpaidInvoices() {
+        var supplierId = $('#SupplierId').val();
+        var counter = 1;
+        // AJAX request
+        $.ajax({
+            url: '/AP/Payment/GetUnpaidInvoicesBySupplierId',
+            type: 'POST',
+            method:'POST',
+            data: { id: supplierId, skipIds: skipIds },
+            success: function (response) {
+                $('#itemTable').html(response);
+                $("#invoiceTable td.add-comma").each(function () {
+                    var num = $(this).text();
+                    var commaNum = numberWithCommasInTD(num);
+                    $(this).text(commaNum);
+                });
+                // Display Modal
+                $('#invoiceModal').modal('show');
+            },
+            fail: function (response) {
+                //console.log('message from fail...', response.responseText);
+            }
+        });
+        counter++;
+    }
+        $('#button').click(function () {
+        debugger
+        var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (i = 0; i < arrLength; i++) {
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AP/Payment/GetPurchaseInvoice?purchaseItemId=' + parseInt(values[i]),
+                beforeSend: function () {
+                    skipIds.push(values[i]);
+                    $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    $('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                $('#p').append(data);
+                $('#button').prop('disabled', false);
+                $('#invoiceModal').modal("hide");
+                $('input.add-comma').commaTextbox();
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+    });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#department').select2();
+            $('#OperationId').select2();
+            var invoices = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Invoices));
+            if (invoices != null) {
+                for (i = 0; i < invoices.length; i++) {
+                    $.ajax({
+                        type: 'GET',
+                        async: false,
+                        url: '/AP/Payment/GetPaymentInvoices',
+                        data: { id: invoices[i].Id, invoiceId: invoices[i].InvoiceId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+            $('input.add-comma').commaTextbox();
+            $('td.add-comma').commaTextbox();
+
+        });
+        $("#FormId").on("submit", function () {
+            $("#submit-invoice-btn").attr("disabled", true);
+            $("#submit-invoice-btn").val("Saving...");
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            debugger
+        });
+    </script>
+}

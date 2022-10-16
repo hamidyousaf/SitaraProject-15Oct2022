@@ -1,0 +1,105 @@
+﻿@model SaleReturn
+@{
+    ViewData["Title"] = "Approved Sales Order";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="SaleReturn" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Customer Name: <strong class="text-navy"> @Model.Customer.Name</strong></span></h4>
+                        <span><strong>Builty No: </strong> @Model.BuiltyNo</span><br />
+                        <span><strong>Bales: </strong> @Model.Bails</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Sale Return No. <strong class="text-navy">@Model.TransactionNo</strong></span></h4>
+                        <span><strong>Sale Return Date:</strong>@Model.SRDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>IGP No:</strong>@Model.IGP.IGPNo</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Second Category</th>
+                                <th>Third Category</th>
+                                <th>Fourth Category</th>
+                                <th class="text-right">Quantity(Meters)</th>
+                                <th class="text-right">Bales</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<SaleReturnItems>)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SecondLevel.Code) -
+                                    @Html.DisplayFor(modelItem => item.SecondLevel.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ThirdLevel.Code) -
+                                    @Html.DisplayFor(modelItem => item.ThirdLevel.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FourthLevel.Code) -
+                                    @Html.DisplayFor(modelItem => item.FourthLevel.Name)
+                                </td>
+                                <td class="text-right">
+                                    @item.Meters
+                                </td>
+                                <td class="text-right">
+                                    @item.Bales
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                <table class="table invoice-total">
+                    <tbody>
+                        <tr>
+                            <td><strong>Total Meters:</strong></td>
+                            <td>
+                                @{
+                                    var usSubTotal = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSubTotal, "{0:N}", ViewBag.TotalMeter)
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Bales :</strong></td>
+                            <td>
+                                @{
+                                    var usSTAmount = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSTAmount, "{0:N}", ViewBag.TotalBales)
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

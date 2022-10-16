@@ -1,0 +1,223 @@
+﻿@model SaleReturnInwardGatePassViewModel
+@{ ViewData["Title"] = "Create Sale Return Inward Gate Pass";
+    ViewData["CurrentPage"] = "Sale Return Inward Gate Pass";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="SaleReturnInwardGatePass" enctype="multipart/form-data" onsubmit="return OnSubmit();" >
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="SIGPNo"></label>
+                            <div class="input-group">
+                                @if (Model.SIGPNo != 0)
+                                {
+                                    <input tabindex="-1" asp-for="SIGPNo" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input value="" tabindex="-1" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-4">
+                        <div class="form-group">
+                            <label asp-for="SIGPDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input tabindex="-1" asp-for="SIGPDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.SIGPDate.ToString(CommonHelper.DateFormat))" readonly />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-4">
+                        <div class="form-group">
+                            <label asp-for="BiltyDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="BiltyDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.BiltyDate.ToString(CommonHelper.DateFormat))" />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-5">
+                        <div class="form-group">
+                            <label asp-for="WarehouseId"></label>
+                            <Select id="WarehouseId" autofocus asp-for="WarehouseId" asp-items="ViewBag.WareHouseLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="bCash"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-4">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-sm-8">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input id="address" value="@Model.Address" readonly type="text" tabindex="-1" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="BuiltyNo"></label>
+                            <div class="input-group">
+                                <input id="builtyNo" asp-for="BuiltyNo" class="form-control" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="Bails"></label>
+                            <div class="input-group">
+                                <input id="bles" asp-for="Bails" type="text" min="0" step="1" class="add-comma form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left mb-3">
+                <a asp-controller="SaleReturnInwardGatePass" asp-action="Index" class="btn btn-white">List</a>
+                <button type="submit" id="SaveBtn" class="btn btn-primary">@ViewBag.EntityState</button>
+                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+            </div>
+        </div>
+    </form>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#WarehouseId").select2();
+            $("#CustomerId").select2();
+            //On change Customer
+            $('#CustomerId').on('change', function () {
+                debugger
+                var customerId = $('#CustomerId').val();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/SaleReturnInwardGatePass/GetCustomerAddress",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#address').val(data);
+                        return false;
+                    }
+                });
+            })
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            $('input.add-comma').commaTextbox();
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function OnSubmit(form) {
+            debugger;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+
+            if ($("#WarehouseId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the Warehouse!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarehouseId').focus();
+                });
+                return false;
+            }
+            if ($("#CustomerId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the Customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if ($("#builtyNo").val() == "" || $("#builtyNo").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter the Builty No.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#builtyNo').focus();
+                });
+                return false;
+            }
+            if ($("#bles").val() == "" || $("#bles").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter the bales.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#bles').focus();
+                });
+                return false;
+            }
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+    </script>
+}

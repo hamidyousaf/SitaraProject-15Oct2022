@@ -1,0 +1,150 @@
+﻿@model DivisionVM
+@{
+    ViewData["Title"] = "Department";
+    ViewData["CurrentPage"] = "List of Department";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Index"><strong>Create New</strong></a>
+                        <a onclick="generateApArReport(0,'DepartmentList','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg m-t-n-xs pull-right"><i class="fas fa-print" title="Print Report"> Print Report</i></a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped" style=" width:100%" id="DivisionTable">
+                        <thead>
+                            <tr>
+                                <th class="text-right searchHeader" style="width:10%">Id</th>
+                                <th class="searchHeader" style="width:15%">Date</th>
+                                <th class="searchHeader" style="width:25%">Department</th>
+                                <th class="searchHeader" style="width:25%">Sub Department</th>
+                                <th class="searchHeader" style="width:10%">Status</th>
+                                <th class="text-center" style="width:15%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#DivisionTable").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/GL/Division/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [5] }],
+
+                "columns": [
+                    { "data": "glDivision.id", "name": "GLDivision.Id", className: "text-center" },
+                    { "data": "date", "name": "GLDivision.Date", className: "text-center" },
+                    { "data": "glDivision.name", "name": "GLDivision.Name", className: "text-left" },
+                    { "data": "glSubDivision.name", "name": "GLSubDivision.Name", className: "text-left" },
+                    { "data": "glDivision.status", "name": "GLDivision.Status", className: "text-center" },
+
+
+                    {
+                        "data": "glDivision", className: "text-center",
+                        "render": function (data, type, row) {
+                            debugger
+                           // return '<a href="/GL/Division/Index?id=' + data + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-edit" title="View"></i></a>  <a onclick="openReport(' + data + ')" class="btn btn-sm btn-primary btn-lg m-t-n-xs" > <i class="fas fa-print" title="Print Report"></i></a >';
+
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/GL/Division/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/GL/Division/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>    <a onclick='openReport(" + data + ") 'class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a> ";
+                                } else {
+                                    return "<a href='/GL/Division/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a onclick='openReport(" + data + ") 'class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a> ";
+                                }
+                            }
+                            else {
+                                if (data.unapprove == true) {
+                                    return "<a href='/GL/Division/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/GL/Division/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>    <a onclick='openReport(" + data.id + ") 'class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a>";
+                                } else {
+                                    return "<a href='/GL/Division/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a onclick='openReport(" + data.id + ") 'class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a>";
+                                }
+                            }
+                        }
+                    }
+
+                ],
+
+            })
+            $('#DivisionTable thead th').each(function () {
+                debugger;
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                debugger;
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        }); 
+        function openReport(id) {
+            generateApArReport(id, "Department", "@companyName",@companyId);
+        }
+    </script>
+}

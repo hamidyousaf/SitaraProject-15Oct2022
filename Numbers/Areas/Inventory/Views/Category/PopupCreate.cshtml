@@ -1,0 +1,231 @@
+﻿@{
+    Layout = null;
+}
+
+@model InvItemCategories
+<style>
+    /* fix select 2 on popup */
+    .select2-container--open {
+        z-index: 100000;
+    }
+</style>
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+@{
+    // Account code validation
+  //  var accountCodeValidationMessage = string.Concat("Account code must be number and should be ", Model.NewCodeLength, " digits length");
+    var accountCodeLength = string.Concat(Model.NewCodeLength, "-", Model.NewCodeLength);
+    var parentCode = String.Concat(Model.ParentCode, @ViewBag.Splitter);
+}
+@using (Html.BeginForm("Create", "Category", FormMethod.Post, new { name = "formAccount", id = "formAccount" }))
+{
+    <div class="modal-dialog modal-md">
+        <div class="modal-content" id="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">@ViewBag.Title</h4>
+            </div>
+            <div class="modal-body">
+               @*<input type="hidden" asp-for="Id" />*@
+                <input type="hidden" name="Id" value="@Model.Id" id="id" />
+                <input type="hidden" name="ParentId" value="@Model.ParentId" id="parentId" />
+                <input type="hidden" name="ParentCode" value="@parentCode" id="parentCode" />
+                <input type="hidden" name="CategoryLevel" value="@Model.CategoryLevel" />
+                <input type="hidden" name="Action" value="@ViewBag.Action" id="formAction" />
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Category Code</label>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group m-b">
+                            
+                            
+                                <span class="input-group-addon bg-muted">@parentCode</span>
+                            
+                           
+                                <input type="text" class="form-control" name="Code" id="AccountCode" value="@Model.Code" readonly>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="label label-primary">Level: @Model.CategoryLevel</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="control-label">Category Name</label>
+                    </div>
+
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="Name" value="@Model.Name" data-validation="required" id="Name">
+                    </div>
+                </div>
+
+                @if (Model.AccountLevel == 4) //hidden will use again soon.
+                {@*<div class="row">
+                        <div class="col-md-3 col-md-offset-3">
+                            <div class="checkbox checkbox-success">
+                                <input id="requireSubAccount" name="RequireSubAccount" type="checkbox" onclick="toggleSubAccount();" @(@Model.RequireSubAccount == "on" ? "checked" : "")>
+                                <label for="requireSubAccount">Sub Account</label>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        @*<div class="col-md-8 col-md-offset-3">
+                                <select id="subAccount" name="SubAccountId" class="js-example-basic-multiple" multiple="multiple" placeholder="Choose sub account" style="width:100%">
+                                    @{
+                                        if (Model.SubAccountList != null)
+                                        {
+                                            foreach (var item in Model.SubAccountList)
+                                            {
+                                                <option value=@item.Id>@string.Concat(@item.Code, " - ", @item.Description)</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>*@
+                        @*<div class="col-md-8 col-md-offset-3">
+                            <div class="form-group">
+                                <label  p-for="SubAccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-12" style="padding-left:0px;padding-right:0px;">
+                                    <select name="SubAccountId" id="test" class="form-control" asp-for="SubAccount" disabled data-validation-error-msg="Account is required" data-validation-error-msg-container="#account" asp-items="@ViewBag.subAccounts">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span p-validation-for="SubAccountId" class="text-danger"></span>
+                                    <span id="account"></span>
+                                </div>
+                            </div>
+                        </div>*@
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-3">
+                            <div class="checkbox checkbox-success">
+                                <input name="Active" type="checkbox" @(ViewBag.Action == "Create" ? "checked" : (Model.IsActive == true ? "checked" : ""))>
+                                <label for="Active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+
+<script>
+    $.validate();
+    $(function () {
+
+        @*var accountId = $('#test');
+        bindSelect2(accountId, '/GL/ChartofAccount/GetSubAccounts', '/GL/ChartofAccount/GetSubAccount?id=', @Model.SubAccountId);*@
+
+
+        $('#Name').focus();
+
+        $('#subAccount').select2({ placeholder: 'Select sub accounts' });
+        $('#subAccount').trigger('change');
+        toggleSubAccount();
+
+
+        var form = $('#formAccount');
+        $(form).submit(function (event) {
+            debugger
+            // Stop the browser from submitting the form.
+            event.preventDefault();
+            var formData = $(form).serialize();
+            $.ajax({
+                type: 'POST',
+                url: $(form).attr('action'),
+                data: formData
+            })
+                .done(function (data) {
+                    debugger
+                    if (data.success) { //no error
+                        toasterMessage(false, data.message);
+                        $('#modal').modal('hide');
+                        $('#treeView').jstree('refresh')
+                    }
+                    else
+                        toasterMessage(true, "",response.message);
+                })
+                .fail(function (data) {
+                    //const wrapper = document.createElement('div');
+                    //wrapper.innerHTML = data.responseText,;
+                    swal(
+                        {
+                            text: data.responseText,
+                            dangerMode: true
+                        }
+                    );
+                })
+        });
+    });
+    function toggleSubAccount() {
+        if (@Model.AccountLevel== 4) {
+            var disable = true;
+            if ($("#requireSubAccount")[0].checked) {
+                $("#subAccount").attr("data-validation", "required");
+                disable = false;
+            }
+            else {
+                $("#subAccount").removeAttr("data-validation");
+            }
+            $("#subAccount").prop("disabled", disable);
+            $("#test").prop("disabled", disable);
+
+        }
+    }
+
+    function submit() {
+        debugger
+        var formAction = $("#FormAction").val();
+        var accountId = $("#AccountId").val();
+        var accountCode = $("#AccountCode").val();
+        var accountName = $("#AccountName").val();
+        var parentId = $("#ParentId").val();
+        var parentCode = $("#ParentCode").val();
+        var accountLevel = $("#AccountLevel").val();
+        var isActive = $("#IsActive").is(":checked");
+
+        $.post(
+            url = "/GL/ChartofAccount/Post?=" + accountId,
+            {
+                Action: formAction,
+                Id: accountId,
+                Name: accountName,
+                Code: accountCode,
+                IsActive: isActive,
+                ParentId: parentId
+            })
+            .done(function (data) {
+                $("#treeView").jstree(true).refresh_node(data.id);
+                $("#modal").modal("hide");
+                toasterMessage(false, "Account updated!", data.code + " - " + data.name);
+            })
+            .fail(function (data) {
+                swal("Error", data.statusText, "warning");
+            });
+    }
+
+    function createAccount() {
+        var formData = $(form).serialize();
+        $.ajax({
+            type: 'POST',
+            url: $(form).attr('action'),
+            data: formData
+        }).done(function (response) {
+            alert(response);
+        });
+    }
+    function updateAccount() {
+
+    }
+</script>

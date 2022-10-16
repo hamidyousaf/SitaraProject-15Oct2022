@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewData["Title"] = "Stock Ledger";
+    ViewData["CurrentPage"] = "Stock Ledger";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    <input type="hidden" name="ReportTitle" value="StockLedger" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input class="form-control radio-primary" name="ItemSelection" data-validation="required" type="radio" value="All" id="AllItem" onclick="allItem();" />
+                                    <label>All Items</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input class="form-control radio-primary" name="ItemSelection" checked="checked" data-validation="required" type="radio" value="Selection" id="ItemSelection" onclick="selectItem();" />
+                                    <label>Item Selection</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>Start Item</label>
+                                <div class="input-group col-lg-12 col-sm-12">
+                                    <select name="StartCode" class="chosen-select" id="StartCode" data-validation="required" data-validation-error-msg="Start Item is required" data-validation-error-msg-container="#sitem">
+                                        <option value="0">Please select start item</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>End Item</label>
+                                <div class="input-group col-lg-12 col-sm-12">
+                                    <select name="EndCode" class="chosen-select" id="EndCode" data-validation="required" data-validation-error-msg="End Item is required" data-validation-error-msg-container="#eitem">
+                                        <option value="0">Please select end item</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="text-left">
+                            <input type="button" id="saveReport" value="Preview" class="btn btn-primary preview" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+         //Select 2 for account selection
+        $('#StartCode').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/Inventory/Api/GetItemsForStockLedger',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.text,
+                                id: item.code
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+        $('#EndCode').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/Inventory/Api/GetItemsForStockLedger',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.text,
+                                id: item.code
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+
+         ////Toggle data Function
+        function allItem() {
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/Api/GetItem",
+                data: { isFirst:true }
+            })
+                .done(function (data) {
+                var option = new Option(data.text, data.code, true, true);
+                $('#StartCode').append(option).trigger('change');
+                $('#StartCode').trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/Api/GetItem",
+                data: { isLast: true }
+            })
+            .done(function (data) {
+                var option = new Option(data.text, data.code, true, true);
+                $("#EndCode").append(option).trigger('change');
+                $("#EndCode").trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+            //$("#StartCode").prop("disabled", true);
+            //$("#EndCode").prop("disabled", true);
+        }
+        //call selectItem() to disable both "starCode" and "EndCode"
+        function selectItem() {
+            //$("#StartCode").prop("disabled", false);
+           // $("#EndCode").prop("disabled", false);
+        }
+    </script>
+}
+
+

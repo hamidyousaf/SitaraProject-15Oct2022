@@ -1,0 +1,619 @@
+﻿@model Numbers.Entity.ViewModels.VwGRFolding
+
+@{
+    ViewData["Title"] = "Create Folding";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    table td {
+        position: relative;
+    }
+
+        table td input[type=text], table td input[type=number] {
+            position: absolute;
+            bottom: 0;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5> Greige Quality</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return validation();" asp-controller="Folding" asp-action="Create" novalidate>
+                    <div class="row">
+                        <input hidden asp-for="grFolding.Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans #</label>
+                                @if (Model.grFolding.FoldingNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="grFolding.FoldingNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="grFolding.FoldingDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Mending #<i style="color: #a94442;">*</i></label>
+                                <select asp-for="grFolding.MendingId" class="chosen-select form-control" asp-items="@ViewBag.Mending" id="MendingId" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        @if (Model.grFolding.Id != 0)
+                        {
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label">Weaving Contract #</label>
+                                    <select tabindex="-1" asp-for="grFolding.WeavingContractNo" name="WeavingContractNo" class="chosen-select form-control" asp-items="@ViewBag.WeavingContractLOV" id="WeavingContractNo">
+                                        <option value="0"></option>
+                                    </select>
+                                    @*<input type="text" id="WeavingContractNo" asp-for="grFolding.WeavingContractNo" class="form-control text-right" readonly tabindex="-1" />*@
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label">Purchase Contract #</label>
+                                    <select tabindex="-1" asp-for="grFolding.PurchaseContractNo" name="PurchaseContractNo" class="chosen-select form-control" asp-items="@ViewBag.PurchaseContractLOV" id="PurchaseContractNo">
+                                        <option value="0"></option>
+                                    </select>
+                                    @*<input type="text" id="PurchaseContractNo" asp-for="grFolding.PurchaseContractNo" class="form-control text-right" readonly tabindex="-1" />*@
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label">Weaving Contract #</label>
+                                    <select tabindex="-1" asp-for="grFolding.WeavingContractNo" name="WeavingContractNo" class="chosen-select form-control"  id="WeavingContractNo">
+                                        <option value="0" disabled>Please Select...</option>
+                                    </select>
+                                    @*<input type="text" id="WeavingContractNo" asp-for="grFolding.WeavingContractNo" class="form-control text-right" readonly tabindex="-1" />*@
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label">Purchase Contract #</label>
+                                    <select tabindex="-1" asp-for="grFolding.PurchaseContractNo" name="PurchaseContractNo" class="chosen-select form-control" id="PurchaseContractNo">
+                                        <option value="0" disabled>Please Select...</option>
+                                    </select>
+                                    @*<input type="text" id="PurchaseContractNo" asp-for="grFolding.PurchaseContractNo" class="form-control text-right" readonly tabindex="-1" />*@
+                                </div>
+                            </div>
+                        }
+
+
+                    </div>
+                    <hr />
+                    <div class="row">
+
+                        <div class="col-lg-10">
+                            <div class="form-group">
+                                <label class="strong" style="font-size:20px;">Greige Information</label>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Contract Greige Quality</label>
+                                <input hidden asp-for="grFolding.ContractGRQualityId" id="GreigeQualityId" />
+                                <input type="text" asp-for="ContractQualityDesc" id="GreigeQualityIdD" class="form-control " readonly tabindex="-1" />
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">On Loom Greige Quality</label>
+                                <input hidden asp-for="grFolding.PurchaseGRQualityId" id="LoomQualityId" />
+                                <input type="text" asp-for="LoomQualityDesc" id="LoomQualityIdD" class="form-control " readonly tabindex="-1" />
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Fresh Qty</label>
+                                <input type="text" id="FreshQty" asp-for="grFolding.MendingQty" class="form-control text-right" readonly tabindex="-1" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Lot #</label>
+                                <input type="text" min="0.01" step="0.01" readonly id="LotNo" asp-for="grFolding.IGPLotNo" class="form-control text-right" tabindex="-1" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="form-group">
+                                <label class="strong" style="font-size:20px;">Folding Information</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th hidden>FoldingId</th>
+                                                <th style="width:5%;" class="searchHeader ">Sr #</th>
+                                                <th style="width:19%;" class="searchHeader">Received Qty</th>
+                                                <th style="width:19%;" class="searchHeader">Fresh Qty</th>
+                                                <th style="width:19%;" class="searchHeader">Fold Qty<span style="color: white;">*</span></th>
+                                                <th style="width:19%;" class="searchHeader">Gain/Loss</th>
+                                                <th style="width:19%;"  class="searchHeader">Actual Fold Qty</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.GRFoldingDetails != null)
+                                            {
+                                                @for (int i = 0; i < Model.GRFoldingDetails.Count; i++)
+                                                {
+
+                                                    <tr class="removed">
+                                                        <td hidden><input name='id' asp-for="GRFoldingDetails[i].Id" value='@Model.GRFoldingDetails[i].Id' type='hidden' /></td>
+                                                        <td hidden><input name='itemId' asp-for="GRFoldingDetails[i].FoldingId" value='@Model.GRFoldingDetails[i].FoldingId' type='hidden' /></td>
+                                                        <td><input tabindex='-1' style='background-color: #eee;' readonly class=' text-right  ' name='srNo' asp-for="GRFoldingDetails[i].SrNo" value='@Model.GRFoldingDetails[i].SrNo' /></td>
+                                                        <td><input tabindex='-1' style='background-color: #eee;' readonly class=' text-right recQty ' name='receivedQuantity' asp-for="GRFoldingDetails[i].ReceivedQty" value='@Model.GRFoldingDetails[i].ReceivedQty' /></td>
+                                                        <td><input tabindex='-1' style='background-color: #eee;' readonly class=' text-right  freshQty' name='freshQuantity' asp-for="GRFoldingDetails[i].MendQty" value='@Model.GRFoldingDetails[i].MendQty' /></td>
+                                                        <td><input class=' text-right  foldQty' onchange='Calgain($(this));' type="number" min="0.01" oninput="getP($(this))" step="0.01" name='foldQty' asp-for="GRFoldingDetails[i].FoldQty" value='@Model.GRFoldingDetails[i].FoldQty' /></td>
+                                                        <td><input tabindex='-1' style='background-color: #eee;' readonly class=' text-right  gainLossQty' name='gainLossQty' asp-for="GRFoldingDetails[i].GainLossQty" value='@Model.GRFoldingDetails[i].GainLossQty' /></td>
+                                                        <td  style='height: 40px;'><input tabindex='-1' style='background-color: #eee;' readonly class=' text-right  ActualFoldQty' name='ActualFoldQty' asp-for="GRFoldingDetails[i].ActualFoldQty" value='@Model.GRFoldingDetails[i].ActualFoldQty' /></td>
+
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                        <tfoot id="myfoot">
+                                            <tr style='font-weight: bold'>
+
+                                                <td style="text-align: right;">Total:</td>
+                                                <td class='text-right '>0.00</td>
+                                                <td class='text-right '>0.00</td>
+                                                <td class='text-right'>0.00</td>
+                                                <td class='text-right'>0.00</td>
+                                                <td class='text-right'>0.00</td>
+
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <input type="hidden" id="recty" name="RecQty" value="@Model.grFolding.RecQty" />
+                    <input type="hidden" id="medty" name="MendQty" value="@Model.grFolding.MendQty" />
+                    <input type="hidden" id="folty" name="tFoldQty" value="@Model.grFolding.FoldQty" />
+                    <input type="hidden" id="glqty" name="tGainLossQty" value="@Model.grFolding.GainLossQty" />
+                    <input type="hidden" id="Actty" name="tActQty" value="@Model.grFolding.ActQty" />
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="Folding" asp-action="Index" class="btn btn-white">List</a>
+                            <button class="btn btn-primary" type="submit" id="btnSave">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+
+            
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            GetRowFooter();
+            $("#hideselect").hide();
+            $("#VendorId").select2();
+
+
+            $("#PurchaseGRQualityId").select2();
+            $("#ContractGRQualityId").select2();
+            $("#WeavingContractNo").select2();
+            $("#PurchaseContractNo").select2();
+            $("#MendingId").select2();
+            //On change Customer
+            getFoldingById();
+
+
+        });
+
+        function getFoldingById() {
+            var MendId = $('#MendingId').val();
+            if (MendId != 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Folding/GetMendingData",
+                    async: false,
+                    data: { Id: MendId }
+                }).done(function (data) {
+                    if (data != null) {
+                        $('#GreigeQualityIdD').val(data.grWeavingContracts.greigeQualityDesc);
+                        $('#LoomQualityIdD').val(data.grWeavingContracts.loomQualityDesc);
+                        $('#GreigeQualityId').val(data.grWeavingContracts.contractQualityId);
+                        $('#LoomQualityId').val(data.grWeavingContracts.loomQualityId);
+                        //$('#FreshQty').val(data.grWeavingContracts.receivedQuantity);
+                        $('#LotNo').val(data.grWeavingContracts.lotNo);
+                        if (data.purchaseContract.length != 0) {
+                            $('#PurchaseContractNo').find('option').remove();
+                            $('#WeavingContractNo').find('option').remove();
+                            $.each(data.purchaseContract, function (i, item) {
+                                $('#PurchaseContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+                        if (data.weavingContract.length != 0) {
+                            $('#WeavingContractNo').find('option').remove();
+                            $('#PurchaseContractNo').find('option').remove();
+                            $('#WeavingContractNo').not(':first').remove();
+                            $.each(data.weavingContract, function (i, item) {
+                                $('#WeavingContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+
+
+                    }
+                    
+                });
+                GetRowFooter();
+            } else {
+                $('#PurchaseContractNo').val(0).trigger('change.select2');
+                $('#WeavingContractNo').val(0).trigger('change.select2');
+                $('#GreigeQualityIdD').val("");
+                $('#LoomQualityIdD').val("");
+                $('#GreigeQualityId').val("");
+                $('#LoomQualityId').val("");
+                $('#FreshQty').val(0);
+                $('#FreshQty').val(0);
+                $('#LotNo').val("");
+                $('#Table tbody tr').remove();
+            }
+
+            return false;
+        }
+
+        $('#MendingId').on('change', function () {
+            clearTaxBox();
+            var MendId = $('#MendingId').val();
+            if (MendId != 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Folding/GetMendingData",
+                    data: { Id: MendId }
+                }).done(function (data) {
+                    if (data != null) {
+                        $('#GreigeQualityIdD').val(data.grWeavingContracts.greigeQualityDesc);
+                        $('#LoomQualityIdD').val(data.grWeavingContracts.loomQualityDesc);
+                        $('#GreigeQualityId').val(data.grWeavingContracts.contractQualityId);
+                        $('#LoomQualityId').val(data.grWeavingContracts.loomQualityId);
+                        $('#FreshQty').val(data.grWeavingContracts.receivedQuantity);
+                        $('#LotNo').val(data.grWeavingContracts.lotNo);
+                        if (data.purchaseContract.length != 0) {
+                            $('#PurchaseContractNo').find('option').remove();
+                            $('#WeavingContractNo').find('option').remove();
+                            $.each(data.purchaseContract, function (i, item) {
+                                $('#PurchaseContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+                        if (data.grWeavingContracts.length != 0) {
+                            $('#WeavingContractNo').find('option').remove();
+                            $('#PurchaseContractNo').find('option').remove();
+                            $.each(data.weavingContract, function (i, item) {
+                                $('#WeavingContractNo').append($('<option>', {
+
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+
+
+                    } else {
+                        $('#GreigeQualityIdD').val("");
+                        $('#LoomQualityIdD').val("");
+                        $('#GreigeQualityId').val("");
+                        $('#LoomQualityId').val("");
+                        $('#FreshQty').val(0);
+                        $('#FreshQty').val(0);
+                        $('#LotNo').val("");
+                    }
+                });
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Folding/GetMendingDataDetail",
+                    data: { Id: MendId }
+                }).done(function (data) {
+                    $('#Table tbody tr').remove();
+                    $.each(data, function (i, item) {
+
+                        var row = "<tr >" +
+                            "<td hidden> <input type='text' name='id' value='0' type='hidden' /></td>" +
+                            "<td > <input type='text' tabindex='-1' style='background-color: #eee;' value=" + item.srNo + " name='srNo'  class=' text-right customerName '  readonly /></td>" +
+                            "<td > <input type='text' value=" + item.receivedQuantity + " name='receivedQuantity' id='customerId' class=' text-right recQty '  readonly  tabindex='-1' style='background-color: #eee;' /></td>" +
+                            "<td > <input type='text' value=" + item.freshQuantity + " name='freshQuantity' id='freshQty' class=' text-right  freshQty'  readonly  tabindex='-1' style='background-color: #eee;' /></td>" +
+                            "<td > <input value=" + 0 + "  oninput='getP($(this))' name='foldQty'  type='number' min='0.01' step='0.01' class=' text-right foldQty' onchange='Calgain($(this));'  id='foldQty'   /></td>" +
+                            "<td > <input type='text' value=" + 0 + " name='gainLossQty' id='gainLossQty'  class=' text-right gainLossQty ' readonly  tabindex='-1' style='background-color: #eee;' /></td>" +
+                            "<td style='height: 40px;'> <input type='text' value=" + 0 + " name='ActualFoldQty' id='ActualFoldQty' class=' text-right ActualFoldQty' readonly  tabindex='-1' style='background-color: #eee;' /></td>" +
+                            "<td hidden > <input value=" + 0 + " name='Id' class=' text-right '  /></td>" +
+                            "</tr>"
+                        $('#Table tbody').append(row);
+                        GetRowFooter();
+                    });
+                    GetRowFooter();
+                });
+
+            } else {
+                $('#PurchaseContractNo').val(0).trigger('change.select2');
+                $('#WeavingContractNo').val(0).trigger('change.select2');
+                $('#GreigeQualityIdD').val("");
+                $('#LoomQualityIdD').val("");
+                $('#GreigeQualityId').val("");
+                $('#LoomQualityId').val("");
+                $('#FreshQty').val(0);
+                $('#FreshQty').val(0);
+                $('#LotNo').val("");
+                $('#Table tbody tr').remove();
+            }
+
+            return false;
+        });
+
+
+        function Calgain(row) {
+            var freshQty = $(row).closest("tr").find(".freshQty").val();
+            var foldQty = $(row).closest("tr").find(".foldQty").val();
+            var LossGainQty = foldQty - freshQty;
+            $(row).closest("tr").find(".gainLossQty").val(LossGainQty.toFixed(2));
+            $(row).closest("tr").find(".ActualFoldQty").val(foldQty);
+            GetRowFooter();
+            //ClearTextBox();
+        }
+
+        function GetRowFooter() {
+            var TotalRcvQty = 0;
+            var TotalFrQty = 0;
+            var TotalFolQty = 0;
+            var TotalGLQty = 0;
+            var TotalActQty = 0;
+            var check = false;
+            
+
+            $.each($("#Table tbody tr"), function () {
+                var qty1 = Number($(this).find(".recQty").val());
+                TotalRcvQty = TotalRcvQty + qty1;
+                
+
+                var qty2 = Number($(this).find(".freshQty").val());
+                TotalFrQty = TotalFrQty + qty2;
+                
+
+                var qty3 = Number($(this).find(".foldQty").val());
+                TotalFolQty = TotalFolQty + qty3;
+              
+
+                var qty4 = Number($(this).find(".gainLossQty").val());
+                TotalGLQty = TotalGLQty + qty4;
+               
+
+                var qty5 = Number($(this).find(".ActualFoldQty").val());
+                TotalActQty = TotalActQty + qty5;
+               
+
+                
+            });
+
+            $("#Actty").val(TotalActQty.toFixed(2));
+            $("#glqty").val(TotalGLQty.toFixed(2));
+            $("#folty").val(TotalFolQty.toFixed(2));
+            $("#medty").val(TotalFrQty.toFixed(2));
+            $("#recty").val(TotalRcvQty.toFixed(2));
+            $("#FreshQty").val(TotalFrQty.toFixed(2));
+
+            if (check == true) {
+                return false;
+            }
+
+            //$('#TotalQty').val(TotalQty);
+           
+
+            $.each($("#Table tfoot tr"), function () {
+                $(this).closest("tr").remove();
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    
+                    "<td style'text-aligin: right;'>Total:</td> " +
+                    "<td class='text-right TotalRcvQty' name='TotalRcvQty'>" + Number(TotalRcvQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFrQty' name='TotalFrQty'>" + Number(TotalFrQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFolQty' name='TotalFolQty'>" + Number(TotalFolQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalGLQty' name='TotalGLQty'>" + Number(TotalGLQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalActQty' name='TotalActQty'>" + Number(TotalActQty).toFixed(2) + "</td> " +
+                "</tr>"
+
+                $("#Table tfoot").append(row);
+            });
+
+        }
+
+
+        function calculateAmount() {
+            var rate =  Number($("#RatePerMeter").val());
+            var quantity = Number($("#ContractQuantity").val());
+            var amountExTax = rate * quantity;
+            $("#ExSalesTaxAmount").val(amountExTax);
+
+            var taxAmount = (amountExTax * 17) / 100;
+            $("#SalesTax").val(taxAmount);
+
+            var amountInTax = amountExTax + taxAmount;
+            $("#InSalesTaxAmount").val(amountInTax);
+        }
+        function clearTaxBox() {
+            $("#RatePerMeter").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#SalesTax").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#InSalesTaxAmount").val(0);
+        }
+        function validation() {
+            debugger
+            var mendingId = $("#MendingId").find(":selected").val();
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var vendorId = $("#VendorId").find(":selected").val();
+            var qualityId = $("#PurchaseGRQualityId").find(":selected").val();
+            var contractQualityId = $("#ContractGRQualityId").find(":selected").val();
+
+            if (mendingId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Mending!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#MendingId').focus();
+                });
+                return false;
+            }
+            if (vendorId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Vendor!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#VendorId').focus();
+                });
+                return false;
+            } else if (qualityId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Purchase Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#PurchaseGRQualityId').focus();
+                });
+                return false;
+            } else if (contractQualityId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Contract Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractGRQualityId').focus();
+                });
+                return false;
+            }
+            $("#btnSave").attr("disabled", true)
+            $("#btnSave").text("Saving...")
+            return true;
+        }
+
+
+
+       
+        function getP(value) {
+            debugger
+            var val = value.val();
+            if (val.length < 5) {
+                if (val.startsWith("-") || val.startsWith("--") || val == "") {
+                    debugger
+                    var fVal = val.split("-")[1];
+                    value.val(fVal);
+                };
+            } else {
+
+                value.val(val.substring(0, 10));
+
+            }
+            return true;
+        }
+
+      
+
+    </script>
+}

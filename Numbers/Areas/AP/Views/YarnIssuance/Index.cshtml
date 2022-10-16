@@ -1,0 +1,138 @@
+﻿@model IEnumerable<YarnIssuance>
+@{
+    ViewData["Title"] = "List of Yarn Issuance";
+    ViewData["CurrentPage"] = "Yarn Issuance";
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="YarnIssuance" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="10%">Issue No</th>
+                                <th class="searchHeader" width="14%">Issue Date</th>
+                                <th class="searchHeader" width="14%">Ware House</th>
+                                <th class="searchHeader" width="14%">Weaving Contract #</th>
+                                <th class="searchHeader" width="18%">Vendor</th>
+                                <th class="searchHeader" width="14%">Status</th>
+                                <th width="16%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All'],
+                ],
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AP/YarnIssuance/GetStoreIssue",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [6] }],
+
+                "columns": [
+                    { "data": "yarnIssuance.issueNo", "name": "IssueNo", className: "text-center" },
+                    { "data": "storeIssuesDate", "name": "IssueDate", className: "text-center" },
+                    { "data": "yarnIssuance.wareHouse.configValue", "name": "WareHouse.ConfigValue", className: "text-left" },
+                    { "data": "yarnIssuance.weavingContract.transactionNo", "name": "WeavingContract.TransactionNo", className: "text-center" },
+                    { "data": "yarnIssuance.weavingContract.vendor.name", "name": "WeavingContract.Vendor.Name", className: "text-left" },
+                    { "data": "yarnIssuance.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "yarnIssuance",
+                        "render": function (data, row) {
+                            debugger;
+                            if (data.status != "Approved") {
+                                return "<a href='/AP/YarnIssuance/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/AP/YarnIssuance/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a>    <a  href='/AP/YarnIssuance/Approve?id=" + data.id + "' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up'  title='Approve'></i></a>    <a href='@ViewBag.ReportPath2" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'>Issuance<i class='fa fa-print' title='print'></i></a>";
+                            }
+                            else {
+                                debugger;
+                                return '<a href="/AP/YarnIssuance/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>  <a href="@ViewBag.ReportPath' + data.voucherId + '" target="_blank" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-print" title="print"></i></a>' + "<a href='/AP/YarnIssuance/UnApproveYarnIssuance?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>     <a href='@ViewBag.ReportPath2" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'>Issuance<i class='fa fa-print' title='print'></i></a>";
+                            }
+
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+    </script>
+}

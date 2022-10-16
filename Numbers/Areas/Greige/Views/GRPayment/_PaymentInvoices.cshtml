@@ -1,0 +1,86 @@
+﻿@model GRPaymentViewModel
+@{
+    Layout = null;
+}
+<style>
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 0%;
+        top: 39px;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}{1}","supplier-payment",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-lg-3 col-md-6 col-sm-3">
+                    <div class="form-group">
+                        <input asp-for="PaymentItemId" type="hidden" name="PaymentItemId" id=@string.Format("{0}{1}","PaymentItemId",ViewBag.Counter) />
+                        <input asp-for="InvoiceId" name="InvoiceId" id='@string.Format("{0}{1}","InvoiceId",ViewBag.Counter)' hidden />
+                        <label asp-for="InvoiceNo"></label>
+                        <input asp-for="InvoiceNo" name="InvoiceNo" id='@string.Format("{0}{1}","InvoiceNo",ViewBag.Counter)' readonly class="form-control text-right select-item" tabindex="-1" />
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-3">
+                    <div class="form-group">
+                        <label asp-for="InvoiceDate"></label>
+                        <div class="input-group date">
+                            <input asp-for="InvoiceDate" name="InvoiceDate" id="@string.Format("{0}{1}","InvoiceDate_",ViewBag.Counter)" class="form-control custom-date-picker" type="text" value="@(Model.InvoiceDate.ToString(CommonHelper.DateFormat))" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-3">
+                    <label asp-for="InvoiceAmount"></label>
+                    <input asp-for="InvoiceAmount" name="InvoiceAmount" id='@string.Format("{0}{1}","InvoiceAmount_",ViewBag.Counter)' readonly class="form-control text-right  add-comma"  tabindex="-1" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-3">
+                    <label asp-for="Balance"></label>
+                    <input asp-for="Balance" name="Balance" id='@string.Format("{0}{1}","Balance_",ViewBag.Counter)' readonly class="form-control text-right add-comma"  tabindex="-1" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-3 col-md-6 col-lg-3">
+                    <label asp-for="PaymentAmount"></label>
+                    <input asp-for="PaymentAmount" name="PaymentAmount" id='@string.Format("{0}{1}","PaymentAmount_",ViewBag.Counter)' class="form-control dependent text-right  add-comma " onchange="calculateTax(@ViewBag.Counter)"  />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-3" hidden>
+                    <div class="form-group">
+                        <label asp-for="TaxId"></label>
+                        <Select name="TaxId" asp-for="TaxId" id='@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)' data-validation="required" data-validation-error-msg="Tax is required" data-validation-error-msg-container="#tax" onchange="calculateTax(@ViewBag.Counter)" class="form-control" asp-items="@(new SelectList(Model.TaxList,"Id","Name"))">
+                            <option value="0" >
+                                Select...
+                            </option>
+                        </Select>
+                        <p id="tax"></p>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-3" hidden>
+                    <label asp-for="TaxAmount"></label>
+                    <input asp-for="TaxAmount" name="TaxAmount" id='@string.Format("{0}{1}","TaxAmount_",ViewBag.Counter)' readonly class="form-control text-right  add-comma calculate-total" tabIndex="-1" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-3" hidden>
+                    <label asp-for="LineTotal"></label>
+                    <input asp-for="LineTotal" name="LineTotal" id='@string.Format("{0}{1}","LineTotal_",ViewBag.Counter)' readonly class="form-control text-right add-comma" tabindex="-1" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/GR/paymentInvoices.js"></script>
+<script src="~/lib/jquery-masking-plugin/dist/Jq-mask.js"></script>
+<script>
+
+</script>

@@ -1,0 +1,87 @@
+﻿@model Numbers.Entity.Models.BkgVehicle
+
+@{
+    ViewData["Title"] = "Vehicle Detail";
+    ViewData["CurrentPage"] = "Vehicle Booking";
+}
+
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>Vehicle Booking Detail</h5>
+
+    </div>
+    <div class="ibox-content ibox-content-1">
+        <form class="form-horizontal">
+
+            <div class="form-group">
+                <label asp-for="BookingDate" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BookingDate)
+                </div>
+                <label asp-for="ReceiptType" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.ReceiptType)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookingType" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BookingType)
+                </div>
+                <label asp-for="BankName" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.BankName)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReferenceNo" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.ReferenceNo)
+                </div>
+                <label asp-for="DeliveryDate" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.DeliveryDate)
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerId" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Customer.CNIC)
+                </div>
+                <label asp-for="ItemId" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Item.Name)
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.Price)
+                </div>
+                <label asp-for="ReceivedAmount" class="col-lg-2 control-label"></label>
+                <div class="col-lg-4">
+                    @Html.DisplayFor(model => model.ReceivedAmount)
+                </div>
+
+            </div>
+
+
+
+
+            <div class="form-group">
+                <div class="col-lg-4 col-lg-offset-2">
+                    <a class="btn btn-white" asp-action="VehicleList">Cancel</a>
+                    <a class="btn btn-primary" asp-action="VehicleCreate" asp-route-id="@Model.Id">Edit</a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+

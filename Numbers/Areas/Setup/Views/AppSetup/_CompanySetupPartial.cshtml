@@ -1,0 +1,106 @@
+﻿@model List<AppCompanySetup>
+<div class="row">
+    <div class="col-lg-6 scroll">
+        <table class="table table-bordered table-striped dataTables-example ">
+            <thead>
+                <tr>
+                    <th hidden>
+                        Id
+                    </th>
+                    <td>
+                        Module
+                    </td>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Value
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    if (Model[i].ModuleId.StartsWith("AR"))
+                    {
+                        <tr>
+                            <td hidden>
+                                <input asp-for="@Model[i].Id" />
+                            </td>
+                            <td>
+                                <label class="control-label text-left" for="@Model[i].ModuleId">@Model[i].ModuleId</label>
+                            </td>
+                            <td>
+                                <label class="control-label text-left" for="@Model[i].Name">@Model[i].Name</label>
+                            </td>
+                            <td>
+                                <input asp-for="@Model[i].Value" data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule" class="form-control text-left" autofocus />
+                                @*<select asp-for="@Model[i].Value" autofocus data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule"  class="chosen-select form-control" asp-items="ViewBag.GLAccounts" id="GLAccounts" required>
+                            <option selected="selected" value="0" disabled>Select...</option>
+                        </select>*@
+                            </td>
+                            @*<td>
+                        <input type="@Model[i].DataType" name="Value" value="@Model[i].Value" data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule" class="form-control text-left" autofocus />
+                    </td>*@
+                        </tr>
+                        @*maxlength="@(item.IsRequired ? "5" : "")"*@
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-6 scroll">
+        <table class="table table-bordered table-striped dataTables-example ">
+            <thead>
+                <tr>
+                    <th hidden>
+                        Id
+                    </th>
+                    <td>
+                        Module
+                    </td>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Value
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    if (!Model[i].ModuleId.StartsWith("AR"))
+                    {
+                        <tr>
+                            <td hidden>
+                                <input asp-for="@Model[i].Id" />
+                            </td>
+                            <td>
+                                <label class="control-label text-left" for="@Model[i].ModuleId">@Model[i].ModuleId</label>
+                            </td>
+                            <td>
+                                <label class="control-label text-left" for="@Model[i].Name">@Model[i].Name</label>
+                            </td>
+                            <td>
+                                <input asp-for="@Model[i].Value" data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule" class="form-control text-left" autofocus />
+                                @*<select asp-for="@Model[i].Value" autofocus data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule"  class="chosen-select form-control" asp-items="ViewBag.GLAccounts" id="GLAccounts" required>
+                            <option selected="selected" value="0" disabled>Select...</option>
+                        </select>*@
+                            </td>
+                            @*<td>
+                        <input type="@Model[i].DataType" name="Value" value="@Model[i].Value" data-validation="@(Model[i].IsRequired ? "required" : "")" data-validation-error-msg="Value is required" data-validation-allowing="@Model[i].ValidationRule" class="form-control text-left" autofocus />
+                    </td>*@
+                        </tr>
+                        @*maxlength="@(item.IsRequired ? "5" : "")"*@
+                    }
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="text-left">
+    <button type="submit" value="Submit" class="btn btn-primary" asp-action="Update" asp-controller="AppSetup"><strong>Submit</strong></button>
+</div>

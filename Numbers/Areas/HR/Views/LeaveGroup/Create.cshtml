@@ -1,0 +1,91 @@
+﻿@model HRLeaveTypeGroup
+@{
+    ViewData["Title"] = "Create Leave Group";
+    ViewData["CurrentPage"] = "Leave Groups";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Leave Group</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-lg-6">
+
+
+                            <div class="row">
+                                @*<input type="hidden" asp-for="Id" />*@
+
+                                <div class="form-group">
+                                    <label asp-for="EmployeeTypeId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="EmployeeTypeId" class="form-control" data-validation="required">
+                                            <option selected disabled>select the type --</option>
+                                            <option value="1">Labour-1</option>
+                                            <option value="2">Labour-2</option>
+                                        </select>
+                                        <span asp-validation-for="EmployeeTypeId" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="LeaveTypeId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="LeaveTypeId" class="form-control" data-validation="required">
+                                            <option selected disabled>select the type --</option>
+                                            <option value="1">Medical</option>
+                                            <option value="2">Annual</option>
+                                        </select>
+                                        <span asp-validation-for="LeaveTypeId" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="NoOfDays" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="NoOfDays" type="number" class="form-control" data-validation="required" />
+                                        <span asp-validation-for="NoOfDays" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Forwardable" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input asp-for="Forwardable" type="checkbox" checked="checked" />
+                                            <label for="Forwardable"></label>
+                                        </div>
+                                    </div>
+
+                                    <label asp-for="IsActive" class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input asp-for="IsActive" id="isActive" type="checkbox" checked="checked" />
+                                            <label for="IsActive"></label>
+                                        </div>
+                                    </div>
+                                </div>     
+
+                            </div>  
+                        </div>
+
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-2">
+                                <a value="Back" class="btn btn-white" asp-controller="LeaveGroup" asp-action="Index">Back</a>
+                                <button type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="LeaveGroup">@ViewBag.EntityState</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

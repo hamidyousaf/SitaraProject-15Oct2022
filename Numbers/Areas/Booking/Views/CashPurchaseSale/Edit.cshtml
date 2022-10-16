@@ -1,0 +1,943 @@
+﻿@model BkgCashPurchaseSaleViewModel
+
+@{
+    ViewData["Title"] = "Cash Purchase Sale";
+    ViewData["CurrentPage"] = "Cash Purchase/Sale Vehicle";
+
+}
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Cash Purchase/Sale Vehicle</h5>
+            </div>
+          <div class="ibox-content">
+                <form class="form-horizontal" method="post" asp-controller="CashPurchaseSale">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="text" asp-for="Id" hidden="hidden">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="TransDate" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+
+                                    <div class="input-group date">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        @*                                        <input type="text" class="form-control custom-date-picker" asp-for="TransDate" data-validation="required" data-validation-error-msg="Trans. date is required" >*@
+                                        <input type="text" class="form-control custom-date-picker" asp-for="TransDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.TransDate.ToString(CommonHelper.DateFormat))>
+                                        <span asp-validation-for="TransDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label asp-for="ItemId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" asp-for="ItemId">
+                                        <option selected="selected" value="">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="ItemId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="BookingDate" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+
+                                    <div class="input-group date">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" class="form-control custom-date-picker" asp-for="BookingDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.BookingDate.ToString(CommonHelper.DateFormat))>
+                                        <span asp-validation-for="BookingDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CustomerId" class="col-lg-4 control-label">Supplier</label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" asp-for="CustomerId">
+                                        <option selected="selected" value="">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BookingNo" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+                                    <input asp-for="BookingNo" class="form-control" />
+                                    <span asp-validation-for="BookingDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="EstimatedPurchase" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="EstimatedPurchase" class="form-control" type="number" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="BookingRemarks" class="col-lg-12 control-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <textarea asp-for="BookingRemarks" class="form-control"></textarea>
+                                    <span asp-validation-for="BookingRemarks" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                            </div>
+                    <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="ibox float-e-margins">
+                                        <div class="ibox-title">
+                                            <h5>Vehicle Receiving Information.</h5>
+
+                                        </div>
+                                        <div class="ibox-content">
+                                            <div class="row">
+                                                <div class="col-md-6">
+
+                                                </div>
+                                                <div class="col-md-6">
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group" id="data_1">
+                                                        <label asp-for="IGPDate" class="col-lg-4 control-label"></label>
+                                                        <div class="col-lg-8">
+
+                                                            <div class="input-group date">
+                                                                <span class="input-group-addon">
+                                                                    <i class="fa fa-calendar"></i>
+                                                                </span>
+                                                                <input type="text" class="form-control custom-date-picker" asp-for="IGPDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.IGPDate.ToString(CommonHelper.DateFormat))>
+                                                                <span asp-validation-for="IGPDate" class="text-danger"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label asp-for="IGPNo" class="col-lg-4 control-label"></label>
+                                                        <div class="col-lg-8">
+                                                            <input asp-for="IGPNo" class="form-control" />
+                                                            <span asp-validation-for="IGPNo" class="text-danger"></span>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label asp-for="EngineNo" class="col-lg-4 control-label"></label>
+                                                        <div class="col-lg-8">
+                                                            <input asp-for="EngineNo" class="form-control" />
+                                                            <span asp-validation-for="EngineNo" class="text-danger"></span>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label asp-for="ChassisNo" class="col-lg-4 control-label"></label>
+                                                        <div class="col-lg-8">
+                                                            <input asp-for="ChassisNo" class="form-control" />
+                                                            <span asp-validation-for="ChassisNo" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label asp-for="InvoiceNo" class="col-lg-4 control-label"></label>
+                                                        <div class="col-lg-8">
+                                                            <input asp-for="InvoiceNo" class="form-control" />
+                                                            <span asp-validation-for="InvoiceNo" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label asp-for="ReceivingRemarks" class="col-lg-12 control-label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-10">
+                                                    <div class="form-group">
+                                                        <div class="col-lg-12">
+                                                            <textarea asp-for="ReceivingRemarks" class="form-control"></textarea>
+                                                            <span asp-validation-for="ReceivingRemarks" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          <div class="row">
+                                              <div class="col-lg-12">
+                                                  <div class="col-lg-8 col-md-offset-2 ">
+                                                      <div class="form-group">
+                                                          <a asp-action="Index"  asp-controller="CashPurchaseSale"  class="btn btn-white">Cancel </a>
+                                                          @*<a asp-action="Update" asp-controller="CashPurchaseSale" class="btn btn-primary">@ViewBag.EntityState</a>*@
+                                                          @if (Model.VoucherId != 0)
+                                                          {
+                                                              <a href="@String.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                                          }
+                                                      </div>
+                                                  </div>
+                                                  </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                </form>
+                <div class="hr-line-dashed"></div>
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tabPurchase"> <i class="fa fa-file"></i> Purchase</a></li>
+                        <li class=""><a data-toggle="tab" href="#tabSale"><i class="fa fa-files-o"></i>Sales</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tabPurchase" class="tab-pane active">
+                            <div class="panel-body">
+                                <form id="purchaseInfo" class="form-horizontal" asp-action="savePurchaseInformation" method="post">
+                                    <div class="alert alert-info">  
+                                        Purchase Information
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="PurchaseDate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+
+                                                    <div class="input-group date">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control custom-date-picker" data-validation="required" asp-for="PurchaseDate" value=@(DateTime.Now.ToString(CommonHelper.DateFormat))>
+                                                        <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+
+                                                <label asp-for="PurchaseRate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="PurchaseRate" class="form-control" data-validation="required" />
+                                                    @*<span asp-validation-for="PurchaseRate" class="text-danger"></span>*@
+                                                    <span id="ratePurchase"></span>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label asp-for="PurchaseParty" class="col-lg-12 control-label"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+                                                <div class="col-lg-12">
+                                                    <input asp-for="PurchaseParty" class="form-control" data-validation="required" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label asp-for="PurchaseRemarks" class="col-lg-12 control-label"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+                                                <div class="col-lg-12">
+                                                    <textarea asp-for="PurchaseRemarks" data-validation="required" class="form-control"></textarea>
+                                                    <span asp-validation-for="PurchaseRemarks" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <input type="text" asp-for="Id" hidden="hidden">
+                                            <input id="SavePurchaseInformation" asp-for="SavePurchaseInformation" type="checkbox" checked="checked" hidden="hidden">
+                                        </div>
+                                        <div class="col-md-2">
+                                            @if (Model.PurchaseRate == 0)
+                                            {
+                                                <div class="form-group">
+                                                    <div class="col-lg-4">
+                                                        <input id="savePurchaseBtn" type="submit" value="Save Purchase Info" class="btn btn-primary" />
+                                                    </div>
+                                                </div>
+
+                                            }
+                                             @if(Model.PurchaseVoucherId > 0)
+                                            {
+                                                <div class="form-group">
+                                                    <div class="col-lg-4">
+                                                        <a href="@String.Format(ViewBag.ReportPath,Model.PurchaseVoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </form>
+                                @if (Model.PurchaseRate > 0)
+                                {
+                                <form id="paymentInfo" class="form-horizontal" asp-action="savePayment" method="post">
+                                    <input type="text" asp-for="Id" hidden="hidden">
+                                    <div class="alert alert-info">
+                                            Payment Information
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="PaymentDate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+
+                                                    <div class="input-group date">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </span>
+                                                        <input  class="form-control custom-date-picker" type="text" data-validation="required" asp-for="PaymentDate" value=@(DateTime.Now.ToString(CommonHelper.DateFormat))>
+                                                        <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+
+                                                <label asp-for="PaymentAmountD" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="PaymentAmountD" data-validation="number" data-validation-allowing="range[1.00;@(Model.PurchaseRate - Model.PaymentAmount)];float"  class="form-control" data-validation-error-msg="Payment amount should be less than Purchase amount" />
+                                                    <span asp-validation-for="PaymentAmountD" class="text-danger"></span>
+                                                    <span id="PaymentAmountError"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="PaymentReference" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="PaymentReference" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="PaymentReference" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+
+                                                <label asp-for="PaymentGLAccountId" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <select class="chosen-select" data-validation="required" asp-for="PaymentGLAccountId">
+                                                        <option selected="selected" value="">Select...</option>
+                                                    </select>
+                                                    <span asp-validation-for="PaymentGLAccountId" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label asp-for="PaymentRemarksD" class="col-lg-12 control-label"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+                                                <div class="col-lg-12">
+                                                    <textarea asp-for="PaymentRemarksD" data-validation="required" class="form-control"></textarea>
+                                                    <span asp-validation-for="PaymentRemarksD" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        
+                                    </div>                                    
+                                    <div class="form-group">
+                                        <div class="col-lg-4 col-lg-offset-2">
+                                            <input type="submit" value="Create" class="btn btn-primary" />
+                                        </div>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <table class="table table-responsive table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Payment Date</th>
+                                                    <th>Payment Amount</th>
+                                                    <th>Reference</th>
+                                                    <th>Remarks</th>
+                                                    <th>Paid Through</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            @foreach (var item in Model.PurchasePayments)
+                                            {
+                                            <tr>
+                                                <td>
+                                                    @item.PaymentDate.ToString(CommonHelper.DateFormat)
+                                                </td>
+                                                <td>
+                                                    @item.PaymentAmount
+                                                </td>
+
+                                                <td>
+                                                    @item.Reference
+                                                </td>
+                                                <td>
+                                                    @item.Remarks
+                                                </td>
+                                                <td>
+                                                    @item.BankCashAccountId
+                                                </td>
+                                                <td>
+                                                    <a href="@String.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                                </td>
+                                            </tr>
+
+                                            }
+                                            <tr>
+                                                <td>
+                                                    <b>Total Amount</b>
+                                                </td>
+                                                <td>                                                  
+                                                    <b> @Model.PurchasePayments.Sum(i => i.PaymentAmount) </b>                                                       
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </form>
+                                }
+                            </div>
+                        </div>
+                        <div id="tabSale" class="tab-pane">
+                            <div class="panel-body">
+                                <form id="saleInfo" class="form-horizontal" asp-action="saveSaleInformation" method="post">
+                                    <div class="alert alert-danger">
+                                           Sales Information
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="SalesDate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+
+                                                    <div class="input-group date">
+                                                        <span class="input-group-addon">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </span>
+                                                        <input type="text" class="form-control custom-date-picker" data-validation="required" asp-for="SalesDate" value=@CommonHelper.CurrentDate>
+                                                        <span asp-validation-for="SalesDate" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+
+                                                <label asp-for="SalesRate" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="SalesRate" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="SalesRate" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+
+                                                <label asp-for="SalesParty" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="SalesParty" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="SalesParty" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label asp-for="SalesPartyAccount" class="col-lg-4 control-label">Customer</label>
+                                                <div class="col-lg-8">
+                                                    <select class="chosen-select" data-validation="required" asp-for="SalesPartyAccount">
+                                                        <option selected="selected" value="">Select...</option>
+                                                    </select>
+                                                    <span asp-validation-for="SalesPartyAccount" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label asp-for="SalesRemarks" class="col-lg-12 control-label"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+                                                <div class="col-lg-12">
+                                                    <textarea asp-for="SalesRemarks" data-validation="required" class="form-control"></textarea>
+                                                    <span asp-validation-for="SalesRemarks" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <input id="SaveSalesInformation" asp-for="SaveSalesInformation" type="checkbox" checked="checked" hidden="hidden">
+                                            <input type="text" asp-for="Id" hidden="hidden">
+                                        </div>
+                                        <div class="col-md-2">
+                                            @if (Model.SalesRate == 0)
+                                            {
+                                                <div class="form-group">
+                                                    <div class="col-lg-4">
+
+                                                        <input id="saveSale" type="submit" value="Save Sale Info" class="btn btn-primary" />
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (Model.SalesVoucherId > 0)
+                                            {
+                                                <div class="form-group">
+                                                    <div class="col-lg-4">
+                                                        <a href="@String.Format(ViewBag.ReportPath,Model.SalesVoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                                    </div>
+                                                </div>
+
+                                            }
+                                        </div>
+                                    </div>
+                                </form>
+                               @if (Model.SalesRate > 0)
+                               {
+                                    <form id="receiptInfo" class="form-horizontal" asp-action="saveReceipt" method="post">
+                                        <input type="text" asp-for="Id" hidden="hidden">
+                                        <div class="alert alert-danger">
+                                                Receipt Information
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group" id="data_1">
+                                                    <label asp-for="ReceiptDate" class="col-lg-4 control-label"></label>
+                                                    <div class="col-lg-8">
+
+                                                        <div class="input-group date">
+                                                            <span class="input-group-addon">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </span>
+                                                            <input type="text" class="form-control  custom-date-picker" data-validation="required" asp-for="ReceiptDate" value=@(DateTime.Now.ToString(CommonHelper.DateFormat))>
+                                                            <span asp-validation-for="ReceiptDate" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+
+                                                    <label asp-for="ReceiptAmount" class="col-lg-4 control-label"></label>
+                                                    <div class="col-lg-8">
+                                                        <input asp-for="ReceiptAmount" data-validation="number" data-validation-allowing="range[1.00;@(Model.SalesRate - Model.ReceiptAmount)];float" class="form-control" data-validation-error-msg="Receipt amount should less than or equal to Purchase Amount." />
+                                                        <span asp-validation-for="ReceiptAmount" class="text-danger"></span>
+                                                        <span id="ReceiptAmountError"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label asp-for="ReceiptsReference" class="col-lg-4 control-label"></label>
+                                                    <div class="col-lg-8">
+                                                        <input asp-for="ReceiptsReference" data-validation="required" class="form-control" />
+                                                        <span asp-validation-for="ReceiptsReference" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+
+                                                    <label asp-for="ReceiptsGLAccountId" class="col-lg-4 control-label"></label>
+                                                    <div class="col-lg-8">
+                                                        <select class="chosen-select col-md-12" data-validation="required" asp-for="ReceiptsGLAccountId" style="width: 100%;">
+                                                            <option selected="selected" value="">Select...</option>
+                                                        </select>
+                                                        <span asp-validation-for="ReceiptsGLAccountId" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label asp-for="ReceiptsRemarks" class="col-lg-12 control-label"></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <div class="form-group">
+                                                    <div class="col-lg-12">
+                                                        <textarea asp-for="ReceiptsRemarks" data-validation="required" class="form-control"></textarea>
+                                                        <span asp-validation-for="ReceiptsRemarks" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-lg-4 col-lg-offset-2">
+                                                <input type="submit" value="Create" class="btn btn-primary" />
+                                            </div>
+                                        </div>
+                                        <div class="ibox-content">
+                                            <table class="table table-responsive table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Receipt Date</th>
+                                                        <th>Receipt Amount</th>
+                                                        <th>Reference</th>
+                                                        <th>Remarks</th>
+                                                        <th>Received Through</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                @foreach (var item in Model.SaleReceipts)
+                                                {
+                                                <tr>
+                                                    <td>
+                                                        @item.ReceiptDate.ToString(CommonHelper.DateFormat)
+                                                    </td>
+                                                    <td>
+                                                        @item.ReceiptAmount
+                                                    </td>
+                                                    <td>
+                                                        @item.Reference
+                                                    </td>
+                                                    <td>
+                                                        @item.Remarks
+                                                    </td>
+                                                    <td>
+                                                        @item.BankCashAccountId
+                                                    </td>
+                                                    <td>
+                                                        <a href="@String.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                                    </td>
+                                                </tr>
+                                                }
+                                                <tr>
+                                                    <td>
+                                                        <b>Total Amount</b>
+                                                    </td>
+                                                    <td>
+                                                        <b> @Model.SaleReceipts.Sum(i => i.ReceiptAmount) </b>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </form>
+                               }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $.validate();
+        //$.each(["input", "select", "textarea"], function (k, v) {
+        //    $.each($("#abc").find(v), function () {
+        //            $(this).attr("disabled", "disabled");
+        //        });
+        //})
+        //Customers where IsSupplier is true
+        $(function () {
+            var type = 'Supplier';
+            $('#SalesPartyAccount').select2({
+            ajax: {
+                url: '/Booking/API/GetCustomers',
+                data: {type},
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a supplier',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.SalesPartyAccount;
+            var customerSelect = $('#SalesPartyAccount');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/API/GetCustomer/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            customerSelect.append(option).trigger('change');
+            customerSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+        // Select For Items
+        $(function () {
+        $('#ItemId').select2({
+            ajax: {
+                url: '/Booking/API/GetItems',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an a item',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.ItemId;
+        var accountSelect = $('#ItemId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/API/GetItem/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+        $(function () {
+            var type = 'Customer';
+             $('#CustomerId').select2({
+            ajax: {
+                url: '/Booking/API/GetCustomers',
+                data: {type},
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a customer',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.CustomerId;
+        var customerSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/API/GetCustomer/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            customerSelect.append(option).trigger('change');
+            customerSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+//Select For BankCashAccountId
+    $(function () {
+        $('#PaymentGLAccountId').select2({
+            ajax: {
+                url: '/ChartofAccount/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a GL Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.PaymentGLAccountId;
+        var accountSelect = $('#PaymentGLAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/ChartofAccount/Get/' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+                      //Select For BankCashAccountId
+    $(function () {
+        $('#ReceiptsGLAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a GL Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.ReceiptsGLAccountId;
+        var accountSelect = $('#ReceiptsGLAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetCashBankAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+
+
+                   //Select For BankCashAccountId
+    $(function () {
+        $('#PaymentGLAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the
+        var id = @Model.PaymentGLAccountId;
+        var accountSelect = $('#PaymentGLAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetCashBankAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+        $(document).ready(function () {
+            if (@Model.PurchaseRate > 0) {
+                $.each(["input", "select", "textarea"], function (k, v) {
+                    $.each($("#purchaseInfo").find(v), function () {
+                        $(this).attr("disabled", "disabled");
+                    });
+                })
+            }
+        })
+                $(document).ready(function () {
+                    if (@Model.SalesRate > 0) {
+                        $.each(["input", "select", "textarea"], function (k, v) {
+                            $.each($("#saleInfo").find(v), function () {
+                                $(this).attr("disabled", "disabled");
+                            });
+                        })
+                    }
+
+
+        })
+    </script>
+
+}

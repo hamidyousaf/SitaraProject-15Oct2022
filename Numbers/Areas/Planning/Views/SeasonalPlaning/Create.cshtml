@@ -1,0 +1,448 @@
+﻿@model SeasonalPlaningViewModel
+@{
+    ViewData["Title"] = "Create Seasonal Planning";
+}
+@section customCSS{ 
+<style>
+    table td {
+        position: relative;
+    }
+        table td input[type=text], table td input[type=number] {
+            position: absolute;
+            bottom: 0;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+    .withscroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    .PopupHeight {
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 200px;
+        max-height: 450px;
+    }
+</style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class="ibox-content" method="post" asp-action="Create" asp-controller="SeasonalPlaning" onsubmit="return OnSubmit($(this));" >
+                <input asp-for="SeasonalPlaning.Id" type="hidden" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="SeasonalPlaning.TransactionNo"></label>
+                                    <div class="input-group">
+                                        @if (Model.SeasonalPlaning.Id != 0)
+                                        {
+                                            <input  asp-for="SeasonalPlaning.TransactionNo" tabindex="-1" readonly class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            <input  value="" readonly tabindex="-1" class="form-control" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="SeasonalPlaning.TransactionDate"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input asp-for="SeasonalPlaning.TransactionDate" readonly tabindex="-1" class="form-control" type="text" value="@(Model.SeasonalPlaning.Id == 0 ? CommonHelper.CurrentDate : Model.SeasonalPlaning.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="SeasonalPlaning.SeasonId"></label>
+                                    <Select asp-for="SeasonalPlaning.SeasonId" id="SeasonId" autofocus asp-items="@Model.SeasonLOV" data-validation="required" data-validation-error-msg="Season is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-1"></div>
+                            <div class="text-right col-lg-3 mb-3">
+                                <div class="form-group">
+                                    <label class="col-form-label"></label>
+                                    <input style=" margin-top: 25px; " type="button" class="btn btn-success" onclick="getSeasons();" value="Get Specifications" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <table id="DetailTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th hidden>Id</th>
+                                        <th hidden>SpecificationId</th>
+                                        <th hidden>FourthCategoryId</th>
+                                        <th width="27%">Item Category 4</th>
+                                        <th hidden>GRQualityId</th>
+                                        <th width="33%">Greige Quality</th>
+                                        <th hidden>SeasonId</th>
+                                        <th hidden >Season</th>
+                                        <th hidden>Start Date</th>
+                                        <th hidden>End Date</th>
+                                        <th width="7%">Vol.</th>
+                                        <th width="7%">Dsgn/ Vol.</th>
+                                        <th width="7%">Dsgn Cnt</th>
+                                        <th width="7%">Dsgn Run</th>
+                                        <th width="7%">Fabric Plan</th>
+                                        <th width="7%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.SeasonalPlaningDetail != null)
+                                    {
+                                        @if (Model.SeasonalPlaningDetail.Count() > 0)
+                                        {
+                                            @foreach (var item in Model.SeasonalPlaningDetail.OrderBy(x=>x.Id))
+                                            {
+                                    <tr>
+                                        <td hidden><input class="Id" value="@item.Id" /></td>
+                                        <td hidden><input class="SpecificationId" value="@item.SpecificationId" type="hidden" /></td>
+                                        <td hidden><input class="FourthCategoryId" value="@item.FourthItemCategoryId" type="hidden" /></td>
+                                        <td><input value="@item.FourthItemCategory.Name" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                        <td hidden><input class="GRQualityId" value="@item.GreigeQualityId" type="hidden" /></td>
+                                        <td><input value="@item.GreigeQuality.Description" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                        <td hidden><input class="SeasonId" value="@item.SeasonId" type="hidden" /></td>
+                                        <td hidden><input value="@item.Season.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                        <td hidden><input hidden class="StartDate form-control" value="@item.StartDate.ToString("MMM-yy")" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                        <td hidden><input hidden class="EndDate form-control" value="@item.EndDate.ToString("MMM-yy")" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                        <td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class="Volume text-right" min="0" onchange="Calculations($(this));" value="@item.Volume" type="number" /></td>
+                                        <td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class="DesignPerVolume text-right" min="0" onchange="Calculations($(this));" value="@item.DesignPerVolume" type="number" /></td>
+                                        <td><input class="DesignCount text-right" style="background-color: #eee;" min="0" readonly tabindex="-1" onchange="Calculations($(this));" value="@item.DesignCount" type="number" /></td>
+                                        <td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class="DesignRun text-right" min="0" onchange="Calculations($(this));" value="@item.DesignRun" type="number" /></td>
+                                        <td><input class="FabricConsum text-right" value="@item.FabricConsumption" readonly style="background-color: #eee;" tabindex="-1" type="number" /></td>
+                                        <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                    </tr>
+                                            }
+                                        }
+                                    }
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <!-- Trigger the modal with a button -->
+                    <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div class="form-group">
+                                        <div class="col-lg-3 col-md-3">
+                                            <input class="form-control" autocomplete="off" id="myInput" placeholder="Search here..." />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-body PopupHeight">
+                                    <div class="row text-center">
+                                        <div class="col-md-12">
+                                            <div class="ibox ">
+                                                <div class="table-responsive">
+                                                    <table id="SeasonTable" class="table table-striped table-bordered table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th hidden>Id</th>
+                                                                <th>Item Category 4</th>
+                                                                <th>Greige Quality</th>
+                                                                <th><input type="checkbox" class="checkbox-success" id="select_all" /></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <W type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Item</W>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <input type="submit" id="SaveBtn" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input hidden id="itemDetail" name="ItemDetail" />
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            debugger
+            $("#SeasonId").select2();
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#SeasonTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+        $("#SeasonId").change(function () {
+            debugger;
+            $("#DetailTable > tbody > tr").remove();
+        })
+        function getSeasons() {
+        var seasonId = $('#SeasonId').find(":selected").val();
+            debugger
+            if (seasonId != 0) {
+                var skipIds = [];
+
+                $("#DetailTable > tbody > tr").each(function () {
+                    skipIds.push($(this).find(".SpecificationId").val());
+                })
+            // AJAX request
+            $.ajax({
+                url: '/Planning/SeasonalPlaning/GetSpecificationForPopUp',
+                type: 'POST',
+                method: 'POST',
+                data: { skipIds: skipIds },
+                success: function (response) {
+                    $('#SeasonTable tbody tr').remove();
+                    $.each(response, function (i, item) {
+                        debugger
+                        var Itemrow = '';
+                        Itemrow += '<tr>';
+                        Itemrow += '<td hidden class="SpecificationId">' + item.id + '</td>';
+                        Itemrow += '<td class="text-left">' + item.itemCategoryLevel4.name + '</td>';
+                        Itemrow += '<td class="text-left">' + item.grQuality.description + '</td>';
+                        Itemrow += '<td class="text-center"><input id="check" class="check-box checkbox-success text-center" type="checkbox"></td>';
+                        Itemrow += '</tr>';
+                        $('#SeasonTable tbody').append(Itemrow);
+
+                    });
+                    $('#saleModal').modal('show');
+
+
+
+
+
+
+
+
+
+                    // Display Modal
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+            return true;
+        }
+        swal({
+            icon: 'warning',
+            text: "Please select the Season!",
+            closeModal: false
+        }).then(function () {
+            swal.close();
+            $('#SeasonId').focus();
+        });
+        return false;
+    }
+        $('#button').click(function () {
+            debugger
+            
+            var seasonId = $("#SeasonId").find(":selected").val();
+            var seasonDesc = $("#SeasonId").find(":selected").html();
+
+        var table = document.getElementById('SeasonTable');
+        var arrayOfValues = [];
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        console.log(arrayOfValues);
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (j = 0; j < arrLength; j++) {
+            debugger;
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/Planning/SeasonalPlaning/GetSpecificationById',
+                data: { specificationId: parseInt(values[j]), seasonId: seasonId },
+                beforeSend: function () {
+                 //   skipIds.push(values[i]);
+                    //$('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    //$('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                debugger;
+                var Itemrow = '';
+                Itemrow += '<tr>'
+                Itemrow += '<td hidden><input class ="Id" value="0"  /></td>';
+                Itemrow += '<td  hidden><input class ="SpecificationId" value="' + data.id + '" type="hidden" /></td>';
+                Itemrow += '<td  hidden><input class ="FourthCategoryId" value="' + data.itemCategoryLevel4.id + '" type="hidden" /></td>';
+                Itemrow += '<td><input value="' + data.itemCategoryLevel4.name + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                Itemrow += '<td  hidden><input class ="GRQualityId" value="' + data.grQuality.id + '" type="hidden" /></td>';
+                Itemrow += '<td><input value="' + data.grQuality.description + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                Itemrow += '<td  hidden><input class ="SeasonId" value="' + seasonId + '" type="hidden" /></td>';
+                Itemrow += '<td hidden><input value="' + seasonDesc + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                Itemrow += '<td hidden><input hidden class ="StartDate" value="' + data.startDate +'"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                Itemrow += '<td hidden><input hidden class ="EndDate" value="' + data.endDate +'"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                Itemrow += '<td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class ="Volume text-right" min="0" onchange="Calculations($(this));" value="0" type="number" /></td>';
+                Itemrow += '<td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class ="DesignPerVolume text-right" min="0" onchange="Calculations($(this));" value="0" type="number" /></td>';
+                Itemrow += '<td><input class ="DesignCount text-right" style="background-color: #eee;" min="0" readonly tabindex="-1" onchange="Calculations($(this));" value="0" type="number" /></td>';
+                Itemrow += '<td><input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" class ="DesignRun text-right" min="0" onchange="Calculations($(this));" value="0" type="number" /></td>';
+                Itemrow += '<td><input class ="FabricConsum text-right" value="0" readonly style="background-color: #eee;" tabindex="-1" type="number" /></td>';
+                Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                Itemrow += '</tr>';
+                $('#DetailTable tbody').append(Itemrow);
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+        });
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+        function Calculations(row) {
+            debugger
+            var volume = Number(row.closest("tr").find(".Volume").val());
+            var designPerVolume = Number(row.closest("tr").find(".DesignPerVolume").val());
+            var designCode = Number(row.closest("tr").find(".DesignCount").val());
+            var designRun = Number(row.closest("tr").find(".DesignRun").val());
+            var x = volume * designPerVolume;
+            var y = x * designRun;
+            row.closest("tr").find(".DesignCount").val(x);
+            row.closest("tr").find(".FabricConsum").val(y);
+
+        }
+        function OnSubmit() {
+            var BreakOut = false;
+            var length = $("#DetailTable tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter one item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SeasonId').focus();
+                });
+                return false;
+            }
+            var length = $("#DetailTable tbody tr").each(function () {
+                debugger
+                var volume = $(this).find(".Volume").val();
+                var designPerVolume = $(this).find(".DesignPerVolume").val();
+                var designRun = $(this).find(".DesignRun").val();
+                if (volume == 0 || volume == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter Volume!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".Volume").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (designPerVolume == 0 || designPerVolume == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter Design/Volume value!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".DesignPerVolume").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (designRun == 0 || designRun == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter Design Run!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".DesignRun").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+            });
+            if (!BreakOut) {
+                var itemDetails = [];
+                $.each($("#DetailTable tbody tr"), function () {
+                    debugger
+                    itemDetails.push({
+                        Id: $(this).find('.Id').val(),
+                        SpecificationId: $(this).find('.SpecificationId').val(),
+                        FourthItemCategoryId: $(this).find('.FourthCategoryId').val(),
+                        GreigeQualityId: $(this).find('.GRQualityId').val(),
+                        SeasonId: $(this).find('.SeasonId').val(),
+                        StartDate: $(this).find('.StartDate').val(),
+                        EndDate: $(this).find('.EndDate').val(),
+                        Volume: $(this).find('.Volume').val(),
+                        DesignPerVolume: $(this).find('.DesignPerVolume').val(),
+                        DesignCount: $(this).find('.DesignCount').val(),
+                        DesignRun: $(this).find('.DesignRun').val(),
+                        FabricConsumption: $(this).find('.FabricConsum').val()
+                    });
+
+                });
+                var model = JSON.stringify(itemDetails);
+                $("#itemDetail").val(model);
+
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").val("Saving...");
+                return true;
+            }
+            return false;
+        }
+        $("#select_all").change(function () {
+            debugger
+            //"select all" change
+            var status = this.checked; // "select all" checked status
+            $('.check-box').each(function () { //iterate all listed checkbox items
+                this.checked = status; //change ".checkbox" checked status
+            });
+        });
+    </script>
+}

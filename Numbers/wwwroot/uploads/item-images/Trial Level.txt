@@ -1,0 +1,46 @@
+ALTER PROCEDURE [dbo].[spNewTrial](@stCode as int,@enCode as int,@fromdate datetime,@toDate datetime,@Book_ID  int,@Company_ID  int) as
+/*
+declare @fromdate datetime,@toDate datetime,@Book_ID  int,@Company_ID  int
+
+set @fromdate='01-jan-01'
+set @toDate='31-Dec-09'
+set @Book_ID=1
+set @Company_ID=1
+*/
+SELECT Lve4.Account_Code, Lve4.Account_Name,
+Sum(Case when voucher_date < @fromdate then dr-cr else 0 end) AS Opening,
+
+Sum(Case when voucher_date>=@fromdate then (Case when voucher_date<=@toDate then dr else 0 end) 
+					else 0 end) as DR1,
+Sum(Case when voucher_date>=@fromdate then (Case when voucher_date<=@toDate then cr else 0 end) 
+					else 0 end) as CR1,
+Left(Lve4.Account_Code,1) AS Account_type, 
+Left(Lve4.Account_Code,2) AS control_id, 
+Left(Lve4.Account_Code,4) AS Detail_id, 
+Lve1.Account_Name AS Account_type_desc, 
+Lve2.Account_Name AS Control_desc, 
+Lve3.Account_Name AS detail_desc
+
+FROM 
+GL_Accounts Lve1,GL_Accounts Lve2,GL_Accounts Lve3,GL_Accounts Lve4,vwGL_Ledger
+WHERE 
+Lve4.Account_Code=vwGL_Ledger.Account_Code 
+AND left(Lve2.account_code,1)=Lve1.account_code 
+AND left(Lve3.account_code,2)=Lve2.account_code 
+AND left(Lve4.account_code,4)=Lve3.account_code
+AND Lve4.account_code between @stCode and @enCode
+And vwGL_Ledger.Company_ID = @Book_ID
+and Lve1.Book_ID=@Book_ID
+AND Lve2.Book_ID=@Book_ID
+AND Lve3.Book_ID=@Book_ID
+AND Lve4.Book_ID=@Book_ID
+GROUP BY 
+
+Lve4.Account_Code,
+Lve4.Account_Name, 
+Left(Lve4.Account_Code,2), 
+Left(Lve4.Account_Code,4), 
+Left(Lve4.Account_Code,6), 
+Lve1.Account_Name, 
+Lve2.Account_Name,
+Lve3.Account_Name

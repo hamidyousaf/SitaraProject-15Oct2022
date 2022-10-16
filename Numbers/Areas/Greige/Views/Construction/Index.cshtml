@@ -1,0 +1,374 @@
+﻿@model GRConstruction
+
+@{
+    ViewData["Title"] = "List Greige Construction";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5> Greige Construction</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden asp-for="Id" />
+                        <input hidden asp-for="ItemCategoryId" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.TransactionNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Category</label>
+                                <select asp-for="GRCategoryId" class="chosen-select form-control" id="GRCategoryId" asp-items="@Model.GRCategoryLOV" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <label class="col-form-label">Reed</label>
+                                <input type="number" asp-for="Reed" onchange="validateWidth()" id="Reed" class="form-control text-right" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <label class="col-form-label">Pick</label>
+                                <input type="number" asp-for="Pick" onchange="validateWidth()" id="Pick" class="form-control text-right" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Warp</label>
+                                <select asp-for="WarpId" name="WarpId" class="chosen-select form-control" id="WarpId" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Weft</label>
+                                <select asp-for="WeftId" name="WeftId" class="chosen-select form-control" id="WeftId" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1">
+                            <br />
+                            <button class="btn btn-primary" onclick="return Validation();" id="btnSave" asp-controller="Construction" asp-action="Create">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th style="width: 6%" class="searchHeader">ID</th>
+                                                <th style="width: 10%" class="searchHeader">Date</th>
+                                                <th style="width: 10%" class="searchHeader">Reed</th>
+                                                <th style="width: 10%" class="searchHeader">Pick</th>
+                                                <th style="width: 10%" class="searchHeader">Warp</th>
+                                                <th style="width: 10%" class="searchHeader">Weft</th>
+                                                <th style="width: 12%" class="searchHeader">Threads</th>
+                                                <th style="width: 16%" class="searchHeader">Construction Description</th>
+                                                <th style="width: 20%">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section customJS{
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            //_applySelectInv($('#WarpId'));
+            //_applySelectInv($('#WeftId'));
+            $('#GRCategoryId').select2();
+            var WarpId =  $('#WarpId')
+            var WeftId = $('#WeftId')
+            bindSelect2(WarpId, '/Greige/Api/GetWeftWarp', '/AR/Api/GetItem?id=', '@Model.WarpId');
+            bindSelect2(WeftId, '/Greige/Api/GetWeftWarp', '/AR/Api/GetItem?id=', '@Model.WeftId');
+
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            var table1 = $("#Table").DataTable({
+                    lengthMenu: [
+                        [50, 100, 150, -1],
+                        [50, 100, 150, 'All'],
+                    ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/Greige/Construction/GetConstructionList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [9] }
+                ],
+                columns: [
+                    { "data": "construction.id", "name": "Id", className: "text-center hidden" },
+                    { "data": "construction.transactionNo", "name": "TransactionNo", className: "text-center " },
+                    { "data": "updatedBy", "name": "TransactionDate", className: "text-center " },
+                    { "data": "construction.reed", "name": "Reed", className: "text-right" },
+                    { "data": "construction.pick", "name": "Pick", className: "text-right" },
+                    { "data": "construction.warp.name", "name": "Warp", className: "text-right" },
+                    { "data": "construction.weft.name", "name": "Weft", className: "text-right" },
+                    { "data": "construction.threads", "name": "Threads", className: "text-right" },
+                    { "data": "construction.description", "name": "Description", className: "text-center" },
+
+                    {
+                        "data": "construction", className: "text-center",
+                        "render": function (data, row) {
+                            debugger;
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/Greige/Construction/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/Greige/Construction/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a> ";
+                                } else {
+                                    return "<a href='/Greige/Construction/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>";
+                                }
+                            }
+                            else {
+                                if (data.unapprove == true) {
+                                    return "<a href='/Greige/Construction/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/Greige/Construction/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>";
+                                } else {
+                                    return "<a href='/Greige/Construction/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>";
+                                }
+                            }
+
+                            //return "<a href='/Greige/Construction/Index?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a> <a href='/Greige/Construction/Delete?id=" + data + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>    ";
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+
+
+
+
+
+        function Validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#Reed').val() == 0 || $('#Reed').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Reed!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Reed').focus();
+                });
+                return false;
+            }
+            else if ($('#Pick').val() == 0 || $('#Pick').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Pick!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Pick').focus();
+                });
+                return false;
+            }
+            else if ($('#WarpId').val() == 0 || $('#WarpId').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Warp!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarpId').focus();
+                });
+                return false;
+            }
+            else if ($('#WeftId').val() == 0 || $('#WeftId').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Weft!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WeftId').focus();
+                });
+                return false;
+            }
+            else if ($('#GRCategoryId').val() == 0 || $('#GRCategoryId').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select category first!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GRCategoryId').focus();
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        //On change Category
+        function validateWidth() {
+
+            debugger
+            var categoryId = Number($('#GRCategoryId').val());
+            var reed = Number($('#Reed').val());
+            var pick = Number($('#Pick').val());
+            var width = Number(reed + pick);
+            if (pick != 0 && width!=0 && categoryId != 0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Api/GetCategory",
+                    data: { id: categoryId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+
+                        if (width >= data.minThreads && width <= data.maxThreads) {
+
+                            return true
+                        } else {
+
+                            $('#Reed').val(0);
+                            $('#Pick').val(0);
+
+                            swal({
+                                icon: 'warning',
+                                text: "Reed and Pick must be between min and max thread!",
+                                closeModal: false
+                            }).then(function () {
+                                swal.close();
+                                $('#Reed').focus();
+                            });
+                        }
+
+                        return false;
+                    }
+                });
+            }
+        }
+
+
+    </script>
+}
+
+

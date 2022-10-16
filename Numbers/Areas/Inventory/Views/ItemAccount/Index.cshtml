@@ -1,0 +1,136 @@
+﻿@model IEnumerable<InvItemAccount>
+@{
+    ViewData["Title"] = "List of Item Accounts";
+    ViewData["CurrentPage"] = "Item Accounts";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>List of Item Accounts</h5>
+                </div>*@
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="ItemAccount" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br /><br />
+                <table id="Table" style="width:100%;" class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th class="searchHeader" width="8%" >@Html.DisplayNameFor(model => model.Id)</th>
+                            <th class="searchHeader" width="20%" >@Html.DisplayNameFor(model => model.Name)</th>
+                            <th class="searchHeader" width="22%" >@Html.DisplayNameFor(model => model.GLAssetAccountId)</th>
+                            <th class="searchHeader" width="20%" >@Html.DisplayNameFor(model => model.GLSaleAccountId)</th>
+                            <th class="searchHeader" width="14%" >@Html.DisplayNameFor(model => model.GLCostofSaleAccountId)</th>
+                            <th class="searchHeader" width="14%" >@Html.DisplayNameFor(model => model.GLWIPAccountId)</th>
+                            <th width="8%">@Html.DisplayNameFor(model => model.IsActive)</th>
+                            <th width="8%">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/Inventory/ItemAccount/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [5,6] }],
+                columns: [
+                    { "data": "id", "name": "Id", className: "text-right" },
+                    { "data": "name", "name": "Name", className: "text-left" },
+                    { "data": "glAssetAccount.name", "name": "GLAssetAccount.Name", className: "text-left" },
+                    { "data": "glSaleAccount.name", "name": "GLSaleAccount.Name", className: "text-left" },
+                    { "data": "glCostofSaleAccount.name", "name": "GLCostofSaleAccount.Name", className: "text-left" },
+                    { "data": "glwipAccount.name", "name": "GLWIPAccount.Name", className: "text-left" },
+                    {
+                        "data": "isActive", className: "text-center",
+                        "render": function (data, row) {
+                            if (data != true) {
+                                return "<input type='checkbox' disabled />"
+                            }
+                            else {
+                                return "<input type='checkbox' checked disabled />"
+                            }
+
+                        }
+                    },
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data, row) {
+                            return "<a href='/Inventory/ItemAccount/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>"
+                        }
+                    }
+                    
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

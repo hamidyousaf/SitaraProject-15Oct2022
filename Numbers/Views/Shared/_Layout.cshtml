@@ -1,0 +1,262 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Threading
+@using System.Threading.Tasks
+ 
+@inject SignInManager<Numbers.Entity.Models.ApplicationUser> SignInManager
+@inject NotificationService notificationservic
+@inject IBackGroundRefresh backgroundRefresh
+@*@{ 
+    
+
+    backgroundRefresh.SaleOrderExpiration();
+
+}*@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Numbers</title>
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="~/fontawesome-pro/css/all.css" rel="stylesheet">
+    <link href="~/css/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
+    <link href="~/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="~/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet" />
+    <link href="~/css/plugins/toastr/toastr.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/chosen/bootstrap-chosen.css" rel="stylesheet">
+    <link href="~/css/plugins/chosen/bootstrap-chosen.css" rel="stylesheet">
+    <link href="~/css/plugins/datapicker/datepicker3.css" rel="stylesheet" />
+    <link href="~/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/dualListbox/bootstrap-duallistbox.min.css" rel="stylesheet" />
+
+    @RenderSection("customCSS", required: false)
+</head>
+<body>
+    <div id="wrapper">
+        @{await Html.RenderPartialAsync("_Sidebar");}
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        @*<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>*@
+                        <h3 class="iheader-content">
+                            @*<span id="greetings">@Context.Session.GetString("CompanyName") &nbsp;</span>*@
+                            @ViewBag.NavbarHeading
+
+                            @if (ViewBag.TitleStatus == "Created")
+                            {
+                                <span class="label label-primary">Created</span>
+                            }
+                            else if (ViewBag.TitleStatus == "Approved")
+                            {
+                                <span class="label label-primary">Approved</span>
+                            }
+                        </h3>
+                    </div>
+
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message "> <a asp-action="Responsibility" class="text-danger" asp-controller="Dashboard" asp-area="">Change Responsibility</a> <span class="small"></span></span>
+                        </li>
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message">Welcome, @User.GetFullName() <span class="small"></span></span>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                <i class="fa fa-envelope"></i>  @*<span class="label label-warning">16</span>*@
+                            </a>
+                            <ul class="dropdown-menu dropdown-messages">
+                                <li class="divider"></li>
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="#">
+                                            <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                @*<i class="fa fa-bell"></i>*@
+                                <i class="fa fa-bell" style="color:limegreen"></i><span class="rounded-circle rounded-right" style="color:red" id="blink">@notificationservic.GetTotalCS(User.GetUserName())</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-alerts">
+                                <li>
+
+                                    @if (notificationservic.GetTotalCS(User.GetUserName()) > 0)
+                                    {
+
+                                        <a href="/AP/ComparativeStatement/Notify">
+                                            <div class="clearfix">
+                                                <span class="pull-left">
+                                                    <i><img src="/img/ComparativeStatement.jpg" style="width: 50px; height: 50px;"></i>
+
+                                                    Comparative Statement
+                                                </span>
+                                                <span class="pull-right badge badge-info" style=" margin: 12px -16px 0px -42px;">
+
+                                                    <label for="StudentNo" id="followUp" class="col-lg-4 control-label">@notificationservic.GetTotalCS(User.GetUserName())</label>
+
+                                                </span>
+                                            </div>
+                                        </a>
+
+                                    }
+                                    else
+                                    {
+                                        <a>
+                                            <div class="clearfix">
+                                                <span class="pull-left">
+                                                    <i><img src="/img/ComparativeStatement.jpg" style="width: 50px; height: 50px;"></i>
+
+                                                    Comparative Statement
+                                                </span>
+                                                <span class="pull-right badge badge-info" style=" margin: 12px -16px 0px -42px;">
+
+                                                    <label for="StudentNo" id="followUp" class="col-lg-4 control-label">@notificationservic.GetTotalCS(User.GetUserName())</label>
+
+                                                </span>
+                                            </div>
+                                        </a>
+                                    }
+
+
+
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <div class="text-center link-block">
+                                        <a href="#">
+                                            <strong>See All Alerts</strong>
+                                            <i class="fa fa-angle-right"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="profile_area">
+                            <div class="dropdown profile-element">
+                                <img alt="image" style="height:40px;width:40px;" class="img-circle" src="@User.GetUserPhoto()" />  <a data-toggle="dropdown" class="dropdown-toggle" href="#"> <span class=""> <b class="caret"></b> </span> </a>
+                                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                    @if (SignInManager.IsSignedIn(User))
+                                    {
+                                        <li><a href="/Account/ProfileSetting">Profile</a></li>
+                                        <li><a href="/Account/ChangePassword">Change Password</a></li>
+                                        @*<li class="divider"></li>
+                                            <li><a href="/Account/Logout">Logout</a></li>*@
+                                    }
+                                    <li class="divider"></li>
+                                    @if (SignInManager.IsSignedIn(User))
+                                    {
+                                        <li><a href="/Account/Logout">Logout</a></li>
+                                        @*<li><a asp-action="Logout" asp-controller="Account"> Log out</a></li>*@
+                                    }
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+
+                </nav>
+            </div>
+
+
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    @if (Convert.ToString(TempData["error"]) == "false")
+                    {
+                        <div class="alert alert-success alert-dismissable text-center">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            <span>@TempData["message"].ToString()</span>
+                        </div>
+                    }
+                    else if (Convert.ToString(TempData["error"]) == "true")
+                    {
+                        <div class="alert alert-danger alert-dismissable text-center">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            <span>@TempData["message"].ToString()</span>
+                        </div>
+                    }
+                    @RenderBody()
+                </div>
+            </div>
+            <div class="footer">
+                <div class="text-center">
+                    <strong>&copy;Vision Plus</strong> - @DateTime.Now.Year
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--Global site tag(gtag.js) - Google Analytics-- >
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-43020395-12"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'UA-43020395-12');
+    </script>
+        <!-- Mainly scripts -->
+    <script src="~/js/jquery-3.1.1.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/lib/metisMenu/jquery.metisMenu.js"></script>
+    <script src="~/lib/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/lib/select2/select2.min.js"></script>
+    <script src="~/lib/jquery-form-validator/jquery.form-validator.min.js"></script>
+    <script src="~/js/datatables.min.js"></script>
+    <!--Data Masking Plugin-->
+    <script src="~/lib/jquery-masking-plugin/dist/Jq-mask.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="~/js/inspinia.js"></script>
+    <!-- <script src="~/js/plugins/pace/pace.min.js"></script> !-->
+    <!-- Custom site javascript-->
+    @*<script src="~/js/site.js"></script>*@
+    <script src="~/js/jasny-bootstrap.min.js"></script>
+    <script src="~/lib/chosen/chosen.jquery.js"></script>
+    <script src="~/lib/datapicker/bootstrap-datepicker.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/lib/moment.js"></script>
+    <script src="~/js/Notification.js"></script>
+
+
+    @*<script async src="https://www.googletagmanager.com/gtag/js?id=UA-43020395-12"></script>
+        <script src="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css"></script>
+        <script src="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css"></script>
+        <script src="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css"></script>
+        <script src="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css"></script>
+        <script src="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css"></script>*@
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-43020395-12');
+    </script>
+
+    <script>
+        function numberWithCommasInTD(number) {
+            var parts = number.toString().split(".");
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join(".");
+        }
+    </script>
+
+
+
+    @RenderSection("customJS", required: false)
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

@@ -1,0 +1,485 @@
+﻿@model Numbers.Entity.ViewModels.GRInwardGatePassViewModel
+
+@{
+    ViewData["Title"] = "Create Greige Purchase Contract";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+    var ContractQuality = "";
+    var LoomQuality = "";
+    var Address = "";
+    decimal Balance = 0;
+    decimal Quantity = 0;
+
+
+    @if (Model.GRInwardGatePass.Id != 0)
+    {
+        ContractQuality = Model.PurchaseContract != null ? Model.PurchaseContract.ContractGRQuality.Description.ToString() :
+                    Model.WeavingContract.GreigeQuality.Description.ToString();
+        LoomQuality = Model.PurchaseContract != null ? Model.PurchaseContract.PurchaseGRQuality.Description.ToString() :
+                    Model.WeavingContract.GreigeQualityLoom.Description.ToString();
+
+        Address = Model.PurchaseContract != null ? Model.PurchaseContract.Vendor.Address.ToString() :
+                    Model.WeavingContract.Vendor.Address != null ?
+                        Model.WeavingContract.Vendor.Address.ToString() : "Not Available";
+        Balance = Model.PurchaseContract != null ? Model.PurchaseContract.BalanceContractQty :
+                    Model.WeavingContract.BalanceContractQty;
+        Quantity = Model.PurchaseContract != null ? Model.PurchaseContract.ContractQuantity :
+            Model.WeavingContract.ContractQty;
+    }
+}
+@section customCSS{
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5> Greige Quality</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return OnSubmit();" asp-controller="InwardGatePass" asp-action="Create">
+                    <div class="row">
+                        <input hidden asp-for="GRInwardGatePass.Id" />
+
+                        <div class="col-lg-3">
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label" asp-for="GRInwardGatePass.TransactionNo"></label>
+                                        @if (Model.GRInwardGatePass.Id != 0)
+                                        {
+                                            <input readonly class="form-control" id="TransactionNo" data-validation="required" asp-for="GRInwardGatePass.TransactionNo" autocomplete="off" tabindex="-1" />
+                                        }
+                                        else
+                                        {
+                                            <input readonly class="form-control" id="TransactionNo" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                                    </div>
+                                </div>
+                                <div class="col-lg-8 col-sm-4">
+                                    <div class="form-group">
+                                        <label asp-for="GRInwardGatePass.TransactionDate"></label>
+                                        <div class="input-group" readonly>
+                                            <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                            <input tabindex="-1" id="ContractDate" class="form-control" asp-for="GRInwardGatePass.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Weaving Contract<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRInwardGatePass.WeavingContractId" autofocus class="chosen-select form-control" id="WeavingContractId" asp-items="@Model.WeavingContractLOV">
+                                    <option disabled value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Purchase Contract<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRInwardGatePass.PurchaseContractId" class="chosen-select form-control" id="PurchaseContractId" asp-items="@Model.PurchaseContractLOV">
+                                    <option disabled value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row">
+                                <div class="col-lg-9">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Address</label>
+                                        <input type="text" tabindex="-1" id="Address" value="@Address" readonly class="form-control text-left" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="col-form-label" asp-for="GRInwardGatePass.LotNo"></label>
+                                        <input readonly tabindex="-1" asp-for="GRInwardGatePass.LotNo" type="text" class="form-control text-left" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Greige Quality Information</h2>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Contract Greige Quality</label>
+                                <input type="text" tabindex="-1" value="@ContractQuality" id="GreigeQualityId" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">On Loom Greige Quality</label>
+                                <input type="text" tabindex="-1" value="@LoomQuality" id="LoomQualityId" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="GRInwardGatePass.Quantity" class="control-label"></label>
+                                <input asp-for="GRInwardGatePass.Quantity" tabindex="-1" id="Quantity" value="@Quantity" class="form-control text-right" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label asp-for="GRInwardGatePass.BalanceQuantity" class="control-label"></label>
+                                <input asp-for="GRInwardGatePass.BalanceQuantity" tabindex="-1" id="BalanceQuantity" class="form-control text-right" readonly value="@Balance" />
+                                <input type="hidden" id="CheckBalanceQuantity" value="@Balance" class="form-control text-right" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Greige Received Quality Information</h2>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Recieved in Meters<i style="color: #a94442;">*</i></label>
+                                <input type="number" min="0" step="1" id="RecievedInMeter" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label class="control-label">Less Measure Meters</label>
+                                <input type="number" id="LessMeasureMeters" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-1" style="margin-left:5px">
+                            <label class="control-label">  </label>
+                            <div>
+                                <input type="button" class="btn btn-primary" onclick="addRow();" style="margin-top:4px" value="Add" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-sm-12">
+                            <div class="container-fluid table-responsive">
+                                <table id="table" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th>Sr #</th>
+                                            <th>Received Quantity</th>
+                                            <th>Less Measure Recorded</th>
+                                            <th>Actual Received Quantity</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.GRInwardGatePassDetail != null)
+                                        {
+                                            @if (Model.GRInwardGatePassDetail.Length > 0)
+                                            {
+                                                foreach (var item in Model.GRInwardGatePassDetail)
+                                                {
+                                                    <tr>
+                                                        <td hidden class="Id">@item.Id</td>
+                                                        <td class="SrNo text-center">@item.SrNo</td>
+                                                        <td class="Revieved text-right">@item.ReceivedQuantity</td>
+                                                        <td class="Measure text-right">@item.MeasureQuantity</td>
+                                                        <td class="Actual text-right">@item.ActualQuantity</td>
+                                                        <td class="text-center">
+                                                            <a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style='font-weight: bold'>
+                                            <td class='text-right'>Total:</td>
+                                            <td class='text-right TotalReceived'>0</td>
+                                            <td class='text-right TotalMeasure'>0</td>
+                                            <td class='text-right TotalActual'>0</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="InwardGatePass" asp-action="Index" class="btn btn-white">List</a>
+                            <button class="btn btn-primary" type="submit" id="SaveBtn">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                    <input hidden id="totalReceived" name="TotalReceived" />
+                    <input hidden id="totalMeasure" name="TotalMeasure" />
+                    <input hidden id="totalActual" name="TotalActual" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            debugger
+            RowCalculation();
+
+            $("#WeavingContractId").select2();
+            $("#PurchaseContractId").select2();
+
+            ////Get Weaving Contract
+            //$("#WeavingContractId").change();
+            ////Get Purchase Contract
+            //$("#PurchaseContractId").change();
+
+
+        });
+        $("#WeavingContractId").change(function () {
+            debugger
+            $('#Address').val("");
+            $('#GreigeQualityId').val("");
+            $('#LoomQualityId').val("");
+            $('#Quantity').val("");
+            $('#BalanceQuantity').val("");
+            $('#PurchaseContractId').val(0).trigger('change.select2');
+            var weavingContractId = $('#WeavingContractId').val();
+            $.ajax({
+                type: "GET",
+                url: "/Greige/InwardGatePass/GetWeavingContract",
+                data: { Id: weavingContractId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#Address').val(data.vendor.address == "" ? "Not Define" : data.vendor.address);
+                    $('#GreigeQualityId').val(data.greigeQuality.description);
+                    $('#LoomQualityId').val(data.greigeQualityLoom.description);
+                    $('#Quantity').val(data.contractQty);
+                    $('#BalanceQuantity').val(data.balanceContractQty);
+                    $('#CheckBalanceQuantity').val(data.balanceContractQty);
+                    return false;
+                } else {
+                    $('#Address').val("Non Avaiable");
+                    return false;
+                }
+            });
+        });
+        $("#PurchaseContractId").change(function () {
+            debugger
+            $('#Address').val("");
+            $('#GreigeQualityId').val("");
+            $('#LoomQualityId').val("");
+            $('#Quantity').val("");
+            $('#BalanceQuantity').val("");
+            $('#WeavingContractId').val(0).trigger('change.select2');
+            var purchaseContractId = $('#PurchaseContractId').val();
+            $.ajax({
+                type: "GET",
+                url: "/Greige/InwardGatePass/GetPurchaseContract",
+                data: { Id: purchaseContractId }
+            }).done(function (data) {
+                debugger
+                if (data != null) {
+                    $('#Address').val(data.vendor.address == "" ? "Not Define" : data.vendor.address);
+                    $('#GreigeQualityId').val(data.contractGRQuality.description);
+                    $('#LoomQualityId').val(data.purchaseGRQuality.description);
+                    $('#Quantity').val(data.contractQuantity);
+                    $('#BalanceQuantity').val(data.balanceContractQty);
+                    $('#CheckBalanceQuantity').val(data.balanceContractQty);
+                    return false;
+                } else {
+                    $('#Address').val("Non Avaiable");
+                    return false;
+                }
+            });
+        });
+        function addRow() {
+            debugger;
+            var received = Number($("#RecievedInMeter").val());
+            var measure = Number($("#LessMeasureMeters").val());
+            var actual = received - measure;
+            var balanceQuantity = Number($("#BalanceQuantity").val());
+            var weavingContractId = $("#WeavingContractId").find(":selected").val();
+            var purchaseContractId = $("#PurchaseContractId").find(":selected").val();
+
+            if (actual > balanceQuantity) {
+                swal({
+                    icon: "warning",
+                    text: "Quantity must be less than balance quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+
+            if (weavingContractId == 0 && purchaseContractId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select contract!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WeavingContractId").focus();
+                });
+                return false;
+            }
+
+            var srNo = 1;
+            if (received == 0 || received == "") {
+                swal({
+                    icon: "warning",
+                    text: "Please enter received in meter quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#RecievedInMeter").focus();
+                });
+                return false;
+            }
+            if (measure < 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please enter measurement in meter quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+
+            if (measure > received) {
+                swal({
+                    icon: "warning",
+                    text: "Measurement quantity must be less than received quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#LessMeasureMeters").focus();
+                });
+                return false;
+            }
+            var length = $("#table > tbody > tr").length;
+            if (length != 0) {
+                debugger
+                var sr = Number($('#table > tbody > tr:last').find(".SrNo").text());
+                srNo = srNo + sr;
+            }
+            $("#BalanceQuantity").val(balanceQuantity - actual);
+
+
+
+            data = '';
+            data += '<tr>';
+            data += '<td hidden class ="Id">0</td>';
+            data += '<td class ="SrNo text-center">' + srNo + '</td>';
+            data += '<td class ="Revieved text-right">' + received + '</td>';
+            data += '<td class ="Measure text-right">' + measure + '</td>';
+            data += '<td class ="Actual text-right">' + actual + '</td>';
+            data += '<td class="text-center">';
+            data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            data += '</tr>';
+            $('#table tbody').append(data);
+
+            $("#RecievedInMeter").focus();
+
+            clearTextBox();
+            RowCalculation();
+        }
+        function clearTextBox() {
+            $("#RecievedInMeter").val("");
+            $("#LessMeasureMeters").val("");
+        }
+        function RowCalculation() {
+            debugger
+            var received = 0;
+            var measure = 0;
+            var actual = 0;
+            $('#table > tbody > tr').each(function () {
+                var TotalReceived = Number($(this).find(".Revieved").text());
+                var TotalMeasure = Number($(this).find(".Measure").text());
+                var TotalActual = Number($(this).find(".Actual").text());
+                received = received + TotalReceived;
+                measure = measure + TotalMeasure;
+                actual = actual + TotalActual;
+            });
+            $('#table > tfoot > tr').find(".TotalReceived").text(received);
+            $('#table > tfoot > tr').find(".TotalMeasure").text(measure);
+            $('#table > tfoot > tr').find(".TotalActual").text(actual);
+        }
+        function deleterow(row) {
+            debugger
+            var actual = Number(row.closest("tr").find(".Actual").text());
+            var balanceQuantity = Number($("#BalanceQuantity").val());
+            $("#BalanceQuantity").val(balanceQuantity + actual);
+            row.closest("tr").remove();
+            RowCalculation();
+        }
+        function OnSubmit() {
+            debugger
+            var weavingContractId = Number($("#WeavingContractId").find(":selected").val());
+            var purchaseContractId = Number($("#PurchaseContractId").find(":selected").val());
+            var Length = $("#table > tbody > tr").length;
+            if (weavingContractId == 0 && purchaseContractId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please Select Contract!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WeavingContractId").focus();
+                });
+                return false;
+            }
+            if (Length == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please enter at least one items!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#RecievedInMeter").focus();
+                });
+                return false;
+            }
+
+            var itemDetails = [];
+            $.each($("#table tbody tr"), function () {
+                itemDetails.push({
+                    Id: $(this).find('.Id').html(),
+                    SrNo: $(this).find('.SrNo').html(),
+                    ReceivedQuantity: $(this).find('.Revieved').html(),
+                    MeasureQuantity: $(this).find('.Measure').html(),
+                    ActualQuantity: $(this).find('.Actual').html(),
+                });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            var TotalReceived = Number($('#table > tfoot > tr').find(".TotalReceived").text());
+            var TotalMeasure = Number($('#table > tfoot > tr').find(".TotalMeasure").text());
+            var TotalActual = Number($('#table > tfoot > tr').find(".TotalActual").text());
+
+            $("#itemDetail").val(model);
+            $("#totalReceived").val(TotalReceived);
+            $("#totalMeasure").val(TotalMeasure);
+            $("#totalActual").val(TotalActual);
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+    </script>
+}

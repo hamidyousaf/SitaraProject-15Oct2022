@@ -1,0 +1,457 @@
+﻿@model GRPricing
+
+@{
+    ViewData["Title"] = "Pricing";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+@using Numbers.Areas.GL.Controllers;
+@using Numbers.Repository.Helpers;
+@using Microsoft.AspNetCore.Http;
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Pricing</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden asp-for="Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.TransactionNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label>Item</label>
+                                <Select tabindex="-1"  id="GreigeQualityId" asp-for="GreigeQualityId" asp-items="@ViewBag.Item" class="form-control">
+                                </Select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Sale Rate</label>
+
+                                <input  class="form-control" type="number" id="SaleRate" data-validation="required" asp-for="SaleRate" autocomplete="off" tabindex="-1" />
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4 Pad-rht">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="StartDate" class="form-control custom-date-picker" onchange="checkPricing();" asp-for="StartDate" autocomplete="off" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="EndDate" class="form-control custom-date-picker" onchange="checkPricing();" asp-for="EndDate" autocomplete="off" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-7 ">
+                            <div class="form-group">
+                                <label class="col-form-label">Remarks</label>
+                                <input  class="form-control" id="Code" data-validation="required" asp-for="Remarks" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4 ">
+                            <div class="form-group">
+                                <label>Attachment</label>
+                                <div class="input-group">
+                                    <input type="file" name="Attachment" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <br />
+                            <button class="btn btn-primary" onclick="return Validation();" id="btnSave" asp-controller="GRPricing" asp-action="Create">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                               
+                                                <th style="width: 10%" class="searchHeader">Item Code</th>
+                                                <th style="width: 20%" class="searchHeader">Description</th>
+                                                <th style="width: 10%" class="searchHeader">Sale Rate</th>
+                                                <th style="width: 10%" class="searchHeader">Start Date</th>
+                                                <th style="width: 10%" class="searchHeader">End Date</th>
+                                                <th style="width: 10%">Action</th>
+                                            </tr>
+                                        </thead>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#GreigeQualityId").select2();
+            $("#ItemcategorySecondL").select2();
+            $("#ItemcategoryfourthL").select2();
+            $("#ItemcategorythirdL").select2();
+            $("#Item").select2();
+            $("#BaleType").select2();
+            //$("#WarehouseId").select2();
+            $("#HideWarehouseId").hide();
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            $("#BaleNo").on("change",function () {
+                debugger
+                var baleNo = $(this).val();
+                var checkBaleNo = $("#CheckBaleNo").val();
+
+                if (baleNo == checkBaleNo) {
+                    $('#BaleNo').focus(baleNo);
+                    return true;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "/GRPricing/FGSScreen/CheckBaleNo",
+                    data: { baleNo }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        if (data.status != true) {
+                            swal({
+                                icon: 'warning',
+                                text: data.message,
+                                closeModal: false
+                            }).then(function () {
+                                swal.close();
+                                $('#BaleNo').focus();
+                                $('#BaleNo').val("");
+                            });
+                            return false;
+                        }
+
+                    }
+                });
+            });
+
+        });
+        //Loading 3rd Level Category
+        $('#ItemcategorySecondL').on('change', function () {
+            debugger
+            $('.removedItem').remove();
+            $('#ItemcategorythirdL').find('option').not(':first').remove();
+            $('#ItemcategoryfourthL').find('option').not(':first').remove();
+            var item = $('#ItemcategorySecondL').val();
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItem",
+                data: { Id: item, level: 3 }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#ItemcategorythirdL').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+
+        })
+        //Loading 4th Level Category
+        $('#ItemcategorythirdL').on('change', function () {
+            debugger
+            $('.removedItem').remove();
+            $('#ItemcategoryfourthL').find('option').not(':first').remove();
+
+            var item = $('#ItemcategorythirdL').val();
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItem",
+                data: { Id: item, level: 4 }
+            })
+                .done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#ItemcategoryfourthL').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                    debugger
+                    $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+                });
+        })
+
+        $('#ItemcategoryfourthL').on('change', function () {
+            debugger
+            var item = $('#ItemcategoryfourthL').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItems",
+                data: { Id: item }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#Item').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+
+
+            });;
+        })
+
+        //$('#btnSave').on('click', function () {
+        //    debugger
+
+        //    if (item == "0" || item == null) {
+        //        return;
+        //    }
+        //    $.ajax({
+        //        method: "GET",
+        //        url: "/Inventory/FGSScreen/GetBaleList",
+
+        //    }).done(function (data) {
+        //        $.each(data, function (i, item) {
+        //            $('#Item').append($('<option>', {
+        //                value: item.id,
+        //                text: item.text
+        //            }));
+        //        });
+
+
+        //    });;
+        //})
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/Greige/GRPricing/GetBaleList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [5] }
+                    ],
+                columns: [
+                    { "data": "code", "name": "Id", className: "text-center " },
+                    { "data": "description", "name": "TransactionNo", className: "text-center " },
+                    { "data": "saleRate", "name": "TransactionDate", className: "text-center " },
+                    { "data": "updatedBy", "name": "ItemCategory3", className: "text-left" },
+                    { "data": "createdBy", "name": "ItemCategory2", className: "text-left" },
+                    
+             
+                    {
+                        "data": "griegeRequisition", className: "text-center",
+                        "render": function (data, row) {
+                            if (data.isClosed !=true) {
+                                return "<a href='/Greige/GRPricing/Close?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'>Close</a>";
+                            }
+                            else {
+
+                            }
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+
+
+        function checkPricing() {
+            debugger
+            var item = $('#GreigeQualityId').val();
+            var StartDate = $('#StartDate').val();
+            var EndDate = $('#EndDate').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Greige/GRPricing/CheckPricing",
+                data: { Id: item, EndDate: EndDate, StartDate: StartDate }
+            }).done(function (data) {
+                if (data == true) {
+                    
+                    swal("", "This Item has already priced!", "error")
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
+        }
+
+
+        function Validation() {
+            debugger
+           // checkPricing();
+            var SaleRate = $('#SaleRate').val();
+            var SaveBtnFocus = $("#btnSave").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if (SaleRate == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Sale Rate",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SaleRate').focus();
+                });
+                return false;
+            }
+            
+           
+           
+            //if ($('#BaleNo').val() <= 0) {
+            //    swal({
+            //        icon: 'warning',
+            //        text: "Please enter Bale No.!",
+            //        closeModal: false
+            //    }).then(function () {
+            //        swal.close();
+            //        $('#BaleNo').focus();
+            //    });
+            //    return false;
+            //}
+            if ($('#BaleMeter').val() <= 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter Meter/Bale!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#BaleMeter').focus();
+                });
+                return false;
+            }
+            return true;
+        }
+      
+    </script>
+}
+
+

@@ -1,0 +1,419 @@
+﻿@model CostCenterVM
+@{ ViewData["Title"] = "Cost Center";
+    ViewData["CurrentPage"] = "Cost Center";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    }
+
+@using Numbers.Areas.GL.Controllers;
+@using Numbers.Repository.Helpers;
+@using Microsoft.AspNetCore.Http;
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Cost Center</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">   
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden asp-for="CostCenter.Id" />
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Code</label>
+                                @if (Model.CostCenter.Id != 0)  
+                                {
+                                    <input readonly class="form-control" id="Code" value="@TempData["Code"]" data-validation="required" asp-for="CostCenter.Code" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-4">
+                            <div class="form-group">
+                                <label> Date</label>
+                                <div class="input-group date" autofocus>
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="CostCenter.Date" class="form-control" data-validation="required" type="text" value=@(Model.CostCenter.Id == 0 ? CommonHelper.CurrentDate : Model.CostCenter.Date.ToString(CommonHelper.DateFormat)) readonly tabindex="-1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <label class="col-form-label">Description</label>
+                                <input autofocus class="form-control" id="Description" onchange="checkCode();" data-validation="required" asp-for="CostCenter.Description" autocomplete="off" />
+                                <span asp-validation-for="CostCenter.Description" class="text-danger"></span>
+                                <span id="Status"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Department</label>
+                                <select class="form-control" id="divisions" asp-items="ViewBag.Divsions" asp-for="CostCenter.DivisionId">
+                                    <option value="0">N/A</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Sub Department</label>
+                                <select class="form-control" id="subdivision" asp-items="ViewBag.SubDivision" asp-for="CostCenter.SubDivisionId">
+                                    <option value="0">N/A</option>
+                                </select>
+                                @*<input class="form-control" id="subdivision" asp-for="CostCenter.DivisionId" />*@
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <div class="col-lg-4">  </div>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label"></label>
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="CostCenter.IsActive" type="checkbox">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-lg-2 ml-lg-2" style="margin-top:21px;">
+                            @*<a value="Back" class="btn btn-white" asp-controller="CostCenter" asp-action="Index">Back</a>*@
+                            <input type="submit" value="Save" onclick="return validate();" class="btn btn-primary submit" asp-action="Create" asp-controller="CostCenter" />
+                            @*<button onclick="generateApArReport(0,'CostCenter','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg"><i class="fas fa-print"> Report</i></button>*@
+
+                            <a onclick="generateApArReport(0,'CostCenter','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg m-t-n-xs"><i class="fas fa-print" title="Print Report"> Print Report</i></a>
+                        </div>
+
+                        <!--<div class="row" style="margin-top:10px;">
+    <div class="form-group">
+        <div class="col-lg-4 ml-lg-4" style="margin-left:20px">-->
+                        @*<a value="Back" class="btn btn-white" asp-controller="CostCenter" asp-action="Index">Back</a>*@
+                        <!--<input type="submit" value="Save" class="btn btn-primary" asp-action="Create" asp-controller="CostCenter" />
+            </div>
+        </div>
+    </div>-->
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>List of Cost Centers</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th style="width: 14%" class="searchHeader">Code</th>
+                                                <th style="width: 14%" class="searchHeader">Date</th>
+                                                <th style="width: 18%" class="searchHeader">Cost Center</th>
+                                                <th style="width: 14%" class="searchHeader">Department</th>
+                                                <th style="width: 14%" class="searchHeader">Sub Department</th>
+                                                <th style="width: 14%" class="searchHeader">Status</th>
+                                                <th style="width: 12%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        @*<tbody>
+                                @foreach (var item in Model.CostCenterList)
+                                {
+                                    NumbersDbContext _dbcontext = new NumbersDbContext();
+
+                                    var division = new CostCenterController(_dbcontext).GetDivision(Convert.ToInt32(item.DivisionId));
+
+                                        <tr>
+                                            <td hidden>
+                                                @Html.DisplayFor(modelItem => item.Id)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(model => item.Code)
+                                            </td>
+                                            <td>
+                                                <p style="white-space: pre-line;">@Html.DisplayFor(modelItem => item.Description)</p>
+                                            </td>
+
+                                            <td>
+                                                @division
+                                            </td>
+                                            <td>
+                                                @_dbcontext.GLSubDivision.Where(x => x.Id == item.SubDivisionId).Select(a => a.Description).FirstOrDefault()
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="/GL/CostCenter/Create/@item.Id" class="btn btn-sm btn-primary m-t-n-xs"><i class="fa fa-edit"></i></a>
+
+                                            </td>
+                                        </tr>
+
+                                }
+                            </tbody>*@
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section CustomJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#divisions").select2();
+            $("#subdivision").select2();
+            $(document).ready(function () {
+                var table1 = $("#Table").dataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "filter": true,
+                    "order": [[0, "desc"]],
+                    dom: "Blrtip",
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ],
+                    "ajax": {
+                        "url": "/GL/CostCenter/GetSI",
+                        "type": "POST",
+                        "datatype": "json"
+                    },
+                    "language": {
+                        "decimal": "",
+                        "emptyTable": "No data available in table",
+                        "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                        "infoEmpty": "Showing 0 to 0 of 0 entries",
+                        "infoFiltered": "(filtered from _MAX_ total entries)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "_MENU_",
+                        "loadingRecords": "Loading...",
+                        "processing": "Processing...",
+                        "search": "Search:",
+                        "zeroRecords": "No matching records found",
+                        "paginate": {
+                            "first": "First",
+                            "last": "Last",
+                            "next": "Next",
+                            "previous": "Previous"
+                        },
+                        "aria": {
+                            "sortAscending": ": activate to sort column ascending",
+                            "sortDescending": ": activate to sort column descending"
+                        }
+                    },
+                    "columnDefs": [{
+
+                        "targets": '_all',
+                        "defaultContent": "-"
+                    },
+                    {
+                        "targets": [0],
+                        "visible": false
+                    },
+
+                    { "orderable": false, "targets": [7] }],
+                    
+                    "columns": [
+                        { "data": "costCenter.id", "name": "Id", className: "text-center" },
+                        { "data": "costCenter.code", "name": "Code", className: "text-center" },
+                        { "data": "date", "name": "Date", className: "text-center" },
+                        { "data": "costCenter.description", "name": "Description", className: "text-left" },
+                        { "data": "division", "name": "DivisionId", className: "text-left" },
+                        { "data": "subDivision", "name": "SubDivisionId", className: "text-left" },
+                        { "data": "costCenter.status", "name": "Status", className: "text-center" },
+                        {
+                            "data": "costCenter", className: "text-center" ,
+                            "render": function (data, row) {
+                                if (data.status != "Approved") {
+                                    if (data.approve == true) {
+                                        return "<a href='/GL/CostCenter/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/GL/CostCenter/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a> ";
+                                    } else {
+                                        return "<a href='/GL/CostCenter/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>";
+                                    }
+                                }
+                                else {
+                                    if (data.unapprove == true) {
+                                        return "<a href='/GL/CostCenter/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/GL/CostCenter/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>";
+                                    } else {
+                                        return "<a href='/GL/CostCenter/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>";
+                                    }
+                                }
+                            }
+                        }
+                    ],
+
+                })
+                $('#Table thead th').each(function () {
+                    debugger;
+                    if ($(this).hasClass("searchHeader")) {
+                        var title = $(this).text();
+                        $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                    }
+                });
+                table1.api().columns().every(function () {
+                    debugger;
+                    var that = this;
+                    var searchBox = $('input', this.header());
+                    searchBox.on('keyup change clear', function () {
+                        that.search(this.value).draw()
+                    })
+                    searchBox.on('click', function (e) {
+                        e.stopPropagation();
+                    });
+                });
+            });
+
+        });
+
+    </script>
+
+
+    <script>
+        function check(form) {
+
+            var Code = $("#Code").val();
+            var chk = 0;
+            var model = @Model.CostCenter.Id;
+            if (model == 0) {
+            $.ajax({
+                type: 'GET',
+                url: '/GL/CostCenter/CheckCode?code=' + Code,
+                async: false,
+            }).done(function (data) {
+                debugger;
+
+                if (data == true) {
+                    chk = 1;
+
+                }
+
+            });
+            }
+            debugger;
+            if (chk == 1) {
+                $.notify("Cost Center Code already Exist", "error");
+
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        }
+    </script>
+
+
+
+    <script>
+
+
+        $(document).ready(function () {
+            $('#divisions').change(function () {
+                debugger;
+                var divisions = $("#divisions option:selected").val();
+                $.ajax({
+                    type: 'GET',
+                    url: '/GL/CostCenter/GetSubDivisions?id=' + divisions,
+                }).done(function (data) {
+                    debugger;
+
+                    if (data != null) {
+                        $('#subdivision').empty();
+                        $('#subdivision').append($('<option>', {
+                            value: 0,
+                            text: "Select..."
+                        }));
+                        $.each(data, function (i, item) {
+                            $('#subdivision').append($('<option>', {
+                                value: item.id,
+                                text: item.name
+                            }));
+                        });
+                    }
+
+
+
+                });
+
+            });
+        });
+
+        function checkCode() {
+            debugger;
+           $("#Status").html("Checking...");
+        $.post("@Url.Action("checkDescriptionAlreadyExists", "CostCenter", "CostCenter")",
+            {
+                description: $("#Description").val()
+            },
+            function (data) {
+                debugger;
+            if (data == 0) {
+                $("#Status").html('<font color="Green"></font>');
+                $("#Description").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+                
+            }
+            //else {
+            //    $("#Status").html('<font color="Red">Cost Center already exists.</font>');
+            //    $("#Description").css("border-color", "Red");
+            //    $(".submit").attr("disabled", "disabled");
+            //}
+        });
+        }
+         function openReport(id) {
+            generateApArReport(id, "CostCenter", "@companyName",@companyId);
+        }
+
+        function validate() {
+            debugger;
+            var description = $("#Description").val();
+            var division = $("#divisions").val();
+            var subdivision = $("#subdivision").val();
+            if (description == "") {
+                swal("", "Description must be enter.", "warning");
+                return false;
+            } else if (division == 0) {
+                swal("", "Department must be selected.","warning");
+                return false;
+            } else if (subdivision == 0) {
+                swal("", "Sub Department must be selected.", "warning");
+                return false
+            } else {
+                return true;
+            }
+        }
+    </script>
+
+
+
+}
+

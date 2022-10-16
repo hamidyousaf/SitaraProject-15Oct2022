@@ -1,0 +1,521 @@
+﻿@model Numbers.Entity.Models.BkgVehicle
+@{
+    ViewData["Title"] = "Detail";
+}
+<!--Start of Customer Detail-->
+<div class="text-right">
+    @*<a class="btn btn-white" asp-action="Index">Back</a>*@
+    <a value="Print Report" onclick='printDiv();' class="btn btn-primary"><i class="fa fa-print"> Print Report</i></a>
+</div>
+<div id="reportPrintDiv">
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Customer Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Customer Name
+                    </th>
+                    <th>
+                        Father's Name
+                    </th>
+                    <th>
+                        Phone
+                    </th>
+                    <th>
+                        CNIC
+                    </th>
+                    <th>
+                        Address
+                    </th>
+                    <th>
+                        Model
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Vehicle)
+                {
+                    <tr>
+                        <td>@item.Customer.Name </td>
+                        <td>@item.Customer.FatherName</td>
+                        <td>@item.Customer.Phone</td>
+                        <td>@item.Customer.CNIC</td>
+                        <td>@item.Customer.Address</td>
+                        <td>@item.Item.Name</td>
+                        <td>
+                            <span class="label label-success">
+                                @item.Status
+                            </span>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @*@if (Model.Status == "Booking")
+        {
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-lg-6 col-lg-offset-4">
+
+                        @*<a class="btn btn-white" asp-action="Index">Back</a>
+                        <input type="submit" value=@ViewBag.EntityState class="btn btn-primary" />
+
+                    </div>
+                    <br />
+                </div>
+            </div>
+        }*@
+
+    <!--End of Customer-->
+    <!--Start of Booking details-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Booking Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Trans. Date
+                    </th>
+                    <th>
+                        Booking No
+                    </th>
+                    <th>
+                        Booking Type
+                    </th>
+                    <th>
+                        Booking Date
+                    </th>
+                    <th>
+                        Bank
+                    </th>
+                    <th>
+                        Reference No
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Down Payment
+                    </th>
+                    <th>
+                        Paid to MTL
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Vehicle)
+                {
+                    <tr>
+                        <td>@item.TransDate.ToString(CommonHelper.DateFormat) </td>
+                        <td>@item.BookingNo</td>
+                        <td>@item.BookingType</td>
+                        <td>@item.BookingDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.BankCashAccount.AccountName</td>
+                        <td>@item.ReferenceNo</td>
+                        <td>@item.Price</td>
+                        <td>@item.ReceivedAmount</td>
+                        <td>@item.PaymentAmount</td>
+                        <td>
+                            @if (Model.PaymentVoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Assign Booking Section-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Assign Booking Detail / Payment Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Receipt No
+                    </th>
+                    <th>
+                        Bank Account
+                    </th>
+                    <th>
+                        Payment Advice No
+                    </th>
+                    <th>
+                        Payment Amount
+                    </th>
+                    <th>
+                        MTL Reference No
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Vehicle)
+                {
+                    <tr>
+                        <td>@item.CompanyReceiptNo</td>
+                        <td>@item.BankCashAccount.AccountName</td>
+                        <td>@item.CompanyReceiptNo</td>
+                        <td>@item.PaymentAmount</td>
+                        <td>@item.MTLReferenceNo</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, item.PaymentVoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--End of Assign Booking Section-->
+    <!--Start of Balance Receipts-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Balance Receipts </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Trans. ID
+                    </th>
+                    <th>
+                        Receipt Date
+                    </th>
+                    <th>
+                        Receipt Type
+                    </th>
+                    <th>
+                        Reference No
+                    </th>
+                    <th>
+                        Amount
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Receipt)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>@item.ReceiptDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.ReceiptAccount</td>
+                        <td>@item.Reference</td>
+                        <td>@item.ReceiptAmount</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+
+                                <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Start of Balance Payments-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Balance Payments </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Trans. ID
+                    </th>
+                    <th>
+                        Receipt Date
+                    </th>
+                    <th>
+                        Bank
+                    </th>
+                    <th>
+                        Reference No
+                    </th>
+                    <th>
+                        Amount
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Payment)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>@item.PaymentDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.BankCashAccount.AccountName</td>
+                        <td>@item.Reference</td>
+                        <td>@item.PaymentAmount</td>
+                        @if (item.VoucherId > 0)
+                        {
+                            <td>
+                                @if (item.VoucherId > 0)
+                                {
+                                    <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Start of IGP Detail-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">IGP Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        IGP No
+                    </th>
+                    <th>
+                        IGP Date
+                    </th>
+                    <th>
+                        Engine No
+                    </th>
+                    <th>
+                        Chassis No
+                    </th>
+                    <th>
+                        Reference No
+                    </th>
+                    <th>
+                        Delivery Commission
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.IGP)
+                {
+                    <tr>
+                        <td>
+                            @item.IGPNo
+                        </td>
+                        <td>@item.IGPDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.EngineNo</td>
+                        <td>@item.ChassisNo</td>
+                        <td>item.DLNo</td>
+                        <td>@item.DeliveryCommission</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Start of Delivery detail-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Delivery Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        OGP No
+                    </th>
+                    <th>
+                        OGP Date
+                    </th>
+                    <th>
+                        Received By
+                    </th>
+                    <th>
+                        Bilty No
+                    </th>
+                    <th>
+                        Vehicle No
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.OGP)
+                {
+                    <tr>
+                        <td>@item.OGPNo </td>
+                        <td>@item.OGPDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.ReceivedBy</td>
+                        <td>@item.BiltyNo</td>
+                        <td>@item.VehicleNo</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Start of Commission Received detail-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Commission Received Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Trans. ID
+                    </th>
+                    <th>
+                        Received Date
+                    </th>
+                    <th>
+                        Bank
+                    </th>
+                    <th>
+                        Booking
+                    </th>
+                    <th>
+                        Area
+                    </th>
+                    <th>
+                        Delivery
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.CommissionReceived)
+                {
+                    <tr>
+                        <td>@item.Id </td>
+                        <td>@item.ReceivedDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.BankCashAccount.AccountName</td>
+                        <td>@item.BookingCommission</td>
+                        <td>@item.AreaCommission</td>
+                        <td>@item.DeliveryCommission</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!--Start of Commission Payment detail-->
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="alert alert-info">Commission Payment Detail </h4>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Trans. ID
+                    </th>
+                    <th>
+                        Payment Date
+                    </th>
+                    <th>
+                        Pay To Account
+                    </th>
+                    <th>
+                        Commission Type
+                    </th>
+                    <th>
+                        Commission
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.CommissionPayment)
+                {
+                    <tr>
+                        <td>@item.Id </td>
+                        <td>@item.PaymentDate.ToString(CommonHelper.DateFormat)</td>
+                        <td>@item.Account.Name</td>
+                        <td>@item.CommissionId</td>
+                        <td>@item.Commission</td>
+                        <td>
+                            @if (item.VoucherId > 0)
+                            {
+                                <a href="@string.Format(ViewBag.ReportPath, item.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-search"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        function printDiv() {
+
+            var divToPrint = document.getElementById('reportPrintDiv');
+
+            var newWin = window.open('', 'Print-Window');
+
+            newWin.document.open();
+
+            newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+
+            newWin.document.close();
+
+            setTimeout(function () { newWin.close(); }, 10);
+
+        }
+    </script>
+}

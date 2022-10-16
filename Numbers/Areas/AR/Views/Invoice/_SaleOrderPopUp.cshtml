@@ -1,0 +1,116 @@
+﻿@model IEnumerable<ARInvoiceViewModel>
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="table-responsive">
+    <table id="invoiceTable" class="table table-striped table-bordered table-hover ">
+        <thead>
+            <tr>
+                <th hidden> SaleOrderItemId</th>
+                <th hidden> DCItemId</th>
+                @*<th hidden>PurchaseInvoice Id</th>*@
+                <th>SO.#</th>
+                <th>SO Date</th>
+                <th>DC.#</th>
+                <th>Item Name</th>
+                <th hidden>ItemCode</th>
+                @*<th>UOM</th>*@
+                <th>Qty</th>
+                @*<th>Lot No</th>*@
+                <th>Rate</th>
+                <th>Mtrs/Bale</th>
+                <th>T. Mtr</th>
+                <th>T. Mtr Amnt</th>
+                @*<th>Qty Balance</th>*@
+                @*<th>Amount</th>*@
+                <th><input type="checkbox" class="checkbox-success" id="select_all" /></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+
+                <td hidden>
+                    @Html.DisplayFor(modelItem => item.SalesOrderItemId)
+                </td>
+                <td hidden>
+                    @Html.DisplayFor(modelItem => item.DCItemId)
+                </td>
+                @*<td hidden>
+            @Html.DisplayFor(modelItem => item.PurchaseInvoiceId)
+        </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.InvoiceNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InvoiceDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DCNo)
+                </td>
+                <td class="text-left">
+                    @Html.DisplayFor(modelItem => item.Item.Code) -
+                    @Html.DisplayFor(modelItem => item.Item.Name)
+                </td>
+                <td class="text-left " hidden>@Html.DisplayFor(modelItem => item.Item.Id)</td>
+                @*<td>
+            @Html.DisplayFor(modelItem => item.Remarks)
+        </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Qty)
+                </td>
+                @*<td>
+            @Html.DisplayFor(modelItem => item.BaleNumber)
+        </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Rate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Meters)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalMeter)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalMeterAmount)
+                </td>
+                @*This field contains Purchase Quantity value
+        <td>
+            @Html.DisplayFor(modelItem => item.TotalDiscountAmount)
+        </td>*@
+                @*<td>
+            @Html.DisplayFor(modelItem => item.GrandTotal)
+        </td>*@
+                <td><input id="check" class="checkbox" type="checkbox"></td>
+
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $("#select_all").change(function () {
+        debugger
+        //"select all" change
+        var status = this.checked; // "select all" checked status
+        $('.checkbox').each(function () { //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+</script>
+

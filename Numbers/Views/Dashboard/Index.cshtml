@@ -1,0 +1,39 @@
+﻿@using Numbers.Helpers
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["CurrentPage"] = "Dashboard/Index";
+}
+<div class="row">
+    <partial name="_SalesAnalysisChart" />
+    <div class="col-lg-3 col-sm-12">
+        <div class="row">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-danger pull-right">Pending</span>
+                    <h5>Voucher</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="text-danger">@ViewBag.UnApprovedVouchers</h1>
+                    <small><a href="@Url.Action("Approve", "Voucher", new { area = "GL" })">Approve</a></small>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <span class="label label-danger pull-right">Pending</span>
+                    <h5>Sales</h5>
+                </div>
+                <div class="ibox-content">
+                    <h1 class="text-danger">@ViewBag.UnApprovedSales</h1>
+                    <small><a href="@Url.Action("Index", "Invoice", new { area = "AR" })">Approve</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+   
+}

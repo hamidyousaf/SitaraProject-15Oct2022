@@ -1,0 +1,1059 @@
+﻿@model YarnIssueViewModel
+@{
+    ViewData["Title"] = "Create Yarn Issue";
+    ViewData["CurrentPage"] = "Yarn Issue";
+    var issueNo = "";
+    var vendor = "";
+    var greigeQuality = "";
+    var warpItem = "";
+    var warpItemId = 0;
+    var warpUOMId = 0;
+    var warpUOM = "";
+    decimal warpBags = 0;
+    var weftItem = "";
+    decimal weftBags = 0;
+
+    var weftItemId = 0;
+    var weftUOMId = 0;
+    var weftUOM = "";
+    if (Model.YarnIssuance.Id != 0)
+    {
+        issueNo = Model.YarnIssuance.IssueNo.ToString();
+        vendor = Model.YarnIssuance.Vendor.Name;
+        greigeQuality = Model.YarnIssuance.WeavingContract.GreigeQualityLoom.Description;
+        warpItemId = Model.YarnIssuance.WarpIssuances.Select(x => x.ItemId).FirstOrDefault();
+        warpUOM = Model.YarnIssuance.WarpIssuances.Select(x => x.UOM.ConfigValue).FirstOrDefault();
+        warpUOMId = Model.YarnIssuance.WarpIssuances.Select(x => x.UOMId).FirstOrDefault();
+
+        weftItemId = Model.YarnIssuance.WeftIssuances.Select(x => x.ItemId).FirstOrDefault();
+        weftUOM = Model.YarnIssuance.WeftIssuances.Select(x => x.UOM.ConfigValue).FirstOrDefault();
+        weftUOMId = Model.YarnIssuance.WeftIssuances.Select(x => x.UOMId).FirstOrDefault();
+
+        warpItem = Model.YarnIssuance.WeavingContract.GreigeQualityLoom.GRConstruction.Warp.Code + " " + Model.YarnIssuance.WeavingContract.GreigeQualityLoom.GRConstruction.Warp.Name;
+        warpBags = (decimal)Model.YarnIssuance.WeavingContract.TotalWarpBags;
+        weftItem = Model.YarnIssuance.WeavingContract.GreigeQualityLoom.GRConstruction.Weft.Code + " " + Model.YarnIssuance.WeavingContract.GreigeQualityLoom.GRConstruction.Weft.Name;
+        weftBags = (decimal)Model.YarnIssuance.WeavingContract.TotalWeftBags;
+    }
+
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input:not([type='checkbox']) {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="YarnIssuance" asp-action="Index" class="btn btn-white">List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12">
+    <div class="row">
+        <div class="col-lg-12">
+            <form id="ReturnFormId" method="post" asp-action="Create" asp-controller="YarnIssuance" onsubmit=" return submitdetails()" typeof="multiple">
+                <div class="ibox-content">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="YarnIssuance.IssueNo"></label>
+                                        <input tabindex="-1" readonly asp-for="YarnIssuance.IssueNo" value="@issueNo" data-validation="required number" class="form-control" />
+                                        <span id="Status" asp-validation-for="YarnIssuance.IssueNo"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-4">
+                                    <div class="form-group">
+                                        <label>Issue Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="YarnIssuance.IssueDate" readonly autofocus id="IssueDate" class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.IssueDate.ToString(CommonHelper.DateFormat)) />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="YarnIssuance.WareHouseId"></label>
+                                        <Select id="WareHouseId" asp-for="YarnIssuance.WareHouseId" readonly asp-items="@ViewBag.WareHouse" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse" class="form-control">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <span asp-validation-for="YarnIssuance.WareHouseId" class="text-danger"></span>
+                                        <p id="wareHouse"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="YarnIssuance.WeavingContractId"></label>
+                                        <Select onchange="getWeavingContract();" id="WeavingContractId" readonly asp-for="YarnIssuance.WeavingContractId" asp-items="@ViewBag.WeavingContracts" data-validation="required" data-validation-error-msg="Weaving Contract is required" data-validation-error-msg-container="#weavingConId" class="form-control">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <span asp-validation-for="YarnIssuance.WeavingContractId" class="text-danger"></span>
+                                        <p id="weavingConId"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-2">
+                                    <div class="form-group">
+                                        <label>Vendor</label>
+                                        <input tabindex="-1" name="VendorId" type="hidden" value="@Model.YarnIssuance.VendorId" id="VendorId" readonly class="form-control" />
+                                        <input tabindex="-1" id="Vendor" value="@vendor" readonly class="form-control" />
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-2">
+                                    <div class="form-group">
+                                        <label>Greige Quality</label>
+                                        <input tabindex="-1" value="@greigeQuality"   id="GreigeQuality" readonly class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="form-group">
+                                        <label asp-for="YarnIssuance.Remarks"></label>
+                                        <textarea asp-for="YarnIssuance.Remarks" rows="1" readonly class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="text-right mb-3 hidden">
+                    <a id="add-saleReturn-popUp" class="btn btn-success" onclick="getInvoicesToReturn();">Get Store Issue Items</a>
+                    <a id="add-saleReturn-item" class="btn btn-success add-saleReturn-item hidden"><i class="fa fa-plus"></i></a>
+                </div>
+                <div class="ibox-title">
+                    <h2 style="font-weight:bold;">Warp Issuance</h2>
+                    
+                </div>
+                <div class="ibox-title">
+                    <div class="container-fluid table-responsive" style="background-color:white;">
+                        <br />
+                        <table id="WarpTable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Item Name
+                                    </th>
+                                    <th>
+                                        Brand
+                                    </th>
+                                    <th>
+                                        UOM
+                                    </th>
+                                    <th>
+                                        Qty
+                                    </th>
+
+                                   
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.YarnIssuance.Id != 0)
+                                {
+                                    @if (Model.YarnIssuance.WarpIssuances.Count() > 0)
+                                    {
+                                        foreach (var detail in Model.YarnIssuance.WarpIssuances)
+                                        {
+                                            <tr>
+                                                <td hidden><input class="Id" value="@detail.Id" /></td>
+                                                <td hidden><input class="WarpItemId" value="@detail.ItemId" type="hidden" /></td>
+                                                <td><input value="@detail.Item.Code - @detail.Item.Name" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td hidden><input class="WarpBrandId" value="@detail.BrandId" type="hidden" /></td>
+                                                <td><input value="@detail.Brand.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td hidden><input class="WarpUOMId" value="@detail.UOMId" type="hidden" /></td>
+                                                <td><input value="@detail.UOM.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td><input class="WarpQuantity text-right" value="@detail.Quantity" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+
+                            </tbody>
+                            <tfoot align="right">
+                                <tr style='font-weight: bold'>
+                                    <td> </td>
+                                    <td> </td>
+                                    <td style="text-decoration-color:black;">Total:</td>
+                                    <td class="TotalQty" id="TotalQty">0.00</td>
+                                   
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="ibox-title">
+                    <h2 style="font-weight:bold;">Weft Issuance</h2>
+                    
+                </div>
+                <div class="ibox-title">
+                    <input hidden id="purchasedetails" name="Details" type="text" />
+                    <div class="container-fluid table-responsive" style="background-color:white;">
+                        <br />
+                        <table id="WeftTable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Item Name
+                                    </th>
+                                    <th>
+                                        Brand
+                                    </th>
+                                    <th>
+                                        UOM
+                                    </th>
+                                    <th>
+                                        Qty
+                                    </th>
+
+                                   
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.YarnIssuance.Id != 0)
+                                {
+                                    @if (Model.YarnIssuance.WeftIssuances.Count() > 0)
+                                    {
+                                        foreach (var detail in Model.YarnIssuance.WeftIssuances)
+                                        {
+                                            <tr>
+                                                <td hidden><input class="Id" value="@detail.Id" /></td>
+                                                <td hidden><input class="WeftItemId" value="@detail.ItemId" type="hidden" /></td>
+                                                <td><input value="@detail.Item.Code - @detail.Item.Name" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td hidden><input class="WeftBrandId" value="@detail.BrandId" type="hidden" /></td>
+                                                <td><input value="@detail.Brand.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td hidden><input class="WeftUOMId" value="@detail.UOMId" type="hidden" /></td>
+                                                <td><input value="@detail.UOM.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                <td><input class="WeftQuantity text-right" value="@detail.Quantity" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                            <tfoot align="right">
+                                <tr style='font-weight: bold'>
+                                    <td> </td>
+                                    <td> </td>
+                                    <td style="text-decoration-color:black;">Total:</td>
+                                    <td class="TotalQty" id="TotalQty">0.00</td>
+                                    
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                
+                <input type="hidden" id="warpDetails" name="WarpDetails" />
+                <input type="hidden" id="weftDetails" name="WeftDetails" />
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS {
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+            $(document).ready(function () {
+                debugger;
+                $('#WareHouseId').select2();
+                $('#ItemId').select2();
+                $('#WeavingContractId').select2();
+                $('#WarpBrandId').select2();
+                $('#WeftBrandId').select2();
+               // $('#ItemId').select2();
+
+                //_applySelectInv($('#ItemId'));
+
+                GetRowFooter();
+
+            });
+        function getWeavingContract() {
+            debugger;
+            var weavingContractId = $('#WeavingContractId').find(":selected").val();
+
+            debugger;
+            $('#Vendor').val("");
+            $('#GreigeQuality').val("");
+            $('#WarpItemName').val("");
+            $('#WarpBags').val("");
+            $('#WeftItemName').val("");
+            $('#WeftBags').val("");
+            $("#WarpBrandId").find("option").remove();
+            $("#WeftBrandId").find("option").remove();
+            $("#WarpBrandId").append($('<option>', {
+                value: 0,
+                text: "Select..."
+            }));;
+            $("#WeftBrandId").append($('<option>', {
+                value: 0,
+                text: "Select..."
+            }));;
+            if (weavingContractId != 0) {
+                debugger;
+                $.ajax({
+                    url: '/AP/YarnIssuance/GetWeavingContract',
+                    type: 'POST',
+                    method: 'POST',
+                    data: { weavingContractId: weavingContractId },
+                    success: function (data) {
+                        debugger;
+                        if (data.contract != null) {
+                            $('#Vendor').val(data.contract.vendor.name);
+                            $('#VendorId').val(data.contract.vendor.id);
+                            $('#GreigeQuality').val(data.contract.greigeQualityLoom.description);
+                            $('#WarpItemName').val(data.contract.greigeQualityLoom.grConstruction.warp.code + " " + data.contract.greigeQualityLoom.grConstruction.warp.name);
+                            $('#WarpItemId').val(data.contract.greigeQualityLoom.grConstruction.warp.id);
+                            $('#WarpUOM').val(data.contract.greigeQualityLoom.grConstruction.warp.uom.configValue);
+                            $('#WarpUOMId').val(data.contract.greigeQualityLoom.grConstruction.warp.uom.id);
+                            $('#WarpBags').val(data.contract.totalWarpBags);
+                            $('#WeftItemName').val(data.contract.greigeQualityLoom.grConstruction.weft.code + " " + data.contract.greigeQualityLoom.grConstruction.weft.name);
+                            $('#WeftItemId').val(data.contract.greigeQualityLoom.grConstruction.weft.id);
+                            $('#WeftUOM').val(data.contract.greigeQualityLoom.grConstruction.weft.uom.configValue);
+                            $('#WeftUOMId').val(data.contract.greigeQualityLoom.grConstruction.weft.uom.id);
+                            $('#WeftBags').val(data.contract.totalWeftBags);
+                            //
+                            $.each(data.warpBrand, function (i, item) {
+                                debugger
+                                $('#WarpBrandId').append($('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+                            $.each(data.weftBrand, function (i, item) {
+                                debugger
+                                $('#WeftBrandId').append($('<option>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+
+                            return false;
+                        }
+                    },
+                    fail: function (response) {
+                        console.log('message from fail...', response.responseText);
+                    }
+                });
+            } else {
+            }
+        }
+        function WarpBrandChange(row) {
+            debugger
+            $("#WarpStock").val();
+            var brandId = row.find("option:selected").val();
+            var brandName = row.find("option:selected").text();
+            var stock = Number(brandName.split(":")[1]);
+            $("#WarpStock").val(stock);
+        }
+        function WeftBrandChange(row) {
+            debugger
+            $("#WeftStock").val();
+            var brandId = row.find("option:selected").val();
+            var brandName = row.find("option:selected").text();
+            var stock = Number(brandName.split(":")[1]);
+            $("#WeftStock").val(stock);
+        }
+        function AddWarp() {
+            debugger
+            var itemId = Number($("#WarpItemId").val());
+            var itemName = $("#WarpItemName").val();
+            var brandName = $("#WarpBrandId").find(":selected").text().split(":")[0];
+            var brandQty = Number($("#WarpBrandId").find(":selected").text().split(":")[1]);
+            var brandId = $("#WarpBrandId").find(":selected").val();
+            var uomId = $("#WarpUOMId").val();
+            var uomName = $("#WarpUOM").val();
+            var qty = $("#WarpQty").val();
+
+            if (itemId == 0 || itemId == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Atleast One Warp Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                return false;
+            }
+            if (brandId == 0 || brandId == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Brand",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarpBrandId').focus();
+                });
+                return false;
+
+            }
+            if (qty == 0 || qty == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Brand",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarpBrandId').focus();
+                });
+                return false;
+
+            }
+            if (brandQty < qty) {
+                swal({
+                    icon: 'warning',
+                    text: "Quantity Must Be Less Than Brand Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarpQty').focus();
+                });
+                return false;
+
+            }
+            var Itemrow = '';
+            Itemrow += '<tr>'
+            Itemrow += '<td hidden><input class ="Id" value="0"  /></td>';
+            Itemrow += '<td  hidden><input class ="WarpItemId" value="' + itemId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + itemName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td  hidden><input class ="WarpBrandId" value="' + brandId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + brandName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td  hidden><input class ="WarpUOMId" value="' + uomId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + uomName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td><input class ="WarpQuantity text-right" value="' + qty + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td class="text-center"><a id="delrow" onclick="DeleteWarpRow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+            Itemrow += '</tr>';
+            $('#WarpTable > tbody').append(Itemrow);
+            ClearWarpData();
+        }
+        function ClearWarpData() {
+            $('#WarpBrandId').val(0).trigger('change.select2');
+            $("#WarpStock").val("");
+            $("#WarpQty").val(0);
+        }
+        function DeleteWarpRow(row) {
+            row.closest("tr").remove();
+        }
+        function AddWeft() {
+            debugger
+            var itemId = Number($("#WeftItemId").val());
+            var itemName = $("#WeftItemName").val();
+            var brandName = $("#WeftBrandId").find(":selected").text().split(":")[0];
+            var brandQty = Number($("#WeftBrandId").find(":selected").text().split(":")[1]);
+            var brandId = $("#WeftBrandId").find(":selected").val();
+            var uomId = $("#WeftUOMId").val();
+            var uomName = $("#WeftUOM").val();
+            var qty = $("#WeftQty").val();
+
+            if (itemId == 0 || itemId == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Atleast One Weft Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                return false;
+            }
+            if (brandId == 0 || brandId == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Brand",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WeftBrandId').focus();
+                });
+                return false;
+
+            }
+            if (qty == 0 || qty == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Brand",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WeftBrandId').focus();
+                });
+                return false;
+
+            }
+            if (brandQty < qty) {
+                swal({
+                    icon: 'warning',
+                    text: "Quantity Must Be Less Than Brand Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WeftQty').focus();
+                });
+                return false;
+
+            }
+            var Itemrow = '';
+            Itemrow += '<tr>'
+            Itemrow += '<td hidden><input class ="Id" value="0"  /></td>';
+            Itemrow += '<td  hidden><input class ="WeftItemId" value="' + itemId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + itemName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td  hidden><input class ="WeftBrandId" value="' + brandId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + brandName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td  hidden><input class ="WeftUOMId" value="' + uomId + '" type="hidden" /></td>';
+            Itemrow += '<td><input value="' + uomName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td><input class ="WeftQuantity text-right" value="' + qty + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+            Itemrow += '<td class="text-center"><a id="delrow" onclick="DeleteWeftRow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+            Itemrow += '</tr>';
+            $('#WeftTable > tbody').append(Itemrow);
+            ClearWeftData();
+        }
+        function ClearWeftData() {
+            $('#WeftBrandId').val(0).trigger('change.select2');
+            $("#WeftStock").val("");
+            $("#WeftQty").val(0);
+        }
+        function DeleteWeftRow(row) {
+            row.closest("tr").remove();
+        }
+
+        function checkFormData() {
+            debugger;
+        var formdetails = [];
+        $("#IdsDeleted").val(ids);
+    if ("@TempData["Mode"]" == "False") {
+
+    $.each($("#tblpurchase tbody tr"), function () {
+    formdetails.push({
+    ItemId: $(this).find('.ItemId').html(),
+    Rate: $(this).find('.Rate').html(),
+    LineTotal: $(this).find('.Total').html(),
+    BrandId: $(this).find('.BrandId').html(),
+    Brand: $(this).find('.Brand').html(),
+    UOM: $(this).find('.UOM').html(),
+    Id: $(this).find('.id').html(),
+    });
+
+    });
+
+    var model = JSON.stringify(formdetails);
+    $("#purchasedetails").val(model);
+    if (formdetails.length >=1) {
+    swal("", "Please Save Record!", "info");
+    return false;
+    } else {
+    window.open("/Inventory/YarnIssuance/Index", '_blank');
+    }
+    } else {
+    window.open("/Inventory/YarnIssuance/Index", '_blank');
+    }
+    }
+
+    function addrows() {
+    debugger;
+        var itemt = $("#ItemId option:selected").text();
+        var itemv = $("#ItemId option:selected").val();
+        var brandId = $("#BrandId option:selected").val();
+        var brand = $("#BrandId option:selected").text();
+        brand = brand.substr(0, brand.indexOf(':'));
+        var stock = Number($("#Stock").val());
+        var qty = Number($("#SQM1").val());
+        var total = Number($("#Rate").val());
+        var total = Number($("#Total").val());
+        if (itemt == "Select an item..." || itemt == "") {
+            swal("", "Please Select Item", "warning")
+            return false;
+        }
+        //else if (brand == "Select..." || brand == "" || brandId == 0 ) {
+        //    swal("", "Please Select Brand", "warning")
+        //    return false;
+        //}
+        else if (qty == 0 || qty == NaN) {
+            swal("", "Qty must be greater than 0", "warning")
+            return false;
+        } else if (stock == 0 || stock == NaN) {
+            swal("", "Stock must be greater than 0", "warning")
+            return false;
+        }
+        else if (qty > stock) {
+            swal("", "Qty must be less than Stock", "warning")
+            return false;
+        }
+        //else if (total == 0) {
+        //    swal("", "Total Must be greater than 0", "warning")
+        //    return false;
+        //}
+
+        var Total = parseFloat($("#Total").val()).toFixed(2);
+        var Rate = $("#Rate").val();
+    var Qty = $("#SQM1").val();
+    var UOM = $("#UOM").val();
+
+    var storeIssueItemId = 0;
+
+    debugger;
+        var value = false;
+        $('#tblpurchase > tbody > tr').each(function () {
+            debugger;
+            var check = $(this).closest("tr").find(".BrandId").html();
+            debugger;
+            if (brandId == check) {
+                value = true;
+
+            } else {
+
+            }
+        });
+
+        if (value == false) {
+
+    var row = "<tr> " +
+        "<td name='id' hidden class='id'>0</td>" +
+        "<td hidden name='ItemId1'id='ItemId' class='ItemId'>" + itemv + "</td>" +
+        "<td class='itemt'>" + itemt + "</td> " +
+        "<td hidden name='BrandId'id='brandId' class='BrandId'>" + brandId + "</td>" +
+        "<td name='Brand' class='text-center Brand'>" + brand + "</td> " +
+        "<td name='UOM' class='text-center UOM'>" + UOM + "</td> " +
+        "<td name='Qty' class='text-right Qty'>" + Qty + "</td> " +
+        " <td hidden name='Rate' class='text-right Rate'>" + Rate + "</td> " +
+        " <td hidden name='Total' class='text-right Total'>" + Total + "</td> " +
+        ' <td class="text-center"><a class="btn btn-danger"><i class="fas fa-trash remove-row"></i></a></td>' +
+            "<td  name='storeIssueItemId' hidden class=' storeIssueItemId'>" + storeIssueItemId + "</td>" +
+        "</tr>"
+
+    $("#tblpurchase tbody ").append(row);
+
+    //CalculateGrandTotal();
+    //calculatetotal();
+        GetRowFooter();
+            //clearTexbox();
+        }
+        else if (value == true) {
+            swal("", "Item already exists..", "warning")
+        }
+        $('#ItemId').focus();
+    }
+    function clearTexbox() {
+        debugger;
+        _applySelectInv($('#ItemId'));
+   // $('#ItemId').val(null).trigger('change.select2');
+    $('#UOM').val("");
+    $('#Rate').val("");
+    $('#Total').val("");
+        }
+
+        function getBrandWiseStock() {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var issueDate = $('#IssueDate').val();
+            var brandId = $("#BrandId").val();
+            debugger;
+            if (wareHouseId != "" && brandId != undefined && brandId != 0 && brandId != "Select...") {
+                debugger;
+                $.ajax({
+                    url: '/Inventory/Api/GetStockByItemBrandWise',
+                    type: 'POST',
+                    method: 'POST',
+                    data: { itemId: itemId, warehouseId: wareHouseId, stockDate: issueDate, brandId: brandId },
+                    success: function (data) {
+                        debugger;
+                        if (data != null) {
+
+                            $('#Stock').val(data.toFixed(2));
+                            return false;
+                        }
+                    },
+                    fail: function (response) {
+                        console.log('message from fail...', response.responseText);
+                    }
+                });
+            } else {
+                $('#Stock').val(0.00);
+            }
+        }
+
+       // $('#ItemId').on('select2:selecting', function (e) {
+        $('#ItemId').change(function () {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var issueDate = $('#IssueDate').val();
+            //  var SupplierId = $('#SupplierId').val();
+            var SupplierId = 1;
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/Inventory/Adjustment/GetItemById?id=' + itemId,
+
+            }).done(function (data) {
+                debugger;
+                if (data != null) {
+                    debugger;
+                    console.log(data);
+                    $('#UOM').val(data.code);
+                    $('#Rate').val(data.avgRate);
+                }
+                else {
+
+                }
+                // debugger;
+                if (wareHouseId != "") {
+
+                    // AJAX request
+                    $.ajax({
+                        url: '/Inventory/Api/GetItemStockByBrandWarehouse',
+                        type: 'POST',
+                        method: 'POST',
+                        data: { itemId: itemId, warehouseId: wareHouseId, stockDate: issueDate },
+                        success: function (response) {
+                            debugger;
+                            $('#BrandId').find('option').not(':first').remove();
+                            if (response != null) {
+                                var overallStock = 0;
+                                $.each(response, function (i, item) {
+                                    debugger
+                                    if (item.brand != "" && item.brand != null) {
+                                        overallStock += item.qty;
+                                    }
+                                });
+
+                                $('#BrandId option:first').after($('<option />', { "value": 0, "text":  " All : " + overallStock}));
+
+                                $.each(response, function (i, item) {
+                                    debugger
+                                    if (item.brand != "" && item.brand != null) {
+
+                                    $('#BrandId').append(
+                                        $('<option>', {
+                                        value: item.brandId,
+                                        text: item.brand + " : " + item.qty
+                                        })
+                                        );
+
+                                    }
+                                });
+                                $('#BrandId').select2();
+                                return false;
+                            }
+                        },
+                        fail: function (response) {
+                            console.log('message from fail...', response.responseText);
+                        }
+                    });
+                }
+            });
+        });
+
+        $('#WareHouseId').change(function () {
+
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var issueDate = $('#IssueDate').val();
+            var SupplierId = 1;
+
+            if (wareHouseId != "" && itemId != "") {
+                var stock = getStock(itemId, wareHouseId, issueDate);
+                stock.done(function (data) {
+                    $('#Stock').val(data.toFixed(2));
+                });
+            }
+        });
+
+        $('#SQM1').change(function () {
+            debugger;
+            /*calculateDisAmt();*/
+            var BoxInSQM = $('#SQM1').val();
+            var PcsInBox = $('#Rate').val();
+            var Total = $('#Total').val();
+            if (BoxInSQM != "") {
+                // TileInSQM = (Number(BoxInSQM) / Number(PcsInBox));
+
+                $('#Total').val(Number(Number(BoxInSQM) * Number(PcsInBox)).toFixed(2));
+
+                // $('#NetTotal').val(Number(BoxInSQM) * Number(PcsInBox) - Number(DiscountAmt));
+
+            }
+        });
+
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var warpDetails = [];
+            var weftDetails = [];
+            $.each($("#WarpTable tbody tr"), function () {
+                warpDetails.push({
+                    Id: $(this).find('.Id').val(),
+                    ItemId: $(this).find('.WarpItemId').val(),
+                    BrandId: $(this).find('.WarpBrandId').val(),
+                    UOMId: $(this).find('.WarpUOMId').val(),
+                    Quantity: $(this).find('.WarpQuantity').val(),
+                });
+            });
+            $.each($("#WeftTable tbody tr"), function () {
+                weftDetails.push({
+                    Id: $(this).find('.Id').val(),
+                    ItemId: $(this).find('.WeftItemId').val(),
+                    BrandId: $(this).find('.WeftBrandId').val(),
+                    UOMId: $(this).find('.WeftUOMId').val(),
+                    Quantity: $(this).find('.WeftQuantity').val(),
+                });
+            });
+
+            var warpModel = JSON.stringify(warpDetails);
+            var weftModel = JSON.stringify(weftDetails);
+
+            $("#warpDetails").val(warpModel);
+            $("#weftDetails").val(weftModel);
+        }
+
+    </script>
+
+
+    <script>
+
+
+        $("#tblpurchase tbody").on("click", ".remove-row", function () {
+            debugger;
+            $(this).closest("tr").remove();
+            var itemId = $(this).closest("tr").find('.id').html();
+            if (itemId != null && itemId != 0) {
+                ids.push(itemId);
+            }
+            GetRowFooter()
+
+        });
+
+
+        function GetRowFooter() {
+            debugger;
+            var TotalQty = 0;
+            var TotalBox = 0;
+            var TotalTile = 0;
+            var TotalAmount = 0;
+
+            $.each($("#tblpurchase tbody tr"), function () {
+                debugger;
+
+                var rowQty = Number($(this).find('.Qty').html());
+                var rowBox = Number($(this).find('.Boxes').html());
+                var rowTile = Number($(this).find('.Tiles').html());
+                var rowAmount = Number($(this).find('.Total').html());
+                // Total Qty
+                TotalQty = parseFloat(parseFloat(TotalQty) + parseFloat(rowQty)).toFixed(2);
+                // Total Amount
+                TotalAmount = parseFloat(parseFloat(TotalAmount) + parseFloat(rowAmount)).toFixed(2);
+            });
+
+            $.each($("#tblpurchase tfoot tr"), function () {
+                debugger;
+
+                $(this).closest("tr").remove();
+                var row = "<tr style='font-weight: bold'>" +
+                    "<td></td>" +
+                    "<td></td>" +
+                    "<td style'text-aligin: right;'>Total :</td> " +
+                    "<td >" + TotalQty + "</td> " +
+                    " <td ></td> "
+                "</tr>"
+                $("#tblpurchase tfoot ").append(row);
+            });
+            //HideTrueTable();
+        }
+    </script>
+
+    <script>
+//for pop-up modal
+var skipIds = [];//skip from loading table rows
+
+        function getInvoicesToReturn1() {
+            debugger;
+            var warehouseId = $('#WareHouseId').val();
+            var branchId = $('#BranchId').val();
+            var counter = 1;
+            // AJAX request
+
+            $.ajax({
+                url: '/Inventory/YarnIssuance/GetItemBrandWiseId',
+                type: 'POST',
+                method: 'POST',
+                data: { id: warehouseId, skipIds: skipIds },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#invoiceModal').modal('show');
+                },
+                fail: function (response) {
+                    console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+
+        function getInvoicesToReturn() {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var issueDate = $('#IssueDate').val();
+            // AJAX request
+
+            $.ajax({
+                url: '/AP/YarnIssuance/GetItemStockByBrandWarehouse',
+                type: 'POST',
+                method: 'POST',
+                data: { itemId: itemId, warehouseId: wareHouseId, stockDate: issueDate },
+                success: function (response) {
+                    debugger;
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#invoiceModal').modal('show');
+                },
+                fail: function (response) {
+                    console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+
+
+
+        function getItemsStockBrandWise() {
+
+            $.ajax({
+                type: 'POST',
+                data: { itemId: itemId, warehouseId: wareHouseId, stockDate: stockDate },
+                url: '/Inventory/Api/GetItemStockByBrandWarehouse',
+                method: 'POST',
+
+                error: function (data) {
+                    console.log(data);
+                    toasterMessage(true, "GetStock Function Error", data.statusText);
+                }
+
+            });
+
+        }
+
+
+var counter = 50;
+        $('#button').click(function () {
+            debugger;
+            var table = document.getElementById('invoiceTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('td').html();
+            });
+            var arrLength = arrayOfValues.length;
+            var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (i = 0; i < arrLength; i++) {
+                var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/AP/YarnIssuance/GetSaleInvoiceItems',
+                    data: { saleInvoiceItemId: parseInt(values[i]), counter: counter },
+                    beforeSend: function () {
+                        debugger;
+                        skipIds.push(values[i]);
+                        $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        $('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+                    debugger;
+
+                    var row = "<tr>" +
+                        "<td name='id' hidden class='id'>0</td>" +
+                        "<td hidden name='ItemId1' class='ItemId'>" + data.itemId + "</td>" +
+                        "<td class='itemt'>" + data.itemName +
+                        "</td> " +
+                        "<td name='UOM' class='Brand'>" + data.brand + "</td> " +
+                        "<td name='UOM' class='UOM'>" + data.uom + "</td> " +
+                        "<td name='Qty' class='text-right Qty'>" + data.qty + "</td> " +
+                        '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+
+                    "</tr>"
+
+                    $("#tblpurchase tbody ").append(row);
+
+                    $('#button').prop('disabled', false);
+                    //$('#invoiceModal').modal("hide");
+                }).fail(function (error) {
+
+                    $('#button').prop('disabled', false);
+                    $('#returnModal').modal("hide");
+                    counter++;
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+            }
+            GetRowFooter();
+        });
+    </script>
+    <script>
+        $('#Search').change(function () {
+            var warehouseId = $('#WareHouseId').val();
+            var search = $('#Search').val();
+
+            if (search != "" && warehouseId != "") {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Inventory/Api/GetStoreIssueBySearch?warehouseId=' + warehouseId + '&search=' + search
+                }).then(function (data) {
+                    debugger;
+                    $('#invoiceTable tbody tr').remove();
+                    var item = jQuery.parseJSON(JSON.stringify(data));
+                    //JSON.parse(data);
+                    var rows = "";
+                    $.each(item, function (key, value) {
+                        debugger;
+                        rows += '<tr>' +
+                            '<td hidden >' + item[key].storeIssueItemId + '</td>' +
+                            '<td hidden >' + item[key].storeIssueId + '</td>' +
+                            '<td><div class="checkbox checkbox-success"><input id="check" type="checkbox"><label for="check"></label></div></td>' +
+                            '<td>' + item[key].issueNo + '</td>' +
+                            '<td>' + item[key].issueDate + '</td>' +
+                            '<td>' + item[key].itemCode + ' - ' + item[key].itemName + '</td>' +
+                            '<td>' + item[key].uom + '</td>' +
+                            '<td>' + item[key].qty + '</td>' +
+                            '<td>' + item[key].rate + '</td>' +
+                            '<td>' + item[key].lineTotal + '</td>' +
+                            '<td hidden >' + item[key].warehouseIds + '</td>' +
+                            '</tr>';
+                    });
+                    $('#invoiceTable tbody').append(rows);
+
+                    $('#Search').val('');
+                });
+            }
+        });
+    </script>
+}

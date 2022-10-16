@@ -1,0 +1,87 @@
+﻿@model HROpenMonthViewModel
+@{
+    ViewData["Title"] = "Create Open Year";
+    ViewData["CurrentPage"] = " Open Year";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Open Year</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" asp-controller="OpenYear" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row" hidden>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="col-md-4 control-label">Open Year</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="EndDate" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <input type="hidden" asp-for="PeriodId" />
+                                <label asp-for="ShortDescription" class="col-md-4 control-label">Open Year</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ShortDescription" Value="@TempData["ShortDescription"]" readonly class="form-control" />
+                                    <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="MonthDescrption" class="col-md-4 control-label">Open Year</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="MonthDescrption" Value="@TempData["Description"]" readonly class="form-control" />
+                                    <span asp-validation-for="MonthDescrption" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="ModuleId" class="col-lg-4 control-label"> Module</label>
+                                <div class="col-lg-8">
+                                    <select autofocus name="ModuleId" asp-items="@ViewBag.Modules" id='ModuleId' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-3 col-lg-offset-2">
+                                @*<a value="Back" class="btn btn-white" asp-controller="JobDescription" asp-action="Index">Back</a>*@
+                                <input type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="OpenYear" />
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+@section customJS{
+    <script>
+        @*$(function () {
+
+            var functionId = $('#MODULE_ID');
+            bindSelect2(functionId, '/ApplicationModule/Api/GetModules', '/ApplicationModule/Api/GetModule?id=', '@ViewBag.ItemId');
+        });*@
+
+    </script>
+}
+

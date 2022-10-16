@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Chart Of Account";
+    ViewData["CurrentPage"] = "Chart of Accounts";
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    var companyName = Context.Session.GetString("CompanyName");
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    <input type="hidden" name="ReportTitle" value="ChartOfAccount" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

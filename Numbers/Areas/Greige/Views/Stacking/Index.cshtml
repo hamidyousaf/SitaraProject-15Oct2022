@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "List of Greige GRN";
+    ViewData["CurrentPage"] = "Greige GRN";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>List of Items</h5>
+                </div>*@
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="GRN" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br />
+                <br />
+                <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th class="searchHeader" width="15%">GRN #</th>
+                            <th class="searchHeader" width="15%">GRN Date</th>
+                            <th class="searchHeader" width="10%">Folding</th>
+                            <th class="searchHeader" width="10%">Weaving Contract</th>
+                            <th class="searchHeader" width="10%">Purchase contract</th>
+                            <th class="searchHeader" width="10%">Vendor</th>
+                            <th width="20%">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                /*"order": false,*/
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/Greige/GRN/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [6] }],
+
+                "columns": [
+                    { "data": "transactionNo", "name": "TransactionNo", className: "text-center" },
+                    { "data": "tansactionDate", "name": "TansactionDate", className: "text-center" },
+                    { "data": "foldingNo", "name": "FoldingNo", className: "text-center" },
+                    { "data": "weavingContactNo", "name": "WeavingContract", className: "text-center" },
+                    { "data": "purcahseContracNo", "name": "PurchaseContract", className: "text-center" },
+                    { "data": "vendorName", "name": "Vendor", className: "text-left" },
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data) {
+                            return "<a href='/Greige/GRN/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/Greige/GRN/Delete?id=" + data + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='far fa-trash-alt' title='Delete'></i></a>";
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

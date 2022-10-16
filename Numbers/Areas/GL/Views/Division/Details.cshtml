@@ -1,0 +1,68 @@
+﻿@model GLDivision
+@{
+    ViewData["Title"] = "Department Detail";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="Division" asp-action="List" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Department: <strong class="text-navy"> @Model.Name</strong></span></h4>
+                        <span><strong>Description: </strong> @Model.Description</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Dept. ID: <strong class="text-navy">@Model.Id</strong></span></h4>
+                        <span><strong>Date:</strong> @Model.Date.ToString(CommonHelper.DateFormat)</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th width="35%">Sub Departments</th>
+                                <th width="65%">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<GLSubDivision>)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

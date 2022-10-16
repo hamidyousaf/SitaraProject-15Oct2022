@@ -1,0 +1,191 @@
+﻿@model Numbers.Entity.Models.BkgVehicle
+@{
+    Layout = null;
+    decimal balancePayment = Model.Price - Model.PaymentAmount;
+}
+
+
+<style>
+    /* fix select 2 on popup */
+    .select2-container--open {
+        z-index: 100000;
+    }
+</style>
+
+
+@using (Html.BeginForm("AssignBookingNo", "Vehicle", FormMethod.Post, new { area = "Booking", name = "formAssignBookingNo", id = "formAssignBookingNo" }))
+{
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Assign Booking No</h4>
+            </div>
+            <div class="modal-body">
+                @*<form class="form-horizontal" asp-action="AssignBookingNo">*@
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div>
+                    <input type="hidden" asp-for="Id" />
+                </div>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label asp-for="BookingNo" class="col-sm-2  control-label"></label>
+
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input asp-for="BookingNo" class="form-control" onchange="CheckBookingNo()" data-validation="number required" data-validation-error-msg="Booking No is required" data-validation-error-msg-container="#bkn-error-dialog" />
+                                    <span id="bkn-error-dialog"></span>
+                                </div>
+                                <div class="col-md-2">
+                                    <label asp-for="BookingDate" class="control-label"></label>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" class="form-control custom-date-picker" asp-for="BookingDate" data-validation="required" data-validation-error-msg="Booking Date is required" data-validation-error-msg-container="#bkg-date-dialog" value="@CommonHelper.CurrentDate" />
+                                        <span asp-validation-for="BookingDate" class="text-danger"></span>
+                                        <span id="bkg-date-dialog"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">Bank Account</label>
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <select class="form-control chosen-select" style="width:100%;" asp-for="PaymentBankCashAccountId" data-validation="required" data-validation-error-msg="Bank account is required">
+                                        <option selected="selected" value="">Select...</option>
+                                    </select>
+
+                                    <span asp-validation-for="PaymentBankCashAccountId" class="text-danger"></span>
+
+                                </div>
+                                <div class="col-md-2">
+                                    <label asp-for="MTLReferenceNo" class="control-label"></label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input asp-for="MTLReferenceNo" class="form-control chosen-select"  style="width:100%;" >
+
+                                    <span asp-validation-for="MTLReferenceNo" class="text-danger"></span>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2  control-label" asp-for="PaymentAdviceNo"></label>
+
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input asp-for="PaymentAdviceNo" class="form-control" />
+                                    <span id="rct-error-dialog"></span>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="control-label">Payment Amount</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="number" class="form-control" asp-for="PaymentAmount" value="@balancePayment" data-validation="required number" data-validation-allowing="range[1.00;@balancePayment];float" data-validation-error-msg="Payment amount should be less or equal to price" data-validation-error-msg-container="#pymt-error-dialog">
+                                    <span id="pymt-error-dialog"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2  control-label" >Receipt No</label>
+
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input asp-for="CompanyReceiptNo" class="form-control" />
+                                    <span id="rct-error-dialog"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-lg-6 col-lg-offset-5">
+                                    <a class="btn btn-white" asp-action="AssignBookingNsoList">Cancel</a>
+                                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+    </div>
+
+}
+
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+<script>
+    $.validate();  
+       function CheckBookingNo() {
+           $("#Status").html("Checking...");
+           @*$.post("@Url.Action("checkBookingNoAlreadyExist", "Booking")", { bookingNo: $("#BookingNo").val()}).done(function (data) {
+           });*@
+        $.post("@Url.Action("checkBookingNoAlreadyExist", "DetailInfo", new { Area = "Booking" })",
+            {
+                bookingNo: $("#BookingNo").val()
+               },
+        function (data) {
+            if (data == 0) {
+                $("#Status").html('<font color="Green">Available ! you can take it.</font>');
+                $("#BookingNo").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+                
+            }
+            else {
+                $("#Status").html('<font color="Red">That Booking is taken.Try Another.</font>');
+                $("#BookingNo").css("border-color", "Red");
+                $(".submit").attr("disabled", "disabled");
+            }
+        });
+    }
+
+
+    $(function () {
+        $('#PaymentBankCashAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a Cash Bank Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+
+    });
+    $(document).ready(function () {
+        $(function () {          
+            //implement date picker
+            $('.custom-date-picker').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: 'dd-M-yyyy',
+                todayHighlight: true
+            });
+        })
+    });
+</script>

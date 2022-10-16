@@ -1,0 +1,2095 @@
+﻿@model Numbers.Entity.Models.GLVoucher
+@{ ViewData["Title"] = ViewBag.VoucherTypeDescription;
+    ViewData["CurrentPage"] = "Vouchers"; }
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .jsgrid-cell {
+            padding: 0px;
+            padding-left: 5px;
+            padding-right: 2px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .select2-selection__arrow {
+            display: none;
+        }
+        textarea {
+            resize: none;
+        }
+
+            textarea.ta10em {
+                height: 10em;
+            }
+
+    </style>
+}
+@*<div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>@ViewBag.VoucherTypeDescription</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<div class="col-lg-12">
+    <form method="post" name="Voucher" action="/GL/Voucher/Post" enctype="multipart/form-data"  onsubmit=" return check(this);">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-4">
+                        <div class="form-group">
+                            <label>Voucher No.</label>
+                            <div class="input-group m-b">
+                                <span class="input-group-addon">@ViewBag.VoucherType</span>
+                                @if (Model.Id != 0)
+                                {
+                                    <input asp-for="VoucherNo" autofocus class="form-control" readonly />
+                                }
+                                else
+                                {
+                                    <input value="" autofocus class="form-control" readonly />
+                                }
+                                <input type="text" name="buttonType" id="buttonType" readonly hidden />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-4" >
+                        <div class="form-group">
+                            <label>Voucher Date</label>
+                            <div class="input-group date" >
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input  id="VoucherDate" asp-for="VoucherDate" class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.VoucherDate.ToString(CommonHelper.DateFormat)) />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-4">
+                        <div class="form-group">
+                            <label>@ViewBag.VoucherTypeReferenceNarration</label>
+                            <input asp-for="Reference" id="Reference" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea type="text" asp-for="Description" id="Description" class="form-control .ta10em" style="
+    height: 100px;
+"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-6">
+                <div class="col-lg-5 col-sm-5" hidden>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Currency Exchange
+                        </div>
+                        <div class="panel-body" style="padding-top:3px;padding-bottom:11px;">
+                            <label asp-for="Currency"></label>
+                            <select asp-for="Currency" id="currency" asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" class="form-control" name="Currency"></select>
+                            <label asp-for="CurrencyExchangeRate"></label>
+                            <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Voucher Summary
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td class="font-bold">Debit</td>
+                                    <td name="TotalDebit" class="bg-muted text-right" id="TotalDebit">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold">Credit</td>
+                                    <td name="TotalCredit" class="bg-muted text-right" id="TotalCredit">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold">Difference</td>
+                                    <td class="bg-muted text-right" id="TotalDifference">0</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tab-accounting">Accounting</a></li>
+                        <li class=""><a data-toggle="tab" href="#tab-attachment">Attachment</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tab-accounting" class="tab-pane active">
+                            <div class="panel-body">
+                               
+                                    <div id="jsGrid"></div>
+                                
+                            </div>
+                        </div>
+                        <div id="tab-attachment" class="tab-pane">
+                            @*<div style="background-color:white;">
+                                @if (Model.Photo != null)
+                                {
+                                    <img src="@Html.DisplayFor(modelItem => Model.Photo)" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+                                }
+                            </div>*@
+                            <div class="panel-body">
+
+                                <!--<div class="fileinput fileinput-new" data-provides="fileinput">
+                                <span class="fileinput-new">select file</span>
+                                <span class="fileinput-exists">Change</span><input type="file" name="img" asp-for="Photo" />
+                                <br />
+                                <br />-->
+                                @*<span class="label-info">Multiple Attachments</span>
+
+
+                                    <br />6
+                                    <input asp-for="Attachments" multiple class="form-control custom-file-input">*@
+                                @if (Model.file != null)
+                                {
+
+
+                                    @if (Model.file.Count > 0)
+                                    {
+                                        <div class="row">
+                                            @foreach (var item in Model.file)
+                                            {
+                                                <img class="img-responsive col-3 " src="~/img/@item" alt="">
+                                                <br />
+                                                <br />
+                                            }
+                                        </div>
+                                    }
+                                }
+
+
+                                <!--</div>-->
+                                <div class="form-group row">
+                                    <label -for="Attachments" class="col-sm-2 col-form-label">Attachments</label>
+                                    <div class="col-sm-10">
+                                        <div class="custom-file">
+                                            <input asp-for="Attachments"  multiple class="form-control custom-file-input">
+                                            <label class="custom-file-label">Choose File...</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+                    <div class="col-lg-12">
+                        <div id="jsGridDiv" onscroll="myFunction();">
+                            <div class="panel-body" style="padding-top:0px">
+                                <div id="jsGrid"></div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-lg-3 offset-1">
+                                <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <span class="btn btn-default btn-file">
+                                        <span class="fileinput-new">Select Attachment</span>
+                                        <span class="fileinput-exists">Change</span><input type="file" name="..." />
+                                    </span>
+                                    <span class="fileinput-filename"></span>
+                                    <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">×</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a data-toggle="tab" href="#tab-accounting">Accounting</a></li>
+                                    <li class=""><a data-toggle="tab" href="#tab-attachment">Attachment</a></li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="tab-accounting" class="tab-pane active">
+                                        <div class="panel-body">
+                                            <div id="jsGrid"></div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-attachment" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                <span class="btn btn-default btn-file">
+                                                    <span class="fileinput-new">Select file</span>
+                                                    <span class="fileinput-exists">Change</span><input type="file" name="..." />
+                                                </span>
+                                                <span class="fileinput-filename"></span>
+                                                <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">×</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            </div>
+                    </div>*@
+
+        <input type="hidden" name="VoucherDetail" value="@ViewBag.VoucherDetail" />
+        <input type="hidden" name="DeletedVoucherDetail" value="" />
+        <input asp-for="Id" type="hidden" />
+        <input type="hidden" name="VoucherType" value="@ViewBag.VoucherType" />
+        <div class="m-b-lg"></div>
+        <div class="row">
+            <div class="col-lg-12">
+                <a asp-controller="Voucher" asp-action="Index" asp-route-type="@ViewBag.VoucherType" class="btn btn-white">List</a>
+                @if (Model.Status == "Created")
+                {
+                    <input type="submit" name="submit" value="@ViewBag.EntityState" class="btn btn-primary" onclick="return submitVoucher();" />
+                    <input type="submit" name="New" value="Save & New" class="btn btn-primary" onclick="return submitVoucherNew();" />
+                }
+            </div>
+        </div>
+    </form>
+</div>
+@section customJS{
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        $(document).ready(function () {
+            
+            $('.custom-file-input').on("change", function () {
+                var fileLabel = $(this).next('.custom-file-label');
+                var files = $(this)[0].files;
+                if (files.length > 1) {
+                    fileLabel.html(files.length + ' files selected');
+                }
+                else if (files.length == 1) {
+                    fileLabel.html(files[0].name);
+                }
+            });
+        });
+    </script>
+    <!-- db script of grid-->
+    <script>
+        var accountId;
+        var accountDesc = "";
+      //  var seqId = 10;
+        var seqId = 1;
+        var accId = 0;
+        var accounts = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Accounts));
+        (function () {
+            var db = {
+                loadData: function (filter) {
+                    
+                    return $.grep(this.grid, function (grid) {
+                        return (!filter.Name);
+                    });
+                },
+
+                insertItem: function (insert) {
+                    
+                    this.grid.push(insert);
+                },
+
+                updateItem: function (update) {
+                    
+                    update.AccountId = accountId;
+                    return update;
+                    console.log(update);
+                },
+                EditItem: function (update) {
+                    
+                    update.AccountId = accountId;
+                    return update;
+                    console.log(update);
+                },
+
+                deleteItem: function (deletingClient) {
+                    var clientIndex = $.inArray(deletingClient, this.grid);
+                    this.grid.splice(clientIndex, 1);
+                }
+
+            };
+
+            window.db = db;
+
+            //db.countries = $.get("../ChartofAccount/GetAllAccounts");
+            //db.countries = [
+            //    { name: "", id: 0 },
+            //    { name: "United States", id: 1 },
+            //    { name: "Canada", id: 2 },
+            //    { name: "United Kingdom", id: 3 },
+            //    { name: "France", id: 4 },
+            //    { name: "Brazil", id: 15431 },
+            //    { name: "China", id: 15432 },
+            //    { name: "Russia", id: 15433 }
+            //];
+            db.accounts = accounts;
+            db.costcenters = [
+                { name: "Cost center 1", id: 0 },
+                { name: "Cost center 2", id: 2 },
+                { name: "Cost center 3", id: 3 }
+            ];
+            db.subaccounts = [
+                { name: "", id: 1 }
+            ];
+            db
+            db.grid = JSON.parse($("input[name=VoucherDetail").val());
+
+            var rows = JSON.parse($("input[name=VoucherDetail").val());
+            var lastrow = rows.length - 1;
+            if (lastrow != -1) {
+                var newSeq = rows[lastrow]["Sequence"];
+             //   seqId = newSeq + 10;
+                seqId = newSeq + 1;
+            }
+        }());
+
+        //(function (jsGrid, $, undefined) {
+        //    
+        //    var Select2Field = function (config) {
+        //        jsGrid.Field.call(this, config);
+        //    };
+
+        //    Select2Field.prototype = new jsGrid.Field({
+        //        align: "left",
+
+        //        itemTemplate: function (value, item) {
+        //            
+        //            //console.log(Select2Field);
+        //            item.AccountId = accountId;
+        //            //$.isNumeric(value) ? this.AccountId = value : false;
+        //            //console.log(item);
+        //            return value;
+        //        },
+
+        //        insertTemplate: function (value, item) {
+        //            
+        //            console.log(this.AccountId);
+        //            if (!this.inserting)
+        //                return "";
+        //            var $result = this.insertControl = this._createSelect();
+        //            this._applySelect($result, this);
+        //            return $result;
+        //        },
+
+        //        editTemplate: function (value) {
+        //            
+        //            if (!this.editing)
+        //                return this.itemTemplate(value);
+        //          /* var element = jsGrid.fields.text.prototype.editTemplate.call(this, value, item);*/
+        //            var $result = this.editControl = this._createSelect();
+        //            (value !== undefined) && $result.val(value);
+        //            this._applySelect($result, this, 4);
+                     
+        //            //this._applySelect($result, this, value);
+
+        //            return $result;
+        //        },
+        //        //editTemplate: function (value, item) {
+        //        //    var $result = jsGrid.fields.text.prototype.editTemplate.call(this, value, item);
+        //        //    $result.attr('style', 'width:50px');
+        //        //    return $result;
+        //        //},
+
+        //        filterValue: function () {
+        //            
+        //            var val = this.filterControl.text();
+        //            return this.valueType === "number" ? parseInt(val || 0, 10) : val;
+        //        },
+
+        //        insertValue: function (value) {
+        //            
+        //            //this.itemTemplate(this.insertControl.val());
+        //            //this.AccountId = 3434
+        //            //console.log(this);
+
+        //            //var $result = this.insertControl;
+        //            //console.log($result);
+        //            //var val = this.insertControl.text();
+        //            //var val = "Test";
+                   
+        //            //write select2 value in AccountId field
+        //            accountId = this.insertControl.val();
+        //           // return val;
+        //            var $result = this.insertControl = this._createSelect();
+        //            this._applySelect($result, this, accountId);
+        //            //this._applyEditMode($result, this, accountId);
+        //            return $result;
+
+                   
+        //        },
+        //        _applyEditMode: function (item, self, value) {
+        //            
+        //                //set value on Insert
+        //                // Fetch the preselected item, and add to the control
+        //                if (value != undefined) {
+        //                    
+        //                    $.ajax({
+        //                        type: 'GET',
+        //                        url: '/GL/Api/GetAccount?id=' + value
+        //                    }).then(function (data) {
+        //                        
+        //                        var option = new Option(data.text, data.id);
+        //                        option.selected = true;
+        //                        item.append(option).select2().trigger('change.select2');
+                               
+        //                    });
+        //                    //   value = value + " :: GL Account";
+        //                }
+        //        },
+
+        //        editValue: function () {
+        //            
+        //            var val = this.editControl.text();
+
+        //            if ($.isNumeric(this.editControl.val())) {
+        //                
+        //                accountId = this.editControl.val();
+        //            }
+        //            //this.editControl.AccountId = accountId;
+
+        //           // console.log(this.editControl, 'Edit CONT');
+
+        //            val = val.split(" :: GL Account");
+        //            //console.log(val[0]);
+        //            //if (val[0]) {
+        //            //    vals = val[0];
+        //            //}
+        //            //if (val[1]) {
+        //            //    vals = val[1];
+        //            //}
+        //            //val = vals;
+        //            var $result = this.editControl = this._createSelect();
+        //            //this._applyEditMode($result, this, accountId);
+        //            this._applySelect($result, this, accountId);
+        //           // return this.valueType === "number" ? parseInt(val || 0, 10) : val;
+        //            return $result;
+        //        },
+        //        _applySelect: function (item, self, value) {
+        //            
+        //            setTimeout(function () {
+        //                var selectSiteIcon = function (opt) {
+        //                    var img = '';
+        //                    try {
+        //                        img = opt.element.attributes.img.value;
+        //                    } catch (e) { }
+        //                    if (!opt.id || !img)
+        //                        return opt.text;
+        //                    var res = $('<span><img src="' + img + '" class="img-flag"/> ' + opt.text + '</span>');
+        //                    return res;
+        //                }
+        //                item.select2({
+        //                    width: "100%", //self.width,
+        //                    templateResult: selectSiteIcon,
+        //                    templateSelection: selectSiteIcon,
+        //                    placeholder: 'Search for a GL Account',
+        //                    allowClear: true,
+        //                    templateResult: formatOption,
+        //                    ajax: ({
+        //                        url: '/GL/Api/GetAccounts',
+        //                        dataType: 'json',
+        //                        delay: 250,
+        //                        processResults: function (data, params) {
+        //                            return {
+        //                                results: data
+        //                            };
+        //                        },
+        //                        cache: false
+        //                    })
+        //                });
+        //                //set value on edit
+        //                // Fetch the preselected item, and add to the control
+        //                if (value != undefined) {
+        //                    
+        //                    console.log(accId);
+        //                    $.ajax({
+        //                        type: 'GET',
+        //                        url: '/GL/Api/GetAccount?id=' + accId
+        //                    }).then(function (data) {
+        //                        
+        //                        var option = new Option(data.text, data.id);
+        //                        option.selected = true;
+        //                        item.append(option).trigger('change.select2');
+        //                    });
+
+        //                 //   value = value + " :: GL Account";
+
+                            
+        //                }
+        //                function formatOption(option) {
+        //                    var $option = $(
+        //                        '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+        //                    );
+        //                      $option = $(
+        //                        '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+        //                    );
+
+        //                    return $option;
+        //                };
+        //            });
+        //        },
+
+        //        _createSelect: function () {
+        //            
+        //            var $result = $("<select>"),
+        //                valueField = this.valueField,
+        //                textField = this.textField,
+        //                imgField = this.imgField,
+        //                selectedIndex = this.selectedIndex;
+
+        //            $.each(this.items, function (index, item) {
+        //                
+        //                var value = valueField ? item[valueField] : index,
+        //                    text = textField ? item[textField] : item,
+        //                    img = imgField ? item[imgField] : '';
+
+        //                var $option = $("<option>")
+        //                    .attr("value", value)
+        //                    .attr("img", img)
+        //                    .text(text)
+        //                    .appendTo($result);
+
+        //                $option.prop("selected", (selectedIndex === index));
+        //            });
+
+        //            return $result;
+        //        }
+        //    });
+
+        //    jsGrid.fields.select2 = jsGrid.Select2Field = Select2Field;
+
+        //}(jsGrid, jQuery));
+
+        (function (jsGrid, $, undefined) {
+
+            var Select2Field = function (config) {
+                jsGrid.Field.call(this, config);
+            };
+
+            Select2Field.prototype = new jsGrid.Field({
+                align: "left",
+
+                itemTemplate: function (value, item) {
+                    //console.log(Select2Field);
+                    item.AccountId = accountId;
+                    //$.isNumeric(value) ? this.AccountId = value : false;
+                    //console.log(item);
+                    return value;
+                },
+
+                insertTemplate: function (value) {
+                    console.log(this.AccountId);
+                    if (!this.inserting)
+                        return "";
+                    var $result = this.insertControl = this._createSelect();
+                    this._applySelect($result, this);
+                    return $result;
+                },
+
+                editTemplate: function (value) {
+                    debugger;
+                    if (!this.editing)
+                        return this.itemTemplate(value);
+
+                    var $result = this.editControl = this._createSelect();
+                    (value !== undefined) && $result.val(value);
+
+                    this._applySelectEdit($result, this, args[3]);
+
+                    return $result;
+                },
+
+                filterValue: function () {
+                    var val = this.filterControl.text();
+                    return this.valueType === "number" ? parseInt(val || 0, 10) : val;
+                },
+
+                insertValue: function () {
+                    debugger;
+                    //this.itemTemplate(this.insertControl.val());
+                    //this.AccountId = 3434
+                    //console.log(this);
+                    var val = this.insertControl.text();
+
+                    //write select2 value in AccountId field
+                    accountId = this.insertControl.val();
+                    //console.log(this);
+                    ////
+                    //row[0].AccountName = accountId;
+                    //console.log(row);
+                    return this.valueType === "number" ? parseInt(val || 0, 10) : val;
+                },
+
+                editValue: function () {
+                    debugger;
+                    var val = this.editControl.text();
+
+                    if ($.isNumeric(this.editControl.val())) {
+                        accountId = this.editControl.val();
+                    }
+                    //this.editControl.AccountId = accountId;
+
+                    // console.log(this.editControl, 'Edit CONT');
+
+                    val = val.split(" :: GL Account");
+                    //console.log(val[0]);
+                    if (val[0]) {
+                        vals = val[0];
+                    }
+                    if (val[1]) {
+                        vals = val[1];
+                    }
+                    val = vals;
+                    return this.valueType === "number" ? parseInt(val || 0, 10) : val;
+                },
+                _applySelect: function (item, self, value) {
+                    setTimeout(function () {
+                        var selectSiteIcon = function (opt) {
+                            var img = '';
+                            try {
+                                img = opt.element.attributes.img.value;
+                            } catch (e) { }
+                            if (!opt.id || !img)
+                                return opt.text;
+                            var res = $('<span><img src="' + img + '" class="img-flag"/> ' + opt.text + '</span>');
+                            return res;
+                        }
+                        item.select2({
+                            width: "100%", //self.width,
+                            templateResult: selectSiteIcon,
+                            templateSelection: selectSiteIcon,
+                            placeholder: 'Search for a GL Account',
+                            allowClear: true,
+                            templateResult: formatOption,
+                            ajax: ({
+                                url: '/GL/Api/GetAccounts',
+                                dataType: 'json',
+                                delay: 250,
+                                processResults: function (data, params) {
+                                    return {
+                                        results: data
+                                    };
+                                },
+                                cache: true
+                            })
+                        });
+
+                        //set value on edit
+                        // Fetch the preselected item, and add to the control
+                        if (value != undefined) {
+                            debugger;
+                            // value = value + " :: GL Account";
+                            value = value;
+                            var option = new Option(value, value);
+                            option.selected = true;
+                            item.append(option).trigger('change.select2');
+                        }
+                        function formatOption(option) {
+
+                            var $option = $(
+                                '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+                            );
+
+                            return $option;
+                        };
+                    });
+                },
+
+
+                _applySelectEdit: function (item, self, value) {
+                    setTimeout(function () {
+                        var selectSiteIcon = function (opt) {
+                            var img = '';
+                            try {
+                                img = opt.element.attributes.img.value;
+                            } catch (e) { }
+                            if (!opt.id || !img)
+                                return opt.text;
+                            var res = $('<span><img src="' + img + '" class="img-flag"/> ' + opt.text + '</span>');
+                            return res;
+                        }
+                        //item.select2({
+                        //    width: "100%", //self.width,
+                        //    templateResult: selectSiteIcon,
+                        //    templateSelection: selectSiteIcon,
+                        //    placeholder: 'Search for a GL Account',
+                        //    allowClear: true,
+                        //    templateResult: formatOption,
+                        //    ajax: ({
+                        //        url: '/GL/Api/GetAccounts',
+                        //        dataType: 'json',
+                        //        delay: 250,
+                        //        processResults: function (data, params) {
+                        //            return {
+                        //                results: data
+                        //            };
+                        //        },
+                        //        cache: true
+                        //    })
+                        //});
+
+                        //set value on edit
+                        // Fetch the preselected item, and add to the control
+                        if (value != undefined) {
+
+                            // value = value + " :: GL Account";
+                            //value = value;
+                            var option = new Option(value.AccountName, value.AccountId);
+                            option.selected = true;
+                            item.append(option).trigger('change.select2');
+                        }
+                        function formatOption(option) {
+
+                            var $option = $(
+                                '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+                            );
+
+                            return $option;
+                        };
+                    });
+                },
+                _createSelect: function () {
+                    var $result = $("<select>"),
+                        valueField = this.valueField,
+                        textField = this.textField,
+                        imgField = this.imgField,
+                        selectedIndex = this.selectedIndex;
+
+                    $.each(this.items, function (index, item) {
+                        var value = valueField ? item[valueField] : index,
+                            text = textField ? item[textField] : item,
+                            img = imgField ? item[imgField] : '';
+
+                        var $option = $("<option>")
+                            .attr("value", value)
+                            .attr("img", img)
+                            .text(text)
+                            .appendTo($result);
+
+                        $option.prop("selected", (selectedIndex === index));
+                    });
+
+                    return $result;
+                }
+            });
+
+            jsGrid.fields.select2 = jsGrid.Select2Field = Select2Field;
+
+        }(jsGrid, jQuery));
+
+        $(function () {
+            var subaccount =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubAccount));
+            //var subaccount = [];
+            var subaccounts =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubAccounts));
+          //  var subaccounts = [];
+            var costcenters =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Costcenters));
+          //  var costcenters = [];
+            var departments = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Departments));
+            var SubDepartments = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SubDepartments));
+            var RequireCostCenter = 0;
+            //var subaccounts = "";
+
+            $("#jsGrid").jsGrid({
+                height: "90%",
+                // width: "100%",
+                width: "100%",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: true,
+                inserting: true,
+                css: "",
+                pageSize: 15,
+                pageButtonCount: 5,
+                scroll: true,
+
+                deleteConfirm: "Do you really want to delete?",
+
+                controller: db,
+                onDataLoaded: function (arg) {
+                    updateVoucherTotal();
+                    // updateDrop();
+                },
+                onItemInserted: function (arg) {
+                    updateVoucherTotal();
+                },
+                /*
+                onItemUpdating: function (arg) { //check if Debit/Credit have 0 value
+                    //var rows = $("#jsGrid").jsGrid("option", "data");
+                    //arg.cancel = true;
+
+                },*/
+                onItemUpdated: function (arg) {
+                    updateVoucherTotal();
+                },
+                onItemDeleted: function (arg) {
+                    var deletedId = $("input[name=DeletedVoucherDetail]").val();
+                    if (deletedId == "")
+                        $("input[name=DeletedVoucherDetail]").val(arg.item.Id);
+                    else {
+                        $("input[name=DeletedVoucherDetail]").val(deletedId.concat(",", arg.item.Id));
+                    }
+                    updateVoucherTotal();
+                },
+                fields: [
+                    { name: "Id", type: "text", width: 0, visible: false },
+                    {
+                        name: "Sequence", title: "Seq", width: 30, type: "disabled", validate: "required", align: "center", sorter: "number",
+                        insertTemplate: function () {
+                            var input = this.__proto__.insertTemplate.call(this);
+                            input.val(getNewSequence());
+                            return input;
+                        }
+                    },
+                    /* {
+                         name: "AccountId", type: "text",css:"hide1",
+                         insertValue: function () {
+                             //alert(accountId);
+                             return accountId;
+                         },
+                         editValue: function () {
+                             return accountId;
+                         }
+                     },*/
+
+                    {
+                        name: "AccountName", title: "Account Name", width: 250, type: "select2", validate: "required", display: "AccountName",
+                        insertTemplate: function (value, item) {
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+                            debugger
+                            input.on("change", function () {
+                                var description = $('#Description').val();
+                                grid.fields[10].insertControl[0].value = description;
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubaccounts?id=' + input.val()
+                                }).then(function (data) {
+                                    debugger;
+                                    grid.fields[3].insertControl.empty();
+                                    grid.fields[3].insertControl.append($("<option />").val(0).text(" "));
+
+                                    if (data.length != 0) {
+                                        debugger;
+                                        if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                                            RequireSubaccount = 1;
+                                            for (var i = 0; i < data.length; i++) {
+
+                                                grid.fields[3].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                            }
+                                        }
+                                        else {
+                                            debugger;
+                                            RequireSubaccount = 0;
+                                        }
+
+                                        if (data[0].requireCostCenter == false) {
+                                            debugger;
+                                            RequireCostCenter = 0;
+
+                                            grid.fields[4].insertControl.empty();
+                                            grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                                            grid.fields[5].insertControl.empty();
+                                            grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                            grid.fields[6].insertControl.empty();
+                                            grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                                            if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                                                debugger;
+                                                RequireSubaccount = 1;
+                                                //grid.fields[3].insertControl.trigger('focus');
+                                            }
+                                            // grid.fields[7].insertControl.focus();
+                                            /// grid.fields[8].insertControl.focus();
+
+                                        } else {
+                                            debugger;
+                                            RequireCostCenter = 1;
+                                            if (departments != null) {
+                                                grid.fields[4].insertControl.empty();
+                                               // grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+                                                for (var i = 0; i < departments.length; i++) {
+                                                    grid.fields[4].insertControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                                                }
+                                            }
+                                            grid.fields[5].insertControl.empty();
+                                            grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                            grid.fields[6].insertControl.empty();
+                                            grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                                            if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                                                debugger;
+                                                RequireSubaccount = 1;
+                                                //grid.fields[3].insertControl.trigger('focus');
+                                            }
+                                            else {
+                                                debugger;
+                                                RequireSubaccount = 0;
+                                                //grid.fields[4].insertControl.trigger('focus');
+                                            }
+                                        }
+
+                                    } else {
+                                        debugger;
+                                        requireSubAccount = 0;
+                                        //grid.fields[4].insertControl.empty();
+                                        //grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                                        //grid.fields[5].insertControl.empty();
+                                        //grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                        //grid.fields[6].insertControl.empty();
+                                        //grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+                                        if (requireCostCenter == 1) {
+                                            debugger;
+                                            grid.fields[4].insertControl.trigger('focus');
+                                        } else {
+                                            debugger;
+                                            grid.fields[8].insertControl.trigger('focus');
+                                        }
+
+                                    }
+
+                                });
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/api/GetAccountById?id=' + input.val()
+                                }).then(function (data) {
+                                    debugger;
+                                    grid.fields[2].insertControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+
+                                    if (data != undefined) {
+
+                                        grid.fields[2].insertControl.append($("<option />").val(data.id).text(data.text));
+                                    }
+
+                                    grid.fields[6].insertControl.empty();
+                                    grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                                    if (data.requireCostCenter == false) {
+                                        debugger;
+
+                                        grid.fields[4].insertControl.empty();
+                                        grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[5].insertControl.empty();
+                                        grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[6].insertControl.empty();
+                                        grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                                        RequireCostCenter = 0;
+                                        if (data.requireSubAccount == 1) {
+                                            debugger;
+                                            grid.fields[3].insertControl.trigger('focus');
+                                        } else {
+                                            debugger;
+                                            grid.fields[8].insertControl.trigger('focus');
+                                        }
+
+                                    }
+                                    else {
+
+                                        debugger;
+                                        RequireCostCenter = 1;
+                                        if (departments != null) {
+                                            grid.fields[4].insertControl.empty();
+                                            //grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+                                            for (var i = 0; i < departments.length; i++) {
+                                                grid.fields[4].insertControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                                            }
+                                        }
+                                        grid.fields[5].insertControl.empty();
+                                        grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[6].insertControl.empty();
+                                        grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+                                        if (data.requireSubAccount == 1) {
+                                            debugger;
+                                            grid.fields[3].insertControl.trigger('focus');
+                                        } else {
+                                            debugger;
+                                            grid.fields[4].insertControl.trigger('focus');
+                                        }
+
+                                    }
+
+                                });
+
+
+                                /////////////
+
+                            });
+                            ////
+                            //$.ajax({
+                            //    type: 'GET',
+                            //    url: '/GL/Api/GetAccount?id=' + input.val()
+                            //}).then(function (data) {
+                            //    //
+                            //    var option = new Option(data.text, data.id);
+                            //    option.selected = true;
+                            //    grid.fields[3].insertControl.append(option).trigger('change.select2');
+                            //});
+                            // input.val('');
+                            return input;
+                        },
+                        editTemplate: function () { //Default Value for Category
+
+                            //var args = "";
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // accountDesc = args;
+                            //accId = item.AccountName.val();
+
+
+                            input.on("change", function () {
+                                var description = $('#Description').val();
+                                grid.fields[10].insertControl[0].value = description;
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubaccounts?id=' + input.val()
+                                }).then(function (data) {
+                                    grid.fields[3].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+
+                                    if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                                        for (var i = 0; i < data.length; i++) {
+
+                                            grid.fields[3].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                        }
+                                    }
+                                    if (data[0].requireCostCenter == false) {
+                                        RequireCostCenter = 0;
+                                        grid.fields[4].editControl.empty();
+                                        grid.fields[4].editControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[5].editControl.empty();
+                                        grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[6].editControl.empty();
+                                        grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[7].editControl;
+                                    } else {
+                                        RequireCostCenter = 1;
+                                        if (departments != null) {
+                                            grid.fields[4].editControl.empty();
+                                            grid.fields[4].editControl.append($("<option />").val(0).text(" "));
+                                            for (var i = 0; i < departments.length; i++) {
+                                                grid.fields[4].editControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                                            }
+                                        }
+                                        grid.fields[5].editControl.empty();
+                                        grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+
+                                        grid.fields[6].editControl.empty();
+                                        grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+
+                                    }
+                                });
+                                //$.ajax({
+                                //    type: 'GET',
+                                //    url: '/GL/api/GetAccount?id=' + input.val()
+                                //}).then(function (data) {
+                                //    debugger;
+                                //    //grid.fields[2].insertControl.empty();
+                                //    grid.fields[3].insertControl.empty();
+                                //    grid.fields[3].insertControl.append($("<option />").val(0).text(" "));
+
+                                //    if (data != undefined) {
+
+                                //        grid.fields[2].insertControl.append($("<option />").val(data.id).text(data.text));
+                                //    }
+
+                                //});
+
+                            });
+                            return input;
+                        },
+                        //insertTemplate: function (value, item) {
+
+                        //    var input = this.__proto__.insertTemplate.call(this);
+                        //    var grid = this._grid;
+                        //    input.on("change", function () {
+
+                        //        var description = $('#Description').val();
+                        //        grid.fields[10].insertControl[0].value = description;
+                        //        //accId = input.val();
+                        //        $.ajax({
+                        //            type: 'GET',
+                        //            url: '/GL/Voucher/GetSubaccounts?id=' + input.val()
+                        //        }).then(function (data) {
+
+
+                        //            grid.fields[3].insertControl.empty();
+                        //            grid.fields[3].insertControl.append($("<option />").val(0).text(" "));
+
+                        //            if (data.length != 0) {
+                        //                if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                        //                    for (var i = 0; i < data.length; i++) {
+
+                        //                        grid.fields[3].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                        //                    }
+                        //                }
+                        //                if (data[0].requireCostCenter == false) {
+                        //                    RequireCostCenter = 0;
+                        //                    grid.fields[4].insertControl.empty();
+                        //                    grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                    grid.fields[5].insertControl.empty();
+                        //                    grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                    grid.fields[6].insertControl.empty();
+                        //                    grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                    grid.fields[8].insertControl.trigger('focus');
+                        //                } else {
+                        //                    RequireCostCenter = 1;
+                        //                    if (departments != null) {
+                        //                        grid.fields[4].insertControl.empty();
+                        //                        grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+                        //                        for (var i = 0; i < departments.length; i++) {
+                        //                            grid.fields[4].insertControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                        //                        }
+                        //                    }
+                        //                    grid.fields[5].insertControl.empty();
+                        //                    grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                    grid.fields[6].insertControl.empty();
+                        //                    grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+                        //                    if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                        //                        debugger;
+                        //                        grid.fields[3].insertControl.trigger('focus');
+                        //                    } else {
+                        //                        grid.fields[8].insertControl.trigger('focus');
+                        //                    }
+
+                        //                }
+
+                        //            } else {
+
+                        //                if (requireCostCenter == 1) {
+                        //                    grid.fields[4].insertControl.trigger('focus');
+                        //                } else {
+                        //                    grid.fields[8].insertControl.trigger('focus');
+                        //                }
+                        //            }
+
+                        //        });
+
+                        //        $.ajax({
+                        //            type: 'GET',
+                        //            url: '/GL/api/GetAccountById?id=' + input.val()
+                        //        }).then(function (data) {
+                        //            debugger;
+                        //            grid.fields[2].insertControl.empty();
+                        //            //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+
+                        //            if (data != undefined) {
+
+                        //                grid.fields[2].insertControl.append($("<option />").val(data.id).text(data.text));
+                        //            }
+
+                        //            grid.fields[6].insertControl.empty();
+                        //            grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                        //            if (data.requireCostCenter == false) {
+                        //                debugger;
+                        //                RequireCostCenter = 0;
+                        //                grid.fields[8].insertControl.trigger('focus');
+
+                        //            } else {
+
+                        //                debugger;
+                        //                RequireCostCenter = 1;
+                        //                if (departments != null) {
+                        //                    grid.fields[4].insertControl.empty();
+                        //                    grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+                        //                    for (var i = 0; i < departments.length; i++) {
+                        //                        grid.fields[4].insertControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                        //                    }
+                        //                }
+                        //                grid.fields[5].insertControl.empty();
+                        //                grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                grid.fields[6].insertControl.empty();
+                        //                grid.fields[6].insertControl.append($("<option />").val(0).text(" "));
+
+                        //                grid.fields[4].insertControl.trigger('focus');
+                        //            }
+
+                        //        });
+
+                        //        /////
+                        //    });
+
+                        //    return input;
+                        //},
+                        //editTemplate: function () { //Default Value for Category
+                        //    debugger;
+                        //    //var args = "";
+                        //    var input = this.__proto__.editTemplate.call(this);
+                        //    var grid = this._grid;
+                        //    // accountDesc = args;
+                        //    //accId = item.AccountName.val();
+                        //    input.on("change", function () {
+                        //        var description = $('#Description').val();
+                        //        grid.fields[10].insertControl[0].value = description;
+                        //        $.ajax({
+                        //            type: 'GET',
+                        //            url: '/GL/Voucher/GetSubaccounts?id=' + input.val()
+                        //        }).then(function (data) {
+                        //            grid.fields[3].editControl.empty();
+                        //            //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+
+                        //            if (data[0].id != 0 && data[0].requireSubAccount == true) {
+                        //                for (var i = 0; i < data.length; i++) {
+
+                        //                    grid.fields[3].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                        //                }
+                        //            }
+                        //            if (data[0].requireCostCenter == false) {
+                        //                RequireCostCenter = 0;
+                        //                grid.fields[4].editControl.empty();
+                        //                grid.fields[4].editControl.append($("<option />").val(0).text(" "));
+
+                        //                grid.fields[5].editControl.empty();
+                        //                grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+
+                        //                grid.fields[6].editControl.empty();
+                        //                grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+                        //                grid.fields[7].editControl.focus();
+                        //            } else {
+                        //                RequireCostCenter = 1;
+                        //                if (departments != null) {
+                        //                    grid.fields[4].editControl.empty();
+                        //                    grid.fields[4].editControl.append($("<option />").val(0).text(" "));
+                        //                    for (var i = 0; i < departments.length; i++) {
+                        //                        grid.fields[4].editControl.append($("<option />").val(departments[i].Id).text(departments[i].Name));
+                        //                    }
+                        //                }
+                        //                grid.fields[5].editControl.empty();
+                        //                grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+
+                        //                grid.fields[6].editControl.empty();
+                        //                grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+                        //            }
+
+                        //        });
+
+                        //    });
+                        //    return input;
+                        //},
+                    },
+                    {
+                        name: "SubAccountIdName", title: "Sub Account", width: 100, type: "select", items: subaccounts, validate: "required", valueField: "Id", textField: "Description"
+                        , insertTemplate: function () {
+
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+
+                            input.on("change", function () {
+                                if (RequireCostCenter == 1) {
+                                    grid.fields[4].insertControl.trigger('focus');
+                                } else {
+                                    grid.fields[8].insertControl.trigger('focus');
+                                }
+
+                            });
+                            return input;
+                        }
+                        , editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            var appFee = grid.fields[4].insertControl.val();
+                            var SubAccountIdName = input.val();
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubaccountById?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[3].editControl.empty();
+                                    grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[3].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].description));
+                                    }
+                                });
+                            }
+                            else {
+                                grid.fields[3].editControl.empty();
+                                grid.fields[3].insertControl.append($("<option />").val(0).text(" "));
+                            }
+                            return input;
+                        },
+                    },
+
+                    //department
+                    {
+                        name: "DepartmentId", title: "Department", width: 100, type: "select", items: departments, validate: "required", valueField: "Id", textField: "Name",
+                        insertTemplate: function () {
+
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartment?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[5].insertControl.empty();
+                                    //  grid.fields[5].insertControl.append($("<option />").val(0).text("N/A"));
+                                    grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+
+                                    for (var i = 0; i < data.length; i++) {
+
+
+                                        grid.fields[5].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartment?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[5].editControl.empty();
+                                    grid.fields[5].editControl.append($("<option />").val(0).text(" "));
+                                    // grid.fields[5].editControl.append($("<option />").val(0).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        grid.fields[5].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+
+                            });
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetDepartmentById?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[4].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[4].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].name));
+                                    }
+                                });
+                            } else {
+                                grid.fields[4].editControl.empty();
+                                grid.fields[4].insertControl.append($("<option />").val(0).text(" "));
+
+                            }
+                            return input;
+                        },
+                    },
+
+                    //Sub Depart
+                    {
+                        name: "SubDepartmentId", title: "Sub Depart", width: 100, type: "select", items: SubDepartments, validate: "required", valueField: "Id", textField: "Name",
+
+                        insertTemplate: function () {
+
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCentersBySubdiv?id=' + input.val()
+                                }).then(function (data) {
+
+                                    if (RequireCostCenter != 0) {
+                                        grid.fields[6].insertControl.empty();
+                                        grid.fields[6].insertControl.append($("<option />").val(0).text(""));
+                                        for (var i = 0; i < data.length; i++) {
+                                            grid.fields[6].insertControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                        }
+                                    }
+
+                                });
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCentersBySubdiv?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[6].editControl.empty();
+                                    grid.fields[6].editControl.append($("<option />").val(0).text(""));
+                                    for (var i = 0; i < data.length; i++) {
+
+                                        grid.fields[6].editControl.append($("<option />").val(data[i].id).text(data[i].description));
+                                    }
+                                });
+
+                            });
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetSubDepartmentById?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[5].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[5].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].name));
+                                    }
+                                });
+                            }
+                            else {
+                                grid.fields[5].editControl.empty();
+                                grid.fields[5].insertControl.append($("<option />").val(0).text(" "));
+                            }
+                            return input;
+                        },
+
+
+                    },
+
+                    //Cost Center
+                    // { name: "CostCenterName", title: "Cost Center", width: 100, type: "select", items: costcenters, validate: "required", valueField: "Id", textField: "Description" },
+                    {
+                        name: "CostCenterName", title: "Cost Center", width: 100, type: "select", items: costcenters, validate: [
+                            "required",
+                            /* { validator: "min", param: 0, message: "Credit amount should be greater than or equal to 0" },*/
+                            function (value, item) {
+                                //var input = this.__proto__.editTemplate.call(this);
+                                //var grid = this._grid;
+
+                                if (RequireCostCenter != 0 && item.CostCenterName == 0) {
+                                    swal("", "Select Cost Center..!", "warning");
+                                    return;
+                                }
+                                //if (item.SubAccountIdName != 0) {
+                                //    $.ajax({
+                                //        type: 'GET',
+                                //        url: '/GL/Voucher/GetCostCenters?id=' + input.val()
+                                //    }).then(function (data) {
+                                //        
+                                //        grid.fields[6].editControl.empty();
+                                //       // grid.fields[6].editControl.append($("<option />").val(0).text("N/A"));
+                                //        for (var i = 0; i < data.length; i++) {
+
+                                //            grid.fields[6].editControl.append($("<option />").val(data[i].id).text(data[i].code));
+                                //        }
+                                //    });
+                                //}
+                                return 1;
+                            }
+                        ], valueField: "Id", textField: "Description",
+                        editTemplate: function (args) { //Default Value for Category
+
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            if (args != 0) {
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + args
+                                }).then(function (data) {
+
+
+                                    grid.fields[6].editControl.empty();
+                                    //  grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+                                        // grid.fields[3].insertControl.append($("<option />").val(1).text("N/A"));
+                                        grid.fields[6].editControl.append($("<option />").val(parseInt(data[i].id)).text(data[i].description));
+                                    }
+                                });
+                            } else {
+                                grid.fields[6].editControl.empty();
+                                grid.fields[6].editControl.append($("<option />").val(0).text(" "));
+                            }
+                            input.on("change", function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/GL/Voucher/GetCostCenters?id=' + input.val()
+                                }).then(function (data) {
+
+                                    grid.fields[6].editControl.empty();
+                                    //  grid.fields[6].editControl.append($("<option />").val(0).text("N/A"));
+                                    for (var i = 0; i < data.length; i++) {
+
+                                        grid.fields[6].editControl.append($("<option />").val(data[i].id).text(data[i].code));
+                                    }
+                                });
+
+                            });
+                            return input;
+                        },
+                    },
+
+                    //Sub Account
+                    { name: "SubAccountId", title: "Sub Account", width: 0, visible: false, type: "select", validate: "required", items: db.subaccounts, valueField: "value", textField: "Text" },
+                    {
+                        name: "Debit", type: "text", width: 120,
+                        //validate: [
+                        //    "required",
+                        //    { validator: "min", param: 0, message: "Debit amount should be greater than or equal to 0" }
+                        //    , function (value, item) {
+                        //        //var input = this.__proto__.editTemplate.call(this);
+                        //        //var grid = this._grid;
+
+                        //        var dbt = "'" + item.Debit + "'";
+                        //        // alert(dbt);
+                        //        if (dbt.length > 14) {
+                        //            swal("", "Debit should be less than 12 digits", "warning");
+                        //            return;
+                        //        }
+
+                        //        return 1;
+                        //    }
+                        //],
+                        //insertTemplate: function () { //Debit default value 0
+
+                        //    var input = this.__proto__.insertTemplate.call(this);
+                        //    input.val(0);
+                        //    return input;
+                        //},
+                        insertTemplate: function (args) { //Default Value for Category
+                            debugger;
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            input.on('keypress', function (e) {
+                                return isNumberKey(e);
+                            });
+                            input.on("change", function () {
+                                debugger;
+                                var description = $('#Description').val();
+                                var olddebit = grid.fields[8].insertControl.val();
+                                if (olddebit != undefined && olddebit != "") {
+                                    var newdebit = addCommas(olddebit);
+                                    grid.fields[8].insertControl[0].value = newdebit;
+                                    grid.fields[9].insertControl[0].value = 0;
+                                    //grid.fields[6].insertControl[0].value = description;
+                                    if (newdebit.length > 15) {
+                                        swal("", "Debit should be less than 12 digits", "warning");
+                                        grid.fields[8].insertControl[0].value = 0;
+                                        return;
+                                    }
+                                }
+
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+                            debugger;
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+
+                            input.on("change", function () {
+                                debugger;
+                                var description = $('#Description').val();
+                                var olddebit = grid.fields[8].editControl.val();
+                                // var exRate = grid.fields[7].editControl.val();
+                                if (olddebit != undefined && olddebit != "") {
+                                    var newDebit = addCommas(olddebit);
+                                    grid.fields[8].editControl[0].value = addCommas(newDebit);
+                                    grid.fields[9].editControl[0].value = 0;
+                                    //grid.fields[6].insertControl[0].value = description;
+                                    if (newDebit.length > 15) {
+                                        swal("", "Debit should be less than 12 digits", "warning");
+                                        grid.fields[8].editControl[0].value = 0;
+                                        return;
+                                    }
+                                }
+
+                            });
+                            return input;
+                        },
+                        //insertValue: function () {
+
+                        //    return parseFloat(this.insertControl.val() || 0);
+                        //},
+
+                        //editValue: function () {
+
+                        //    return parseFloat(this.editControl.val() || 0);
+                        //}
+                    },
+                    {
+                        name: "Credit", type: "text", width: 120, textAlign: 'Right',
+                        //validate: [
+                        //    "required",
+                        //    { validator: "min", param: 0, message: "Credit amount should be greater than or equal to 0" },
+                        //    function (value, item) {
+
+                        //        var dbt = "'" + item.Debit + "'";
+                        //        // alert(dbt);
+                        //        if (dbt.length > 14) {
+                        //            swal("", "Debit should be less than 12 digits", "warning");
+                        //            return;
+                        //        }
+
+                        //        if (item.Debit != 0 && item.Credit != 0) {
+                        //            swal("", "Only Debit or Credit should have value'", "warning");
+
+                        //            return;
+                        //        }
+                        //        else if (item.Debit == 0 && item.Credit == 0) {
+                        //            swal("", "Debit or Credit should have value", "warning");
+
+                        //            return;
+                        //        }
+                        //        return 1;
+                        //    }
+                        //],
+                        insertTemplate: function (args) { //Default Value for Category
+
+                            debugger;
+                            var input = this.__proto__.insertTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+                            input.on('keypress', function (e) {
+                                return isNumberKey(e);
+                            });
+                            input.on("change", function () {
+                                debugger;
+                                var description = $('#Description').val();
+                                var oldcredit = grid.fields[9].insertControl.val();
+                                // var exRate = grid.fields[8].insertControl.val();
+
+                                if (oldcredit != undefined && oldcredit != "") {
+                                    var newcredit = addCommas(oldcredit);
+
+                                    grid.fields[9].insertControl[0].value = newcredit;
+                                    grid.fields[8].insertControl[0].value = 0;
+                                    //grid.fields[6].insertControl[0].value = description;
+                                    if (newcredit.length > 15) {
+                                        swal("", "Credit should be less than 12 digits", "warning");
+                                        grid.fields[9].insertControl[0].value = 0;
+                                        return;
+                                    }
+
+                                }
+
+                            });
+                            return input;
+                        },
+                        editTemplate: function (args) { //Default Value for Category
+                            debugger;
+                            var input = this.__proto__.editTemplate.call(this);
+                            var grid = this._grid;
+                            // var appFee = grid.fields[4].insertControl.val();
+
+                            input.on("change", function () {
+                                debugger;
+                                var description = $('#Description').val();
+                                var oldcredit = grid.fields[9].editControl.val();
+                                // var exRate = grid.fields[7].editControl.val();
+                                if (oldcredit != undefined && oldcredit != "") {
+                                    var newcredit = addCommas(oldcredit);
+
+                                    grid.fields[9].editControl[0].value = addCommas(newcredit);
+                                    grid.fields[8].editControl[0].value = 0;
+                                    //grid.fields[6].insertControl[0].value = description;
+                                    if (newcredit.length > 15) {
+                                        swal("", "Credit should be less than 12 digits", "warning");
+                                        grid.fields[9].editControl[0].value = 0;
+                                        return;
+                                    }
+                                }
+
+                            });
+                            return input;
+                        },
+                        //insertValue: function () {
+                        //    return parseFloat(this.insertControl.val() || 0);
+                        //},
+
+                        //editValue: function () {
+                        //    return parseFloat(this.editControl.val() || 0);
+                        //}
+                    },
+                    {
+                        name: "Description", type: "text", width: 200,
+                        //validate: [
+                        //    function (value, item) {
+                        //        //var input = this.__proto__.editTemplate.call(this);
+                        //        //var grid = this._grid;
+                                
+                        //        if (item.Description.length > 30) {
+                        //            swal("", "Description should be less than 30 Words", "warning");
+                        //            return;
+                        //        }
+
+                        //        return 1;
+                        //    }
+                        //]
+                        insertTemplate: function () {
+                            var input = this.__proto__.insertTemplate.call(this);
+                            input.val($("textarea[name=Description").val());
+                            input.attr("maxlength", $("textarea[name=Description").attr('maxlength'));
+                            return input;
+
+                        },
+                        editTemplate: function (value, data) {
+                            var input = this.__proto__.editTemplate.call(this);
+                            input.val(value);
+                            input.attr("maxlength", $("textarea[name=Description").attr('maxlength'));
+                            return input;
+                        }
+                    },
+
+                   // { name: "SubAccountIds", title: "Sub Account Id", width: 0, visible: false, type: "select", validate: "required", items: db.subaccounts, valueField: "id", textField: "name" },
+                   // { name: "CostCenterId", title: "Cost Center Id", width: 0, visible: false, type: "select", validate: "required", items: db.subaccounts, valueField: "id", textField: "name" },
+                    { type: "control" }
+                ]
+            });
+        });
+
+        function getNewSequence() {
+           // if (seqId != 10) { //get value of last Seq from db
+            if (seqId != 1) { //get value of last Seq from db
+                var newSeq = seqId;
+              //  seqId = 10;  //set to default 10 so that it calculate dynamically
+                seqId = 1;  //set to default 10 so that it calculate dynamically
+                return newSeq;
+            }
+            var rows = $("#jsGrid").jsGrid("option", "data");
+            var lastrow = rows.length - 1;
+            if (lastrow == -1)
+              //  return 10;
+                return 1;
+            var newSeq = rows[lastrow]["Sequence"];
+          //  newSeq = newSeq + 10;
+            newSeq = newSeq + 1;
+            return newSeq;
+        }
+
+        var NumberField3 = jsGrid.NumberField;
+
+        function DisabledField(config) {
+            NumberField3.call(this, config);
+        }
+
+        DisabledField.prototype = new NumberField3({
+            min: 0,
+            _createTextBox: function () {
+                return $("<input>").attr({
+                    type: "text",
+                    min: this.min, disabled: true
+                });
+            }
+        });
+
+        jsGrid.fields.disabled = jsGrid.DisabledField = DisabledField;
+        //function updateVoucherTotal() {
+            
+        //    var debit = 0;
+        //    var credit = 0;
+        //    var rows = $("#jsGrid").jsGrid("option", "data");
+        //    var length = rows.length;
+        //    for (var i = 0; i < length; i++) {
+        //        var row = rows[i];
+        //        debit += parseFloat(row["Debit"]);
+        //        credit += parseFloat(row["Credit"]);
+        //    }
+        //    $("#TotalDebit").html(Math.round((debit)*100)/100);
+        //    $("#TotalCredit").html(Math.round((credit)*100)/100);
+        //    var difference = Math.round((debit - credit)*100)/100;
+        //    $("#TotalDifference").html(difference);
+        //}
+
+        ////function updateVoucherTotal() {
+        ////    debugger;
+        ////    var debit = 0;
+        ////    var credit = 0;
+        ////    var rows = $("#jsGrid").jsGrid("option", "data");
+        ////    var length = rows.length;
+        ////    for (var i = 0; i < length; i++) {
+        ////        var row = rows[i];
+        ////        debit += parseFloat(removeComma(row["Debit"]));
+        ////        credit += parseFloat(removeComma(row["Credit"]));
+        ////    }
+        ////    $("#TotalDebit").html(Math.round((debit) * 100) / 100);
+        ////    $("#TotalCredit").html(Math.round((credit) * 100) / 100);
+        ////    var difference = Math.round((debit - credit) * 100) / 100;
+        ////    $("#TotalDifference").html(difference);
+        ////}
+
+        function updateVoucherTotal() {
+            debugger;
+            var debit = 0;
+            var credit = 0;
+            var rows = $("#jsGrid").jsGrid("option", "data");
+            var length = rows.length;
+            for (var i = 0; i < length; i++) {
+                var row = rows[i];
+                debit += parseFloat(removeComma(row["Debit"]));
+                credit += parseFloat(removeComma(row["Credit"]));
+            }
+            var ndebit = addCommas(Math.round((debit) * 100) / 100);
+            var ncredit = addCommas(Math.round((credit) * 100) / 100);
+            $("#TotalDebit").html(ndebit);
+            $("#TotalCredit").html(ncredit);
+            var difference = Math.round((debit - credit) * 100) / 100;
+            $("#TotalDifference").html(difference);
+        }
+
+        function updateDrop() {
+           
+            var debit = 0;
+            var credit = 0;
+            var rows = $("#jsGrid").jsGrid("option", "data");
+            var length = rows.length;
+            for (var i = 0; i < length; i++) {
+                var row = rows[i];
+                debit += parseFloat(row["Debit"]);
+                credit += parseFloat(row["Credit"]);
+            }
+            $("#TotalDebit").html(Math.round((debit) * 100) / 100);
+            $("#TotalCredit").html(Math.round((credit) * 100) / 100);
+            var difference = Math.round((debit - credit) * 100) / 100;
+            $("#TotalDifference").html(difference);
+        }
+        function submitVoucher() {
+            $("#buttonType").val("Save");
+            var items = $("#jsGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=VoucherDetail]").val(json); //set JS tree data to hidden field
+
+            if (!validate(items))
+                return false;
+            else
+                return true;
+
+        }
+        function submitVoucherNew() {
+
+            $("#buttonType").val("SaveNew");
+            var items = $("#jsGrid").jsGrid("option", "data");
+
+            var json = JSON.stringify(items);
+            $("input[name=VoucherDetail]").val(json); //set JS tree data to hidden field
+
+            if (!validate(items))
+                return false;
+            else
+                return true;
+
+        }
+        function validate(items) {
+            var returnVal = true;
+            if (items.length <= 1) { //must have Debit and Credit line index starts from 0
+                toasterMessage(true, "Voucher invalid", "Voucher must have Debit and Credit entry");
+                return false;
+            }
+            if (parseFloat($("#TotalDifference").html()) != 0) {
+                toasterMessage(true, "Voucher invalid", "Voucher Debit and Credit sides must be equal");
+                return false;
+            }
+
+            return returnVal;
+        }
+        $.validate();
+        /*
+        var form = $('form[name=Voucher]');
+        $(form).submit(function (event) {
+            event.preventDefault();
+            submit(form);
+        });
+        */
+
+        function addCommas(nStr) {
+            nStr = removeComma(nStr);
+            nStr += '';
+            var x = nStr.split('.');
+            var x1 = x[0];
+            var x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
+
+        function removeComma(num) {
+            debugger;
+            var isNumeric = Number.isInteger(num);
+            if (!isNumeric) {
+                if (num != "") {
+                    var temp1 = num;
+                    for (i = 1; i <5; i++) {
+                        // pick limit high enough to find all possible commas
+                        temp1 = temp1.replace(",", "");
+                    }
+                    return temp1;
+                } else {
+                    return 0;
+                }
+            }
+            return num;
+        }
+
+        $('.custom-file-input').on('change', function () {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        });
+
+                $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+
+             var model = @Model.Id;
+            if (model == 0) {
+
+                $("#currency").val("PKR");
+            }
+            
+            $(".jsgrid-mode-button").click();
+
+
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            
+            //function myFunction() {
+            //    var elmnt = document.getElementById("#jsGridDiv");
+            //    var x = elmnt.scrollLeft;
+            //    var y = elmnt.scrollTop;
+            //    document.getElementById("#jsGrid").innerHTML = "Horizontally: " + x + "px<br>Vertically: " + y + "px";
+            //}
+
+            $(".jsgrid-grid-header").css("overflow-x", "scroll");
+
+        });
+    </script>
+
+    <script>
+
+        $('#VoucherDate').change(function () {
+
+            $('#Reference').focus();
+            
+        });
+        
+        function check(form) {
+            
+            var chk = 1;
+            var SubAccount = $("#Nic").val();
+            var Department = $("#dateofbirth").val();
+            var SubDepartment = $("#dateofjoining").val();
+            var CostCenter = $("#firstpay").val();
+
+            //alert(chk);
+            //alert(Departmentid);
+            //alert(designation);
+
+            if (SubAccount == "") {
+
+                $.notify("Please Fill CNIC Field", "error");
+                chk = 0;
+            }
+            if (Department == "0001-01-01") {
+
+                chk = 0;
+                $.notify("Please Fill Date of Birth Field", "error");
+            }
+            if (SubDepartment == "0001-01-01") {
+                chk = 0;
+                $.notify("Please Fill Date of Joining Field", "error");
+            }
+            if (CostCenter == 0) {
+
+                chk = 0;
+                $.notify("Please Fill Department Field", "error");
+            }
+
+            if (chk == 0) {
+                return false;
+            }
+            else {
+                return true;
+            }
+
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            debugger
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+}

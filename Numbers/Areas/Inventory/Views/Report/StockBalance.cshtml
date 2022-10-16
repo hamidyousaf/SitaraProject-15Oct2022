@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewData["Title"] = "Stock Balance";
+    ViewData["CurrentPage"] = "Stock Balance";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="col-lg-12">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="report" class="form-horizontal" method="post">
+                        <input type="hidden" name="ReportTitle" value="StockBalance" />
+                        <input type="hidden" name="CompanyName" value="@companyName" />
+                        <input type="hidden" name="CompanyId" value="@companyId" />
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="row">
+                                    <div class="col-lg-6 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Start Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-sm-6">
+                                        <div class="form-group">
+                                            <label>End Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5 col-sm-6">
+                                <div class="form-group">
+                                    <label>Select Items wise</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Items" id="Items" class="form-control" multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-sm-6 col-lg-offset-1">
+                                <div class="form-group">
+                                    <label>Select Categories wise</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Categories" id="Categories" class="form-control" multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-5 col-sm-6">
+                                <div class="form-group">
+                                    <label>Select Manufactures wise</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="Manufacturers" id="Manufacturers" class="form-control" multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="text-left">
+                                <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+<script>
+
+    var byItems = $('select[name="Items"]').bootstrapDualListbox({
+            selectorMinimalHeight: 160
+    });
+    //displays GetItems in dual-list-box
+        $.get('/Inventory/Api/GetItems').done(function (e) {    Console.log("get items ==>", e);
+            var html = '';
+            $.each(e, function (i, e) {
+            html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+        });
+            $('select[name="Items"]').html(html);
+            byItems.bootstrapDualListbox('refresh');
+        });
+
+
+    //category-wise
+    var byCategories = $('select[name="Categories"]').bootstrapDualListbox({
+            selectorMinimalHeight: 160
+    });
+    //displays GetCategories in dual-list-box
+    $.get('/Inventory/Api/GetCategories').done(function (e) {
+        var html = '';
+        $.each(e, function (i, e) {
+            html += '<option selected value="' + e.value + '"> ' + e.text + '</option>'
+        });
+            $('select[name="Categories"]').html(html);
+            $('select[name="Categories"]').find("option").eq(0).remove();//this removes 1st option in selectList
+            byCategories.bootstrapDualListbox('refresh');
+        });
+
+     //manufacture-wise
+     var byManufactures = $('select[name="Manufacturers"]').bootstrapDualListbox({
+            selectorMinimalHeight: 160
+    });
+    //displays GetManufactures in dual-list-box
+        $.get('/Inventory/Api/GetManufactures').done(function (e) {
+        var html = '';
+        $.each(e, function (i, e) {
+            html += '<option selected value="'+e.id+'"> '+e.text+'</option>'
+        });
+            $('select[name="Manufacturers"]').html(html);
+            byManufactures.bootstrapDualListbox('refresh');
+        });
+</script>
+
+
+
+
+

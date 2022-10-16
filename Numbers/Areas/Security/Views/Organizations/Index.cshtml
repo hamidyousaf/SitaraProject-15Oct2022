@@ -1,0 +1,63 @@
+﻿@model IEnumerable<SysOrganization>
+@{
+    ViewData["Title"] = "List of Organization";
+    ViewData["CurrentPage"] = "Organization";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Organizations" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                   Id
+                                </th>
+                                <th>
+                                      Name
+                                </th>
+                                <th>
+                                    Short Name
+                                </th>
+                                <th>
+                                    Location
+                                </th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Organization_Id)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.OrgName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ShortName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.OrgLocation)
+                                </td>
+                                <td>
+                                    <a asp-action="Create" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Organization_Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                    <a asp-action="Delete" hidden class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Organization_Id"><i class="fa fa-trash-alt" title="Delete"></i></a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

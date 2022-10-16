@@ -1,0 +1,202 @@
+﻿@model GLAccount
+@{
+    ViewData["Title"] = "Chart of Account";
+    ViewData["CurrentPage"] = "Chart of Account";
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    var companyName = Context.Session.GetString("CompanyName");
+}
+
+<div class="modal inmodal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true"></div>
+<div class="form-group">
+    <div class="col-lg-10">
+        <input type="text" name="name" value="" class="form-control" placeholder="Search Account" autocomplete="off" id="treeViewSearch" />
+    </div>
+    <div class="col-lg-2">
+        <form id="report" class="form-horizontal" method="post">
+            <input type="hidden" name="ReportTitle" value="ChartOfAccount" />
+            <input type="hidden" name="CompanyId" value="@companyId" />
+            <input type="hidden" name="CompanyName" value="@companyName" />
+            <div class="row">
+                <div class="col-lg-6">
+                    <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="col-lg-12">
+    <div id="treeView">
+    </div>
+</div>
+
+
+@section customJS{
+<script src="~/lib/jsTree/jstree.min.js"></script>
+<script>
+    $("#treeView").jstree({
+        "core": {
+            "data": {
+                "url": function (node) {
+
+                    return "/GL/ChartofAccount/GetChartofAccount";
+                },
+                "data": function (node) {
+                    return { "id": node.id };
+                }
+            },
+            "check_callback": true,
+            "themes": { "stripes": true },
+            "animation": 0
+        },
+        "plugins": [
+            "contextmenu", "search", "state",
+            "wholerow", "sort"
+        ],
+        "search": {
+            "show_only_matches": true,
+            "show_only_matches_children": true
+        },
+        "contextmenu": {
+            "items": function ($node) {
+                var tree = $("#treeView").jstree(true);
+                return {
+                    "Create Sibling": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "Create Sibling",
+                        "action": function (obj) {
+                            //tree.edit($node);
+                            CreateNode($node);
+                        }
+                    },
+                    "Create Child": {
+                        "separator_before": false,
+                        "separator_after": false,
+                        "label": "Create Child",
+                        "action": function (obj) {
+                            CreateChildNode($node);
+                            //tree.edit($node);
+                        }
+                    },
+                    "Edit": {
+                        "separator_before": true,
+                        "separator_after": false,
+                        "label": "Edit",
+                        "action": function (obj) {
+                            EditNode($node);
+                        }
+                    }
+                    ,
+                    "Delete": {
+                        "separator_before": true,
+                        "separator_after": false,
+                        "label": "Delete",
+                        "action": function (obj) {
+                            DeleteNode($node);
+                        }
+                    }
+                };
+            }
+        }
+    });
+
+    var to = false;
+    $("#treeViewSearch").keyup(function () {
+        //if (to) { clearTimeout(to); }
+        //to = setTimeout(function () {
+
+        //}, 250);
+        var v = $("#treeViewSearch").val();
+            $('#treeView').jstree(true).search(v);
+            debugger
+            //window.find(v).focus();
+    });
+    function CreateNode(node) {
+        if (node.parent == "#") {
+            swal("Error", "You can't create account on first level", "warning");
+            return;
+        }
+        $.ajax({
+            url: "/GL/ChartofAccount/CreateSibling?id=" + node.parent
+        })
+            .done(function (data) {
+                $("#modal").html(data);
+                $("#modal").modal("show");
+            })
+            .fail(function (data) {
+                swal("Error", data.statusText, "warning");
+            });
+    }
+    function CreateChildNode(node) {
+        if (node.parents.length == 4) {
+            swal("Entry account", "You can't create child account", "warning");
+            return;
+        }
+        $.ajax({
+            url: "/GL/ChartofAccount/CreateChild?id=" + node.id
+        })
+            .done(function (data) {
+                $("#modal").html(data);
+                $("#modal").modal("show");
+            })
+            .fail(function (data) {
+                swal("Error", data.statusText, "warning");
+            });
+    }
+    function EditNode(node) {
+        $.ajax({
+            url: "/GL/ChartofAccount/Edit?id=" + node.id
+        })
+            .done(function (data) {
+                $("#modal").html(data);
+                $("#modal").modal("show");
+            })
+            .fail(function (data) {
+                swal("Error", data.statusText, "warning");
+            });
+    }
+    function DeleteNode(node) {
+        var tree = $('#treeView').jstree(true);
+        //tree.delete_node(node);
+        if (node.children_d.length != 0) {
+            swal("Can't delete account", "Please delete all child account first", "warning");
+            return;
+        }
+        swal({
+            title: "Are you sure, you want to delete?",
+            text: node.text,
+            icon: "warning",
+            buttons: [true, "Yes, delete it!"],
+            dangerMode: true
+        }).then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    url: "/GL/ChartofAccount/Delete?id=" + node.id
+                })
+                    .done(function (data) {
+                        if (data.success) {
+                            tree.delete_node(node);
+                            toasterMessage(false, data.message, node.text);
+                        }
+                        else {
+                            toasterMessage(true, data.message, node.text);
+                        }
+                    })
+                    .fail(function (data) {
+                        swal(
+                            {
+                                icon: "error",
+                                text: data.responseText,
+                                dangerMode: true
+                            }
+                        );
+                    });
+            }
+        });
+    }
+</script>
+}
+@section customCSS{
+<link href="~/css/plugins/jsTree/style.min.css" rel="stylesheet">
+}

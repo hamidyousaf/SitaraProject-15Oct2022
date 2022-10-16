@@ -1,0 +1,125 @@
+﻿
+@{
+    Layout = null;
+}
+@model Numbers.Entity.Models.BkgVehicle
+<style>
+    /* fix select 2 on popup */
+    .select2-container--open {
+        z-index: 100000;
+    }
+</style>
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+@using (Html.BeginForm("PopUpApproveBooking", "Vehicle", FormMethod.Post, new { area = "Booking" ,  name = "formPopUpApproveBooking", id = "formBookingConfirmation" }))
+{
+
+<div class="row">
+    <div class="modal-dialog modal-lg">
+        <div class=" col-xs-offset-3 col-xs-6 col-xs-offset-3 ">
+            <div class="modal-content" id="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Booking Confirmation</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+
+                                <tbody>
+                                    <tr>
+                                        <th>Id</th>
+                                        <td> @Model.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Vehicle</th>
+                                        <td> @Model.Item.Name</td>
+                                    </tr>
+                                    <tr>
+                                        <th>CNIC</th>
+                                        <td> @Model.Customer.CNIC</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Booked By</th>
+                                        <td> @Model.Customer.Name</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Price</th>
+                                        <td> @Model.Price</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Received Amount</th>
+                                        <td><b>@Model.ReceivedAmount</b></td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-lg-9 col-lg-offset-3">
+                                        <input type="button" value="Cancel" class="btn btn-white" data-dismiss="modal" />
+                                        <input type="submit" value="Approve" class="btn btn-primary" />
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                      
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+   
+    }
+
+<script>
+
+    $(function () {
+        $('#BankAccountId').select2({
+            ajax: {
+                url: '/GL/ChartofAccount/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a Cash Bank Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.BankCashAccountId;
+        var GLAccountIdSelect = $('#BankAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/ChartofAccount/Get?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLAccountIdSelect.append(option).trigger('change');
+            GLAccountIdSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+
+</script>
+

@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Numbers.Entity.Models.ARInvoice>
+
+@{
+    ViewData["Title"] = "Invoice";
+    ViewData["CurrentPage"] = "Invoice";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Invoice" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="table-responsive">
+                        <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                            <thead>
+                                <tr>
+                                    <th hidden>Id</th>
+                                    <th class="searchHeader"  width="10%">Inv.#</th>
+                                    <th class="searchHeader"  width="11%">Inv. Date</th>
+                                    <th class="searchHeader"  width="15%">Customer</th>
+                                    @*<th class="searchHeader"  width="11%">Vehicle</th>*@
+                                    <th class="searchHeader"  width="12%">OGP#</th>
+                                    <th class="searchHeader"  width="11%">S. Tax</th>
+                                    <th class="searchHeader"  width="11%">G. Total</th>
+                                    <th class="searchHeader"  width="12%">Status</th>
+                                    <th width="18%">Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AR/Invoice/GetSI",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                },
+                {
+                    "targets": [0],
+                    "visible": false
+                },
+
+                    { "orderable": false, "targets": [8] },
+                    {
+                        targets: [6],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }
+                ],
+
+                "columns": [
+                    { "data": "invoice.id", "name": "Id", className: "text-center" },
+                    { "data": "invoice.invoiceNo", "name": "InvoiceNo", className: "text-center" },
+                    { "data": "invDate", "name": "InvoiceDate", className: "text-center" },
+                    { "data": "customerName", "name": "CustomerId", className: "text-left" },
+                    /*{ "data": "invoice.vehicle", "name": "Vehicle", className: "text-center" },*/
+                    { "data": "invoice.ogpNo", "name": "OGPNo", className: "text-center" },
+                    { "data": "invoice.salesTaxAmount", "name": "SalesTaxAmount", className: "text-right" },
+                    { "data": "invoice.grandTotal", "name": "GrandTotal", className: "text-right" },
+                    { "data": "invoice.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "invoice",
+                        "render": function (data, row) {
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/AR/Invoice/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AR/Invoice/Approve?id=" + data.id + "' class='btn btn-sm btn-success m-t-n-xs' > <i class='fa fa-thumbs-up' title='Approve'></i></a> <a href='/AR/Invoice/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs' > <i class='fa fa-trash-alt' title='Delete'></i></a>  <a onclick='openReport(" + data.id + ")');' class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a >";
+                                } else {
+                                    return "<a href='/AR/Invoice/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/AR/Invoice/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs' > <i class='fa fa-trash-alt' title='Delete'></i></a>  <a onclick='openReport(" + data.id + ")');' class='btn btn-sm btn-primary btn-lg m-t-n-xs' > <i class='fas fa-print' title='Print Report'></i></a >";
+                                }
+                            }
+                            else {
+                                return '<a href="/AR/Invoice/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>  <a onclick="openReport(' + data.id + ')" class="btn btn-sm btn-primary btn-lg m-t-n-xs" > <i class="fas fa-print" title="Print Report"></i></a >';
+                            }
+
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+        function openReport(id) {
+            generateApArReport(id, "SalesInvoice", "@companyName",@companyId);
+        }
+    </script>
+}

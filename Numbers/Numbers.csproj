@@ -1,0 +1,188 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
+    <UserSecretsId>edc2ba2a-5b23-4741-8ee0-428da20c2cc0</UserSecretsId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Areas\Booking\Data\**" />
+    <Compile Remove="Areas\Booking\Models\**" />
+    <Compile Remove="Areas\GL\Data\**" />
+    <Compile Remove="Areas\GL\Models\**" />
+    <Compile Remove="Controllers\GL\**" />
+    <Compile Remove="Models\**" />
+    <Compile Remove="ViewModels\**" />
+    <Content Remove="Areas\Booking\Data\**" />
+    <Content Remove="Areas\Booking\Models\**" />
+    <Content Remove="Areas\GL\Data\**" />
+    <Content Remove="Areas\GL\Models\**" />
+    <Content Remove="Controllers\GL\**" />
+    <Content Remove="Models\**" />
+    <Content Remove="ViewModels\**" />
+    <EmbeddedResource Remove="Areas\Booking\Data\**" />
+    <EmbeddedResource Remove="Areas\Booking\Models\**" />
+    <EmbeddedResource Remove="Areas\GL\Data\**" />
+    <EmbeddedResource Remove="Areas\GL\Models\**" />
+    <EmbeddedResource Remove="Controllers\GL\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="ViewModels\**" />
+    <None Remove="Areas\Booking\Data\**" />
+    <None Remove="Areas\Booking\Models\**" />
+    <None Remove="Areas\GL\Data\**" />
+    <None Remove="Areas\GL\Models\**" />
+    <None Remove="Controllers\GL\**" />
+    <None Remove="Models\**" />
+    <None Remove="ViewModels\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Areas\Booking\Controllers\BookingController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Areas\AP\Views\Supplier\Detail.cshtml" />
+    <Content Remove="Areas\AP\Views\Supplier\s.cshtml" />
+    <Content Remove="Areas\AR\Views\Invoice\_partialServiceInvoice.cshtml" />
+    <Content Remove="Areas\Booking\Views\Report\BookingReceipt.cshtml" />
+    <Content Remove="Areas\Booking\Views\Report\CashPurchaseSale.cshtml" />
+    <Content Remove="Areas\Booking\Views\Report\ReceiptAgainstBooking.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRInterSegmental\Create.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRInterSegmental\Details.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRInterSegmental\Index.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRInterSegmental\_SpecificationPopUp.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRRequisitionST\Detail.cshtml" />
+    <Content Remove="Areas\Greige\Views\GRRequisition\Detail.cshtml" />
+    <Content Remove="Areas\Planning\Views\SeasonalPlaning\_SpecificationPopUp.cshtml" />
+    <Content Remove="Areas\Planning\Views\Specification\_SpecificationPopUp.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Areas\AP\Controllers\PurchaseController.rar" />
+    <None Remove="Areas\AP\Views\Purchase.rar" />
+    <None Remove="Areas\AR\Controllers\CommissionAgentPaymentController.rar" />
+    <None Remove="Areas\AR\Controllers\InvoiceController.rar" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.7.28" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.28" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.7.28" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Nancy" Version="2.0.0" />
+    <PackageReference Include="NETCore.MailKit" Version="2.0.3" />
+    <PackageReference Include="OdeToCode.AddFeatureFolders" Version="2.0.3" />
+    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\InterSegment\Views\" />
+    <Folder Include="wwwroot\css\" />
+    <Folder Include="wwwroot\img\company\" />
+    <Folder Include="wwwroot\uploads\customer-images\" />
+    <Folder Include="wwwroot\uploads\deliverychallan-images\" />
+    <Folder Include="wwwroot\uploads\HR\employee-images\" />
+    <Folder Include="wwwroot\uploads\quotation-images\" />
+    <Folder Include="wwwroot\uploads\receipt-images\" />
+    <Folder Include="wwwroot\uploads\payment-images\" />
+    <Folder Include="wwwroot\uploads\purchaseOrder-images\" />
+    <Folder Include="wwwroot\uploads\NewFolder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Areas\ApplicationModule\Views\Module\Create.cshtml" />
+    <None Include="Areas\ApplicationModule\Views\Module\Index.cshtml" />
+    <None Include="Areas\ApplicationModule\Views\Sys_Responsibilities\Index.cshtml" />
+    <None Include="Areas\ApplicationModule\Views\Sys_Responsibilities\List.cshtml" />
+    <None Include="Areas\Approval\Views\ApprovalVacation\Create.cshtml" />
+    <None Include="Areas\Approval\Views\ApprovalVacation\Index.cshtml" />
+    <None Include="Areas\Approval\Views\RulesApproval\Index.cshtml" />
+    <None Include="Areas\Approval\Views\_ViewImports.cshtml" />
+    <None Include="Areas\Approval\Views\_ViewStart.cshtml" />
+    <None Include="Areas\AP\Views\GRN\Create.cshtml" />
+    <None Include="Areas\AP\Views\GRN\Details.cshtml" />
+    <None Include="Areas\AP\Views\GRN\Index1.cshtml" />
+    <None Include="Areas\AP\Views\GRN\UnApprove.cshtml" />
+    <None Include="Areas\AP\Views\GRN\_InvoiceItems.cshtml" />
+    <None Include="Areas\AP\Views\GRN\_partialInvoiceItems.cshtml" />
+    <None Include="Areas\AP\Views\GRN\_partialServiceInvoice.cshtml" />
+    <None Include="Areas\AP\Views\GRN\_PurchaseOrderPopUp.cshtml" />
+    <None Include="Areas\AP\Views\Supplier\Detail.cshtml" />
+    <None Include="Areas\AR\Views\Quotation\Create.cshtml" />
+    <None Include="Areas\AR\Views\Quotation\Index.cshtml" />
+    <None Include="Areas\AR\Views\Quotation\_SaleOrderPopUp.cshtml" />
+    <None Include="Areas\Greige\Views\GRInterSegmental\Create.cshtml" />
+    <None Include="Areas\Greige\Views\GRInterSegmental\Details.cshtml" />
+    <None Include="Areas\Greige\Views\GRInterSegmental\Index.cshtml" />
+    <None Include="Areas\Greige\Views\GRInterSegmental\_SpecificationPopUp.cshtml" />
+    <None Include="Areas\Greige\Views\GRRequisitionST\Detail.cshtml" />
+    <None Include="Areas\Greige\Views\GRRequisition\Detail.cshtml" />
+    <None Include="Areas\Inventory\Views\BOM\Create.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\Create.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\Details.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\Index.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\_partialPlnMonthlyItem.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\_PlnMonthlyItem.cshtml" />
+    <None Include="Areas\Planning\Views\MonthlyPlanning\_PlnMonthlyPopUp.cshtml" />
+    <None Include="Areas\Planning\Views\GreigeIssuance\Create.cshtml" />
+    <None Include="Areas\Planning\Views\GreigeIssuance\Details.cshtml" />
+    <None Include="Areas\Planning\Views\GreigeIssuance\Index.cshtml" />
+    <None Include="Areas\Planning\Views\GreigeIssuance\_SpecificationPopUp.cshtml" />
+    <None Include="Areas\Planning\Views\SeasonalPlaning\_SpecificationPopUp.cshtml" />
+    <None Include="Areas\Planning\Views\Specification\_SpecificationPopUp.cshtml" />
+    <None Include="Areas\Security\Views\CompanyLocations\Index.cshtml" />
+    <None Include="Areas\Security\Views\Organizations\Create.cshtml" />
+    <None Include="Areas\Security\Views\Organizations\Index.cshtml" />
+    <None Include="Areas\Security\Views\Profiles\Create.cshtml" />
+    <None Include="Areas\Security\Views\Profiles\Index.cshtml" />
+    <None Include="Areas\Security\_ViewImports.cshtml" />
+    <None Include="Areas\Security\_ViewStart.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Numbers.Interface\Numbers.Interface.csproj" />
+    <ProjectReference Include="..\Numbers.Repository\Numbers.Repository.csproj" />
+    <ProjectReference Include="..\NumbersModels\Numbers.Entity.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind />
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
+
+  
+
+</Project>

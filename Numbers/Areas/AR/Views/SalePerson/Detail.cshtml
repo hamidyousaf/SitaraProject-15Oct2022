@@ -1,0 +1,1119 @@
+﻿@model Numbers.Entity.ViewModels.ARSalePersonViewModel
+@{
+    ViewData["Title"] = "Detail Sale Person";
+}
+<style>
+    .slct > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        @*<div class="ibox-title">
+                <h5>@ViewBag.EntityState Customer</h5>
+            </div>*@
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form id="CustomerForm" class="form-horizontal" asp-action="Create" enctype="multipart/form-data" onsubmit="return submitdetails();">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="ARSalePerson.ID" />
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                @if (Model.ARSalePerson == null)
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div>
+                                            <label>Code</label>
+                                            <input readonly asp-for="ARSalePerson.EmployeeCode" id="Code" onchange="checkCode();" data-validation="required" class="form-control" data-validation-error-msg-container="#code" autocomplete="off" />
+                                            <p id="code"></p>
+                                        </div>
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="SaleOrderNo" data-valmsg-replace="true"></span>
+                                        <span id="Status"></span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div>
+                                            <label>Code</label>
+                                            <input readonly asp-for="ARSalePerson.EmployeeCode" id="Code"  onchange="checkCode();" data-validation="required" class="form-control" data-validation-error-msg-container="#code" autocomplete="off" />
+                                            <p id="code"></p>
+                                        </div>
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="SaleOrderNo" data-valmsg-replace="true"></span>
+                                        <span id="Status"></span>
+                                    </div>
+                                }
+                                <div class="col-lg-4 col-sm-5">
+                                    <div>
+                                        <label>Name</label>
+                                        <input readonly asp-for="ARSalePerson.Name" class="form-control" data-validation="required" data-validation-error-msg-container="#name" autocomplete="off" />
+                                        <p id="name"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-5">
+                                    <div>
+                                        <label name="Phone1">Department</label>
+                                        <input readonly asp-for="ARSalePerson.Department" class="form-control" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-12">
+                                    <div>
+                                        <label>Designation</label>
+                                        <input readonly asp-for="ARSalePerson.Designation" class="form-control" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-4">
+                                    <div>
+                                        <label>Comission %</label>
+                                        <input readonly asp-for="ARSalePerson.Comission" id="Comission" type="text" class="form-control" onchange="checkValue();" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-4">
+                                    <div>
+                                        <label>Start Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="ARSalePerson.StartDate" id="startDate" class="form-control custom-date-picker" type="text" value="@Model.StartDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-4">
+                                    <div>
+                                        <label>End Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="ARSalePerson.EndDate" id="endDate" class="form-control custom-date-picker" type="text" value="@Model.EndDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <input id="id" hidden />
+                        <div class="form-group col-lg-3 col-sm-5" style="margin-left:5px">
+                            <label class="control-label">City</label>
+                            <div class="slct">
+                                <select readonly disabled id="Cities" asp-items="@Model.Cities" style="width:240px" class="form-control select-country-city">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input id="id" hidden />
+                        <div class="form-group col-lg-3 col-sm-5" style="margin-left:5px">
+                            <label class="control-label">Item Category</label>
+                            <div class="slct">
+                                <select readonly disabled id="Itemcategory" asp-items="@Model.ListOfItemCategories" style="width:240px" class="form-control select-country-city">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-lg-2 col-sm-2" style="margin-left:5px">
+                            <label class="control-label">  </label>
+                            <div>
+                                <a readonly class="btn btn-primary"  style="margin-top:4px">Add</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="table-responsive ">
+                            <table id="tblDetail" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>City</th>
+                                        <th>Item Category</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.ARSalePersonItemCategories != null)
+                                    {
+                                        foreach (var item in Model.ARSalePersonItemCategories)
+                                        {
+                                            <tr>
+                                                <td class="itemID" hidden>@item.ID</td>
+                                                <td class="CityId" hidden>@item.CityId</td>
+
+                                                @foreach (var city in Model.City)
+                                                {
+                                                    if (item.CityId != 0)
+                                                    {
+                                                        if (item.CityId == city.Id)
+                                                        {
+                                                            <td readonly class="text-left CityName">@city.Name</td>
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <td readonly class="text-left CityName">Not Available</td>
+                                                        break;
+                                                    }
+
+                                                }
+                                                <td class="ItemCategory text-right" hidden>@item.ItemCategory_ID</td>
+                                                @foreach (var itm in Model.ItemCategories)
+                                                {
+                                                    if (item.ItemCategory_ID == itm.Id)
+                                                    {
+                                                        <td readonly class="text-left ItemName">@itm.Code - @itm.Name</td>
+                                                    }
+                                                }
+
+                                                @foreach (var itm in Model.ItemCategories)
+                                                {
+                                                    foreach (var city in Model.City)
+                                                    {
+                                                        if (item.ItemCategory_ID == itm.Id && item.CityId == city.Id)
+                                                        {
+                                                            <td hidden class="text-left CityandItem">@city.Name - @itm.Code - @itm.Name</td>
+                                                        }
+                                                    }
+
+                                                }
+                                                <td readonly class="text-center"> <a @*id="delrow" onclick="deleteItem($(this));"*@ class="btn btn-xs btn-danger m-t-n-xs"> <i class="fa fa-trash" title="Delete"></i> </a> </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="wrapper wrapper-content animated fadeIn" style="margin-top:50px">
+                            <ul class="nav nav-tabs">
+                                @*<li class="active"><a data-toggle="tab" href="#City">City</a></li>*@
+                                <li class="active"><a data-toggle="tab" href="#Annual">Annual Sale Target</a></li>
+                                <li><a data-toggle="tab" href="#Monthly">Monthly Sale Target</a></li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <!--<div id="City" class="tab-pane fade in ">
+                                <div class="row" style="margin-left:10px">-->
+                                @*<input id="id" hidden />
+                                    <div class="form-group col-lg-3" style="margin-left:5px">
+                                        <label class="control-label">City</label>
+                                        <div>
+                                            <select id="Cities" asp-items="@Model.Cities" style="width:240px" class="form-control select-country-city">
+                                                <option selected="selected" disabled>Select...</option>
+                                            </select>
+                                        </div>
+                                    </div>*@
+                                <!--<div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">  </label>
+                                        <div>
+                                            <a class="btn btn-primary" onclick="addCity();" style="margin-top:4px">Add</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container-fluid">
+                                    <table id="tblCity" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>City</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>-->
+                                @*@if (Model.ARSalePersonCities != null)
+                                    {
+                                        foreach (var item in Model.ARSalePersonCities)
+                                        {
+
+                                            <tr class="removeMonth">
+                                                <td class="CityId " hidden>@item.ID</td>
+                                                @foreach (var city in Model.City)
+                                                {
+                                                    if (city.Id == item.City_ID)
+                                                    {
+                                                        <td class="text-left">@city.Name</td>
+                                                    }
+                                                }
+                                                <td class="City text-right" hidden>@item.City_ID</td>
+                                                <td><button type="button" class="btn btn-sm btn-danger" id="del" onclick="deleteCity($(this));"><i class="fa fa-trash"></i></button></td>
+                                            </tr>
+                                        }
+                                    }*@
+                                <!--</tbody>
+                                        </table>
+                                    </div>
+                                </div>-->
+                                <div id="Annual" class="tab-pane fade in active">
+                                    <div class="row" style="margin-left:10px">
+                                        <input id="id" hidden />
+                                        <div class="form-group col-lg-3 col-sm-6" style="margin-left:5px">
+                                            <label class="control-label">Item Category</label>
+                                            <div class="slct">
+                                                <select readonly disabled id="AnnualItemCategory" style="width:150px" asp-items="@Model.AnualSaleTargetCaogoriesOnEdit" class="form-control _LoadCategory">
+                                                    <option selected="selected" disabled>Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-2 col-sm-6" style="margin-left:5px">
+                                            <label class="control-label">Annual Sale Target</label>
+                                            <div>
+                                                <input readonly id="AnnualSaleTarget" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-3  col-sm-5" style="margin-left:5px">
+                                            <label class="control-label">Start Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input readonly id="AnnualStartDate" class="form-control custom-date-picker" type="text" value="@CommonHelper.CurrentDate" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-3  col-sm-5" style="margin-left:5px">
+                                            <label class="control-label">End Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input readonly id="AnnualEndDate" class="form-control custom-date-picker" type="text" value="@CommonHelper.CurrentDate" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-lg-1  col-sm-2" style="margin-left:5px">
+                                            <label class="control-label">  </label>
+                                            <div readonly>
+                                                <a class="btn btn-primary" @*onclick="addAnnualTarget();"*@ style="margin-top:4px">Add</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="container-fluid table-responsive">
+                                        <table id="tblAnnual" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    @*<th>City</th>*@
+                                                    <th>Target</th>
+                                                    <th>Start Date</th>
+                                                    <th>End Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.ARAnnualSaleTargets != null)
+                                                {
+                                                    foreach (var item in Model.ARAnnualSaleTargets)
+                                                    {
+
+                                                        <tr class="removeMonth">
+                                                            <td class="AnnualId " hidden>@item.ID</td>
+                                                            <td class="AnnualItem text-right" hidden>@item.ItemCategory</td>
+                                                            @foreach (var itm in Model.ItemCategories)
+                                                            {
+                                                                foreach (var city in Model.City)
+                                                                {
+                                                                    if (item.ItemCategory == itm.Id && item.CityId == city.Id)
+                                                                    {
+                                                                        <td readonly class="text-left AnnualItemName">@city.Name - @itm.Code - @itm.Name</td>
+                                                                    }
+                                                                }
+
+                                                            }
+                                                            <td readonly class="text-left AnnualCityId" hidden>@item.CityId</td>
+                                                            <td readonly class="AnnualSaleTarget text-right">@item.AnnualTarget</td>
+                                                            <td readonly class="AnnualStartDate text-center">@item.StartDate.ToString(CommonHelper.DateFormat)</td>
+                                                            <td readonly class="AnnualEndDate text-center">@item.EndDate.ToString(CommonHelper.DateFormat)</td>
+                                                            <td readonly><button type="button" class="btn btn-sm btn-danger" @*id="del" onclick="deleteAnnual($(this));"*@><i class="fa fa-trash"></i></button></td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div id="Monthly" class="tab-pane fade">
+                                    <div class="row" style="margin-left:10px">
+                                        <input id="id" hidden />
+                                        <div class="col-lg-3 col-sm-4" style="margin-left:5px">
+                                            <label class="control-label">Item Category</label>
+                                            <div>
+                                                <select readonly disabled id="ItemCategory" onchange="getAnnualYear()" asp-items="@Model.MonthlySaleTargetCaogoriesOnEdit" class="form-control _LoadCategory">
+                                                    <option selected="selected" disabled>Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-3 col-sm-4" style="margin-left:5px">
+                                            <label class="control-label">Select Year</label>
+                                            <div>
+                                                <select readonly disabled id="Year" onchange="getAnnualTarget()" class="form-control">
+                                                    <option selected="selected">Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-2 col-sm-4" style="margin-left:15px">
+                                            <label class="control-label">Annual Sale Target</label>
+                                            <div>
+                                                <input readonly id="_AnnualSaleTarget" class="form-control" value="" maxlength="15" onkeypress='return isNumberKey(event)' autocomplete="off" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-2 col-sm-4" style="margin-left:5px">
+                                            <label class="control-label">Rem. Annual Target</label>
+                                            <div>
+                                                <input readonly id="_RemainingAnnualSaleTarget" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" readonly />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-lg-3 col-sm-4" style="margin-left:5px">
+                                            <label class="control-label">Select Month</label>
+                                            <div>
+                                                <select readonly disabled id="Month" class="form-control select-country-city">
+                                                    <option selected="selected" disabled>Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-lg-2 col-sm-3" style="margin-left:15px">
+                                            <label class="control-label">Month Sale Target</label>
+                                            <div>
+                                                <input readonly  id="MonthSaleTarget" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" value="0" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-lg-1 col-sm-1" style="margin-left:5px">
+                                            <label class="control-label"></label>
+                                            <div class="input-group date">
+                                                <a readonly class="btn btn-primary" @*onclick="addMonthTarget();"*@ style="margin-top:4px">Add</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="container-fluid table-responsive">
+                                        <table id="tblMonthly" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Month</th>
+                                                    <th>Target</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.ARMonthlySaleTargets != null)
+                                                {
+                                                    foreach (var item in Model.ARMonthlySaleTargets)
+                                                    {
+
+                                                        <tr class="removeMonth">
+                                                            <td class="MonthId " hidden>@item.ID</td>
+                                                            @foreach (var itm in Model.ItemCategories)
+                                                            {
+                                                                foreach (var city in Model.City)
+                                                                {
+                                                                    if (item.ItemCategory == itm.Id && item.CityId == city.Id)
+                                                                    {
+                                                                        <td readonly class="text-left itemName">@city.Name - @itm.Code - @itm.Name</td>
+                                                                    }
+                                                                }
+                                                            }
+                                                            <td readonly class="MonthCityId" hidden>@item.CityId</td>
+                                                            <td class="MonthItem text-right" hidden>@item.ItemCategory</td>
+                                                            <td readonly class="Month text-left ">@item.Month</td>
+                                                            <td hidden class="Year text-left">@item.Year</td>
+                                                            <td readonly class="MonthSaleTarget text-right">@item.MonthTarget</td>
+                                                            <td><button type="button" class="btn btn-sm btn-danger del-btn" @*id="del" onclick="deleteMonth($(this));"*@ disabled><i class="fa fa-trash"></i></button></td>
+                                                        </tr>
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="btn btn-white" asp-action="Index">List</a>
+
+                   @* <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />*@
+
+
+
+
+                    <input hidden id="monthTarget" name="monthTarget" />
+                    <input hidden id="monthTargethdn" value="0" />
+                    <input hidden id="RemainingAnnualSaleTargethdn" value="0" />
+                    <input hidden id="RemainingAnnualSaleTargethdn2" value="0" />
+                    <input hidden id="SPCity" name="SPCity" />
+                    <input hidden id="SPItemCat" name="SPItemCat" />
+                    <input hidden id="annualTarget" name="annualTarget" />
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script src="~/lib/moment.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#Cities").select2();
+            $("#Itemcategory").select2();
+            $("#AnnualItemCategory").select2();
+        });
+        function checkValue() {
+            var comPer = Number($('#Comission').val());
+            if (comPer > 100) {
+                swal("", "Comission must be <= to 100", "warning");
+                $('#Comission').val(0);
+            }
+        }
+
+        $('#MonthSaleTarget').keyup(function () {
+            debugger
+            let monthlyTarget = parseFloat($(this).val());
+            let monthlyTargetTemp = parseFloat($('#monthTargethdn').val());
+            let remainingAnnualTargetTemp = parseFloat($('#RemainingAnnualSaleTargethdn').val());
+            let remainingAnnualTargetTemp2 = parseFloat($('#RemainingAnnualSaleTargethdn2').val());
+            let remainingAnnualTarget = parseFloat($('#_RemainingAnnualSaleTarget').val());
+            if (monthlyTarget > remainingAnnualTargetTemp2) {
+                swal('', 'Monthly sale target should be less than remaining annual sale target', 'warning');
+                $('#_RemainingAnnualSaleTarget').val(remainingAnnualTargetTemp.toFixed(2));
+                $(this).val(monthlyTargetTemp);
+                return false;
+            }
+            if (monthlyTarget.toString() == 'NaN') {
+                $(this).val(0);
+                $('#monthTargethdn').val(0);
+                $('#_RemainingAnnualSaleTarget').val(remainingAnnualTargetTemp2.toFixed(2));
+                return false;
+            }
+            else
+            {
+                remainingAnnualTarget += monthlyTargetTemp;
+                remainingAnnualTarget -= monthlyTarget;
+                $('#monthTargethdn').val(monthlyTarget);
+                $('#RemainingAnnualSaleTargethdn').val(remainingAnnualTarget.toFixed(2));
+
+                $('#_RemainingAnnualSaleTarget').val(remainingAnnualTarget.toFixed(2));
+            }
+        });
+
+        $('#AnnualStartDate').change(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/AR/SalePerson/GetFormatedDate',
+                data: { date: $('#AnnualStartDate').val()}
+            }).then(function (data) {
+                $('#AnnualEndDate').datepicker('setDate', data);
+            });
+        })
+
+        $.validate();
+         function checkCode() {
+           $("#Status").html("Checking...");
+             $.post("@Url.Action("checkProductCodeAlreadyExists", "SalePerson", "AR")",
+                 {
+                     code: $("#Code").val()
+                 },
+             function (data) {
+                 if (data == 0) {
+                     $("#Status").html('<font color="Green"></font>');
+                     $("#Code").css("border-color", "Green");
+                     $(".submit").removeAttr("disabled");
+                 }
+                 else {
+                     $("#Status").html('<font color="Red">SalePerson with same Code already exists.</font>');
+                     $("#Code").css("border-color", "Red");
+                     $(".submit").attr("disabled", "disabled");
+                 }
+             });
+        }
+        $(document).ready(function () {
+            $('#AnnualStartDate').change();
+            $('#MonthSaleTarget').focus(function () { $(this).select(); });
+
+        });
+        //Appending Rows
+        function addItem() {
+            //$('._LoadCategory').empty();
+            //$('._LoadCategory').append($('<option>', {
+            //    text: "Select..."
+            //}));
+
+            var item = $("#Itemcategory").find(":selected").text();
+            var itemId = $("#Itemcategory").find(":selected").val();
+
+            var Cities = $("#Cities").find(":selected").text();
+            var CitiesId = $("#Cities").find(":selected").val();
+
+            if (Cities == "Select...") {
+                swal("", "Please select City!", "warning");
+                return false;
+            }
+            if (item == "Select...") {
+                swal("", "Please select Item Category!", "warning");
+                return false;
+            }
+            else {
+                var value = false;
+                var CityandItem = Cities + " - " + item;
+                $('#tblDetail > tbody > tr').each(function () {
+                    debugger
+                    var _itemId = $(this).find('.ItemCategory').text();
+                    var _cityId = $(this).find('.CityId').text();
+
+                    if (itemId == _itemId && CitiesId == _cityId) {
+                        value = true;
+                        swal("", "Item is already selected!", "warning");
+                    }
+                });
+                if (value == false) {
+
+                    $('._LoadCategory').append($('<option>', {
+                        value: itemId,
+                        text: CityandItem
+                    }));
+
+                    itemCategory = '';
+                    itemCategory += '<tr class="removedItem">';
+                    itemCategory += '<td class ="itemID" hidden>0</td>';
+                    itemCategory += '<td class ="CityId" hidden>' + CitiesId + '</td>';
+                    itemCategory += '<td class ="text-left CityName">' + Cities + '</td>';
+                    itemCategory += '<td class ="ItemCategory" hidden>' + itemId + '</td>';
+                    itemCategory += '<td class ="text-left ItemName">' + item + '</td>';
+                    itemCategory += '<td hidden class ="text-left CityandItem">' + CityandItem + '</td>';
+                    itemCategory += '<td><a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleteItem($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                    itemCategory += '</tr>';
+                    $('#tblDetail tbody').prepend(itemCategory);
+                }
+            }
+        }
+
+        function addCity() {
+            var item = $("#Cities").find(":selected").text();
+            var itemID = $("#Cities").find(":selected").val();
+
+            if (item == "Select...") {
+                swal("", "Please select City!", "warning");
+                return false;
+            }
+            else {
+                var value = false;
+                $('#tblCity > tbody > tr').each(function () {
+                    var _itemId = $(this).find('.City').text();
+                    if (itemID == _itemId) {
+                        value = true;
+                    }
+                });
+                if (value == false) {
+                    City = '';
+                    City += '<tr class="removedCreditLimit">';
+                    City += '<td class ="CityId" hidden>0</td>';
+                    City += '<td class ="City" hidden>' + itemID + '</td>';
+                    City += '<td class ="text-left">' + item + '</td>';
+                    City += '<td><a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleteCity($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                    City += '</tr>';
+                    $('#tblCity tbody').prepend(City);
+                }
+            }
+
+        }
+
+        function addMonthTarget() {
+            var item = $("#ItemCategory").val();
+            var itemName = $("#ItemCategory").find(":selected").text();
+            var month = $("#Month").find(":selected").val();
+            var monthName = $("#Month").find(":selected").text();
+            var monthtarget = $("#MonthSaleTarget").val();
+            var anultarget = $("#_AnnualSaleTarget").val();
+            var year = $("#Year").find(":selected").text();
+            let remainingAnnualTarget = parseFloat($('#_RemainingAnnualSaleTarget').val());
+
+            $("#Month option[value='" + month +"']").each(function () {
+                $(this).remove();
+            });
+
+            $('#RemainingAnnualSaleTargethdn').val(remainingAnnualTarget);
+            $('#RemainingAnnualSaleTargethdn2').val(remainingAnnualTarget);
+            $('#monthTargethdn').val(0);
+            debugger
+            if (month == "Select...") {
+                swal("", "Please select month!", "warning");
+                return false;
+            }
+            else if (monthtarget == "") {
+                swal("", "Please Enter Target!", "warning");
+                return false;
+            }
+            else if (year == "Select...") {
+                swal("", "Please select year!", "warning");
+                return false;
+            }
+            else if (anultarget == "" || anultarget == 0) {
+                swal("", "Please Enter Target!", "warning");
+                return false;
+            }
+            else {
+                var value = false;
+                $('#tblMonthly > tbody > tr').each(function () {
+                    debugger
+                    var _month = $(this).find('.Month').text();
+                    var _year = $(this).find('.Year').text();
+                    //var _item = $(this).find('.MonthItem').text();
+                    var _item = $(this).find('.itemName').text();
+                    if (month == _month && itemName == _item && year == _year) {
+                        value = true;
+                        swal("", "Month is already selected!", "warning");
+                    }
+                });
+                if (value == false) {
+                    $("#tblDetail > tbody > tr").each(function () {
+                        debugger
+                        var CityandItem = $(this).find(".CityandItem").text();
+                        if (itemName == CityandItem) {
+                            cityId = $(this).find(".CityId").text();
+                            cityName = $(this).find(".CityName").text();
+                        }
+                    });
+                    month_target = '';
+                    month_target += '<tr class="removedCreditLimit">';
+                    month_target += '<td class ="MonthId" hidden>0</td>';
+                    month_target += '<td class ="MonthItem" hidden>' + item + '</td>';
+                    month_target += '<td class ="MonthCityId" hidden>' + cityId + '</td>';
+                    month_target += '<td class ="text-left itemName">' + itemName + '</td>';
+                    month_target += '<td class ="Year" hidden>' + year + '</td>';
+                    month_target += '<td class ="Month" hidden>' + month + '</td>';
+                    month_target += '<td class ="text-left">' + monthName + '</td>';
+                    month_target += '<td class ="MonthSaleTarget text-right">' + monthtarget + '</td>';
+                    month_target += '<td><a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleteMonth($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                    month_target += '</tr>';
+                    $('#tblMonthly tbody').prepend(month_target);
+                    $("#MonthSaleTarget").val(0);
+                }
+            }
+        }
+
+        function addAnnualTarget() {
+            debugger
+            var item = $("#AnnualItemCategory").val();
+            var itemName = $("#AnnualItemCategory").find(":selected").text();
+            var start =  $("#AnnualStartDate").val() ;
+            var End =   $("#AnnualEndDate").val() ;
+            var target = $("#AnnualSaleTarget").val();
+            var cityId;
+            var cityName;
+
+            if (itemName == "Select...") {
+                swal("", "Please select Item Category!", "warning");
+                return false;
+            }
+            if (start == "") {
+                swal("", "Please select Start Date!", "warning");
+                return false;
+            } if (End == "") {
+                swal("", "Please select End Date!", "warning");
+                return false;
+            } else if (target == "") {
+                swal("", "Please Enter Annual Target!", "warning");
+                return false;
+            }
+                else {
+                    var value = false;
+                $('#tblAnnual > tbody > tr').each(function () {
+                    debugger;
+
+                    var _AnnualItem = $(this).find('.AnnualItem ').text();
+                    var _AnnualItemName = $(this).find('.AnnualItemName ').text();
+
+                    //    var _AnnualStartDate = new Date ($(this).find('.AnnualStartDate ').text());
+                    //var _AnnualEndDate = new Date($(this).find('.AnnualEndDate ').text());
+
+                    if (itemName == _AnnualItemName) {
+                        debugger;
+                       var teststart = Date.parse(start);
+                       var testEnd = Date.parse(End);
+                        var _AnnualStartDate = Date.parse($(this).find('.AnnualStartDate ').text());
+                        var _AnnualEndDate = Date.parse($(this).find('.AnnualEndDate ').text());
+                        if ((teststart > _AnnualStartDate && teststart > _AnnualEndDate) && (testEnd > _AnnualStartDate && testEnd > _AnnualEndDate)) {
+                            } else {
+                                value = true;
+                                swal("", "Item is already selected in Current Periods!", "warning");
+                            }
+
+                        }
+                    });
+                if (value == false) {
+                    $("#tblDetail > tbody > tr").each(function () {
+                        debugger
+                        var CityandItem = $(this).find(".CityandItem").text();
+                        if (itemName == CityandItem) {
+                            cityId = $(this).find(".CityId").text();
+                            cityName = $(this).find(".CityName").text();
+                        }
+                    });
+                    credit_limit = '';
+                    credit_limit += '<tr class="removedCreditLimit">';
+                    credit_limit += '<td class ="AnnualId" hidden>0</td>';
+                    credit_limit += '<td class ="AnnualItem" hidden>' + item + '</td>';
+                    credit_limit += '<td class ="text-left AnnualItemName" >' + itemName + '</td>';
+                    credit_limit += '<td class ="text-left AnnualCityId" hidden>' + cityId + '</td>';
+                    //credit_limit += '<td class ="text-left AnnualCityName">' + cityName + '</td>';
+                    credit_limit += '<td class ="AnnualSaleTarget text-right">' + target + '</td>';
+                    credit_limit += '<td class ="AnnualStartDate text-center">' + start + '</td>';
+                    credit_limit += '<td class ="AnnualEndDate text-center" >' + End + '</td>';
+                    credit_limit += '<td><a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleteAnnual($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                    credit_limit += '</tr>';
+                    $('#tblAnnual tbody').prepend(credit_limit);
+                    $("#AnnualSaleTarget").val("");
+                }
+            }
+        }
+
+        function dateCheck(from, to, check) {
+
+            var fDate, lDate, cDate;
+            fDate = Date.parse(from);
+            lDate = Date.parse(to);
+            cDate = Date.parse(check);
+
+            if ((cDate <= lDate && cDate >= fDate)) {
+                return true;
+            }
+            return false;
+        }
+
+        //Form Binding
+        $("form").submit(function (e) {
+            //var breakOut;
+            //var itemName;
+            //$.each($("#tblAnnual tbody tr"), function () {
+            //    debugger
+            //    var total = parseFloat(0.0) || 0.0;
+            //    var ItemCategory = $(this).find('.AnnualItem').text();
+            //    var AnnualTarget = $(this).find('.AnnualSaleTarget').text();
+            //    $.each($("#tblMonthly tbody tr"), function () {
+            //        ItemMonth = $(this).find('.MonthItem').text();
+            //        if (ItemMonth == ItemCategory) {
+            //            Month = parseFloat($(this).find('.MonthSaleTarget').text()) || 0.0;
+            //            itemName = $(this).find('.itemName').text();
+            //            total = total + Month;
+            //            if (total > AnnualTarget) {
+            //                itemName = itemName;
+            //                breakOut = true;
+            //                e.preventDefault();
+            //                return false;
+            //            }
+            //        }
+            //    });
+
+            //});
+            //if (breakOut) {
+            //    breakOut = false;
+            //    swal("", " Value Exceed", "warning")
+            //    return false;
+            //}
+            //Model Binding of Month Target
+            var MonthTarget = [];
+            $.each($("#tblMonthly tbody tr"), function () {
+                MonthTarget.push({
+                    ID: $(this).find('.MonthId').html(),
+                    ItemCategory: $(this).find('.MonthItem').text(),
+                    CityId: $(this).find('.MonthCityId').text(),
+                    Month: $(this).find('.Month').text(),
+                    MonthTarget: $(this).find('.MonthSaleTarget').text(),
+                    Year: $(this).find('.Year').text(),
+                });
+
+            });
+            var model = JSON.stringify(MonthTarget);
+            $("#monthTarget").val(model);
+
+            //Model Binding of Annual Target
+            var AnnualTarget = [];
+            $.each($("#tblAnnual tbody tr"), function () {
+                AnnualTarget.push({
+                    ID: $(this).find('.AnnualId').html(),
+                    ItemCategory: $(this).find('.AnnualItem').text(),
+                    CityId: $(this).find('.AnnualCityId').text(),
+                    AnnualTarget: $(this).find('.AnnualSaleTarget').text(),
+                    StartDate: $(this).find('.AnnualStartDate').text(),
+                    EndDate: $(this).find('.AnnualEndDate').text(),
+                });
+            });
+            var modelAnnual = JSON.stringify(AnnualTarget);
+            $("#annualTarget").val(modelAnnual);
+
+            //Model Binding of Cities
+            debugger
+            var Cities = [];
+            $.each($("#tblCity tbody tr"), function () {
+                Cities.push({
+                    ID: $(this).find('.CityId').html(),
+                    City_ID: $(this).find('.City').text(),
+                });
+            });
+            var modelCities = JSON.stringify(Cities);
+            $("#SPCity").val(modelCities);
+
+            //Model Binding of Items
+            var ItemCategory = [];
+            $.each($("#tblDetail tbody tr"), function () {
+                ItemCategory.push({
+                    ID: $(this).find('.itemID').html(),
+                    ItemCategory_ID: $(this).find('.ItemCategory').text(),
+                    CityId: $(this).find(".CityId").text()
+                });
+            });
+
+            var modelItemCat = JSON.stringify(ItemCategory);
+            $("#SPItemCat").val(modelItemCat);
+            return true;
+        });
+        //Delete Row
+        function deleteItem(row) {
+            debugger
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            //var as = $("#tblDetail").find("tr").eq(c).text();
+            let ItemId = $("#tblDetail").find("tr").eq(c).find("td:nth-child(2)").text();
+            let ItemWithCity = $("#tblDetail").find("tr").eq(c).find("td:nth-child(6)").text();
+            $("#tblDetail").find("tr").eq(c).remove();
+
+            //$("._LoadCategory option[value=" + ItemId + "]").remove();
+            $("._LoadCategory option").each(function () {
+                debugger
+                var LoadCategoryLOV = $(this).text();
+                if (ItemWithCity == LoadCategoryLOV) {
+                    $(this).remove();
+                }
+            });
+            // For annual sale target
+            let isExistinAnnual = false;
+            $('#tblAnnual  tbody  tr').each(function () {
+                var _ItemWithCity = $(this).find('.AnnualItemName').text();
+                if (ItemWithCity == _ItemWithCity) {
+                    isExistinAnnual = true;
+                }
+            });
+            if (isExistinAnnual == true) {
+                $("#tblAnnual  tbody td:contains('" + ItemWithCity + "')").parent().remove();
+            }
+            // For annual monthly target
+            let isExistinMonth = false;
+            $('#tblMonthly  tbody  tr').each(function () {
+                debugger
+                //var _itemId = $(this).find('.MonthItem').text();
+                var _itemName = $(this).find('.itemName').text();
+                if (ItemWithCity == _itemName) {
+                    isExistinMonth = true;
+                }
+            });
+            if (isExistinMonth == true) {
+                debugger
+                $("#tblMonthly  tbody td:contains('" + ItemWithCity + "')").parent().remove();
+            }
+        }
+        function deleteCity(row) {
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            $("#tblCity").find("tr").eq(c).remove();
+        }
+        function deleteMonth(row) {
+            var item = $('#ItemCategory').val();
+            var yearSelected = $("#Year").find(":selected").text();
+            var yearRow = row.closest('tr').find('td.Year').text();
+            var monthItemRow = row.closest('tr').find('td.MonthItem').text();
+            var monthNameRow = row.closest('tr').find('td.Month').text();
+            debugger
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            let remainingTarget = parseFloat($('#_RemainingAnnualSaleTarget').val());
+            let tempTarget = 0.00;
+            if (monthItemRow == item && yearSelected == yearRow) {
+                row.closest('tr').find('td.MonthSaleTarget').each(function () {
+                    tempTarget += parseFloat($(this).text());
+                });
+                let totalRemTarget = remainingTarget + tempTarget;
+                $('#_RemainingAnnualSaleTarget').val(totalRemTarget.toFixed(2));
+                $('#RemainingAnnualSaleTargethdn').val(totalRemTarget.toFixed(2));
+                $('#RemainingAnnualSaleTargethdn2').val(totalRemTarget.toFixed(2));
+                $("#tblMonthly").find("tr").eq(c).remove();
+                let isExist = false;
+                $('#Month option').each(function () {
+                    if (this.value == monthNameRow) {
+                        isExist = true;
+                        return false;
+                    }
+                });
+                if (!isExist) {
+                    $("#Month option:eq(0)").after($('<option>',
+                        { value: monthNameRow, text: monthNameRow },
+                    ));
+                }
+
+            }
+            else
+            {
+                swal('', 'Selected item or year is not related to row that you want to delete.', 'error')
+                return false;
+            }
+
+        }
+        function deleteAnnual(row) {
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            debugger
+            // For annual monthly target
+            let itemId = row.closest('tr').find('td.AnnualItem').text();
+            let isExistinMonth = false;
+            $('#tblMonthly  tbody  tr').each(function () {
+                var _itemId = $(this).find('.MonthItem').text();
+                if (itemId == _itemId) {
+                    isExistinMonth = true;
+                }
+            });
+            if (isExistinMonth == true) {
+                $("#tblMonthly  tbody td:contains('" + itemId + "')").parent().remove();
+            }
+            $("#tblAnnual").find("tr").eq(c).remove();
+        }
+        //Getting Annual Sale Target of current selected year in Monthly Sale Target Tab form Anual SaleTarget Tab
+        function getAnnualYear() {
+            debugger
+            $('#Year').find('option').not(':first').remove();
+            //var item = $("#ItemCategory").val();
+            var itemCategoryName = $("#ItemCategory").find(":selected").text();
+            $('#tblAnnual > tbody > tr').each(function () {
+                debugger
+                //var ItemCategory = $(this).closest("tr").find('.AnnualItem').text();
+                var _ItemCategory = $(this).closest("tr").find('.AnnualItemName').text();
+                var startYear = $(this).closest("tr").find('.AnnualStartDate').text().split('-')[2];
+                var endYear = $(this).closest("tr").find('.AnnualEndDate').text().split('-')[2];
+                if (itemCategoryName == _ItemCategory) {
+                    $('#Year').append($('<option>', {
+                        value: startYear + ' - ' + endYear,
+                        text: startYear + ' - ' + endYear
+                    }));
+
+                }
+            });
+            $('#Year').change();
+        }
+
+        //Getting Annual Sale Target of current selected item in Monthly Sale Target Tab form Anual SaleTarget Tab
+        function getAnnualTarget() {
+            debugger
+            //var item = $('#ItemCategory').val();
+            var itemCategoryName = $('#ItemCategory').find(":selected").text();
+            let remainingTarget = 0.00;
+            let monthlyTarget = 0.00;
+            var yearSelected = $("#Year").find(":selected").text();
+            if (yearSelected == "Select...") {
+                $('#RemainingAnnualSaleTargethdn').val(0);
+                $('#RemainingAnnualSaleTargethdn2').val(0);
+                $('#_RemainingAnnualSaleTarget').val(0);
+                $('#Month').find('option').not(':first').remove();
+                $("#_AnnualSaleTarget").val(0);
+                return false;
+            }
+            $('#tblAnnual > tbody > tr').each(function () {
+                debugger
+                var AnnualTarget = $(this).closest("tr").find('.AnnualSaleTarget').text();
+                //var AnnualItem = $(this).closest("tr").find('.AnnualItem').text();
+                var AnnualItemName = $(this).closest("tr").find('.AnnualItemName').text();
+                var startYear = $(this).closest("tr").find('.AnnualStartDate').text().split('-')[2];
+                var endYear = $(this).closest("tr").find('.AnnualEndDate').text().split('-')[2];
+                $('#Month').find('option').not(':first').remove();
+                $('#Month').append($('<option>',
+                    { value: 'July' + ' - ' + startYear, text: 'July' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'August' + ' - ' + startYear, text: 'August' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'September' + ' - ' + startYear, text: 'September' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'October' + ' - ' + startYear, text: 'October' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'November' + ' - ' + startYear, text: 'November' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'December' + ' - ' + startYear, text: 'December' + ' - ' + startYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'January' + ' - ' + endYear, text: 'January' + ' - ' + endYear },
+
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'Febraury' + ' - ' + endYear, text: 'Febraury' + ' - ' + endYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'March' + ' - ' + endYear, text: 'March' + ' - ' + endYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'April' + ' - ' + endYear, text: 'April' + ' - ' + endYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'May' + ' - ' + endYear, text: 'May' + ' - ' + endYear },
+                ));
+                $('#Month').append($('<option>',
+                    { value: 'June' + ' - ' + endYear, text: 'June' + ' - ' + endYear },
+                ));
+
+                if (yearSelected == startYear + ' - ' + endYear && itemCategoryName == AnnualItemName) {
+                    if (AnnualTarget != "") {
+                        $("#_AnnualSaleTarget").val(Number(AnnualTarget).toFixed(2));
+
+                        $('#tblMonthly  tbody  tr').each(function () {
+                            $(this).find('.del-btn').attr('disabled', true);
+                            //var _itemId = $(this).find('.MonthItem').text();
+                            var _itemName = $(this).find('.itemName').text();
+                            var _year = $(this).find('.Year').text();
+                            let _month = $(this).find('.Month').text();
+                            $('#Month option').each(function () {
+                                debugger
+                                if (itemCategoryName == _itemName && this.value == _month) {
+                                    $(this).remove();
+                                    return false;
+                                }
+                            });
+                            debugger
+                            if (itemCategoryName == _itemName && (_year.trim() == (startYear +' - '+ endYear))) {
+                                $(this).find('.del-btn').removeAttr('disabled');
+                                monthlyTarget += parseFloat($(this).find('.MonthSaleTarget').text()) || 0.0;
+                            }
+                        });
+                        remainingTarget = parseFloat(AnnualTarget) - monthlyTarget;
+                        $('#RemainingAnnualSaleTargethdn').val(remainingTarget.toFixed(2));
+                        $('#RemainingAnnualSaleTargethdn2').val(remainingTarget.toFixed(2));
+                        $('#_RemainingAnnualSaleTarget').val(remainingTarget.toFixed(2));
+                        return false;
+                    }
+                    else {
+                        $("#_AnnualSaleTarget").val(0);
+                    }
+                }
+                else {
+                    $("#_AnnualSaleTarget").val(0);
+                }
+
+            });
+        }
+        //Validating fields for numbers
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

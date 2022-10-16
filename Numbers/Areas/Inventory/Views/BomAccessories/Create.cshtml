@@ -1,0 +1,1144 @@
+﻿@model BomAccessoriesViewModel
+@{
+    ViewData["Title"] = "Create BOM Accessories";
+    ViewData["CurrentPage"] = "BOM Accessories";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+        select[readonly] option, select[readonly] optgroup {
+            display: none;
+        }
+
+        .table-responsive {
+            max-height: 300px;
+        }
+
+        .t td {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="formId" method="post" asp-action="Create" asp-controller="BomAccessories" enctype="multipart/form-data" onsubmit="return submitdetails()">
+                    <input asp-for="BomAccessories.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-1 col-sm-2">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label asp-for="BomAccessories.TransactionNo"></label>
+                                    @if (Model.BomAccessories.Id != 0)
+                                    {
+                                        <input id="TransactionNo" asp-for="BomAccessories.TransactionNo" readonly class="form-control" />
+                                    }
+                                    else
+                                    {
+                                        <input readonly class="form-control" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.TransactionDate"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="BomAccessories.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.SecondItemCategoryId"></label>
+                                <select asp-for="BomAccessories.SecondItemCategoryId" class="chosen-select form-control" id="secondcategoryId" asp-items="@ViewBag.SecondLevelCategoryLOV" required>
+                                    <option selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.FourthItemCategoryId"></label>
+                                <select asp-for="BomAccessories.FourthItemCategoryId" asp-items="@ViewBag.FourthLevelCategoryLOV" class="chosen-select form-control" id="fourthCategoryId" required>
+                                    <option value="0" selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-sm-2">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.Kameez"></label>
+                                <input id="Kameez" asp-for="BomAccessories.Kameez" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-sm-2">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.Shalwar"></label>
+                                <input id="Shalwar" asp-for="BomAccessories.Shalwar" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-1 col-sm-2">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.Dupatta"></label>
+                                <input id="Dupatta" asp-for="BomAccessories.Dupatta" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-2">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.MeterItem"></label>
+                                <input id="MeterItem" asp-for="BomAccessories.MeterItem" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Bolt/Bale Measurements</h2>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.BoltItem"></label>
+                                    <input id="BoltItem" asp-for="BomAccessories.BoltItem" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.DozenItem"></label>
+                                    <input id="DozenItem" asp-for="BomAccessories.DozenItem" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.MeterDozen"></label>
+                                    <input id="MeterDozen" asp-for="BomAccessories.MeterDozen" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.MeterBolt"></label>
+                                    <input id="MeterBolt" asp-for="BomAccessories.MeterBolt" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.BaleItem"></label>
+                                    <input id="BaleItem" asp-for="BomAccessories.BaleItem" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.DozenBale"></label>
+                                    <input id="DozenBale" asp-for="BomAccessories.DozenBale" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.BoltBale"></label>
+                                    <input id="BoltBale" asp-for="BomAccessories.BoltBale" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.BaleMeter"></label>
+                                    <input id="BaleMeter" asp-for="BomAccessories.BaleMeter" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">SP/Carton Measurements</h2>
+                        </div>
+
+                        <div class="col-lg-12">
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.CartonTypeId"></label>
+                                    <select class="chosen-select form-control" asp-for="BomAccessories.CartonTypeId" id="CartonTypeId" asp-items="@ViewBag.CartonTypeId" readonly required>
+                                        <option value="0" selected disabled>Please select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.SpCarton"></label>
+                                    <input id="SpCarton" asp-for="BomAccessories.SpCarton" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.CartonMeter"></label>
+                                    <input id="CartonMeter" asp-for="BomAccessories.CartonMeter" readonly class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-sm-2">
+                                <div class="form-group">
+                                    <label asp-for="BomAccessories.Remarks"></label>
+                                    <input id="Remarks" asp-for="BomAccessories.Remarks" class="form-control" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <br />
+                    <br />
+                    <div class="row">
+
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Accessories Attachment</h2>
+                        </div>
+
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.SecondItemCategoryId"></label>
+                                <input id="SecondItemCategoryText" asp-for="SecondCatText" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="BomAccessories.FourthItemCategoryId"></label>
+                                <input id="FourthItemCategoryText" asp-for="FourthCatText" readonly class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label>Nature</label>
+                                <select class="chosen-select form-control" id="natureId" asp-items="@ViewBag.Nature" required>
+                                    <option value="0" selected disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label>General Accessories / Item Specified</label>
+                                <select asp-for="BomAccessories.ItemType" class="chosen-select form-control" id="ItemType" required>
+                                    <option value="0" selected disabled>Please select</option>
+                                    <option value="1">General Accessories</option>
+                                    <option value="2">Item Specified</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label>Items</label>
+                                <select class="chosen-select form-control itm" id="itemId">
+                                    <option value="0" selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-lg-2 col-sm-3 ">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="col-form-label">Quantity</label>
+                                    <input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" type="number" class="form-control text-right" id="qntyId" data-validation="required" autocomplete="off" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 ">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label class="col-form-label">UOM</label>
+                                    <input tabindex="-1" class="form-control" id="uomName" readonly />
+                                    <input id="uomId" hidden />
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group col-lg-1" style="margin-left:auto">
+                            <label class="control-label">  </label>
+                            <div>
+                                <a class="btn btn-primary" onclick="AddItem();" style="margin-top:4px">Add</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                            <table id="tblBOMDetail" class="table table-bordered table-striped withscroll">
+                                <thead>
+                                    <tr>
+                                        <th style="width:45%">Item Description</th>
+                                        <th style="width:15%">Quantity</th>
+                                        <th style="width:15%">UOM</th>
+                                        <th style="width:15%">Nature</th>
+                                        <th style="width:10%">Action</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="tblBOMDetailBody">
+                                    @if (Model.BomAccessoriesDetail != null)
+                                    {
+
+                                        @foreach (var item in Model.BomAccessoriesDetail)
+                                        {
+                                            <tr>
+                                                <td class="Id" hidden>@item.Id</td>
+
+                                                <td class="ItemId" hidden>@item.ItemId</td>
+                                                <td class="ItemName">@item.Item.Code - @item.Item.Name</td>
+
+                                                <td class="quantity text-right">@item.Quantity</td>
+
+                                                <td class="uomId text-right" hidden>@item.UOMId</td>
+                                                <td class="uom text-right">@item.UOM.ConfigValue</td>
+
+                                                <td class="natureId" hidden>@item.NatureId</td>
+                                                <td class="natureName">@item.Nature.ConfigValue</td>
+
+                                                <td class="text-center">
+                                                    <a class="btn btn-sm btn-danger m-t-n-xs " onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a asp-controller="BomAccessories" asp-action="Index" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" onclick="return Validation();" value="Save" class="btn btn-primary" />
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                            <input hidden id="detail" name="Detail" />
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#secondcategoryId").select2();
+            $("#fourthCategoryId").select2();
+            $("#natureId").select2();
+            $("#itemId").select2();
+            $("#ItemType").select2();
+
+
+            if (@Model.BomAccessories.SecondItemCategoryId !=0) {
+
+                /*Home textile category*/
+                if (@Model.BomAccessories.SecondItemCategoryId== 141) {
+                        $('#Kameez').attr('readonly', true);
+                        $('#Shalwar').attr('readonly', true);
+                        $('#Dupatta').attr('readonly', true);
+                        $('#DozenItem').attr('readonly', true);
+                        $('#MeterDozen').attr('readonly', true);
+                        $('#MeterBolt').attr('readonly', true);
+                        $('#BaleItem').attr('readonly', true);
+                        $('#DozenBale').attr('readonly', true);
+                        $('#CartonTypeId').attr('readonly', true);
+                        $('#SpCarton').attr('readonly', true);
+                        $('#CartonMeter').attr('readonly', true);
+
+
+                        $('#MeterItem').attr('readonly', false);
+                        $('#BoltItem').attr('readonly', false);
+                        $('#BoltBale').attr('readonly', false);
+                }
+
+                /*Men category*/
+                else if (@Model.BomAccessories.SecondItemCategoryId== 146) {
+                    $('#Dupatta').attr('readonly', true);
+                    $('#MeterItem').attr('readonly', true);
+                    $('#DozenItem').attr('readonly', true);
+                    $('#MeterDozen').attr('readonly', true);
+                    $('#MeterBolt').attr('readonly', true);
+                    $('#DozenBale').attr('readonly', true);
+                    $('#BoltBale').attr('readonly', true);
+                    $('#CartonMeter').attr('readonly', true);
+
+
+                    $('#Kameez').attr('readonly', false);
+                    $('#Shalwar').attr('readonly', false);
+                    $('#BoltItem').attr('readonly', false);
+                    $('#BaleItem').attr('readonly', false);
+                    $('#CartonTypeId').attr('readonly', false);
+                    $('#SpCarton').attr('readonly', false);
+                }
+
+                /*Women category*/
+                else if (@Model.BomAccessories.SecondItemCategoryId== 156) {
+                    $('#MeterItem').attr('readonly', true);
+                    $('#DozenItem').attr('readonly', true);
+                    $('#MeterDozen').attr('readonly', true);
+                    $('#MeterBolt').attr('readonly', true);
+                    $('#DozenBale').attr('readonly', true);
+                    $('#BoltBale').attr('readonly', true);
+                    $('#CartonMeter').attr('readonly', true);
+
+
+                    $('#Kameez').attr('readonly', false);
+                    $('#Shalwar').attr('readonly', false);
+                    $('#Dupatta').attr('readonly', false);
+                    $('#BoltItem').attr('readonly', false);
+                    $('#BaleItem').attr('readonly', false);
+                    $('#CartonTypeId').attr('readonly', false);
+                    $('#SpCarton').attr('readonly', false);
+                }
+            }
+
+
+            $('#secondcategoryId').on('change', function () {
+
+                $('#fourthCategoryId').find('option').not(':first').remove();
+                var item = $('#secondcategoryId').val();
+                var itemText = $('#secondcategoryId option:selected').text();
+
+                $('#SecondItemCategoryText').val(itemText);
+                if (item == "0" || item == null) {
+                    return;
+                }
+                $.ajax({
+                    method: "GET",
+                    url: "/Inventory/BomAccessories/GetItems",
+                    data: { Id: item }
+                }).done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#fourthCategoryId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                });
+
+                /*Home textile category*/
+                if (item == 141) {
+                    $('#Kameez').val(0);
+                    $('#Kameez').attr('readonly', true);
+
+                    $('#Shalwar').val(0);
+                    $('#Shalwar').attr('readonly', true);
+
+                    $('#Dupatta').val(0);
+                    $('#Dupatta').attr('readonly', true);
+
+                    $('#DozenItem').val(0);
+                    $('#DozenItem').attr('readonly', true);
+
+                    $('#MeterDozen').val(0);
+                    $('#MeterDozen').attr('readonly', true);
+
+                    $('#MeterBolt').val(0);
+                    $('#MeterBolt').attr('readonly', true);
+
+                    $('#BaleItem').val(0);
+                    $('#BaleItem').attr('readonly', true);
+
+                    $('#DozenBale').val(0);
+                    $('#DozenBale').attr('readonly', true);
+
+                    $('#CartonTypeId').val(0);
+                    $('#CartonTypeId').attr('readonly', true);
+
+                    $('#SpCarton').val(0);
+                    $('#SpCarton').attr('readonly', true);
+
+                    $('#CartonMeter').val(0);
+                    $('#CartonMeter').attr('readonly', true);
+
+
+
+                    $('#MeterItem').val(0);
+                    $('#MeterItem').attr('readonly', false);
+
+                    $('#BoltItem').val(0);
+                    $('#BoltItem').attr('readonly', false);
+
+                    $('#BoltBale').val(0);
+                    $('#BoltBale').attr('readonly', false);
+                }
+                /*Men category*/
+                else if (item == 146) {
+                    $('#Dupatta').val(0);
+                    $('#Dupatta').attr('readonly', true);
+
+                    $('#MeterItem').val(0);
+                    $('#MeterItem').attr('readonly', true);
+
+                    $('#DozenItem').val(0);
+                    $('#DozenItem').attr('readonly', true);
+
+                    $('#MeterDozen').val(0);
+                    $('#MeterDozen').attr('readonly', true);
+
+                    $('#MeterBolt').val(0);
+                    $('#MeterBolt').attr('readonly', true);
+
+                    $('#DozenBale').val(0);
+                    $('#DozenBale').attr('readonly', true);
+
+                    $('#BoltBale').val(0);
+                    $('#BoltBale').attr('readonly', true);
+
+                    $('#CartonMeter').val(0);
+                    $('#CartonMeter').attr('readonly', true);
+
+
+
+                    $('#Kameez').val(0);
+                    $('#Kameez').attr('readonly', false);
+
+                    $('#Shalwar').val(0);
+                    $('#Shalwar').attr('readonly', false);
+
+                    $('#BoltItem').val(0);
+                    $('#BoltItem').attr('readonly', false);
+
+                    $('#BaleItem').val(0);
+                    $('#BaleItem').attr('readonly', false);
+
+                    $('#CartonTypeId').val(0);
+                    $('#CartonTypeId').attr('readonly', false);
+
+                    $('#SpCarton').val(0);
+                    $('#SpCarton').attr('readonly', false);
+
+                }
+                /*Women category*/
+                else if (item == 156) {
+                    $('#MeterItem').val(0);
+                    $('#MeterItem').attr('readonly', true);
+
+                    $('#DozenItem').val(0);
+                    $('#DozenItem').attr('readonly', true);
+
+                    $('#MeterDozen').val(0);
+                    $('#MeterDozen').attr('readonly', true);
+
+                    $('#MeterBolt').val(0);
+                    $('#MeterBolt').attr('readonly', true);
+
+                    $('#DozenBale').val(0);
+                    $('#DozenBale').attr('readonly', true);
+
+                    $('#BoltBale').val(0);
+                    $('#BoltBale').attr('readonly', true);
+
+                    $('#CartonMeter').val(0);
+                    $('#CartonMeter').attr('readonly', true);
+
+
+
+                    $('#Kameez').val(0);
+                    $('#Kameez').attr('readonly', false);
+
+                    $('#Shalwar').val(0);
+                    $('#Shalwar').attr('readonly', false);
+
+                    $('#Dupatta').val(0);
+                    $('#Dupatta').attr('readonly', false);
+
+                    $('#BoltItem').val(0);
+                    $('#BoltItem').attr('readonly', false);
+
+                    $('#BaleItem').val(0);
+                    $('#BaleItem').attr('readonly', false);
+
+                    $('#CartonTypeId').val(0);
+                    $('#CartonTypeId').attr('readonly', false);
+
+                    $('#SpCarton').val(0);
+                    $('#SpCarton').attr('readonly', false);
+                }
+
+            })
+
+            $('#Kameez').on('change', function () {
+                //debugger;
+                var Kameez = $('#Kameez').val();
+                var Shalwar = $('#Shalwar').val();
+                var Dupatta = $('#Dupatta').val();
+
+                var MeterItem = parseFloat(Kameez) + parseFloat(Shalwar) + parseFloat(Dupatta);
+                MeterItem = MeterItem.toFixed(2);
+                $('#MeterItem').val(MeterItem);
+
+                var MeterItem = $('#MeterItem').val();
+                var BoltItem = $('#BoltItem').val();
+                var MeterBolt = $('#MeterBolt').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var BoltMeter = parseFloat(BoltItem) * parseFloat(MeterItem);
+                if (SecondItemCategoryId == 156 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+                else if (SecondItemCategoryId == 156 && parseFloat(Dupatta) > 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 3;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 146 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                var SpCarton = $('#SpCarton').val();
+
+                var CartonMeter = parseFloat(MeterItem) * parseFloat(SpCarton);
+                $('#CartonMeter').val(CartonMeter);
+            })
+
+            $('#Shalwar').on('change', function () {
+                //debugger;
+                var Kameez = $('#Kameez').val();
+                var Shalwar = $('#Shalwar').val();
+                var Dupatta = $('#Dupatta').val();
+
+                var MeterItem = parseFloat(Kameez) + parseFloat(Shalwar) + parseFloat(Dupatta);
+                MeterItem = MeterItem.toFixed(2);
+                $('#MeterItem').val(MeterItem);
+
+                var MeterItem = $('#MeterItem').val();
+                var BoltItem = $('#BoltItem').val();
+                var MeterBolt = $('#MeterBolt').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var BoltMeter = parseFloat(BoltItem) * parseFloat(MeterItem);
+                if (SecondItemCategoryId == 156 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+                else if (SecondItemCategoryId == 156 && parseFloat(Dupatta) > 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 3;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 146 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                var SpCarton = $('#SpCarton').val();
+
+                var CartonMeter = parseFloat(MeterItem) * parseFloat(SpCarton);
+                $('#CartonMeter').val(CartonMeter);
+            })
+
+            $('#Dupatta').on('change', function () {
+                //debugger;
+                var Kameez = $('#Kameez').val();
+                var Shalwar = $('#Shalwar').val();
+                var Dupatta = $('#Dupatta').val();
+
+                var MeterItem = parseFloat(Kameez) + parseFloat(Shalwar) + parseFloat(Dupatta);
+                MeterItem = MeterItem.toFixed(2);
+                $('#MeterItem').val(MeterItem);
+
+                var MeterItem = $('#MeterItem').val();
+                var BoltItem = $('#BoltItem').val();
+                var MeterBolt = $('#MeterBolt').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var BoltMeter = parseFloat(BoltItem) * parseFloat(MeterItem);
+                if (SecondItemCategoryId == 156 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+                else if (SecondItemCategoryId == 156 && parseFloat(Dupatta) > 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 3;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 146 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+            })
+
+            $('#fourthCategoryId').on('change', function () {
+                var itemText = $('#fourthCategoryId option:selected').text();
+                $('#FourthItemCategoryText').val(itemText);
+
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var fourthCategoryId = $('#fourthCategoryId').val();
+                if (SecondItemCategoryId == 141 && fourthCategoryId == 427) {
+                    $('#DozenItem').val(12);
+                    $('#MeterItem').attr('readonly', false);
+                    $('#DozenBale').attr('readonly', false);
+                    $('#MeterDozen').attr('readonly', false);
+
+                    $('#BoltItem').attr('readonly', true);
+                    $('#BoltBale').attr('readonly', true);
+                }
+
+                else if (SecondItemCategoryId == 141 && fourthCategoryId != 427) {
+                    $('#DozenItem').val(12);
+                    $('#MeterItem').attr('readonly', true);
+                    $('#DozenBale').attr('readonly', true);
+                    $('#MeterDozen').attr('readonly', true);
+
+                    $('#BoltItem').attr('readonly', false);
+                    $('#BoltBale').attr('readonly', false);
+                }
+            })
+
+            $('#MeterItem').on('change', function () {
+                //debugger;
+                var BaleItem = $('#BaleItem').val();
+                var MeterItem = $('#MeterItem').val();
+                var BoltItem = $('#BoltItem').val();
+                var Dupatta = $('#Dupatta').val();
+                var MeterBolt = $('#MeterBolt').val();
+
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var fourthCategoryId = $('#fourthCategoryId').val();
+
+                var BaleMeter = parseFloat(BaleItem) * parseFloat(MeterItem);
+                $('#BaleMeter').val(BaleMeter);
+
+                var BoltMeter = parseFloat(BoltItem) * parseFloat(MeterItem);
+                if (SecondItemCategoryId== 156 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+                else if (SecondItemCategoryId== 156 && parseFloat(Dupatta) > 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 3;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 146 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                var SpCarton = $('#SpCarton').val();
+
+                var CartonMeter = parseFloat(MeterItem) * parseFloat(SpCarton);
+                $('#CartonMeter').val(CartonMeter);
+
+                if (SecondItemCategoryId == 141 && fourthCategoryId !=427) {
+                    MeterBolt = parseFloat(BoltItem) * parseFloat(MeterItem);
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+            });
+
+            $('#BoltItem').on('change', function () {
+                //debugger;
+                var MeterItem = $('#MeterItem').val();
+                var BoltItem = $('#BoltItem').val();
+                var Dupatta = $('#Dupatta').val();
+                var MeterBolt = $('#MeterBolt').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var fourthCategoryId = $('#fourthCategoryId').val();
+
+                var BoltMeter = parseFloat(BoltItem) * parseFloat(MeterItem);
+                if (SecondItemCategoryId == 156 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+                else if (SecondItemCategoryId == 156 && parseFloat(Dupatta) > 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 3;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 146 && parseFloat(Dupatta) == 0) {
+                    MeterBolt = parseFloat(BoltMeter) / 2;
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+
+                if (SecondItemCategoryId == 141 && fourthCategoryId != 427) {
+                    MeterBolt = parseFloat(BoltItem) * parseFloat(MeterItem);
+                    MeterBolt = MeterBolt.toPrecision(2);
+                    $('#MeterBolt').val(MeterBolt);
+                }
+            });
+
+            $('#MeterDozen').on('change', function () {
+                //debugger;
+                var MeterDozen = $('#MeterDozen').val();
+                var DozenBale = $('#DozenBale').val();
+                var BaleMeter = $('#BaleMeter').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var fourthCategoryId = $('#fourthCategoryId').val();
+
+                if (SecondItemCategoryId == 141 && fourthCategoryId == 427) {
+                    BaleMeter = parseFloat(MeterDozen) * parseFloat(DozenBale);
+                    $('#BaleMeter').val(BaleMeter);
+                }
+            });
+
+            $('#DozenBale').on('change', function () {
+                //debugger;
+                var MeterDozen = $('#MeterDozen').val();
+                var DozenBale = $('#DozenBale').val();
+                var BaleMeter = $('#BaleMeter').val();
+                var SecondItemCategoryId = $('#secondcategoryId').val();
+                var fourthCategoryId = $('#fourthCategoryId').val();
+
+                if (SecondItemCategoryId == 141 && fourthCategoryId == 427) {
+                    BaleMeter = parseFloat(MeterDozen) * parseFloat(DozenBale);
+                    $('#BaleMeter').val(BaleMeter);
+                }
+            });
+
+            $('#BoltBale').on('change', function () {
+                //debugger;
+                var MeterBolt = $('#MeterBolt').val();
+                var BoltBale = $('#BoltBale').val();
+
+                var BaleMeter = parseFloat(MeterBolt) * parseFloat(BoltBale);
+                $('#BaleMeter').val(BaleMeter);
+            });
+
+            $('#BaleItem').on('change', function () {
+                var BaleItem = $('#BaleItem').val();
+                var MeterItem = $('#MeterItem').val();
+
+                var BaleMeter = parseFloat(BaleItem) * parseFloat(MeterItem);
+
+                $('#BaleMeter').val(BaleMeter);
+            });
+
+            $('#SpCarton').on('change', function () {
+                //debugger;
+                var MeterItem = $('#MeterItem').val();
+                var SpCarton = $('#SpCarton').val();
+
+                var CartonMeter = parseFloat(MeterItem) * parseFloat(SpCarton);
+                $('#CartonMeter').val(CartonMeter);
+            });
+
+            $("#ItemType").on('change', function () {
+                $('#itemId').find('option').remove();
+
+                var item = $('#ItemType').val();
+                if (item == "0" || item == "") {
+                    return;
+                }
+                $.ajax({
+                    method: "GET",
+                    url: "/Inventory/BomAccessories/GetItemType",
+                    data: { Id: item }
+                }).done(function (data) {
+                    $('#itemId').append($('<option>', {
+                        value: 0,
+                        text: "Please Select"
+                    }));
+                    $.each(data, function (i, item) {
+                        $('#itemId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                });
+            });
+
+            $('#itemId').change(function () {
+                var itemId = $('#itemId').val();
+                $.ajax({
+                    type: 'POST',
+                    async: false,
+                    url: '/Inventory/Adjustment/GetItemById?id=' + itemId,
+
+                }).done(function (data) {
+                    if (data != null) {
+                        $('#uomName').val(data.code);
+                        $('#uomId').val(data.unit);
+                    }
+                    else {
+
+                    }
+                });
+            });
+
+        });
+    </script>
+
+    <script>
+        function AddItem() {
+            var ItemId = $("#itemId").find(":selected").val();
+            var ItemName = $("#itemId").find(":selected").text();
+
+            var quantity = $("#qntyId").val();
+            var uom = $("#uomId").val();
+            var uomName = $("#uomName").val();
+
+            var natureId = $("#natureId").find(":selected").val();
+            var natureName = $("#natureId").find(":selected").text();
+
+            if (natureId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Nature!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#natureId').focus();
+                });
+                return false;
+            }
+            if (ItemId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item !",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#itemId').focus();
+                });
+                return false;
+            }
+
+            if (quantity <= 0 || quantity == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Quantity  !",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#qntyId').focus();
+                });
+                return false;
+            }
+
+
+            item_data = '';
+            item_data += '<tr>';
+            item_data += '<td class ="Id" hidden>0</td>';
+
+            item_data += '<td class ="ItemId" hidden>' + ItemId + '</td>';
+            item_data += '<td class ="ItemName">' + ItemName + '</td>';
+
+            item_data += '<td class ="quantity text-right" >' + quantity + '</td>';
+
+            item_data += '<td class ="uomId text-right" hidden >' + uom + '</td>';
+            item_data += '<td class ="uom text-right" >' + uomName + '</td>';
+
+            item_data += '<td class ="natureId" hidden>' + natureId + '</td>';
+            item_data += '<td class ="natureName">' + natureName + '</td>';
+
+            item_data += '<td class ="text-center">';
+            item_data += '<a class="btn btn-sm btn-danger m-t-n-xs " onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            item_data += '</tr>';
+            /**/
+            $("#tblBOMDetail > tbody").append(item_data);
+
+            ClearTextBox();
+
+
+        }
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function ClearTextBox() {
+            $('#itemId').val(0).trigger('change.select2');
+            $("#qntyId").val("");
+            $("#uomId").val("");
+            $('#natureId').val(0).trigger('change.select2');
+        }
+    </script>
+
+    <script>
+        function Validation() {
+            debugger;
+            var secondcategory = $("#secondcategoryId").val();
+            var fourthCategory = $("#fourthCategoryId").val();
+            var ItemType = $("#ItemType").val();
+            var itemId = $("#itemId").val();
+            var nature = $('#natureId').val();
+            var quantity = $("#qntyId").val();
+
+            //var rowCount = $('#tblBOMDetailBody tr').length;
+            var rowIndex = parseInt((parseInt($('#tblBOMDetail tbody tr').length)));
+
+            if (secondcategory == 0 || secondcategory == null || secondcategory=="") {
+                swal("", "Please select Second Category !", "warning");
+                return false;
+            }
+
+            if (fourthCategory == 0 || fourthCategory == null || fourthCategory == "") {
+                swal("", "Please select Fourth Category !", "warning");
+                return false;
+            }
+
+            if (ItemType == 0 || ItemType == null || ItemType == "") {
+                swal("", "Please select General Accessories / Item Specified !", "warning");
+                return false;
+            }
+
+            if ((itemId == 0 || itemId == null || itemId == "") && rowIndex <= 0) {
+                swal("", "Please select Item !", "warning");
+                return false;
+            }
+
+            if ((nature == 0 || nature == null || nature == "") && rowIndex <= 0) {
+                swal("", "Please select nature !", "warning");
+                return false;
+            }
+
+            if ((quantity <= 0 || quantity == null || quantity == "") && rowIndex <= 0) {
+                swal("", "Please select quantity !", "warning");
+                return false;
+            }
+
+            if (rowIndex <= 0) {
+                swal("", "Please add at least one record in list !", "warning");
+                return false;
+            }
+
+            else {
+                $("#formId").on("submit", function () {
+                    $("#SaveBtn").attr("disabled", true);
+                    $("#SaveBtn").val("Saving...");
+                });
+                return true;
+            }
+
+        }
+    </script>
+
+    <script>
+        function submitdetails() {
+            //debugger;
+            var BOMdetails = [];
+            $.each($("#tblBOMDetail tbody tr"), function () {
+                BOMdetails.push({
+                    Id: $(this).find('.Id').html(),
+                    ItemId: $(this).find('.ItemId').html(),
+                    Quantity: $(this).find('.quantity').html(),
+                    UOMId: $(this).find('.uomId').html(),
+                    NatureId: $(this).find('.natureId').html()
+                });
+            });
+
+            var model = JSON.stringify(BOMdetails);
+            $("#detail").val(model);
+
+
+        }
+
+        function GetThirdLevel() {
+            $("#tblBOMDetail > tbody > tr").remove();
+            debugger
+            $('#fourthCategoryId').find('option').not(':first').remove();
+            var secondLevel = $('#secondcategoryId').val();
+            $.ajax({
+                type: 'GET',
+                url: '/AR/SaleOrder/GetFourthLevel?id=' + secondLevel
+            }).then(function (data) {
+                var thirdCat = $("#fourthCategoryId");
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    thirdCat.append($("<option />").val(data[i].value).text(data[i].text));
+                }
+                $('#fourthCategoryId').val(0).trigger('change.select2');
+
+            });
+
+        }
+    </script>
+
+}

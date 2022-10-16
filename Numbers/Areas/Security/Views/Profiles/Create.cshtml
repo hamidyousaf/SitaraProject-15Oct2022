@@ -1,0 +1,230 @@
+﻿@model SysProfileValues
+@{
+    ViewBag.Title = "Profiles";
+    ViewData["CurrentPage"] = "Create Profiles";
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox-content">
+            <form class="form-horizontal" asp-controller="Profiles" asp-action="Create" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <br />
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="form-group">
+                            <input type="hidden" />
+                            <label class="col-lg-4 control-label">Responsibilites</label>
+                            <div class="col-lg-8">
+                                <select id="Responsibilites"  name="Responsibilites" autofocus class="form-control" asp-items="@ViewBag.Responsibility">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="col-lg-2" style="margin-left: 109%; top: -34px">
+                                <a id="addDetail" class="btn btn-success"><i class="fa fa-plus"></i></a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                  <div class="row col-sm-10">
+                                        <table id="tblprofiles" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Profile Option Name</th>
+                                                    <th>Responsibility</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+                          
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-2" style="right: 4%;">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <button style="padding: 7px 15px;" type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Profiles">@ViewBag.EntityState</button>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+
+    <script>
+             $(document).ready(function () {
+            var securityProfile =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SecurityProfile));
+            $("#addDetail").click(function () {
+                $("#Responsibilites").select2();
+                debugger;
+                var id = $("#Responsibilites").val();
+
+                debugger;
+                $.ajax({
+                    url: '/Security/Profiles/GetProfiles/' + id,
+                    type: 'GET',
+                }).done(function (data) {
+                    debugger;
+                    var obj = data;
+                    var Itemrow = '';
+                    $('#tblprofiles tbody tr').remove();
+                    for (var i = 0; i < data.length; i++) {
+                        Itemrow = '';
+                        Itemrow += '<tr>';
+                        Itemrow += '<td id="Responsibilites" name="Responsibilites" class="Responsibilites" hidden></td>';
+                        Itemrow += '<td> <input id="ProfileOptionName" name="ProfileOptionName"  value= "' + data[i].configValue + '"  class ="form-control" readonly /></td>';
+                        Itemrow += '<td><select id="ResponField_'+ i +'" name="ResponField" class="form-control" > <option selected="selected">Select...</option> </select> </td>';
+                        //Itemrow += '<td><a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow"  class="fa fa-trash" title="Delete"></i> </a>    <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>    </td>';
+                        Itemrow += '</tr>';
+                        $('#tblprofiles tbody').append(Itemrow);
+                    }
+                });
+
+                debugger;
+                $.ajax({
+                    url: '/Security/Profiles/GetProfiles/' + id,
+                    type: 'GET',
+                }).done(function (data) {
+                    debugger;
+                    var obj = data;
+                    for (var k = 0; k < data.length; k++) {
+                        debugger;
+                        $.ajax({
+                            async: false,
+                            url: '/Security/Profiles/GetOrganizations/' + data[k].userValue3,
+                            type: 'GET',
+                        }).done(function (org) {
+                            debugger;
+                            for (var j = 0; j < org.length; j++) {
+                                debugger;
+                                optionText = org[j].name;
+                                optionValue = org[j].id;
+                                $('#ResponField_' + k).append(new Option(optionText, optionValue));
+                                //alert('ResponField_' + i)
+                            }
+                        });
+                    }
+                });
+
+            });
+        });
+
+        function deleterow(row) {
+            var counter = $('#rowcounter').val();
+            $("#delrow").closest("tr").remove();
+            counter = Number(counter) - 1;
+            $('#rowcounter').val(counter);
+        }
+        function editrow(row) {
+            debugger;
+            row.closest("tr").find("#ProfileOptionName").attr("readonly", false);
+            row.closest("tr").find("#ResponField").attr("readonly", false);
+
+            row.closest("tr").find("#doneEdit").show();
+            row.closest("tr").find("#editrow").hide();
+
+        }
+        function doneEdit(row) {
+            debugger;
+
+            row.closest("tr").find("#ProfileOptionName").attr("readonly", true);
+            row.closest("tr").find("#ResponField").attr("readonly", true);
+
+            row.closest("tr").find("#doneEdit").hide();
+            row.closest("tr").find("#editrow").show();
+        }
+
+        //On Responsibility change
+        $('#Responsibilites').change(function () {
+            var respId = $("#Responsibilites").val();
+            var items = [];
+            debugger;
+            $.ajax({
+                url: '/Security/Profiles/GetProfileDetails/' + respId,
+                type: 'GET',
+            }).done(function (data) {
+                debugger;
+                items = data;
+                var Itemrow = '';
+                $('#tblprofiles tbody tr').remove();
+                for (var i = 0; i < data.length; i++) {
+                    Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td id="Responsibilites" name="Responsibilites" class="Responsibilites" hidden></td>';
+                    Itemrow += '<td> <input id="ProfileOptionName" name="ProfileOptionName"  value= "' + data[i].profileOption + '"  class ="form-control" readonly /></td>';
+                    Itemrow += '<td><select id="ResponField_' + i + '" name="ResponField" class="form-control" > <option selected="selected">Select...</option> </select> </td>';
+                    //Itemrow += '<td><a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow"  class="fa fa-trash" title="Delete"></i> </a>    <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>    </td>';
+                    Itemrow += '</tr>';
+                    $('#tblprofiles tbody').append(Itemrow);
+                }
+
+
+            });
+
+            debugger;
+            $.ajax({
+                url: '/Security/Profiles/GetProfiles/' + respId,
+                type: 'GET',
+            }).done(function (data2) {
+                debugger;
+
+                for (var k = 0; k < data2.length; k++) {
+
+                    debugger;
+                    $.ajax({
+                        async: false,
+                        url: '/Security/Profiles/GetOrganizations/' + data2[k].userValue3,
+                        type: 'GET',
+                    }).done(function (org) {
+                        debugger;
+                        for (var j = 0; j < org.length; j++) {
+                            debugger;
+                            optionText = org[j].name;
+                            optionValue = org[j].id;
+                            $('#ResponField_' + k).append(new Option(optionText, optionValue));
+                            //alert('ResponField_' + i)
+                        }
+                    });
+                }
+                if (items.length > 0) {
+
+                    for (var i = 0; i < items.length; i++) {
+                        debugger;
+                        $('#ResponField_' + i).val(items[i].respValues);
+                    }
+                }
+            });
+            debugger;
+            //    $.ajax({
+            //        url: '/Security/Profiles/GetProfileDetails/' + respId,
+            //        type: 'GET',
+            //    }).done(function (data) {
+            //        debugger;
+            //        var obj = data;
+            //        for (var i = 0; i < data.length; i++) {
+            //            $('#ResponField_' + i).val(data[i].respValues);
+            //        }
+            //    });
+
+        });  
+    </script>
+
+}

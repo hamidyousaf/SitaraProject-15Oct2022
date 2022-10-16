@@ -1,0 +1,364 @@
+﻿
+@{
+    ViewData["Title"] = "Reports";
+    ViewData["CurrentPage"] = "Reports";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="col-lg-12">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="report" class="form-horizontal" method="post">
+                        <input type="hidden" name="CompanyName" value="@companyName" />
+                        <input type="hidden" name="CompanyId" value="@companyId" />
+                        <div class="row">
+                            <div class="col-lg-5 col-md-12 col-sm-12">
+                                <div class="form-group">
+                                    <label>Report Name</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.Reports" autofocus class="form-control" id="ReportTitle" data-validation="required" name="ReportTitle">
+                                            <option disabled="disabled" selected="selected">Select Report...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5 col-md-11 col-sm-11" style="margin-left:20px">
+                                <div class="form-group" id="vehicleNo" style="display:none;">
+                                    <label>Vehicle #</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <input type="text" name="VehicleNo" id="VehicleNo" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+                        <div class="row">
+                            <div class="col-lg-5 col-sm-12">
+                                <div class="row">
+                                    <div class="col-lg-6 col-sm-6" id="divStartDate">
+                                        <div class="form-group">
+                                            <label>Start Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-sm-6" id="divEndDate">
+                                        <div class="form-group">
+                                            <label>End Date</label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                           </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divSuppliers">
+                                <div class="form-group">
+                                    <label>Weaver Name</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.Suppliers" name="Suppliers" id="Suppliers">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divContractNo">
+                                <div class="form-group">
+                                    <label> Weaving Contract #</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.ContractNo" name="ContractNo" id="ContractNo">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row" >
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divIssueNo">
+                                <div class="form-group">
+                                    <label>Issue #</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.IssueNo" name="IssueNo" id="IssueNo">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divProductionOrderNo">
+                                <div class="form-group">
+                                    <label>ProductionOrderNo #</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.ProductionOrderNo" name="ProductionOrderNo" id="ProductionOrderNo">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divBrand">
+                                <div class="form-group">
+                                    <label>Brand #</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.Brand" name="Brand" id="Brand">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                           </div>
+                            <div class="row">
+                            
+                            <div class="col-lg-5 col-md-12 col-sm-12" id="divConstruction">
+                                <div class="form-group">
+                                    <label>Construction</label>
+                                    <div class="input-group col-lg-12 col-sm-12">
+                                        <select asp-items="@ViewBag.ConstructionQuality" name="Construction" id="Construction">
+                                            <option selected="selected" value="0">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                       
+                          <div class="row" id="divLevels">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Qty" type="checkbox" checked />
+                                            <label for="Qty">Qty</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Value" type="checkbox" checked />
+                                            <label for="Value">Value</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="WOLocation" type="checkbox" checked />
+                                            <label for="WOLocation">With Location</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="row" id="divQtyLevels">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Qty" type="checkbox" checked />
+                                            <label for="Qty">Qty</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input name="Value" type="checkbox" checked />
+                                            <label for="Value">Value</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                       
+
+                        <div class="row">
+                            <div class="text-left">
+                                <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                            </div>
+                        </div>
+
+                  
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/dualListbox/jquery.bootstrap-duallistbox.js"></script>
+<script src="~/js/GR/Report.js"></script>
+<script>
+    $('#ReportTitle').change(function () {
+        var ReportTitle = $('#ReportTitle').val();
+
+        if (ReportTitle == "CustomerWiseSalesSummary") {
+            $('#typehead').css("display", "block");
+        }
+        else if (ReportTitle == "CustomerWiseOGP") {
+            $('#vehicleNo').css("display", "block");
+        }
+         else if (ReportTitle == "GreigeRejection") {
+            $('#divContractNo').css("display", "block");
+        }
+        else {
+            $('#typehead').css("display", "none");
+        }
+
+
+
+    });
+
+</script>
+
+<script>
+    //var byItems = $('select[name="Items"]').bootstrapDualListbox({
+
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetItems in dual-list-box
+    //$.get('/Inventory/Api/GetItemsForReport').done(function (e) {
+    //    debugger;
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Items"]').html(html);
+    //    byItems.bootstrapDualListbox('refresh');
+    //});
+
+
+    //category-wise
+    //var byCategories = $('select[name="Categories"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetCategories in dual-list-box
+    //$.get('/Inventory/Api/GetCategories').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.value + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Categories"]').html(html);
+    //    $('select[name="Categories"]').find("option").eq(0).remove();//this removes 1st option in selectList
+    //    byCategories.bootstrapDualListbox('refresh');
+    //});
+
+    ////manufacture-wise
+    //var byManufactures = $('select[name="Manufacturers"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160
+    //});
+    ////displays GetManufactures in dual-list-box
+    //$.get('/Inventory/Api/GetManufactures').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Manufacturers"]').html(html);
+    //    byManufactures.bootstrapDualListbox('refresh');
+    //});
+</script>
+<script>
+
+    //saleperosn wise
+    //var bySalesPerson = $('select[name="SalesPerson"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160,
+    //});
+    ////displays Items in dual-list-box
+    //$.get('/AR/Api/GetSalesPersonForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="SalesPerson"]').html(html);
+    //    bySalesPerson.bootstrapDualListbox('refresh');
+    //});
+</script>
+<script>
+    ////by customers
+    //var byCustomer = $('select[name="Customers"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160,
+    //});
+    ////displays Items in dual-list-box
+    //$.get('/AR/Api/GetCustomersForReport').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    //    });
+    //    $('select[name="Customers"]').html(html);
+    //    byCustomer.bootstrapDualListbox('refresh');
+    //});
+
+    //by cities
+    //    var byCity= $('select[name="Cities"]').bootstrapDualListbox({
+    //    selectorMinimalHeight: 160,
+    //});
+    // //displays Items in dual-list-box
+    //    $.get('/AR/Api/GetCities').done(function (e) {
+    //    var html = '';
+    //    $.each(e, function (i, e) {
+    //        html += '<option selected value="'+e.id+'"> '+e.text+'</option>'
+    //    });
+    //        $('select[name="Cities"]').html(html);
+    //        byCity.bootstrapDualListbox('refresh');
+    //    });
+    //Customercategory-wise
+
+</script>
+<script>
+    ////var byCustomerCategories = $('select[name="CustomerCategory"]').bootstrapDualListbox({
+    ////    selectorMinimalHeight: 160
+    ////});
+    //////displays GetCategories in dual-list-box
+    ////$.get('/AR/Api/GetAllCustomersCategories').done(function (e) {
+    ////    var html = '';
+    ////    $.each(e, function (i, e) {
+    ////        html += '<option selected value="' + e.id + '"> ' + e.text + '</option>'
+    ////    });
+    ////    $('select[name="CustomerCategory"]').html(html);
+    ////    /*  $('select[name="Customer Category"]').find("option").eq(0).remove();*///this removes 1st option in selectList
+    ////    byCustomerCategories.bootstrapDualListbox('refresh');
+    ////});
+</script>
+
+<script>
+    $(document).ready(function () { 
+        $("#SONo").select2();
+        $("#Item").select2();
+        $("#Categories").select2();
+        $("#Manufacturers").select2();
+        $("#Customers").select2();
+        $("#SalesPerson").select2();
+        $("#CustomerCategory").select2();
+        $("#Cities").select2();
+        $("#DCNo").select2();
+        $("#InoviceNo").select2();
+        $("#ProductType").select2();
+        $("#Season").select2();
+        $("#Brand").select2();
+        //Season
+    })
+</script>
+
+
+
+

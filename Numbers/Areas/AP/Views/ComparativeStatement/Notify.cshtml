@@ -1,0 +1,242 @@
+﻿@model IEnumerable<Numbers.Entity.ViewModels.APComparativeStatementVM>
+@{
+    ViewData["Title"] = "Notify";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                     
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped" style="width:100%" id="compTable">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="10%">CS#</th>
+                                <th class="searchHeader" width="20%">CS Validity</th>
+                                <th class="searchHeader" width="30%">Operating Unit</th>
+                                <th class="searchHeader" width="20%">Created By</th>
+                                <th width="20%">Action</th>
+                            </tr>
+                        </thead>
+                        @*<tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.APComparativeStatement.ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.APComparativeStatement.CS)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.APComparativeStatement.Remarks)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.APComparativeStatement.CSValidity)
+                                </td>
+
+                                <td>
+                                    @if (!item.APComparativeStatement.IsApprove)
+                                    {
+                                        <a asp-action="Index" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.APComparativeStatement.ID"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="Approve" asp-controller="ComparativeStatement" class="btn btn-sm btn-success m-t-n-xs" asp-route-id="@item.APComparativeStatement.ID" onclick="return confirm('Are you sure you want to Approve Comparative Statement?')"><i class="fa fa-thumbs-up" title="Approve"></i></a>
+                                        <a asp-action="Delete" asp-controller="ComparativeStatement" class="btn btn-sm btn-danger m-t-n-xs" onclick="Delete(@item.APComparativeStatement.ID)" id="item"><i class="fa fa-trash" title="Delete"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="UnApprove" asp-controller="ComparativeStatement" class="btn btn-sm btn-success m-t-n-xs" asp-route-id="@item.APComparativeStatement.ID" onclick="return confirm('Are you sure you want to UnApprove Comparative Statement?')"><i class="fa fa-thumbs-down" title="UnApprove"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                            }
+                        </tbody>*@
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        $(document).ready(function () {
+            GetListNotify();
+        });
+        function GetListNotify() {
+            var table1 =  $("#compTable").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AP/ComparativeStatement/GetComparativeStatementNotify",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [4] }],
+
+                "columns": [
+                    { "data": "apComparativeStatement.cs", "name": "CS", className: "text-center" },
+                    { "data": "validityDate", "name": "CSValidity", className: "text-center" },
+                    {
+                        "data": "apComparativeStatement.operating.orgName", "name": "Operating.OrgName"
+                    },
+                    {
+                        "data": "apComparativeStatement.user.fullName", "name": "User.FullName"
+                    },
+                    {
+                        "data": "apComparativeStatement", className: "text-center",
+                        "render": function (data, row) {
+                            debugger
+                            if (data.isApprove != true) {
+                                debugger;
+                              //  return "<div style=''><a href='/AP/ComparativeStatement?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/ComparativeStatement/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a  href='/AP/ComparativeStatement/Delete?id=" + data.id + "' onclick='Delete(" + data.id + ")' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i><a onclick="generateApArReport(data.id, 'CSBasePrint', '@companyName', '@companyId'); " class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a> </div>";
+                                if (data.approve == true) {
+                                    return "<div style=''> <a href='/AP/ComparativeStatement/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>  <a  href='/AP/ComparativeStatement/ApproveNotify?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a href=@ViewBag.ReportPath2" + data.id + " target='_blank' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-print' title='Print Report'></i></div>";
+
+                                }
+                                else {
+                                return "<div style=''> <a href=@ViewBag.ReportPath2" + data.id + " target='_blank' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-print' title='Print Report'></i></a> </div>";
+
+                                }
+                            }
+                            else {
+                                debugger;
+                                var id = data.id;
+                              //  return "<a href='/AP/ComparativeStatement/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a></a>  <a onclick='generateApArReport( data.id, 'CSBasePrint', '@companyName', '@companyId'); ' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a>";
+
+                                if (data.unapprove == true) {
+                                return "<a href='/AP/ComparativeStatement/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>  <a href=@ViewBag.ReportPath2" + data.id +" target='_blank' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-print' title='Print Report'></i></a>";
+
+                                }
+                                else {
+                                return "<a href=@ViewBag.ReportPath2" + data.id +" target='_blank' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-print' title='Print Report'></i></a>";
+
+                                }
+
+                            }
+
+                        }
+                    }
+                ],
+
+            })
+            $('#compTable thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        }
+        //function archiveFunction() {
+        //    debugger;
+        //    event.preventDefault(); // prevent form submit
+
+        //    swal("Are you sure to Delete?", {
+        //        dangerMode: true,
+        //        buttons: true,
+        //    });
+        //}
+        function Delete(id) {
+            debugger;
+            event.preventDefault(); // prevent form submit
+            swal({
+                title: 'Are you sure?',
+                text: 'You want to delete this record.',
+                icon: 'warning',
+                buttons: ["Cancel", "Yes!"],
+            }).then(function (value) {
+                if (value) {
+                    $.ajax({
+                        method: "GET",
+                        url: "/AP/ComparativeStatement/Delete",
+                        data: { id: id }
+                    }).done(function (data) {
+                        debugger
+                        if (data) {
+                            location.reload();
+                            swal({
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Deleted',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+
+                        }
+                        else {
+                            location.reload();
+                            swal({
+                                showCancelButton: false,
+                                showConfirmButton: false,
+                                position: 'top-right',
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong.',
+                                timer: 3000
+                            });
+                        }
+                    });
+                }
+            });
+            }
+    </script>
+}

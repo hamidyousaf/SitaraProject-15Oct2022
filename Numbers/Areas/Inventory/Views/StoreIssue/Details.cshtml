@@ -1,0 +1,121 @@
+﻿@model InvStoreIssue
+@using Numbers.Repository.Helpers;
+@{
+    ViewData["Title"] = "Approved Store Issue";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="StoreIssue" asp-action="Index" class="btn btn-white" style="">List</a>
+                    <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Store Issue No. <strong class="text-navy">@Model.IssueNo</strong></span></h4>
+                        <p>
+                            <span><strong>Store Issue Date:</strong> @Model.IssueDate.ToString(CommonHelper.DateFormat)</span><br />
+                        </p>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <span><strong>Ware House:</strong> @Model.WareHouse.ConfigValue</span><br />
+                        <span><strong>Cost Center:</strong> @Model.CostCenter.Description</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                @*<th>Stock</th>*@
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Total</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<InvStoreIssueItem>)
+                            {
+                                NumbersDbContext _dbcontext = new NumbersDbContext();
+                                var ItemName = new ConfigValues(_dbcontext).GetItemNameById(Convert.ToInt32(item.ItemId));
+                                <tr>
+                                    <td>
+                                        @ItemName
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var qty = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(qty, "{0:N}", item.Qty)
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var rate = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(rate, "{0:N}", item.Rate)
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var lineTotal = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(lineTotal, "{0:N}", item.LineTotal)
+                                        }
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+                <div class="well-remarks m-t">
+                    <strong>Remarks:</strong>
+                    @Model.Remarks
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="~/js/site.js"></script>
+    <script>
+      $(document).ready(function () {
+
+           HideTrueTable();
+      });
+
+        function HideTrueTable() {
+            debugger;
+
+            if ("@TempData["ShowRate"]" != "True")
+            {
+
+                $('#invoiceTable').find('th:nth-child(5)').hide();
+                $('#invoiceTable').find('td:nth-child(5)').hide();
+                $('#invoiceTable').find('th:nth-child(6)').hide();
+                $('#invoiceTable').find('td:nth-child(6)').hide();
+
+            }
+        }
+
+    </script>
+}
+

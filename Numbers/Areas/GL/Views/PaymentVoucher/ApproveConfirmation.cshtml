@@ -1,0 +1,129 @@
+﻿
+@{
+    Layout = null;
+}
+@model Numbers.Entity.Models.GLVoucher
+<style>
+    /* fix select 2 on popup */
+    .select2-container--open {
+        z-index: 100000;
+    }
+</style>
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+@using (Html.BeginForm("ApproveConfirmation", "PaymentVoucher", FormMethod.Post, new { area = "Approve", name = "formApproveConfirmation", id = "formApproveConfirmation" }))
+{
+
+
+    <div class="row">
+        <div class="modal-dialog modal-lg">
+            <div class=" col-xs-offset-3 col-xs-6 col-xs-offset-3 ">
+                <div class="modal-content" id="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Approve Confirmation</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div>
+                            <input type="hidden" asp-for="Id" />
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+
+                                    <tbody>
+                                        <tr>
+                                            <th>Id</th>
+                                            <td> @Model.Id</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Voucher No</th>
+                                            <td> @Model.VoucherNo</td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Voucher Date
+                                            </th>
+                                            <td> @Model.VoucherDate</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Reference</th>
+                                            <td> @Model.Reference</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Description</th>
+                                            <td> @Model.Description</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Currency</th>
+                                            <td><b>@Model.Currency</b></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Status</th>
+                                            <td><b>@Model.Status</b></td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="col-lg-9 col-lg-offset-3">
+                                            <input type="button" value="Cancel" class="btn btn-white" data-dismiss="modal" />
+                                            <input type="submit" value="Approve" class="btn btn-primary" />
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+<script>
+
+    $(function () {
+        $('#GLVoucherId').select2({
+            ajax: {
+                url: '/GL/Voucher/Approve',
+                dataType: 'json',
+                delay: 250,
+                placeholder: '',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = '@Model.Id';
+        var GLVoucherIdSelect = $('#GLVoucherId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Voucher/Get?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLVoucherIdSelect.append(option).trigger('change');
+            GLVoucherIdSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+
+</script>

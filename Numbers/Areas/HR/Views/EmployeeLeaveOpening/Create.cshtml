@@ -1,0 +1,111 @@
+﻿@model HREmployeeLeaveOpening
+@{
+    ViewData["Title"] = "Create Employee Leave Opening";
+    ViewData["CurrentPage"] = "Employee Leave Openings";
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Create Employee Leave Opening</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                @*<input type="hidden" asp-for="Id" />*@
+
+                                <div class="form-group">
+                                    <label asp-for="Status" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="Status" class="form-control" data-validation="required">
+                                            <option selected disabled>select the type --</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Join">Join</option>
+                                            <option value="Prepared">Prepared</option>
+                                        </select>
+                                        <span asp-validation-for="Status" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="No" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="No" class="form-control" data-validation="required" />
+                                        <span asp-validation-for="No" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="OpeningDate" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="OpeningDate" type="date" class="form-control" data-validation="required" />
+                                        <span asp-validation-for="OpeningDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="EmployeeId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="EmployeeId" class="form-control" data-validation="required">
+                                            <option selected disabled>select the type --</option>
+                                            <option value="1">Employee-1</option>
+                                            <option value="2">Employee-2</option>
+                                            <option value="2">Employee-3</option>
+                                        </select>
+                                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="LeaveTypeId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="LeaveTypeId" class="form-control" data-validation="required">
+                                            <option selected disabled>select the type --</option>
+                                            <option value="1">Medical</option>
+                                            <option value="2">Annual</option>
+                                        </select>
+                                        <span asp-validation-for="LeaveTypeId" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="OpeningBalance" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="OpeningBalance" class="form-control" data-validation="required" />
+                                        <span asp-validation-for="OpeningBalance" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="IsActive" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-2">
+                                        <div class="checkbox checkbox-success">
+                                            <input asp-for="IsActive" id="isActive" type="checkbox" checked="checked" />
+                                            <label for="IsActive"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-2">
+                                <a value="Back" class="btn btn-white" asp-controller="EmployeeLeaveOpening" asp-action="Index">Back</a>
+                                <input type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="EmployeeLeaveOpening" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

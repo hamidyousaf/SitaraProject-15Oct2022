@@ -1,0 +1,134 @@
+﻿@model IEnumerable<APShipmentViewModel>
+@{
+    ViewData["Title"] = "List";
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<link href="~/lib/dataTables/css/dataTables.bootstrap4.css" rel="stylesheet" />
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Shipment" asp-action="Create"><strong>Create New</strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped" style="width:100%" id="shipTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Shipment No
+                                </th>
+                                <th>
+                                    Shipment Date
+                                </th>
+                                <th>
+                                    LC No
+                                </th>
+                                <th>
+                                    PO No
+                                </th>
+                                <th>
+                                    Vendor
+                                </th>
+                                <th>
+                                    Shipment Agent
+                                </th>
+                                <th>
+                                    Created By
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/lib/dataTables/js/jquery.dataTables.js"></script>
+    <script src="~/lib/dataTables/js/dataTables.bootstrap4.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $("#shipTable").dataTable({
+                "scrollX": true,
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                "ajax": {
+                    "url": "/AP/Shipment/GetShipment",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from MAX total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [5] }],
+                "columns": [
+                    { "data": "apShipment.shipmentNo", "name": "ShipmentNo", className: "text-right" },
+                    { "data": "shipDate", "name": "ShipmentDate", className: "text-center" },
+                    { "data": "apShipment.lcNo", "name": "LCNo", className: "text-right" },
+                    { "data": "poId", "name": "POId", className: "text-right" },
+                    { "data": "vendorName", "name": "Vendor", className: "text-left" },
+                    { "data": "agent", "name": "ShipmentAgent", className: "text-left" },
+                    { "data": "userName", "name": "CreatedBy", className: "text-left" },
+                    {
+                        "data": "apShipment", className: "text-center",
+                        "render": function (data, row) {
+                            debugger
+                            if (!data.isApproved) {
+                                return "<div style=''><a href='/AP/Shipment/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/Shipment/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a  href='/AP/Shipment/Delete?id=" + data.id + "' onclick='Delete(" + data.id + ")' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></div>";
+                            }
+                            else {
+                                return "<a href='/AP/Shipment/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a></a>";
+                            }
+
+                        }
+                    }
+                ],
+                'rowCallback': function (row, data, dataIndex) {
+                    // Get row ID
+                    debugger
+                    var rowId = data[0];
+                }
+
+            })
+        });
+    </script>
+}

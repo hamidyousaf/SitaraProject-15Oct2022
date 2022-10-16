@@ -1,0 +1,103 @@
+﻿@model IEnumerable<Numbers.Entity.Models.AppCompanyModule>
+@{ ViewData["Title"] = "List of Company Module";
+    ViewData["CurrentPage"] = "Sys Module"; }
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>List of Company Modules</h5>
+
+            </div>
+            <div class="ibox-content">
+                <div class="text-center">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+                </div>
+                <br /><br />
+                <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th style="width:6%;">@Html.DisplayNameFor(model => model.Id)</th>
+                            <th style="width:26%;">@Html.DisplayNameFor(model => model.Module_Name)</th>
+                            <th style="width:26%;">@Html.DisplayNameFor(model => model.Module_Description)</th>
+                            <th style="width:16%;">@Html.DisplayNameFor(model => model.Short_Name)</th>
+                            <th style="width:16%;">@Html.DisplayNameFor(model => model.CreatedDate)</th>
+                            <th style="width:10%;">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": false,
+                "searching": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/ApplicationModule/Module/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                },
+                { "orderable": false, "targets": [5] }],
+
+                "columns": [
+                    { "data": "appCompanyModules.id", "name": "Id", className: "text-center" },
+                    { "data": "appCompanyModules.module_Name", "name": "Module_Name", className: "text-left" },
+                    { "data": "appCompanyModules.module_Description", "name": "Module_Description", className: "text-left" },
+                    { "data": "appCompanyModules.short_Name", "name": "Short_Name", className: "text-left" },
+                    { "data": "createdDate", "name": "CreatedDate", className: "text-center" },
+                    {
+                        "data": "appCompanyModules", className: "text-center",
+                        "render": function (data, row) {
+                            return "<a href='/ApplicationModule/Module/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/ApplicationModule/Module/DeleteModule?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='far fa-trash-alt' title='Delete'></i></a>";
+
+                        }
+                    }
+                ],
+
+            })
+        });
+    </script>
+}

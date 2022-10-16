@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgVehicle>
+
+@{
+    ViewData["Title"] = "Assign Booking No";
+    ViewData["CurrentPage"] = "Assign Booking No";
+}
+<div class="modal inmodal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+
+</div>
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>List of Booked Vehicles </h5>
+
+
+
+        <div class="ibox-content">
+            
+            <table class="table table-bordered table-striped dataTables-example">
+                <thead>
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            Vehicle
+                        </th>
+                        <th>
+                            CNIC
+                        </th>
+                        <th>
+                            Booked By
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Price)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ReceivedAmount)
+                        </th>
+                        
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TransDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Customer.CNIC)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Customer.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Price)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ReceivedAmount)
+                            </td>
+                           
+                            <td>
+                                <a onclick="AssignBookingNo(@item.Id)" class="btn btn-sm btn-primary m-t-n-xs" ><i class="fa fa-link"></i> Assign Booking No</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+    <script>
+
+        function AssignBookingNo(id) {
+            $.ajax({
+                url: "/Booking/Vehicle/AssignBookingNo?id=" + id
+            })
+                .done(function (data) {
+                    $("#modal").html(data);
+                    $("#modal").modal("show");
+                })
+                .fail(function (data) {
+                    swal("Error", data.statusText, "warning");
+                });
+        }
+
+    </script>
+
+}

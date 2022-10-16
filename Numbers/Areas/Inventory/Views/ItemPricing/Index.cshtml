@@ -1,0 +1,143 @@
+﻿@model IEnumerable<ARSalePerson>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="ItemPricing" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped" style="width:100%" id="Table">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader"style="width:8%">Trans.#</th>
+                                <th class="searchHeader"style="width:18%">Item</th>
+                                <th class="searchHeader"style="width:12%">Season</th>
+                                <th class="searchHeader"style="width:8%">Price</th>
+                                <th class="searchHeader"style="width:10%">P. StartDate</th>
+                                <th class="searchHeader"style="width:10%">P. EndDate</th>
+                                <th class="searchHeader"style="width:10%">Discount</th>
+                                <th class="searchHeader"style="width:10%">Status</th>
+                                @*<th>Dis_StartDate</th>
+                                <th>Dis_EndDate</th>*@
+                                <th style="width:14%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/Inventory/ItemPricing/GetItemDetails",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [8] }],
+
+                "columns": [
+                    { "data": "itemPricings.trancationNo", "name": "TransactionID", className: "text-center" },
+                    { "data": "item", "name": "Item", className: "text-left" },
+                    { "data": "season", "name": "Season", className: "text-left" },
+                    { "data": "price", "name": "Price", className: "text-right"},
+                    { "data": "price_StartDate", "name": "Price_StartDate", className: "text-center" },
+                    { "data": "price_EndDate", "name": "Price_EndDate", className: "text-center" },
+                    { "data": "discount", "name": "Discount", className: "text-right" },
+                    { "data": "itemPricings.status", "name": "Status", className: "text-center" },
+                    //{ "data": "dis_StartDate", "name": "Dis_StartDate", className: "text-center" },
+                    //{ "data": "dis_EndDate", "name": "Dis_EndDate", className: "text-center" },
+                    {
+                        "data": "itemPricings", className: "text-center",
+                        "render": function (data, row) {
+                            if (data.status != "Closed") {
+                                return "<div style=''><a href='/Inventory/ItemPricing/Close?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'>Close</a>    <a href='/Inventory/ItemPricing/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a></div>";
+                            }
+                            else {
+                                return '<a  href="/Inventory/ItemPricing/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>';
+                            }
+                           
+                        }
+
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}
+

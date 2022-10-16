@@ -1,0 +1,826 @@
+﻿@model ARDeliveryChallanViewModel
+@{ ViewData["Title"] = "Create Delivery Challan";
+    ViewData["CurrentPage"] = "Delivery Challan"; }
+
+@section customCSS{
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/dataTables/select.dataTables.min.css" rel="stylesheet" />
+
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+    .removed .select2-container {
+        width: 195px !important;
+    }
+
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    table td input[type=text] {
+        position: absolute;
+        bottom: 0;
+        display: block;
+        top: 0;
+        left: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        border: none;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class="ibox-content" method="post" asp-action="Create" asp-controller="DeliveryChallan" onsubmit="return submitdetails(this)"  enctype="multipart/form-data">
+                <input asp-for="Id" type="hidden" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="DCNo"></label>
+                                    <div class="input-group">
+                                        @if (Model.Id != 0)
+                                        {
+                                            <input autofocus asp-for="DCNo" readonly class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            <input autofocus value="" readonly class="form-control" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="DCDate"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input asp-for="DCDate" readonly data-validation="required" data-validation-error-msg="Date is required" data-validation-error-msg-container="#dcDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.DCDate.ToString(CommonHelper.DateFormat))" />
+                                    </div>
+                                    <p id="dcDate"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ManualDCNo"></label>
+                                    <div class="input-group">
+                                        <input asp-for="ManualDCNo" type="text" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="CustomerId"></label>
+                                    <Select asp-for="CustomerId" asp-items="@ViewBag.Customer" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer" class="form-control select-customer">
+                                        <option selected disabled>
+                                            Select...
+                                        </option>
+                                    </Select>
+                                    <p id="customer"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3 hide">
+                                <div class="form-group">
+                                    <label asp-for="ShipToId"></label>
+                                    <Select asp-for="ShipToId" class="form-control select-customer">
+                                        <option selected disabled>Select...</option>
+                                        <option value="1">Home Country</option>
+                                        <option value="2">Abroad</option>
+                                    </Select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="DriverName"></label>
+                                    <input asp-for="DriverName" onkeypress="return isCharacter()" onpaste="return false;" ondrop="return false;" type="text" data-validation="required" data-validation-error-msg="Driver Name is required" autocomplete="off" data-validation-error-msg-container="#driver" class="form-control" />
+                                    <p id="driver"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="DriverContactNo"></label>
+                                    @*<Select name="SalesCategoryId" asp-for="DeriverContactNo" required class="form-control">*@
+                                    <input type="text" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" asp-for="DriverContactNo" required class="form-control" autocomplete="off" />
+
+                                    @*</Select>*@
+                                </div>
+                            </div>
+
+                            @*<div class="col-lg-3 col-sm-12">
+                                <div class="form-group">
+                                    <label asp-for="TransportCompany"></label>
+                                    <input asp-for="TransportCompany" autocomplete="off" type="text" class="form-control" />
+                                </div>
+                            </div>*@
+                            <div class="col-lg-3 col-sm-12">
+                                <div class="form-group">
+                                    <label asp-for="TransportCompany"></label>
+                                    <Select asp-for="TransportCompany" data-validation="required" asp-items="@ViewBag.TransportCompany" data-validation-error-msg="Transport Company is required" data-validation-error-msg-container="#transportcompany" class="form-control select-customer">
+                                        <option selected disabled>Select...</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3 hide">
+                                <div class="form-group">
+                                    <label asp-for="Storemaster"></label>
+                                    <Select asp-for="Storemaster" required class="form-control select-customer">
+                                        <option selected disabled>Select...</option>
+                                        <option value="1">Lahore</option>
+                                        <option value="2">Islamabad</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3 hide">
+                                <div class="form-group">
+                                    <label asp-for="ItemGroupId"></label>
+                                    <Select asp-for="ItemGroupId" class="form-control select-customer">
+                                        <option selected disabled>Select...</option>
+                                        <option value="1">Vehicle</option>
+                                        <option value="2">Hardware</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3 hide">
+                                <div class="form-group">
+                                    <label asp-for="SalesCategoryId"></label>
+                                    <Select name="SalesCategoryId" asp-for="SalesCategoryId" required class="form-control select-customer">
+                                        <option selected disabled> Select...</option>
+                                        <option value="1">A</option>
+                                        <option value="2">B</option>
+
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="VehicleType"></label>
+                                    <Select asp-for="VehicleType" data-validation="required" asp-items="@ViewBag.VehicleType" data-validation-error-msg="Vehicle Type is required" data-validation-error-msg-container="#vehicletype" class="form-control select-customer">
+                                        <option selected disabled>Select...</option>
+                                    </Select>
+                                    <p id="vehicletype"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="VehicleNo"></label>
+                                    <input asp-for="VehicleNo" type="text" data-validation="required" data-validation-error-msg="Vehicle No is required" data-validation-error-msg-container="#vehicleno" autocomplete="off" class="form-control select-customer" />
+                                    <p id="vehicleno"></p>
+                                </div>
+                            </div>
+                            <!--<div class="col-lg-3 col-sm-3">
+    <div class="form-group">
+        <label asp-for="DriverContactNo"></label>-->
+                            @*<Select name="SalesCategoryId" asp-for="DeriverContactNo" required class="form-control">*@
+                            <!--<input type="text" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" asp-for="DriverContactNo" required class="form-control" autocomplete="off" />-->
+                            @*</Select>*@
+                            <!--</div>
+    </div>-->
+                        </div>
+                        <div class="row">
+
+
+
+                            @*<div class="col-lg-3 col-sm-3">
+                    <div class="form-group">
+                        <label asp-for="DriverName"></label>
+                        <input asp-for="DriverName" onkeypress="return isCharacter()" onpaste="return false;" ondrop="return false;" type="text" data-validation="required" data-validation-error-msg="Driver Name is required" autocomplete="off" data-validation-error-msg-container="#driver" class="form-control" />
+                        <p id="driver"></p>
+                    </div>
+                </div>*@
+                            @*<div class="col-lg-3 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="TransportCompany"></label>
+                        <input asp-for="TransportCompany" autocomplete="off" type="text" class="form-control" />
+                    </div>
+                </div>*@
+                            <div class="col-lg-5 col-sm-12">
+                                <div class="form-group">
+                                    <label>Remarks</label>
+                                    <textarea asp-for="Remarks" rows="2" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div>
+                                @if (Model.Status != "Approved")
+                                {
+                                    <div class="text-right mb-3">
+                                        <input type="button" id="add-SaleOrders-popUp" class="btn btn-success" onclick="getSaleOrders();" value="Get items from Sale Order" />
+                                        @*  <a id="add-invoice-item" class="btn btn-success add-purchaseReturn-item"><i class="fa fa-plus"></i></a>*@
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="spinner-border text-danger"></div>
+                    </div>
+                    <hr />
+                    <div class="col-md-12">
+                        <div class="table-info">
+                            <div class="tab-content ">
+                                <div id="delivery" class="tab-pane fade in active">
+                                    <div class="table-responsive">
+                                        <table id="tblDeliveryCh" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th hidden>Id</th>
+                                                    <th hidden>SaleOrderItemId</th>
+                                                    <th width="5%">SO.#</th>
+                                                    <th width="10%">SO Date</th>
+                                                    <th hidden>ItemId</th>
+                                                    <th width="10%">Code</th>
+                                                    <th width="19%">Desc</th>
+                                                    <th width="10%">BaleType</th>
+                                                    <th width="6%">UOM</th>
+                                                    <th hidden width="10%">Avail.Stock</th>
+                                                    @*<th>SO Qty</th>*@
+                                                    @*<th>SO Bal.</th>*@
+                                                    @*<th hidden>Bale #</th>*@
+                                                    <th width="12%">Bale #</th>
+                                                    <th width="6%">DC Qty</th>
+                                                    <th width="10%"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.ARDeliveryChallanItemList != null)
+                                                {
+                                                    @for (int i = 0; i < Model.ARDeliveryChallanItemList.Count; i++)
+                                                    {
+                                                        <tr>
+                                                            <td hidden><input asp-for="ARDeliveryChallanItemList[i].Id" name="DetailId" class="Id" value="@Model.ARDeliveryChallanItemList[i].Id" type="hidden" /></td>
+                                                            <td hidden><input asp-for="ARDeliveryChallanItemList[i].SaleOrderId" name="SaleOrderItemId" class="saleOrderItemId text-right form-control" value="@Model.ARDeliveryChallanItemList[i].SaleOrderId" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].ARSaleOrderItem.SaleOrder.SaleOrderNo" name="SaleOrderNo" class="saleOrderNo" value="@Model.ARDeliveryChallanItemList[i].ARSaleOrderItem.SaleOrder.SaleOrderNo" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].SaleOrderNo" name="SaleOrderDate" type="text" class="saleOrderDate form-control" value="@Model.ARDeliveryChallanItemList[i].ARSaleOrderItem.SaleOrder.SaleOrderDate.ToString(CommonHelper.DateFormat)" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td hidden><input asp-for="ARDeliveryChallanItemList[i].ItemId" name="ItemId" class="itemId text-right form-control" value="@Model.ARDeliveryChallanItemList[i].ItemId" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].ItemId" name="ItemCode" class="itemCode form-control" value="@Model.ARDeliveryChallanItemList[i].Item.Code" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].ItemId" name="ItemDesc" type="text" class="itemDesc form-control" value="@Model.ARDeliveryChallanItemList[i].Item.Name" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td hidden><input asp-for="ARDeliveryChallanItemList[i].BaleId" name="BaleId" class="baleId form-control" value="@Model.ARDeliveryChallanItemList[i].BaleId" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].BaleId" name="BaleType" type="text" class="baleType form-control" value="@Model.ARDeliveryChallanItemList[i].BaleId" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].UnitName" name="UOM" class="uOM form-control" value="@Model.ARDeliveryChallanItemList[i].UnitName" type="text" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <td hidden><input asp-for="ARDeliveryChallanItemList[i].AvailableStock" name="AvailableStock" type="text" class="availableStock form-control text-right" value="@Model.ARDeliveryChallanItemList[i].AvailableStock" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                            <!--<td>-->@*<input asp-for="ARDeliveryChallanItemList[i].SalesOrderQty" name="SaleOrderQty" class="saleOrderQty form-control text-right" value="@Model.ARDeliveryChallanItemList[i].SalesOrderQty" readonly style="background-color: #eee;" tabindex="-1" type="text" />*@<!--</td>-->
+                                                            <!--<td>-->@*<input asp-for="ARDeliveryChallanItemList[i].SaleOrderBalance" name="BalanceStock" class="balanceStock form-control text-right" value="@Model.ARDeliveryChallanItemList[i].SaleOrderBalance" readonly style="background-color: #eee;" tabindex="-1" type="text" />*@<!--</td>-->
+                                                            @*<td><input asp-for="ARDeliveryChallanItemList[i].BaleNo" name="BaleNo" type="text" class="baleNo form-control" value="@Model.ARDeliveryChallanItemList[i].BaleNo" autocomplete="off" /></td>*@
+                                                            <td><input asp-for="ARDeliveryChallanItemList[i].BaleNo" name="BaleNo" value="@Model.ARDeliveryChallanItemList[i].BaleNo" type="text" tabindex="-1" readonly class="baleNo form-control text-center" /></td>
+
+                                                            @*<td><select disabled name="BaleNo" asp-for="ARDeliveryChallanItemList[i].BaleNo" asp-items="@ViewBag.Bales" class="form-control baleNo"><option value="0" selected="selected">Select...</option></select></td>*@
+                                                            <td><input tabindex="-1" asp-for="ARDeliveryChallanItemList[i].Qty" readonly name="DCQuantity" type="text" class="dCQuantity form-control text-right" value="@Model.ARDeliveryChallanItemList[i].Qty" autocomplete="off" /></td>
+                                                            <td class="text-center"><input type="button" id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" value="🗑️" class="btn btn-xs btn-danger fa fa-trash" title="Delete" /> </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                        <!--<div class="col-lg-3 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="Total"></label>-->
+                                        @*<input asp-for="Total" type="text" class="form-control" />*@
+                                        <!--</div>
+                        </div>-->
+                                        <input hidden name="rowcounter" id="rowcounter" />
+
+                              
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @*<div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">Items</label>
+                                <div class="col-lg-10">
+                                    <select class="form-control select-customer" id="itemsearch" asp-items="@ViewBag.ItemsSearch">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />*@
+                
+                <input hidden id="DeliveryDetails" name="DeliveryDetails" />
+                <div class="container">
+                    <!-- Trigger the modal with a button -->
+                    <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                        <div class="modal-dialog modal-lg" style="width: 84%;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Select Sale Orders</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-12">
+                                            <div class="ibox ">
+                                                <p id="itemTable"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <W type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Item</W>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <input type="submit" onclick="return validation()" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script src="~/js/AR/deliveryChallan.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            debugger
+            $(".baleNo").select2();
+            var counter = 0;
+            //var add_button = $(".add_field_button");
+            $("#itemsearch").change(function () {
+
+                var id = $("#itemsearch").val();
+
+                $.ajax({
+                    url: '/AR/DeliveryChallan/getItems/' + id,
+                    //data: { id: items[i].Id, itemId: items[i].ItemId },
+                    type: 'GET',
+                }).done(function (data) {
+                    debugger;
+                    d_data = '';
+                    d_data += '<tr>';
+
+                    d_data += '<td hidden > <input name="Id" class ="Id" value="0" style="width:80px" /></td>';
+                    d_data += '<td  > <input name="saleOrderNo" class ="saleOrderNo" value="0" style="width:80px" readonly /></td>';
+                    d_data += '<td  > <input name="itemDescription" class ="itemdesc" value=' + data.name + ' style="width:80px" readonly /></td>';
+                    d_data += '<td  > <input name="uom" class ="uom" value=' + data.unitName + '  style="width:80px" readonly/></td>';
+                    d_data += '<td  > <input name="LotNumber" class ="LotNumber" value=' + data.lotNumber + '  style="width:80px" readonly/></td>';
+                    d_data += '<td hidden>' + data.unit + '</td>';
+                    d_data += '<td  > <input name="store" class ="store" value="0" style="width:80px" readonly/></td>';
+                    d_data += '<td  > <input name="saleOrder" class ="saleOrder" value="0" style="width:80px" /></td>';
+                    d_data += '<td  > <input name="DCBalance" class ="DCBalance" value="0" style="width:80px"  /></td>';
+                    d_data += '<td class="hidden" > <input name="DCBalancehdn" class ="DCBalancehdn" value="0" style="width:80px"  /></td>';
+                    d_data += '<td  > <input name="qty" class ="qty" value="0" style="width:80px" /></td>';
+                    d_data += '<td class="hidden" > <input name="qtyHdn" class ="qtyHdn" value="0" style="width:80px" /></td>';
+                    //d_data += '<td  > <input name="" class ="qty" value="0" style="width:80px"  /></td>';
+
+                    d_data += '<td  ><a  class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow();"> <i id="delrow" class="fa fa-trash" title="Delete"></i></a ></td>';
+
+
+                    d_data += '</tr>';
+
+                    $('#tblDeliveryCh tbody').append(d_data);
+                    counter = Number(counter) + 1;
+                    //alert(counter);
+                    $('#rowcounter').val(counter);
+
+                });
+            });
+        });
+        $("#VehicleType").select2();
+        @*function deleterow() {
+            var counter = $('#rowcounter').val();
+            //alert(counter);
+            $("#delrow").closest("tr").remove();
+            counter = Number(counter) - 1;
+            //alert(counter);
+            $('#rowcounter').val(counter);
+        }*@
+        function deleterow(row) {
+            row.closest("tr").remove();
+            //var i = row.closest("tr").index();
+            //$('.removed').eq(i).remove();
+            GetRowFooter();
+        }
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $(".select-customer").select2();
+            $("#VehicleType").select2();
+        })
+    </script>
+
+    <script>
+        $.validate();
+        $('#CustomerId').select2({
+            placeholder: 'Select a customer',
+            width: 'resolve',
+            ajax: {
+                url: '/AR/Api/GetCustomers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if ("@Model.CustomerId" != null)
+            {
+                var id = "@Model.CustomerId";
+            }
+        var accountSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetCustomer?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+
+        //var counter = 0;
+        //$('#add-deliveryChallan-item').on('click', function () {
+        //    $.post("/AR/DeliveryChallan/PartialDeliveryChallanItems", { counter: counter }
+        //    ).done(function (data) {
+        //        $("#p").append(data);
+        //        counter++;
+        //    });
+        //});
+
+        // onclick get all the checked rows and do something
+        //$('#button').click(function () {
+        //    debugger
+        //    var table = document.getElementById('invoiceTable');
+        //    var arrayOfValues = [];
+        //    arrayOfValues = $('input:checkbox:checked', table).map(function () {
+        //        return $(this).closest('tr').find('td').html();
+        //    });
+
+        //    //$("#invoiceTable > tbody > tr").each(function () {
+        //    //    arrayOfValues.push($(this).find(".SODetailIds").text());
+        //    //});
+        //    var arrLength = arrayOfValues.length;
+        //    values = [];
+        //    for (i = 0; i < arrLength; i++) {
+        //        values.push(arrayOfValues[i]);
+        //    }
+        //    //console.log(arrayOfValues);
+        //    //console.log(values);
+        //    for (i = 0; i < arrLength; i++) {
+        //        $.ajax({
+        //            type: 'GET',
+        //            async: false,
+        //            url: '/AR/DeliveryChallan/GetSOItem?sOItemId=' + parseInt(values[i]),
+        //            beforeSend: function () {
+        //                $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+        //                $('#button').prop('disabled', true);
+        //            },
+        //        }).done(function (data) {
+        //            $('#p').append(data);
+        //            $('#button').prop('disabled', false);
+        //        }).fail(function (error) {
+        //            console.log(error.responseText);
+        //        });
+        //    }
+        //});
+    </script>
+    <script>
+         $(document).ready(function () {
+            var items = @Html.Raw(Model.ARDeliveryChallanItemList);//detail table from delivery challan items
+                if (items != null) {
+                    for (i = 0; i < items.length; i++) {
+                        $.ajax({
+                            type: 'GET',
+                            async: false,
+                            url: '/AR/DeliveryChallan/GetDCItem?dcItemId=' + items[i].Id,//detail table item id
+                            beforeSend: function () {
+                                toggleLoader(true);
+                            }
+                        }).done(function (data) {
+                            toggleLoader(false);
+                            $('#p').append(data);
+
+                        }).fail(function (data) {
+                                toggleLoader(false);
+                                console.log(data.responseText);
+                        });
+                    }
+                }
+        }); 
+    </script>
+
+    <script>
+
+
+        function getSaleOrders() {
+            var skipIds = [];
+            var supplierId = $('#CustomerId').find(":selected").val();
+            debugger
+            if (supplierId == "Select...") {
+                swal({
+                    text: "Please select the customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            var counter = 1;
+            $("#tblDeliveryCh > tbody > tr").each(function () {
+                skipIds.push($(this).find(".saleOrderItemId").val());
+            })
+
+             // AJAX request
+            $.ajax({
+                url: '/AR/Quotation/GetSaleOrdersByCustomerId',
+                type: 'POST',
+                method: 'POST',
+                data: { id: supplierId, skipIds: skipIds },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#saleModal').modal('show');
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+            var counter = 50;
+        $('#button').click(function () {
+            var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        console.log(arrayOfValues);
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (j = 0; j < arrLength; j++) {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            debugger;
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Quotation/GetSaleOrderItems',
+                data: { saleOrderItemId: parseInt(values[j]), counter: counter },
+                beforeSend: function () {
+                 //   skipIds.push(values[i]);
+                    $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    $('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                var value = false;
+                var salrOrder = data.salesOrderItemId;
+
+                debugger
+                $('#tblDeliveryCh > tbody > tr').each(function () {
+                    var SelectedSaleOrder = $(this).closest("tr").find('td:eq(1) input').val();
+                    if (SelectedSaleOrder == salrOrder) {
+                        value = true;
+                    }
+
+                    else
+                        value = false;
+                });
+                debugger
+                if (value == false) {
+                    debugger;
+                    var Itemrow = '';
+
+                    for (var i = 0; i < data.saleOrderQty; i++) {
+
+                        Itemrow += '<tr>'
+                        Itemrow += '<td hidden > <input name="DetailId" class ="Id" value="0"  /></td>';
+                        Itemrow += '<td  hidden > <input name="SaleOrderItemId" class ="saleOrderItemId text-right form-control" value="' + data.salesOrderItemId + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td><input name="SaleOrderNo"  class ="saleOrderNo" value="' + data.invoiceNo + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                        Itemrow += '<td><input name="SaleOrderDate" type="text" class ="saleOrderDate form-control" value="' + data.saleOrderDate + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td  hidden ><input name="ItemId" class ="itemId text-right form-control" value="' + data.itemId + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td><input name="ItemCode"  class ="itemCode form-control" value="' + data.itemCode + '"  readonly style="background-color: #eee;" tabindex="-1"  type="text" /></td>';
+                        Itemrow += '<td><input name="ItemDesc" type="text"  class ="itemDesc form-control" value="' + data.itemDescription + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td hidden ><input name="BaleId"  class ="baleId form-control" value="' + data.baleInformation[i].id + '"  readonly style="background-color: #eee;" tabindex="-1"  type="text" /></td>';
+                        Itemrow += '<td><input name="BaleType"  type="text" class ="baleType form-control" value="' + data.baleInformation[i].baleType + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td><input name="UOM"  class ="uOM form-control" value="' + data.uomName + '"  type="text" readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        Itemrow += '<td hidden><input name="AvailableStock"  type="text" class ="availableStock form-control text-right" value="' + data.availableStock + '"  readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                        //Itemrow += '<td><input name="SaleOrderQty"  class ="saleOrderQty form-control text-right" value="' + data.saleOrderQty + '"  readonly style="background-color: #eee;" tabindex="-1"  type="text" /></td>';
+                        ////Itemrow += '<td><input name="BalanceStock"  class ="balanceStock form-control text-right" value="' + data.balanceStock + '"  readonly style="background-color: #eee;" tabindex="-1"  type="text" /></td>';
+                        //Itemrow += '<td><input name="BaleNo"  type="text" class ="baleNo form-control"  autocomplete="off" /></td>';
+                        //Itemrow += '<td><select name="BaleNo" class="form-control baleNo"><option value="0" selected="selected">Select...</option> </select></td>';
+                        Itemrow += '<td><input tabindex="-1" name="BaleNo" type="text" readonly value="' + data.baleInformation[i].baleNumber + '"  class ="baleNo form-control text-center" /></td>';
+                        Itemrow += '<td><input tabindex="-1" name="DCQuantity" type="text" readonly value="1"  class ="dCQuantity form-control text-right" /></td>';
+                        Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                        Itemrow += '</tr>';
+
+                    }
+
+
+
+                    $('#tblDeliveryCh tbody').append(Itemrow);
+
+                    counter = Number(counter) + 1;
+                    $('#rowcounter').val(counter);
+                    $('#button').prop('disabled', false);
+                    //$('#saleModal').modal("hide");
+                    //$(".baleNo").select2();
+
+                    counter++;
+                }
+                else {
+                    swal("", "Already Selected", "warning")
+                }
+
+                //var Bales =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Bales));
+
+
+
+                //$('#tblDeliveryCh tbody tr td select').each(function () {
+                //    if (!($(this).find("option").length > 1)) {
+                //        for (var i = 0; i < Bales.length; i++) {
+                //            optionText = Bales[i].Text;
+                //            optionValue = Bales[i].Value;
+                //            $(this).append('<option value=' + optionValue + '>' + optionText + '</option>');
+                //            //var sd = result.closest('tr').html();//.append('<option value=' + optionValue + '>' + optionText + '</option>');
+                //        }
+                //    }
+
+                //});
+
+
+
+
+
+
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+    });
+    </script>
+
+    <script>
+        function validation() {
+            var breakOut;
+           // var lessthanzero;
+            debugger
+            if ($('#tblDeliveryCh').find('td').length != 0) {
+                $.each($("#tblDeliveryCh tbody tr"), function () {
+                    var SelectedSaleOrder = $(this).closest("tr").find('td:eq(7) input').val();
+                    if (SelectedSaleOrder < 0) {
+                        breakOut = true;
+                        return false;
+
+                    }
+                    if (SelectedSaleOrder == 0) {
+                        lessthanzero = true;
+                        return false;
+
+                    }
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    swal("", "Stock cannot be in negative", "warning");
+                    return false;
+                }
+                //if (lessthanzero) {
+                //    lessthanzero = false;
+                //    swal("", "Qty must be greater than 0", "warning");
+                //    return false;
+                //}
+            }
+            else
+                return true;
+        }
+        function submitdetails(form) {
+            debugger;
+            var length = $("#tblDeliveryCh tbody tr").length;
+            if (length == 0) {
+                swal("", "Item must be at least enter.");
+                return false;
+            }
+            var deliveryDetails = [];
+            var qty = 1;
+            $.each($("#tblDeliveryCh tbody tr"), function () {
+                debugger;
+                deliveryDetails.push({
+                    SaleOrderId: $(this).find('.saleOrderItemId').val(),
+                    ItemId: $(this).find('.itemId').val(),
+                    BaleId: $(this).find('.baleId').val(),
+                    ItemDescription: $(this).find('.itemDesc').val(),
+                    UnitName: $(this).find('.uOM').val(),
+                    UOM: $(this).find('.uOM').val(),
+                    AvailableStock: $(this).find('.availableStock').val(),
+                    SalesOrderQty: $(this).find('.saleOrderQty').val(),
+                    SaleOrderBalance: $(this).find('.balanceStock').val(),
+                    BaleNo: $(this).find('.baleNo').val(),
+                    Qty: $(this).find('.dCQuantity').val(),
+
+
+                    //StockInStore: $(this).find('.store').val(),
+                    //DCBalance: $(this).find('.DCBalance').val(),
+                    //LotNumber: $(this).find('.LotNumber').val(),
+                });
+               // var qty = $(this).find('.qty').val();
+                
+                if ($(this).find('.qty').val() == 0) {
+                    qty = 0;
+                    
+                }
+            });
+            if (qty == 0) {
+                swal("", "Qty must be greater than 0 ..!", "error");
+                return false;
+            }
+            var model = JSON.stringify(deliveryDetails);
+            $("#DeliveryDetails").val(model);
+
+            return true;
+        }
+        //On change Qty
+       
+        $("#tblDeliveryCh tbody").on("change", ".qty", function () {
+            debugger;
+            var orderQty = Number($(this).closest("tr")
+                .find(".saleOrder").val());
+            var orderQtyBalance = Number($(this).closest("tr")
+                .find(".DCBalance").val());
+            var tolalSOBalanceforCompare = Number($(this).closest("tr")
+                .find(".DCBalancehdn").val()) + Number($(this).closest("tr")
+                    .find(".qtyHdn").val());
+            var qty = Number($(this).closest("tr")
+                .find(".qty").val());
+            var oldQty = orderQty - orderQtyBalance;
+            var newQty = oldQty - qty;
+            if ((qty) > tolalSOBalanceforCompare) {
+                swal("", "Qty Must be < or = Sale Order Balance", "error");
+                $(this).closest("tr").find(".qty").val(0);
+                $(this).closest("tr").find(".qty").focus();
+            }
+
+            let RemainingSOBalance = newQty + orderQtyBalance;
+            if (RemainingSOBalance >= 0) {
+                $(this).closest("tr")
+                    .find(".DCBalance").val(RemainingSOBalance)
+            } else {
+                $(this).closest("tr")
+                    .find(".DCBalance").val(tolalSOBalanceforCompare)
+            }
+        });
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        function isCharacter() {
+            var ch = String.fromCharCode(event.keyCode);
+            var filter = /[a-zA-Z]/;
+            if (!filter.test(ch)) {
+                event.returnValue = false;
+            }
+        }
+    </script>
+}

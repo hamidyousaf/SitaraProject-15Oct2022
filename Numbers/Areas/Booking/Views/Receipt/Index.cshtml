@@ -1,0 +1,113 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgReceipt>
+
+@{
+    ViewData["Title"] = "List of Booking Receipts ";
+    ViewData["CurrentPage"] = "Receipts";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>List of Booking Receipts</h5>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+                    </div>
+                    <br /><br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Id)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ReceiptDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Vehicle.BookingNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Vehicle.Item.Name)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Reference)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ReceiptAccount)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ReceiptAmount)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Id)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReceiptDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Vehicle.BookingNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Vehicle.Item.Name)
+                                    
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Reference)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReceiptAccount)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReceiptAmount)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Status)
+                                </td>
+                                <td>
+                                    @if (item.Status != "Approved")
+                                    {
+                                        <a asp-action="Create" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a class="btn btn-sm btn-success m-t-n-xs" onclick="ConfirmApproval(@item.Id)"><i class="fa fa-thumbs-up" title="Approve"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Create" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" title="View" aria-hidden="true"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        function ConfirmApproval(id) {
+            swal({
+                title: "Are you sure, you want to Approve?",
+                text: "Receipt # " + id,
+                icon: "warning",
+                buttons: [true, "Yes, approve it!"],
+                dangerMode: false
+            }).then((answer) => {
+                if (answer) {
+                    document.location.href = "/Booking/Receipt/Approve?id=" + id;
+                }
+            })
+        }
+    </script>
+}

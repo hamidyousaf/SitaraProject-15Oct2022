@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Numbers.Entity.Models.InvStockTransfer>
+@{
+    ViewData["Title"] = "Un-Approve Stock Transfer";
+    ViewData["CurrentPage"] = "Un-Approve";
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <table class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.TransferNo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.TransferDate)
+                            </th>
+                            <th>
+                                <b>From</b>
+                            </th>
+                            <th>
+                                <b>To</b>
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TransferNo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TransferDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.WareHouseFrom.ConfigValue)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.WareHouseTo.ConfigValue)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Status)
+                            </td>
+                            <td>
+                                @if (item.Status == "Approved")
+                                {
+                                    <span title="Click to View Voucher">
+                                        <a asp-action="Details" asp-controller="StockTransfer" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" aria-hidden="true"></i></a>
+                                    </span>
+                                    if (ViewBag.UnApprove == true)
+                                    {
+                                    <span title="Click to Un-Approve">
+                                        <a asp-action="UnApproveStockTransfer" asp-controller="StockTransfer" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to Un-Approve Stock Transfer Note?')"><i class="fa fa-thumbs-down"></i></a>
+                                    </span>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

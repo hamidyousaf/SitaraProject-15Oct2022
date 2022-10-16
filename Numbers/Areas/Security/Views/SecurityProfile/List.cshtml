@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Numbers.Entity.ViewModels.SecurityProfileVM>
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                    <div class="text-center">
+                        @*<h5>List of SecurityProfiles</h5>*@
+
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="SecurityProfile" asp-action="Index"><strong>Create New</strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.sys_ORG_Profile.ID)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.sys_ORG_Profile.ProfileName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Classification)
+                                </th>
+                                    
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.sys_ORG_Profile.ID)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.sys_ORG_Profile.ProfileName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Classification)
+                                    </td>
+
+                                    <td>
+                                        <a asp-action="Index" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.sys_ORG_Profile.ID"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="DeleteProfile" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.sys_ORG_Profile.ID"><i class="fa fa-trash" title="Delete"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,370 @@
+﻿@model Numbers.Entity.Models.BkgVehicle
+
+@{
+    ViewData["Title"] = "Vehicle Booking";
+    ViewData["CurrentPage"] = "Vehicle Booking";
+
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Vehicle Booking</h5>
+                <span class="label label-success pull-right status">@Model.Status</span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" >
+                                <label asp-for="TransDate" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" class="form-control custom-date-picker" asp-for="TransDate" data-validation="required" data-validation-error-msg="Trans. date is required" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.TransDate.ToString(CommonHelper.DateFormat))>
+                                        <span asp-validation-for="TransDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ReceiptType" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="form-control" asp-for="ReceiptType"  asp-items="@ViewBag.receiptTypes"   >
+                                        <option selected="selected" value="     ">Select...</option>
+
+                                    </select>
+                                    <span asp-validation-for="ReceiptType" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BookingType" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+
+                                    <select class="form-control" asp-for="BookingType" asp-items="@ViewBag.bookingType">
+                                        <option selected="selected" value="" >Select...</option>
+
+                                    </select>
+                                    <span asp-validation-for="BookingType" class="text-danger"></span>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BankName" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="BankName" class="form-control" />
+                                 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CustomerId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" asp-for="CustomerId">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ReferenceNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ReferenceNo" class="form-control"/>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ItemId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" asp-for="ItemId">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="ItemId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Price" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Price" class="form-control" data-validation="required number" data-validation-allowing="range[1.00;10000000.00],float" data-validation-error-msg="Price is required" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BankCashAccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="chosen-select" asp-for="BankCashAccountId">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="BankCashAccountId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ReceivedAmount" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ReceivedAmount" class="form-control"  data-validation="required number"  data-validation-allowing="range[1.00;10000000.00],float" data-validation-error-msg="Received amount is required"  />
+                                    <span asp-validation-for="ReceivedAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BookingNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="BookingNo" onchange="checkBookingNo();" class="form-control" data-validation="required number" data-validation-error-msg="Booking Number is required" />
+                                    <span asp-validation-for="BookingNo" class="text-danger"></span>
+                                    <p id="Booking_Status"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label asp-for="Remarks" class="col-lg-2 control-label"></label>
+
+                                <div class="col-lg-10">
+                                    <textarea asp-for="Remarks" class="form-control"></textarea>
+                                    <span asp-validation-for="Remarks" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-lg-6 col-lg-offset-2">
+                                    <a class="btn btn-white" onclick="javascript:window.history.back();">List</a>
+                                    @if (Model.Status == "Booking")
+                                    {
+                                        @*<a class="btn btn-white" asp-action="Index">Back</a>*@
+                                        <input id="submit" type="submit" value=@ViewBag.EntityState class="btn btn-primary" />
+                                    }
+                                    else
+                                    {
+                                        <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Receipt Voucher</a>
+                                        <a href="@string.Format(ViewBag.ReportPath, Model.PaymentVoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Payment Voucher</a>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+        });
+        
+        $(function () {
+        $('#CustomerId').select2({
+            ajax: {
+
+                url: '/Booking/Api/GetCustomers?type=Booking',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a customer',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.CustomerId;
+        var customerSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/GetCustomer?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            customerSelect.append(option).trigger('change');
+            customerSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+
+
+
+
+        $(function () {
+
+        $('#ItemId').select2({
+            ajax: {
+                url: '/Booking/Api/GetItems',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an item',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.ItemId;
+        var itemSelect = $('#ItemId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/GetItem?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            itemSelect.append(option).trigger('change');
+            itemSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+
+
+              //Select For BankCashAccountId
+    $(function () {
+        $('#BankCashAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the 
+        var id = @Model.BankCashAccountId;
+        var accountSelect = $('#BankCashAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetCashBankAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+         $(function () {
+            if ("@Model.Status" != "Booking") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+        });
+         //On Edit Customer CNIC shall not allow editing
+        $(document).ready(function () {
+            if ("@Model.BookingNo" != "") {
+                $("#BookingNo").prop('readonly', true);
+            }
+            else {
+                $("#BookingNo").prop('disabled', false);
+            }
+        });
+
+        function checkBookingNo() {
+            $.post("@Url.Action("CheckBookingNoAlreadyExists", "CashPurchaseSale", "Booking")",
+                {
+                    bookingNo: $('input[name=BookingNo]').val()
+                },
+                function (data) {
+                    if (data) {
+                        if (data.bookingNo != null) {
+                            $("#Booking_Status").html('<font color="Red">This Booking Number is Already Assigned.</font>');
+                            $("#BookingNo").css("border-color", "Red");
+                            $("#submit").prop("disabled", true);
+                            $("#submit").prop("disabled", true);
+                        }
+                    }
+                    else {
+                        $("#Booking_Status").html('<font color="Green"></font>');
+                        $("#BookingNo").css("border-color", "green");
+                        $("#submit").prop("disabled", false);
+                    }
+                })            
+        }
+    </script>
+}

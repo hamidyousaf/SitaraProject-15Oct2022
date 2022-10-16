@@ -1,0 +1,96 @@
+﻿@model BkgVehicle
+@{
+    ViewData["Title"] = "Cancel Booking";
+    ViewData["CurrentPage"] = "Cancel Booking";
+
+}
+<div class="row">
+    <div class="col-md-10">
+        <div class="ibox-title">
+            <h5>Cancel Booking</h5>
+        </div>
+        <div class="ibox-content">
+            <form id="myForm" asp-controller="Administration" method="post">
+                @*<input asp-for="Id" type="hidden" />*@
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-lg-2 col-md-2 col-sm-2 control-label">Select Booking#</label>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <select asp-for="Id" class="chosen-select" data-validation="required number" data-validation-error-msg="Booking Number is Required" data-validation-error-msg-container="#container">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <b>
+                            <span id="container"></span>
+                        </b>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group" id="data_1">
+                            <label asp-for="CancelledDate" class="col-lg-2 col-md-2 col-sm-2 control-label"></label>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input asp-for="CancelledDate" type="text" data-validation="required " class="form-control custom-date-picker" value="@(CommonHelper.CurrentDate.ToString())" />
+                                    <span asp-validation-for="CancelledDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="CancelRemarks" class="col-lg-2 col-md-2 col-sm-2 control-label"></label>
+                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                <textarea asp-for="CancelRemarks" class="form-control"  data-validation="" data-validation-error-msg="Booking Number is Required" data-validation-error-msg-container="#container">
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-4 col-md-offset-2">
+                                <input asp-action="CancelBooking" type="submit" class="btn btn-primary" value="Update" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+                </div>
+        </div>
+    </div>
+@section customJS{
+    <script>
+        $(function () {
+            $('#Id').select2({
+                ajax: {
+                    url: '/Booking/Api/GetVehiclesById',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Booking Number',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+    </script>
+}

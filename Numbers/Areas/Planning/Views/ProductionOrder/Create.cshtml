@@ -1,0 +1,1165 @@
+﻿@model ProductionOrderViewModel
+@{
+    ViewData["Title"] = "Production Order";
+}
+@section customCSS{
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input:not([type='checkbox']) {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+        .text-center-rowspan {
+            vertical-align: middle !important;
+            text-align: center !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class="ibox-content" method="post" asp-action="Create" asp-controller="ProductionOrder" onsubmit="return OnSubmit($(this));">
+                <input asp-for="ProductionOrder.Id" type="hidden" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.TransactionNo"></label>
+                                    <div class="input-group">
+                                        @if (Model.ProductionOrder.Id != 0)
+                                        {
+                                            <input asp-for="ProductionOrder.TransactionNo" tabindex="-1" readonly class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            <input value="" readonly tabindex="-1" class="form-control" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.TransactionDate"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input asp-for="ProductionOrder.TransactionDate" readonly tabindex="-1" class="form-control" type="text" value="@(Model.ProductionOrder.Id == 0 ? CommonHelper.CurrentDate : Model.ProductionOrder.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.MonthlyPlanningId"></label>
+                                    <Select asp-for="ProductionOrder.MonthlyPlanningId" id="MonthlyPlanningId" autofocus asp-items="@Model.MonthlyPlanningLOV" data-validation="required" data-validation-error-msg="Monthly Planning is required" data-validation-error-msg-container="#MonthlyPlanning" class="form-control">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                    <p id="MonthlyPlanning"></p>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.SecondItemCategoryId"></label>
+                                    <Select onchange="getFourthCatByMP();" id="SecondItemCategoryId" asp-items="@Model.SecondLevelCategoryLOV" class="form-control">
+                                        <option selected value="0">Select...</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-sm-3">
+                                <div class="form-group">
+                                    <label>Brand Code</label>
+                                    <Select onchange="getGreige();" id="FourthCategory" class="form-control">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row">
+
+                            <div class="col-lg-4 col-sm-3">
+                                <div class="form-group">
+                                    <label>Greige Quality</label>
+                                    <Select onchange="GetMonthlyPlanningDetail();" id="GreigeQuality" class="form-control">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <!--<div class="col-lg-4 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.ProcessId"></label>
+                                    <Select asp-for="ProductionOrder.ProcessId" id="ProcessId" asp-items="@Model.ProcessLOV.OrderByDescending(x=>x.Text.Contains("O"))" class="form-control">-->
+                                        @*<option selected disabled value="0">Select...</option>*@
+                                    <!--</Select>
+                                </div>
+                            </div>-->
+                            <div class="col-lg-4 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.VendorId"></label>
+                                    <Select asp-for="ProductionOrder.VendorId" id="VendorId" asp-items="@ViewBag.Supplier" class="form-control">
+                                        @*<option selected disabled value="0">Select...</option>*@
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label>Plan Of</label>
+                                    <div class="input-group">
+                                        <input id="PlanOf" asp-for="ProductionOrder.PlanOf" readonly type="text" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label asp-for="ProductionOrder.MonthlyQuantity"></label>
+                                    <div class="input-group">
+                                        <input asp-for="ProductionOrder.MonthlyQuantity" id="MonthlyQuantity" readonly type="text" value="" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-3">
+                                <div class="form-group">
+                                    <label>Design</label>
+                                    <Select id="ItemId" class="form-control">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="row">
+                                    <div class="col-lg-5 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Type</label>
+                                            <Select id="TypeId" asp-items="@Model.TypeLOV" class="form-control">
+                                                <option selected disabled value="0">Select...</option>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-sm-3">
+                                        <div class="form-group">
+                                            <label>Color Variation</label>
+                                            <div class="input-group">
+                                                <input id="Variations" class="form-control text-right" value="0" type="number" min="0" ondrop="return false" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 &&  Math.abs(this.value) <= 10? Math.abs(this.value) : 0" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-lg-4"></div>
+                                    <div class="col-lg-8">
+                                        <div class="checkbox checkbox-success">
+                                            <input id="isEmbroidery" type="checkbox" >
+                                            <label for="isEmbroidery">Embroidery</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-lg-1"></div>
+                                    <div class="col-lg-11">
+                                        <div class="checkbox checkbox-success">
+                                            <input id="isWiderWidth" type="checkbox">
+                                            <label for="isWiderWidth">Wider Width</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-lg-1">
+                                <label class="col-form-label"></label>
+                                <input type="button" class="btn btn-primary" onclick="addItems();" value="Add Items" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper wrapper-content animated fadeIn">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#Order">Order</a></li>
+                        <li><a data-toggle="tab" href="#BOM">BOM</a></li>
+                    </ul>
+                    <div class="tab-content ">
+                        <div id="Order" class="tab-pane fade in active">
+                            <div class="container-fluid table-responsive">
+                                <table id="OrderTable" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th hidden>ItemCategoryFourId</th>
+                                            <th hidden>MPDetailId</th>
+                                            <th width="10%">Brand Code</th>
+                                            <th width="19%">Greige Quality</th>
+                                            <th hidden>ItemId</th>
+                                            <th width="19%">Design</th>
+                                            <th hidden>Month</th>
+                                            <th width="6%">Qty (mtrs)</th>
+                                            <th width="9%">Version</th>
+                                            <th width="9%">Process Type</th>
+                                            <th width="9%">Version Conv. (mtr)</th>
+                                            <th width="6%">Version Qty (mtrs)</th>
+                                            <th hidden width="7%">Colors</th>
+                                            <th width="6%">Pcs</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.ProductionOrder.ProductionOrderItems != null)
+                                        {
+                                            @if (Model.ProductionOrder.ProductionOrderItems.Count() > 0)
+                                            {
+                                                var x = 1;
+                                                @foreach (var item in Model.ProductionOrder.ProductionOrderItems.OrderBy(x => x.Id))
+                                                {
+                                                    var colSpan = Model.ProductionOrder.ProductionOrderItems.Where(x => x.GroupId == item.GroupId).Count();
+                                                    <tr>
+                                                        <td hidden><input class="Id" value="@item.Id" /></td>
+                                                        <td hidden><input class="ColSpanIndex" value="@item.GroupId" /></td>
+                                                        <td hidden><input class="ItemCategoryFourId" value="@item.FourthItemCategoryId" type="hidden" /></td>
+                                                        <td hidden><input class="MPDetailId" value="@item.MPDetailId" type="hidden" /></td>
+                                                        <td hidden><input class="GreigeQualityId" value="@item.GreigeQualityId" type="hidden" /></td>
+                                                        <td hidden><input class="MonthlyQuantity" value="@item.MPDetail.MonthlyFabricCons" type="hidden" /></td>
+
+                                                        <td><input value="@item.FourthItemCategory.Code - @item.FourthItemCategory.Name" tabindex="-1" readonly style="background-color: #eee;" /></td>
+                                                        <td><input class="SpecificationName" value="@item.GreigeQualityId - @item.GreigeQualityDesc" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                        <td hidden><input class="ItemId" value="@item.ItemId" type="hidden" /></td>
+                                                        <td><input class="ItemName" value="@item.Item.Code - @item.Item.Name" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                        <td hidden><input class="PlanOF" value="@item.Month" type="text" readonly style="background-color: #eee;" tabindex="-1" /></td>
+                                                        @if (x == item.GroupId)
+                                                        {
+                                                            <td rowspan="@colSpan"><input onchange="OnChangeValue($(this))" onfocus="AddQuantity($(this))" class="SuitMeter text-right" value="@item.SuitMeters" type="number" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" /></td>
+                                                        }
+                                                        <td>
+                                                            <select class="VersionId  form-control" asp-items="Model.VersionLOV" asp-for="@item.VersionId" onchange="check($(this)); CalculateVersionQuantityAndPcs($(this))" data-validation="required">
+                                                                <option value="0" disabled selected>Please Select...</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="ProcessTypeId form-control" asp-items="Model.ProcessTypeLOV" asp-for="@item.ProcessTypeId" data-validation="required">
+                                                                <option value="0" disabled selected>Please Select...</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="VersionConversionId form-control" asp-items="Model.VersionConversionLOV" onchange="CalculateVersionQuantityAndPcs($(this))" asp-for="@item.VersionConversion" data-validation="required">
+                                                                <option value="0" disabled selected>Please Select...</option>
+                                                            </select>
+                                                        </td>
+
+                                                        <td hidden><input class="tTypeId" value="@item.Type.Id" readonly style="background-color: #eee;" tabindex="-1" type="hidden" /></td>
+                                                        <td hidden><input class="tTypeName" value="@item.Type.ConfigValue" readonly style="background-color: #eee;" tabindex="-1" type="hidden" /></td>
+
+                                                        <td><input class="VersionQuantity text-right" value="@item.VersionQuantity" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                        <td hidden><input class="ColorVariations text-right" value="@item.ColorVariations" type="number" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" /></td>
+                                                        <td><input class="Pcs text-right" value="@item.Pcs" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>
+                                                        @if (x == item.GroupId)
+                                                        {
+                                                            <td rowspan="@colSpan" class="text-center-rowspan"><a id="delrow" onclick="deleteOrderRow($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                                            x++;
+                                                        }
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot id="myfoot">
+                                        <tr style='font-weight: bold'>
+                                            <td ></td>
+                                            <td ></td>
+                                            <td style="text-align: right;">Total:</td>
+                                            <td class='text-right' id="totalQuantity">0.00</td>
+                                            <td ></td>
+                                            <td ></td>
+                                            <td ></td>
+                                            <td ></td>
+                                            <td></td>
+                                            <td></td>
+                                            @*<td></td>
+                <td></td>*@
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="BOM" class="tab-pane fade">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <a class="btn btn-white" asp-controller="ProductionOrder" asp-action="Index">List</a>
+                                <input type="submit" id="SaveBtn" value=@ViewBag.EntityState class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input hidden id="itemDetail" name="ItemDetail" />
+                <input hidden id="totalQty" value="0" name="TotalQty" />
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+
+            GetRowFooter();
+            $("#MonthlyPlanningId").select2();
+            $("#FourthCategory").select2();
+            $("#ItemId").select2();
+            $("#VendorId").select2();
+            $("#SecondItemCategoryId").select2();
+            $("#GreigeQuality").select2();
+            $("#ProcessId").select2();
+            $("#MonthlyPlanningId").change(function () {
+                $('#OrderTable > tbody > tr').remove();
+                getFourthCatByMP();
+            })
+            $("#TypeId").change(function () {
+
+                var secondCategory = $("#SecondItemCategoryId").find("option:selected").text().toUpperCase();
+                var type = $(this).find(":selected").text().toUpperCase();
+                if (secondCategory.includes("HOME") && !type.includes("1")) {
+                    $(this).val(0).trigger('change.select2');
+
+                }
+                if (secondCategory.includes("02") && type.includes("3")) {
+                    $(this).val(0).trigger('change.select2');
+
+                }
+                //if (startwith && typeName == 3 ) {
+                //}
+            });
+            $("#SecondItemCategoryId").change(function () {
+                $("#TypeId").val(0).trigger('change.select2');
+            });
+        });
+        function getFourthCatByMP() {
+
+
+            var monthlyPlanningId = $("#MonthlyPlanningId").find("option:selected").val();
+            var secondItemCategoryId = $("#SecondItemCategoryId").find("option:selected").val();
+            $('#FourthCategory').find('option').not(':first').remove();
+            $('#GreigeQuality').find('option').not(':first').remove();
+            $('#GreigeQuality').val(0).trigger('change.select2');
+            $('#FourthCategory').val(0).trigger('change.select2');
+            $('#ItemId').find('option').not(':first').remove();
+            $('#PlanOf').val("");
+            $('#MonthlyQuantity').val("");
+            $.ajax({
+                method: "GET",
+                url: '/Planning/ProductionOrder/GetFourthCatFromMP',
+                data: { monthlyPlanningId: monthlyPlanningId, secondItemCategoryId: secondItemCategoryId }
+            }).done(function (data) {
+
+                $.each(data, function (i, item) {
+
+                    $('#FourthCategory').append($('<option>', {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+            });
+
+        }
+        function getGreige() {
+
+            var fourthCategoryId = Number($("#FourthCategory").find("option:selected").val());
+            var monthlyPlanningId = $("#MonthlyPlanningId").find("option:selected").val();
+            if (fourthCategoryId == 0) {
+                return false;
+            }
+            $('#GreigeQuality').find('option').not(':first').remove();
+            $('#ItemId').find('option').not(':first').remove();
+            $('#GreigeQuality').val(0).trigger('change.select2');
+            $('#ItemId').val(0).trigger('change.select2');
+
+            $.ajax({
+                method: "GET",
+                url: '/Planning/ProductionOrder/GetGreige',
+                data: { fourthCategoryId: fourthCategoryId, monthlyPlanningId: monthlyPlanningId }
+            }).done(function (data) {
+
+                $.each(data, function (i, item) {
+
+                    $('#GreigeQuality').append($('<option>', {
+                        value: item.greigeId,
+                        text: item.name
+                    }));
+                });
+            });
+
+            $.ajax({
+                method: "GET",
+                url: '/Planning/ProductionOrder/GetItems',
+                data: { fourthCategoryId: fourthCategoryId }
+            }).done(function (data) {
+
+                $.each(data, function (i, item) {
+
+                    $('#ItemId').append($('<option>', {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+            });
+        }
+        function GetMonthlyPlanningDetail() {
+
+            var fourthCategoryId = Number($("#FourthCategory").find("option:selected").val());
+            var monthlyPlanningId = Number($("#MonthlyPlanningId").find("option:selected").val());
+            var greigeQuality = $("#GreigeQuality").find("option:selected").text();
+            var greigeQualityId = $("#GreigeQuality").find("option:selected").val();
+            var itemId = Number($("#ItemId").find("option:selected").val());
+            if (fourthCategoryId == 0) {
+                return false;
+            }
+            if (greigeQualityId == 0) {
+                return false;
+            }
+            if (monthlyPlanningId == 0) {
+                return false;
+            }
+            $('#ItemId').val(0).trigger('change.select2');
+            $.ajax({
+                method: "GET",
+                url: '/Planning/ProductionOrder/GetMonthlyPlanningDetail',
+                data: { monthlyPlanningId: monthlyPlanningId, fourthCategoryId: fourthCategoryId, greigeQuality: greigeQuality }
+            }).done(function (data) {
+
+                if (data != null) {
+                    $("#PlanOf").val(data.monthId);
+                    $("#MonthlyQuantity").val(data.monthlyFabricConsBalance);
+                }
+            });
+        }
+        function addItems() {
+
+            var itemId = Number($("#ItemId").find("option:selected").val());
+            var greigeId = $("#GreigeQuality").find("option:selected").val();
+            var ids = greigeId.split("-");
+            var mpDetId = Number(ids[0]);
+            var greigeQualityId = Number(ids[1]);
+            var breakOut = false;
+            $("#OrderTable > tbody > tr").each(function () {
+
+                var tmpDetId = Number($(this).find(".MPDetailId").val());
+                var tItemId = Number($(this).find(".ItemId").val());
+                if (mpDetId == tmpDetId && itemId == tItemId) {
+                    breakOut = true;
+                    return false;
+                }
+            });
+
+            if (breakOut) {
+                swal({
+                    icon: 'warning',
+                    text: "Item already used!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemId').focus();
+                });
+                return false;
+            }
+            var fourthCategoryId = $("#FourthCategory").find("option:selected").val();
+            var fourthCategoryName = $("#FourthCategory").find("option:selected").text();
+
+            var secondCategoryId = $("#SecondItemCategoryId").find("option:selected").val();
+            var secondCategoryName = $("#SecondItemCategoryId").find("option:selected").text();
+
+            var specification = $("#GreigeQuality").find("option:selected").text();
+            var itemId = Number($("#ItemId").find("option:selected").val());
+            var itemName = $("#ItemId").find("option:selected").text();
+            var month = $("#PlanOf").val();
+            var variations = Number($("#Variations").val());
+            var type = $("#TypeId").find("option:selected").text();
+            var typeId = $("#TypeId").find("option:selected").val();
+
+            var monthlyPlanningId = Number($("#MonthlyPlanningId").find("option:selected").val());
+            var secondItemCategoryId = Number($("#SecondItemCategoryId").find("option:selected").val());
+            var FourthCategoryss = Number($("#FourthCategory").find("option:selected").val());
+            var mpDetailId = $("#GreigeQuality").find("option:selected").val();
+            var monthlyQuantity = Number($("#MonthlyQuantity").val());
+
+            if (monthlyPlanningId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Monthly Planning!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#MonthlyPlanningId').focus();
+                });
+                return false;
+            }
+            if (secondItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item Category 2!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SecondItemCategoryId').focus();
+                });
+                return false;
+            }
+            if (FourthCategoryss == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item Category 4!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#FourthCategory').focus();
+                });
+                return false;
+            }
+            if (mpDetailId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GreigeQuality').focus();
+                });
+                return false;
+            }
+            if (itemId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemId').focus();
+                });
+                return false;
+            }
+            if (typeId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#TypeId').focus();
+                });
+                return false;
+            }
+            if (variations == 0 || variations == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Number of Variations!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Variations').focus();
+                });
+                return false;
+            }
+
+            var pc = Number(type.slice(0, 1));
+            var versions = [];
+            var processType = [];
+            var versionConversion = [];
+            var ColSpanIndex = 1;
+            if ($('#OrderTable > tbody > tr').length != 0) {
+                ColSpanIndex = Number($('#OrderTable tr:last').find(".ColSpanIndex").val()) + 1;
+            }
+            $.ajax({
+                method: "GET",
+                url: '/Planning/ProductionOrder/GetVersionAndProcessType',
+                async: false
+            }).done(function (data) {
+
+                $.each(data.versions, function (i, item) {
+
+                    versions.push(item);
+                });
+                $.each(data.processType, function (i, item) {
+
+                    processType.push(item);
+                });
+                $.each(data.versionConversion, function (i, item) {
+
+                    versionConversion.push(item);
+                });
+            });
+            for (var j = 0; j < variations; j++) {
+                var check = 0;
+
+                if ($('#OrderTable > tbody > tr').length != 0) {
+                    ColSpanIndex = Number($('#OrderTable  > tbody >  tr:last').find(".ColSpanIndex").val()) + 1;
+                }
+                for (var i = 0; i < pc; i++) {
+                    var Itemrow = '';
+                    Itemrow += '<tr>'
+                    Itemrow += '<td hidden><input class ="Id" value="0"  /></td>';
+                    Itemrow += '<td hidden><input class ="ColSpanIndex" value="' + ColSpanIndex + '"  /></td>';
+
+                    Itemrow += '<td  hidden><input class ="ItemCategoryFourId" value="' + fourthCategoryId + '" type="hidden" /></td>';
+
+                    Itemrow += '<td  hidden><input class ="ItemCategorySecondId" value="' + secondCategoryId + '" type="hidden" /></td>';
+                    Itemrow += '<td  hidden><input class ="ItemCategorySecondName" value="' + secondCategoryName + '" type="hidden" /></td>';
+
+                    Itemrow += '<td  hidden><input class ="MPDetailId" value="' + mpDetId + '" type="hidden" /></td>';
+                    Itemrow += '<td  hidden><input class ="GreigeQualityId" value="' + greigeQualityId + '" type="hidden" /></td>';
+                    Itemrow += '<td  hidden><input class ="MonthlyQuantity" value="' + monthlyQuantity + '" type="hidden" /></td>';
+                    Itemrow += '<td><input value="' + fourthCategoryName + '" tabindex="-1" readonly style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="SpecificationName" value="' + specification + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    Itemrow += '<td  hidden><input class ="ItemId" value="' + itemId + '" type="hidden" /></td>';
+                    Itemrow += '<td><input class ="ItemName" value="' + itemName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    Itemrow += '<td hidden><input class ="PlanOF" value="' + month + '" type="text" readonly style="background-color: #eee;" tabindex="-1" /></td>';
+                    if (check == 0) {
+                        Itemrow += '<td rowspan="' + pc + '"><input onchange="OnChangeValue($(this))"  onfocus="AddQuantity($(this))" class =" SuitMeter text-right" value="0" type="number" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" /></td>';
+                    }
+                    Itemrow += '<td><select class=" form-control VersionId" onchange="check($(this)); CalculateVersionQuantityAndPcs($(this))" data-validation="required">';
+                    Itemrow += '<option value="0" disabled selected >Please Select...</option >';
+                    $.each(versions, (index, item) => {
+                        Itemrow += '<option value="' + item.value + '" >' + item.text + '</option >';
+                    })
+                    Itemrow += '</select ></td>';
+                    Itemrow += '<td><select class=" form-control ProcessTypeId" data-validation="required">';
+                    Itemrow += '<option value="0" disabled selected >Please Select...</option >';
+                    $.each(processType, (index, item) => {
+                        Itemrow += '<option value="' + item.value + '" >' + item.text + '</option >';
+                    })
+                    Itemrow += '</select ></td>';
+
+                    Itemrow += '<td><select class=" form-control VersionConversionId" onchange="CalculateVersionQuantityAndPcs($(this))" data-validation="required">';
+                    Itemrow += '<option value="0" disabled selected >Please Select...</option >';
+                    $.each(versionConversion, (index, item) => {
+                        Itemrow += '<option value="' + item.text + '" >' + item.text + '</option >';
+                    })
+                    Itemrow += '</select ></td>';
+
+                    Itemrow += '<td hidden><input class ="tTypeId" value="' + typeId +'" readonly style="background-color: #eee;" tabindex="-1" type="hidden" /></td>';
+                    Itemrow += '<td hidden><input class ="tTypeName" value="' + type +'" readonly style="background-color: #eee;" tabindex="-1" type="hidden" /></td>';
+                    Itemrow += '<td><input class ="VersionQuantity text-right" value="0" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    Itemrow += '<td hidden><input class ="ColorVariations text-right" value="0" type="number" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" /></td>';
+                    Itemrow += '<td><input class ="Pcs text-right" value="0" readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    if (check == 0) {
+                        Itemrow += '<td rowspan="' + pc + '" class="text-center-rowspan"><a id="delrow" onclick="deleteOrderRow($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                    }
+                    $('#OrderTable tbody').append(Itemrow);
+                    check = 1;
+                }
+            }
+            GetRowFooter();
+        }
+        function deleteOrderRow(row) {
+            debugger
+            var groupId = Number(row.closest("tr").find(".ColSpanIndex").val());
+            var x = false;
+            var MPDetailId = 0;
+            var Quantity = 0;
+            var poId = 0;
+            $("#OrderTable > tbody > tr").each(function () {
+                debugger
+                tgroupId = Number($(this).closest("tr").find(".ColSpanIndex").val());
+                if (groupId == tgroupId) {
+                    $(this).closest("tr").remove();
+                    MPDetailId = Number(row.closest("tr").find(".MPDetailId").val());
+                    poId = Number(row.closest("tr").find(".Id").val());
+                    Quantity = Number(row.closest("tr").find(".SuitMeter").val());
+                    x = true;
+                }
+            });
+            if (x && MPDetailId != 0 && poId != 0) {
+                debugger
+                $.ajax({
+                    type: "get",
+                    url: '@Url.Action("HandleBalanceQuantity", "ProductionOrder")',
+                    contentType: "application/json; charset=utf-8",
+                    data: {
+                        MPDetailId: MPDetailId,
+                        Quantity: Quantity
+                    },
+                    async: false,
+                    dataType: "json",
+                    success: function() { alert('Success'); },
+                });
+
+            }
+
+            GetRowFooter();
+
+            //row.closest("tr").remove();
+        };
+        function clearTextBox() {
+
+        }
+        function CalculateVersionQuantityAndPcs(row) {
+
+
+            var VersionId = row.closest("tr").find(".VersionId option:selected").val();
+            var VersionName = row.closest("tr").find(".VersionId option:selected").text();
+            var index = row.closest("tr").index();
+            var SuitMeter = 0;
+            var rowsGroup = 0;
+            var TotalVersionConv = 0;
+            var breakOut = false;
+            SuitMeter = Number(row.closest("tr").find(".SuitMeter").val());
+            trowsGroup = Number(row.closest("tr").find(".ColSpanIndex").val());
+
+            $('#OrderTable > tbody > tr').each(function () {
+
+                x = Number($(this).closest("tr").find(".ColSpanIndex").val());
+                a = Number($(this).closest("tr").find(".VersionId :selected").val());
+                y = parseFloat($(this).closest("tr").find(".VersionConversionId :selected").val());
+                if (trowsGroup == x) {
+                    rowsGroup++;
+                    if (y == 0) {
+                        breakOut = true;
+                    }
+                    TotalVersionConv = TotalVersionConv + y;
+                }
+            })
+            if (breakOut)
+            {
+
+                return false;
+            }
+
+
+
+
+            if (isNaN(SuitMeter)) {
+                SuitMeter = Number(row.closest("tr").prev().find(".SuitMeter").val());
+                if (isNaN(SuitMeter)) {
+                    SuitMeter = Number(row.closest("tr").prev().prev().find(".SuitMeter").val());
+                }
+            }
+            var sVersionQty = 0;
+            var kVersionQty = 0;
+            var dVersionQty = 0;
+            if (SuitMeter != 0 && VersionId != 0) {
+
+
+
+
+                $('#OrderTable > tbody > tr').each(function () {
+
+                    x = $(this).closest("tr").find(".ColSpanIndex").val();
+                    y = parseFloat($(this).closest("tr").find(".VersionConversionId :selected").val());
+                    if (trowsGroup == x) {
+
+                        var suitePiece = Number($(this).closest("tr").find(".tTypeName").val().slice(0, 1));
+                        var startWith = VersionName.slice(0, 1).toUpperCase();
+                        if (startWith == "S") {
+                            //var sVersionQty = Math.round(Number((SuitMeter / (suitePiece == 3 ? 7.85 : suitePiece == 2 ? 5.35 : 2.5)) * 2.5));
+                            var sVersionQty = Math.round(Number((SuitMeter / TotalVersionConv) * y));
+                            $(this).closest("tr").find(".VersionQuantity").val(sVersionQty);
+                            var sPcs = Math.round(sVersionQty / y);
+                            $(this).closest("tr").find(".Pcs").val(sPcs);
+
+                        } else
+                            if (startWith == "K") {
+                                //var kVersionQty = Math.round(Number((SuitMeter / (suitePiece == 3 ? 7.85 : suitePiece == 2 ? 5.35 : 2.85)) * 2.85));
+                                var kVersionQty = Math.round(Number((SuitMeter / TotalVersionConv) * y));
+                                $(this).closest("tr").find(".VersionQuantity").val(kVersionQty);
+                                var kPcs = Math.round(kVersionQty / y);
+                                $(this).closest("tr").find(".Pcs").val(kPcs);
+                            } else
+                                if (startWith == "B") {
+                                    //var kVersionQty = Math.round(Number((SuitMeter / (suitePiece == 3 ? 7.85 : suitePiece == 2 ? 5.35 : 2.85)) * 2.85));
+                                    var kVersionQty = Math.round(Number((SuitMeter / TotalVersionConv) * y));
+                                    $(this).closest("tr").find(".VersionQuantity").val(kVersionQty);
+                                    var kPcs = Math.round(kVersionQty / y);
+                                    $(this).closest("tr").find(".Pcs").val(kPcs);
+                                } else
+                                if (startWith == "D" && suitePiece != 2) {
+                                    //var dVersionQty = Math.round(Number((SuitMeter / (suitePiece == 3 ? 7.85 : 2.5)) * 2.5));
+                                    var dVersionQty = Math.round(Number((SuitMeter / TotalVersionConv) * y));
+                                    $(this).closest("tr").find(".VersionQuantity").val(dVersionQty);
+                                    var dPcs = Math.round(dVersionQty / y);
+                                    $(this).closest("tr").find(".Pcs").val(dPcs);
+                                } else {
+                                    var VersionQty = Math.round(Number((SuitMeter / TotalVersionConv) * y));
+                                    $(this).closest("tr").find(".VersionQuantity").val(VersionQty);
+                                    var dPcs = Math.round(VersionQty / y);
+                                    $(this).closest("tr").find(".Pcs").val(dPcs);
+                                    //$(this).closest("tr").find(".VersionId").val(0).trigger('change.select2');
+                                    //$(this).closest("tr").find(".VersionQuantity").val(0);
+                                    //$(this).closest("tr").find(".Pcs").val(0);
+                                }
+                    }
+                })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+        }
+        function OnChangeValue(row) {
+
+            var vFourthCategory = row.closest("tr").find(".ItemCategoryFourId").val();
+            var vGreigeQualityId = row.closest("tr").find(".GreigeQualityId").val();
+            var vMonthlyQuantity = Number(row.closest("tr").find(".MonthlyQuantity").val());
+            var x = 0;
+            $('#OrderTable > tbody > tr').each(function () {
+
+                var tFourthCategory = $(this).closest("tr").find(".ItemCategoryFourId").val();
+                var tGreigeQualityId = $(this).closest("tr").find(".GreigeQualityId").val();
+                var tSuitMeter = Number($(this).closest("tr").find(".SuitMeter").val());
+                if (vFourthCategory == tFourthCategory && vGreigeQualityId == tGreigeQualityId && !isNaN(tSuitMeter)) {
+                    x = x + tSuitMeter;
+                }
+            })
+            if (vMonthlyQuantity < x) {
+
+                swal({
+                    icon: 'warning',
+                    text: "Suite Meter Quantity must be Less Than Balance Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+
+                });
+                $('#OrderTable > tbody > tr').each(function () {
+
+                    var tFourthCategory = $(this).closest("tr").find(".ItemCategoryFourId").val();
+                    var tGreigeQualityId = $(this).closest("tr").find(".GreigeQualityId").val();
+                    var tSuitMeter = Number($(this).closest("tr").find(".SuitMeter").val());
+                    if (vFourthCategory == tFourthCategory && vGreigeQualityId == tGreigeQualityId && !isNaN(tSuitMeter)) {
+                        $(this).closest("tr").find(".SuitMeter").val(0);
+                    }
+                })
+                GetRowFooter();
+                return false;
+            }
+            var ColSpanIndex = Number(row.closest("tr").find(".ColSpanIndex").val());
+            var x = 0;
+            $('#OrderTable > tbody > tr').each(function () {
+
+                x = $(this).closest("tr").find(".ColSpanIndex").val();
+                if (ColSpanIndex == x) {
+                    $(this).closest("tr").find(".VersionId").val(0).trigger('change.select2');
+                    $(this).closest("tr").find(".VersionQuantity").val(0);
+                    $(this).closest("tr").find(".Pcs").val(0);
+                }
+            })
+
+            CalculateVersionQuantityAndPcs(row);
+
+            GetRowFooter();
+
+        }
+
+        function OnSubmit() {
+
+            var breakOutonQuantity = false;
+
+                $("#OrderTable tbody tr").each(function () {
+
+                    var monthlyQuantity = Number($(this).find(".MonthlyQuantity").val());
+                    var mpDetailId = Number($(this).find(".MPDetailId").val());
+                    var sumMonthlyQuantity = 0;
+                    var suitMeter = Number($(this).find(".SuitMeter").val());
+                    if (!isNaN(suitMeter)) {
+                        $("#OrderTable tbody tr").each(function () {
+
+                            var nmonthlyQuantity = Number($(this).find(".MonthlyQuantity").val());
+                            var nsuitMeter = Number($(this).find(".SuitMeter").val());
+                            var nmpDetailId = Number($(this).find(".MPDetailId").val());
+                            if (mpDetailId == nmpDetailId && !isNaN(nsuitMeter)) {
+                                sumMonthlyQuantity += nsuitMeter;
+                            }
+                        })
+                    } else {
+                        return;
+                    }
+
+                    if (monthlyQuantity != sumMonthlyQuantity) {
+
+                        breakOutonQuantity = true;
+                        return false;
+                    }
+                })
+                //if (breakOutonQuantity) {
+                //    swal({
+                //        icon: 'warning',
+                //        text: "Suite Meter Quantity must be Equal to Balance Quantity!",
+                //        closeModal: false
+                //    }).then(function () {
+                //        swal.close();
+                //    });
+                //    return false;
+                //}
+
+
+
+            var breakOutonVersion = false;
+            var breakOutonVersionId = false;
+            var breakOutonProcessType = false;
+            var breakOutonColorVariations = false;
+            $("#OrderTable tbody tr").each(function () {
+
+                var tversionQuantity = Number($(this).find('.VersionQuantity').val());
+                var tversionId = Number($(this).find('.VersionId').val());
+                var tprocessTypeId = Number($(this).find('.ProcessTypeId').val());
+                var tcolorVariations = Number($(this).find('.ColorVariations').val());
+                if (tversionId == 0) {
+                    breakOutonVersionId = true;
+                    return false;
+                }
+                if (tprocessTypeId == 0) {
+                    breakOutonProcessType = true;
+                    return false;
+                }
+                if (tversionQuantity == 0) {
+                    breakOutonVersion = true;
+                    return false;
+                }
+                if (tcolorVariations == 0) {
+                    breakOutonColorVariations = true;
+                    return false;
+                }
+            });
+            if (breakOutonVersionId) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Version!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                return false;
+            }
+            //if (breakOutonColorVariations) {
+            //    swal({
+            //        icon: 'warning',
+            //        text: "Please Enter Colors!",
+            //        closeModal: false
+            //    }).then(function () {
+            //        swal.close();
+            //    });
+            //    return false;
+            //}
+            if (breakOutonProcessType) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Process Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                return false;
+            }
+            if (breakOutonVersion) {
+                swal({
+                    icon: 'warning',
+                    text: "Version Quantity cannot be zero!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                return false;
+            }
+
+            var BreakOut = false;
+            var length = $("#OrderTable tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter one item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SeasonId').focus();
+                });
+                return false;
+            }
+            var itemDetails = [];
+            $.each($("#OrderTable tbody tr"), function () {
+
+                    itemDetails.push({
+                        Id: $(this).find('.Id').val(),
+                        FourthItemCategoryId: $(this).find('.ItemCategoryFourId').val(),
+                        ItemCategorySecondId: $(this).find('.ItemCategorySecondId').val(),
+                        GreigeQualityDesc: $(this).find('.SpecificationName').val(),
+                        ItemId: $(this).find('.ItemId').val(),
+                        TypeId: $(this).find('.tTypeId').val(),
+                        GreigeQualityId: $(this).find('.GreigeQualityId').val(),
+                        MPDetailId: $(this).find('.MPDetailId').val(),
+                        Month: $(this).find('.PlanOF').val(),
+                        VersionId: $(this).find('.VersionId').val(),
+                        ProcessTypeId: $(this).find('.ProcessTypeId').val(),
+                        VersionConversion: $(this).find('.VersionConversionId :selected').val(),
+                        VersionQuantity: $(this).find('.VersionQuantity').val(),
+                        ColorVariations: $(this).find('.ColorVariations').val(),
+                        Pcs: $(this).find('.Pcs').val(),
+                        SuitMeters: isNaN(Number($(this).find('.SuitMeter').val())) ? 0 : Number($(this).find('.SuitMeter').val()),
+                        GroupId: $(this).find('.ColSpanIndex').val()
+                    });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#itemDetail").val(model);
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+            return true;
+        }
+        function check(row) {
+
+            var secondCategoryId = row.closest("tr").find(".ItemCategorySecondId").val();
+            var secondCategoryName = row.closest("tr").find(".ItemCategorySecondName").val().toUpperCase();
+
+            var checkHomeCategory = secondCategoryName.includes("HOME");
+            var checkMenCategory = secondCategoryName.includes("02");
+            var checkWomenCategory = secondCategoryName.includes("WOMEN");
+            var versionId = Number(row.closest("tr").find(".VersionId option:selected").val());
+            var versionName = row.closest("tr").find(".VersionId option:selected").text().toUpperCase();
+            var tTypeName = row.closest("tr").find(".tTypeName").val().toUpperCase();
+
+            if (versionId == 0) {
+                return false;
+            }
+            //if (checkHomeCategory && !versionName.includes("BOLT")) {
+                
+            //    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            //    return false;
+            //}
+            //if ((checkMenCategory && tTypeName.includes("1")) && (!versionName.includes("BOLT"))) {
+                
+            //    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            //    return false;
+            //}
+            //if ((checkMenCategory && tTypeName.includes("2") && !versionName.includes("KAMEEZ") && !versionName.includes("SHALWAR"))) {
+                
+            //    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            //    return false;
+            //}
+            ////if ((checkWomenCategory && tTypeName.includes("1")) && (!versionName.includes("BOLT"))) {
+                
+            ////    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            ////    return false;
+            ////}
+            //if ((checkWomenCategory && tTypeName.includes("2")) && !versionName.includes("KAMEEZ") && !versionName.includes("SHALWAR")) {
+                
+            //    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            //    return false;
+            //}
+            //if ((checkWomenCategory && tTypeName.includes("3")) && versionName.includes("BOLT")) {
+                
+            //    row.closest("tr").find(".VersionId").val(0).trigger('change.select2');
+            //    return false;
+            //}
+            var counter = 0;
+            var mQuantity = 0;
+            var colSpanIndex = Number(row.closest("tr").find(".ColSpanIndex").val());
+            var monthlyQuantity = Number(row.closest("tr").find(".MonthlyQuantity").val());
+            var mpDetailId = Number(row.closest("tr").find(".MPDetailId").val());
+
+            if (versionId != 0) {
+
+                $("#OrderTable > tbody > tr").each(function () {
+
+                    var tcolSpanIndex = $(this).closest("tr").find(".ColSpanIndex").val();
+                    var tversionId = Number($(this).closest("tr").find(".VersionId option:selected").val());
+                    if (versionId == tversionId && colSpanIndex == tcolSpanIndex) {
+                        counter++
+                    }
+                    if (counter == 2) {
+                        $(this).closest("tr").find(".VersionId").val(0).trigger('change.select2');
+                        $(this).closest("tr").find(".VersionQuantity").val(0);
+                        $(this).closest("tr").find(".Pcs").val(0);
+                        return false;
+                    }
+                });
+            }
+            $("#OrderTable > tbody > tr").each(function () {
+
+                var tMPDetailId = Number($(this).find(".MPDetailId").val());
+                var tSuitMeter = Number($(this).find(".SuitMeter").val());
+                if (tMPDetailId == mpDetailId) {
+                    mQuantity += isNaN(tSuitMeter) == true ? 0 : tSuitMeter;
+                }
+
+            });
+            if (mQuantity > monthlyQuantity) {
+
+                swal({
+                    icon: 'warning',
+                    text: "Suit Mtrs Quantity must be equal to Balance Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                });
+                row.closest("tr").find(".SuitMeter").val(0);
+                //row.closest("tr").find(".SuitMeter").focus();
+                return false;
+                        }
+                    };
+                    function AddQuantity(row) {
+
+                        var meters = Number(row.closest("tr").find(".MonthlyQuantity").val());
+                        $("#MonthlyQuantity").val(meters);
+        }
+        function GetRowFooter() {
+            debugger
+            var TotalQuantity = 0;
+            $.each($("#OrderTable tbody tr"), function () {
+                var SuitMeter = Number($(this).find('.SuitMeter').val());
+                if (!isNaN(SuitMeter)) {
+                    TotalQuantity = TotalQuantity + SuitMeter;
+                }
+            });
+            debugger
+            $("#totalQuantity").text(TotalQuantity);
+            $("#totalQty").val(TotalQuantity);
+            var x = $("#totalQty").val();
+        }
+    </script>
+}

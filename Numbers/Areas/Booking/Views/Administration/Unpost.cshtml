@@ -1,0 +1,111 @@
+﻿@model BkgVehicleIGP
+@{
+    var pageName = ViewBag.Type;
+    ViewData["Title"] = "Unpost " + pageName;
+    ViewData["CurrentPage"] = "Un-Post " + pageName;
+}
+
+<div class="row">
+    <div class="col-md-10">
+        <div class="ibox-title">
+            <h5>Un-Post @pageName</h5>
+        </div>
+        <div class="ibox-content">
+            <form id="myForm" asp-controller="Administration" method="post">
+                <input asp-for="Id" type="hidden" />
+                <input asp-for="Description" type="hidden" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-lg-2 col-md-2 col-sm-2 control-label">Select Booking#</label>
+                            <div class="col-lg-8 col-md-8 col-sm-8">
+                                @if (pageName == "IGP")
+                                {
+                                    <select id="IGPId" name="IGPId" class="chosen-select" onchange="decideIdValue();" data-validation="required number" data-validation-error-msg="Please select an IGP" data-validation-error-msg-container="#container">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                }
+                                else if (pageName == "OGP")
+                                {
+                                    <select id="OGPId" name="OGPId" class="chosen-select" onchange="decideIdValue();" data-validation="required number" data-validation-error-msg="Please select an OGP" data-validation-error-msg-container="#container">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-4 col-md-offset-2">
+                                <b>
+                                    <span id="container"></span>
+                                </b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-4 col-md-offset-2">
+                                <input asp-action="UnPostIGP" type="submit" class="btn btn-primary" value="Update" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $.validate();
+        $(function () {
+            $('#IGPId').select2({
+                ajax: {
+                    url: '/Booking/Api/GetUnpostVehicleIGPs',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Booking Number',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#OGPId').select2({
+                ajax: {
+                    url: '/Booking/Api/GetUnpostVehicleOGPs',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Booking Number',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        function decideIdValue() {
+            if ($('#IGPId').val() > 0) {
+                $('#Id').val($('#IGPId').val());
+                $('#Description').val("@pageName");
+            }
+            else if ($('#OGPId').val() > 0){
+                $('#Id').val($('#OGPId').val());
+                $('#Description').val("@pageName");
+            }
+        }
+    </script>
+}

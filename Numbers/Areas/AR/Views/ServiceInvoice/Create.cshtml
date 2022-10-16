@@ -1,0 +1,239 @@
+﻿@model ARInvoiceViewModel
+@{
+    ViewData["Title"] = "Create Service Invoice";
+}
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="col-lg-12">
+    <form id="invoice-form" method="post" asp-action="Create" asp-controller="ServiceInvoice">
+        <input asp-for="Id" type="hidden" />
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceNo"></label>
+                            <div class="input-group">
+                                <input asp-for="InvoiceNo" value="@TempData["InvoiceNo"]" data-validation="required number" class="form-control" readonly tabIndex="-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="InvoiceDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="InvoiceDate" readonly autofocus class="form-control custom-date-picker " type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.InvoiceDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="Due Date is required" data-validation-error-msg-container="#invDate" />
+                            </div>
+                            <p id="invDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label>Invoice Due Date</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="InvoiceDueDate" class="form-control custom-date-picker " type="text" value="@CommonHelper.CurrentDate" data-validation="required" data-validation-error-msg="Invoice Date is required" data-validation-error-msg-container="#dueDate" />
+                            </div>
+                            <p id="dueDate"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="ReferenceNo"></label>
+                            <input asp-for="ReferenceNo" class="form-control  " />
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-5 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select asp-for="CustomerId" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="customer"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerPONo"></label>
+                            <input asp-for="CustomerPONo" class="form-control  " />
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="OGPNo"></label>
+                            <input asp-for="OGPNo" class="form-control " />
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="Vehicle"></label>
+                            <input asp-for="Vehicle" class="form-control " />
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea asp-for="Remarks" rows="1" class="form-control  "></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="spinner-border text-danger"></div>
+            </div>
+            <div class="col-lg-2 col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Currency Exchange
+                    </div>
+                    <div class="panel-body">
+                        <label asp-for="Currency"></label>
+                        <select asp-items="@(new SelectList(Model.Currencies, "Id", "Symbol"))" class="form-control" name="Currency"  data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency"></select>
+                        <p id="currency"></p>
+                        <label asp-for="CurrencyExchangeRate"></label>
+                        <input asp-for="CurrencyExchangeRate" placeholder="1.0" class="form-control  " data-validation="required" data-validation-error-msg="Exchange rate is required" data-validation-error-msg-container="#exchangeRate" />
+                        <p id="exchangeRate"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @await Html.PartialAsync("_serviceInvoice")
+        <p id="p"></p>
+        <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+
+        <!--Page level calculations like total amount after taxes and total taxes amount etc-->
+        <div class="ibox">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input asp-for="Total" name="Total" id="Total" class="form-control text-right" readonly tabIndex="-1"/></div>
+                        <div class="col-lg-2 col-sm-3"><label>Total Discount:</label><input asp-for="TotalDiscountAmount" name="TotalDiscountAmount" id="discountAmount" class="form-control text-right" readonly tabIndex="-1"/></div>
+                        <div class="col-lg-2 col-sm-3"><label>Total Sales Tax:</label> <input asp-for="TotalSaleSTaxAmount" name="TotalSalesTaxAmount" id="salesTaxAmount" class="form-control text-right" readonly tabIndex="-1"/></div>
+                        <div class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right" readonly tabIndex="-1"/></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+        <div class="text-left mb-3">
+            <a asp-controller="ServiceInvoice" asp-action="Index" class="btn btn-white">List</a>
+            @if (Model.Status != "Approved")
+            {
+                @if (ViewBag.EntityState == "Create")
+                {
+                    <button type="submit" asp-action="Create" asp-controller="ServiceInvoice" name="submit" class="btn btn-primary"> @ViewBag.EntityState </button>
+                }
+                else
+                {
+                    <button type="submit" asp-action="Update" asp-controller="ServiceInvoice" name="submit" class="btn btn-primary"> @ViewBag.EntityState </button>
+                }
+            }
+            else
+            {
+                <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+            }
+        </div>
+    </form>
+</div>
+
+@section customJS{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.InvoiceItems));
+            if (items != null) {
+                for (i = 0; i < items.length; i++) {
+                    $.ajax({
+                        type: 'GET',
+                        async: false,
+                        url: '/AR/ServiceInvoice/GetInvoiceItems',
+                        data: { id: items[i].Id, itemId: items[i].ServiceAccountId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+
+        });
+    </script>
+    <script>
+        $.validate();
+         $(function () {
+          // bind customer select2 
+        var select2 = $('#CustomerId');
+        bindSelect2(select2, '/AR/Api/GetCustomers','/AR/Api/GetCustomer?id=', @Model.CustomerId);
+         });
+
+        @*$('#CustomerId').select2({
+            placeholder: 'Select a customer',
+            width: 'resolve',
+            ajax: {
+                url: '/AR/Api/GetCustomers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if ("@ViewBag.Id" != null)
+            {
+                var id = "@ViewBag.Id";
+            }
+        var accountSelect = $('#CustomerId');
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetCustomer?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+           $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+                $('.tax-lock :not(:selected)').attr('disabled','disabled');
+                $('#add-invoice-item').hide();
+            }
+        });
+    </script>
+}
+
+

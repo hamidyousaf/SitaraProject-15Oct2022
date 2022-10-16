@@ -1,0 +1,151 @@
+﻿@model ARSaleReturnViewModel
+@{
+    Layout = null;
+}
+<style>
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 0%;
+        top: 39px;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+<div id=@string.Format("{0}{1}","sale-return",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <input asp-for="SRItemId" type="hidden" name="SRItemId" id=@string.Format("{0}{1}","SRItemId",ViewBag.Counter) />
+                        <input asp-for="InvoiceItemId" type="hidden" name="InvoiceItemId" id=@string.Format("{0}{1}","InvoiceItemId",ViewBag.Counter) />
+                        <input asp-for="SaleReturnId" type="hidden" name="SaleReturnId" id=@string.Format("{0}{1}","SaleReturnId",ViewBag.Counter) />
+                        <label asp-for="ItemId"></label>
+                        <Select asp-for="ItemId" name="ItemId" id='@string.Format("{0}{1}", "ItemId", ViewBag.Counter)' onchange="getItemDetails(this.id)" class="form-control select-item" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("#_item{0}",ViewBag.Counter)>
+                            <option selected disabled>
+                                Select...
+                            </option>
+                        </Select>
+                        <p id=@string.Format("_item{0}",ViewBag.Counter)></p>
+                    </div>
+                </div>
+                <div hidden class="col-sm-12 col-md-6 col-lg-2 hidden">
+                    <label asp-for="InvoiceNo"></label>
+                    <input asp-for="InvoiceNo" name="InvoiceNo" id=@string.Format("{0}{1}", "InvoiceNo", ViewBag.Counter) readonly class="form-control text-right" type="number" tabIndex="-1" />
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="row">
+                        <div hidden class="col-sm-12 col-md-6 col-lg-3 hidden">
+                            <label asp-for="InvoiceQty"></label>
+                            <input asp-for="InvoiceQty" name="InvoiceQty" readonly class="form-control text-right" type="number" tabIndex="-1" />
+                        </div>
+                        <div class="col-sm-8 col-md-6 col-lg-8">
+                            <label asp-for="Qty" class="col-lg-6 col-sm-6"></label>
+                            <label asp-for="Stock" class="col-lg-4 col-sm-6"></label>
+                            <div class="input-group">
+                                <input asp-for="Qty" name="Qty" id=@string.Format("{0}{1}", "Qty_", ViewBag.Counter) class="form-control text-right" onchange="calculateLineTotal(@ViewBag.Counter)" type="number" data-validation="required" data-validation-error-msg="Quantity is required" data-validation-error-msg-container=@string.Format("#_qty{0}",ViewBag.Counter) />
+                                <span name="UOM" class="input-group-addon @string.Format("{0}{1}", "UOM", ViewBag.Counter)" id=@string.Format("{0}{1}", "UOM", ViewBag.Counter)></span>
+                                <input asp-for="UOM" name="UOM" readonly class="input-group-addon @string.Format("{0}{1}", "UOM", ViewBag.Counter)" type="hidden" />
+                                <input asp-for="Stock" name="Stock" id=@string.Format("{0}{1}", "Stock_", ViewBag.Counter) readonly class="form-control text-right" type="number" tabIndex="-1" />
+                            </div>
+                            <p id=@string.Format("_qty{0}",ViewBag.Counter)></p>
+                        </div>
+                        <div class="col-sm-4 col-md-6 col-lg-4">
+                            <label asp-for="Rate"></label>
+                            <input asp-for="Rate" name="Rate" id=@string.Format("{0}{1}", "Rate_", ViewBag.Counter) class="form-control text-right" onchange="calculateLineTotal(@ViewBag.Counter)" type="number" data-validation="required" data-validation-error-msg="Rate is required" data-validation-error-msg-container=@string.Format("#_rate{0}",ViewBag.Counter) />
+                            <p id=@string.Format("_rate{0}",ViewBag.Counter)></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-4 col-md-6 col-lg-2 col-lg-offset-3">
+                    <label asp-for="Total_"></label>
+                    <input asp-for="Total_" name="Total_" id=@string.Format("{0}{1}", "Total_", ViewBag.Counter) class="form-control text-right" readonly tabIndex="-1" />
+                </div>
+                <div class="col-sm-8 col-md-6 col-lg-2">
+                    <div class="form-group">
+                        <label asp-for="TaxId"></label>
+                        <Select asp-for="TaxId" name="TaxId" asp-items="@(new SelectList(Model.TaxList,"Id","Name"))" required id='@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)' onchange="calculateTax(@ViewBag.Counter)" class="form-control">
+                            <option selected disabled>
+                                Select...
+                            </option>
+                        </Select>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-1">
+                    <label asp-for="SalesTaxPercentage"></label>
+                    <input asp-for="SalesTaxPercentage" name="SalesTaxPercentage" id=@string.Format("{0}{1}","SalesTaxPercentage_",ViewBag.Counter) readonly class="form-control text-right" tabIndex="-1" type="number" />
+                </div>
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="SalesTaxAmount"></label>
+                    <input asp-for="SalesTaxAmount" name="SalesTaxAmount" id='@string.Format("{0}{1}","SalesTaxAmount_",ViewBag.Counter)' readonly class="form-control text-right" tabIndex="-1" />
+                </div>
+                <div hidden class="col-sm-4 col-md-6 col-lg-2">
+                    <label hidden asp-for="IssueRate"></label>
+                    <input hidden asp-for="IssueRate" name="IssueRate" id=@string.Format("{0}{1}","IssueRate_",ViewBag.Counter) class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+                <div hidden class="col-sm-4 col-md-6 col-lg-2">
+                    <label hidden asp-for="CostofSales"></label>
+                    <input hidden asp-for="CostofSales" name="CostofSales" id=@string.Format("{0}{1}","CostofSales_",ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+                @*<div class="col-sm-12 col-md-6 col-lg-2">
+            <label asp-for="DiscountPercentage"></label>
+            <input asp-for="DiscountPercentage" name="DiscountPercentage" id=@string.Format("{0}{1}", "DiscountPercentage_", ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" />
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-2">
+            <label asp-for="DiscountAmount"></label>
+            <input asp-for="DiscountAmount" name="DiscountAmount" id=@string.Format("{0}{1}", "DiscountAmount_", ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+        </div>*@
+                <div class="col-sm-4 col-md-6 col-lg-2">
+                    <label asp-for="LineTotal"></label>
+                    <input asp-for="LineTotal" name="LineTotal" id=@string.Format("{0}{1}", "LineTotal_", ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script src="https://code.jquery.com/jquery-3.4.1.js"></script>*@
+@*<script src="~/js/jquery-3.1.1.min.js"></script>*@
+<script src="~/js/AR/saleReturnItems.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+<script>
+    $(document).ready(function () {
+        _applySelect($('#ItemId' +@ViewBag.Counter));
+        var itemId = $('#ItemId' +@ViewBag.Counter);
+        bindSelect2(itemId,'/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', '@ViewBag.ItemId');
+        @*var counter = @ViewBag.Counter;
+        var itemId='@ViewBag.ItemId';
+        //preselected item
+        var selectVal = $('#ItemId' + counter);
+        $.ajax({
+            type: 'GET',
+            url: '/AR/Api/GetItem?id=' + itemId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            selectVal.append(option).trigger('change');
+            selectVal.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+        lockOutInputs(@ViewBag.Counter);
+    });
+</script>

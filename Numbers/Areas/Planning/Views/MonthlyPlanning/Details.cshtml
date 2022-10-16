@@ -1,0 +1,139 @@
+﻿@model VMMonthllyPlanning
+@{
+    ViewData["Title"] = "Monthly Planning Detail";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="MonthlyPlanning" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print </a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form class="form-horizontal">
+
+                    @*<div class="form-group">
+                        <label asp-for="PlanMonthly.TransactionNo" class="col-lg-3 control-label"></label>
+                        <div class="col-lg-9">
+                            @Html.DisplayFor(model => model.PlanMonthly.TransactionNo)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PlanMonthly.TransactionDate" class="col-lg-3 control-label"></label>
+                        <div class="col-lg-9">
+                            @Model.PlanMonthly.TransactionDate.ToString(CommonHelper.DateFormat)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PlanMonthly.SPId" class="col-lg-3 control-label"></label>
+                        <div class="col-lg-9">
+                            @Html.DisplayFor(model => model.PlanMonthly.SPId)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Plan of</label>
+                        <div class="col-lg-9">
+                            @Html.DisplayFor(model => model.PlanMonthly.Planofmonth)
+                        </div>
+                    </di*@
+                    <div class="col-sm-6">
+                        <h4><span>Trans #: <strong class="text-navy"> @Model.PlanMonthly.TransactionNo</strong></span></h4>
+                        <span><strong>Trans Date: </strong> @Model.PlanMonthly.TransactionDate</span><br />
+                        <span><strong>SP #: </strong> @Model.PlanMonthly.SPId</span><br />
+                        <span><strong>Plan of: </strong> @Model.PlanMonthly.Planofmonth</span><br />
+                     
+                    </div>
+
+
+
+
+                    <!----------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="">
+                                    <table id="tblDetail" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th hidden>SecificationId</th>
+                                                <th style="width:21%;" class="searchHeader ">ItemCategory4</th>
+                                                <th style="width:21%;" class="searchHeader">Greige Quality</th>
+                                                <th hidden >Month</th>
+                                                <th style="width:8%;" class="searchHeader">Season Dsgn Cnt</th>
+                                                <th style="width:8%;" class="searchHeader">Season Run Qty</th>
+                                                <th style="width:8%;" class="searchHeader">Season Fabric Plan</th>
+                                                <th style="width:8%;" class="searchHeader">Month Dsgn Cnt</th>
+                                                <th style="width:8%;" class="searchHeader">Month Run Qty</th>
+                                                <th style="width:8%;" class="searchHeader">Month Fabric Plan</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @if (Model.PlanMonthlyPlanningDetail != null)
+                                            {
+                                                @foreach (var item in Model.PlanMonthlyPlanningDetail)
+                                                {
+                                                    <tr>
+                                                        <td>                                          
+                                                            @Html.DisplayFor(modelItem => item.CategoryName)
+                                                        </td>
+                                                        <td>
+                                                            @item.PlanSpecificationId
+                                                        </td>
+                                                        <td hidden class="text-right">
+                                                            @item.MonthId
+                                                        </td>
+                                                        <td class="text-right">
+                                                            @item.SeasonalDesignCount
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @item.SeasonalRunQty
+                                                        </td>
+                                                        <td class="text-right">
+                                                            @item.SeasonalFabricCons
+                                                        </td>
+                                                        <td class="text-right">
+                                                            @item.MonthlyDesignCount
+                                                        </td>
+                                                        <td class="text-right">
+                                                            @item.MonthlyRunQty
+                                                        </td>
+                                                        <td class="text-right">
+                                                            @item.MonthlyFabricCons
+                                                        </td>
+                                                        
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!----------------------------------------------------->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

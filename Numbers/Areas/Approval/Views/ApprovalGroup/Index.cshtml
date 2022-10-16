@@ -1,0 +1,200 @@
+﻿@model Numbers.Entity.ViewModels.ApprovalGroupVM
+
+@{
+    ViewData["Title"] = "Approval Group";
+    ViewData["CurrentPage"] = "Approval Group";
+}
+
+
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Approval Group</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" class="" method="post">
+                    @*onsubmit="return check(this);"*@
+                    <div class="row">
+                        <input hidden asp-for="SysApprovalGroup.Id" />
+                        <div class="col-md-2 col-lg-2">
+                            @if (Model.SysApprovalGroup == null)
+                            {
+                                <div class="form-group">
+                                    <label class="col-form-label">Group Name</label>
+                                    <input autofocus class="form-control" data-validation="required" id="Code" asp-for="SysApprovalGroup.Group_Name" required />
+                                </div>
+                                }
+                            else
+                            {
+                                <div class="form-group">
+                                    <label class="col-form-label">Group Name</label>
+                                    <input autofocus class="form-control" id="GroupName" data-validation="required" asp-for="SysApprovalGroup.Group_Name" required />
+
+                                </div>
+                                }
+                        </div>
+
+                        <div class="col-md-8 col-lg-8">
+                            <div class="form-group">
+                                <label class="col-form-label">Description</label>
+                                <input class="form-control" data-validation="required" asp-for="SysApprovalGroup.Description" required/>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="ibox-title">
+                        <h5>Approval Group Detail</h5>
+                        <span class="label label-success pull-right status"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">User Name</label>
+                                <select name="UserID" asp-items="@ViewBag.UserList" id='UserID' class="form-control select-item" >
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <a id="addbtn" class="btn btn-success" style="margin-top:22px;"><i class="fa fa-plus"></i> </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid">
+                        <table id="tblDetail" class="table table-bordered table-striped " style="table-layout:fixed">
+                            <thead>
+                                <tr>
+                                    <th width="40%">
+                                        User Name
+                                    </th>
+                                    <th width="10%">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var item in Model.Users)
+                                {
+                                    <tr>
+                                        <td hidden> <input value="@item.Id" id="DetailId" name="DetailId" class="form-control" readonly /></td>
+
+                                        <td> <input value="@item.UserName" id="User_ID" name="User_ID" class="form-control transparentInput" readonly /></td>
+                                        <td>
+                                            @*<a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a>
+                                <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>*@
+                                            <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 ">
+                                <a value="List" class="btn btn-white" href="/Approval/ApprovalGroup/List">List</a>
+                                <input type="submit" onclick="return Validation()" asp-action="Create" asp-controller="ApprovalGroup" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section CustomJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        var i = 1;
+        $(document).ready(function () {
+            debugger;
+             $('#UserID').select2();
+        //  bindSelect2(UserList, '/ApplicationModule/Api/GetUserList', '/ApplicationModule/Api/GetUserList?id=', '@ViewBag.UserList');
+        });
+        $('#addbtn').click(function () {
+            debugger;
+            var UserID = $('#UserID').find(":selected").text();
+            if (UserID == "" || UserID =="Select Please..") {
+                swal("", "Please Select User", "warning")
+            }
+            else {
+                debugger;
+                var UserID = $('#UserID').find(":selected").text();
+                var value = false;
+                $('#tblDetail > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find("#UserID").text();
+                    debugger;
+                    if (UserID == check) {
+                        debugger;
+                        value = true;
+                    }
+                });
+
+                if (value == false) {
+
+                   @*var row = "<tr>" +
+                        "<td name='id' hidden class='id'>0</td>" +
+                        "<td name='UserID' class='UserID' id='UserID'>" + UserID + "</td> " +
+                        '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                    "</tr>"*@
+                    var row = "<tr>" +
+                        "<td hidden> <input name='id' id='username' class='id' type='hidden' value="+UserID+" /></td>" +
+                        "<td name='UserID' class='UserID' id='UserID' >" + UserID + "</td> " +
+                        '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                    "</tr>"
+                    debugger;
+                    $("#tblDetail tbody").append(row);
+                    //$('#username'+i).val(UserID);
+                    $("#UserID").val("");
+                }
+                else {
+                    swal("", "Code already exists..", "warning")
+                }
+            }
+        });
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+        function hiderow(row) {
+            row.closest("tr").hiderow();
+        }
+        function Validation() {
+            debugger;
+            $("#form").validate({
+
+            });
+
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Select User", "warning")
+                return false;
+            }
+            else
+                return true;
+        }
+
+    </script>
+
+}

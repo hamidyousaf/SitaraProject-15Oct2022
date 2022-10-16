@@ -1,0 +1,332 @@
+﻿@model Numbers.Entity.ViewModels.ARCommissionAgentPaymentGenerationViewModel
+@{ ViewData["Title"] = "Create Commission Agent Payment";
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post" enctype="multipart/form-data">
+                    <input hidden asp-for="Id" class="text-right" readonly>
+                    <input hidden asp-for="Status" id="hdnStatus">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row" style="margin-top:10px">
+                                @if (Model.TransactionNo == 0)
+                                {
+                                    <div class="col-lg-1 col-sm-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="TransactionNo"></label>
+                                            <input class="chosen-select form-control text-right" value="" readonly>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-1 col-sm-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="TransactionNo"></label>
+                                            <input asp-for="TransactionNo" class="chosen-select form-control text-right" readonly>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="ProductTypeId"></label>
+                                        <select autofocus asp-for="ProductTypeId" tabindex="1" class="chosen-select form-control" onchange="GetCustomer()" asp-items="Model.ProductType" id="ProductTypeId" required>
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="CommissionAgentId"></label>
+                                        <select asp-for="CommissionAgentId" tabindex="2" class="chosen-select form-control" onchange="GetCityCommissionAgent()" asp-items="Model.CommissionAgents" id="CommissionAgentId" required>
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="City"></label>
+                                        <div class="input-group">
+                                            <input asp-for="City" tabindex="-1" id="city" value="@Model.City" type="text" class=" form-control city" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="StartDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="StartDate" tabindex="3" id="startDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.StartDate)" type="text" class=" form-control custom-date-picker date" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="EndDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="EndDate" tabindex="4" id="endDate" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.EndDate)" type="text" class=" form-control custom-date-picker date" required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group col-lg-1" style="margin-left:5px">
+                                <label class="control-label">  </label>
+                                <div>
+                                    <input type="button" class="btn btn-primary" id="AddBtn" value="Add" tabindex="5" onclick="GetCustomersByCommissionAgent();" style="margin-top:4px">
+                                </div>
+                            </div>
+                            <div class="row withscroll">
+                                <div class="col-md-12 col-lg-12 table-responsive">
+                                    <table id="tblDetail" class="table table-bordered table-striped" style=" width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:0%" hidden></th>
+                                                <th style="width:0%" hidden></th>
+                                                <th style="width:0%" hidden></th>
+                                                <th style="width:30%">Customer</th>
+                                                <th style="width:30%">Sales Person</th>
+                                                <th style="width:30%">Category</th>
+                                                <th style="width:15%">Qty</th>
+                                                <th style="width:15%">Amount</th>
+                                                <th style="width:15%">Commission %</th>
+                                                <th style="width:15%">Commission Amount</th>
+                                                <th style="width:10%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.ARCommissionAgentPaymentGenerationDetails != null)
+                                            {
+                                                @foreach (var item in Model.ARCommissionAgentPaymentGenerationDetails)
+                                                {
+                                                    <tr class="removed">
+                                                        <td hidden><input tabindex='-1' value="@item.Id" name='ChildId' id='username' class='id' type='hidden' /></td>
+                                                        <td hidden><input tabindex='-1' name='DcIds' id='DcIds' /></td>
+                                                        <td hidden><input tabindex='-1' value="@item.CustomerId" name='CustomerId' id='customerId' type='hidden' /></td>
+                                                        <td hidden><input tabindex='-1' value="@item.CategoryId" name='CategoryId' id='categoryId' type='hidden' /></td>
+                                                        <td><input tabindex='-1' value="@item.ARCustomers.Name" style='background-color: #eee;' name='customer' type='text' readonly /></td>
+                                                        <td><input tabindex='-1' value="@item.ARCustomers.SalesPerson.Name" style='background-color: #eee;' name='salesPerson' type='text' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="@item.CategoryId" value="@item.InvItemCategories.Name" name="category" style='background-color: #eee;' type='text' class='category' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="@item.Qty" value="@item.Qty" name="qty" style='background-color: #eee;' type='text' class='text-right qty add-comma' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="@item.Amount" value="@item.Amount" style='background-color: #eee;' name='amount' type='text' class='text-right amount add-comma' readonly /></td>
+                                                        <td><input onkeypress='return isNumberKey(event)' onpaste="return false;" ondrop="return false;" asp-for="@item.CommissionPercentge" value="@item.CommissionPercentge" name='percentage' onchange='Calculation($(this))' type='text' class='text-right per' autocomplete='off' /></td>
+                                                        <td><input tabindex='-1' asp-for="@item.CommissionAmount" value="@item.CommissionAmount" name='comAmt' style='background-color: #eee;' type='text' class='text-right comAmt add-comma' readonly /></td>
+                                                        <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash " title="Delete"></i></a></td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <div class="col-lg-2 col-sm-2 Pad-rht" style="float:right">
+                                        <div class="form-group">
+                                            <label>Grand Total</label>
+                                            <input tabindex='-1' asp-for="GrandTotal" id="Grand" class="chosen-select form-control text-right add-comma" type="text" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a asp-controller="CommissionAgentPaymentGeneration" asp-action="Index" class="btn btn-white">List</a>
+                                    <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-action="Submit" asp-controller="CommissionAgentPaymentGeneration" value="Save" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('input.add-comma').commaTextbox();
+            $('#CommissionAgentId').trigger('change');
+            if ($('#hdnStatus').val() == 'update') {
+                $("#CommissionAgentId").prop("disabled", true);
+                $("#ProductTypeId").prop("disabled", true);
+                $("#startDate").prop("disabled", true);
+                $("#endDate").prop("disabled", true);
+            }
+            // $('#ProductTypeId').select2();
+            $.validate();
+        });
+        function GetCityCommissionAgent() {
+
+            $('#city').val("");
+            var CommissionAgentId = $("#CommissionAgentId").find(":selected").val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CommissionAgentPaymentGeneration/GetCityCommissionAgent',
+                data: { CommissionAgentId, CommissionAgentId }
+            }).then(function (data) {
+                $('#city').val(data);
+            });
+        }
+        function GetCustomersByCommissionAgent() {
+            if ($('#tblDetail').find('td').length != 0) {
+                debugger;
+                swal("", "Data Already Exist", "warning")
+                return false;
+            }
+            var ProductTypeId = $('#ProductTypeId').val();
+            var CommissionAgentId = $("#CommissionAgentId").val();
+            if (ProductTypeId == 0) {
+                swal("", "Please select Product Type!", "warning");
+                return false;
+            } else
+                if (CommissionAgentId == 0) {
+                    swal("", "Please select Commission Agent!", "warning");
+                    return false;
+                }
+
+            $("#AddBtn").attr("disabled", true);
+            $("#AddBtn").val("Adding...");
+            var StartDate = $("#startDate").val();
+            var EndDate = $("#endDate").val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CommissionAgentPaymentGeneration/GetCustomersByCommissionAgent',
+                data: { CommissionAgentId: CommissionAgentId, StartDate: StartDate, EndDate: EndDate, ProductTypeId: ProductTypeId }
+            }).done(function (data) {
+                if (data.length == 0) {
+                    swal("", "Data Not Found", "warning")
+                    $("#AddBtn").attr("disabled", false);
+                    $("#AddBtn").val("Add")
+                }
+                else {
+                    $.each(data, function (i, item) {
+                        debugger
+                        var row = "<tr class='removed'>" +
+                            "<td><input tabindex='-1' name='id'  id='username' class='id' type='hidden'  /></td>" +
+                            "<td hidden><input tabindex='-1' value= '" + item.dcIds + "' name='DcIds' id='DcIds' /></td>" +
+                            "<td><input tabindex='-1'  id='customerId' name='customerId' value='" + item.customerId + "' type='hidden'  /></td>" +
+                            "<td><input tabindex='-1'  id='categoryId' name='categoryId' value='" + item.categoryIdLevel3 + "' type='hidden'  /></td>" +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='customer' value='" + item.customer + "' type='text'  readonly /></td>" +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='salesPerson' value='" + item.salesPerson + "' type='text'  readonly /></td>" +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Category' value='" + item.categoryNameLevel3 + "' type='text'  readonly /></td>" +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Qty' value='" + item.totalQty + "' type='text' class='text-right qty add-comma' readonly/></td> " +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Amount' type='text' class='text-right amount add-comma' value='" + item.totalAmount + "' readonly/></td>" +
+                            "<td><input onkeypress='return isNumberKey(event)' autocomplete='off'  onpaste='return false;' ondrop='return false;' value='0.5' name='Percentage' onchange='Calculation($(this))' type='text' class='text-right per' autofocus/></td>" +
+                            "<td><input  tabindex='-1'name='comAmt' style='background-color: #eee;' type='text'class='text-right comAmt add-comma' readonly/></td>" +
+                            '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                        "</tr>";
+                        $("#tblDetail tbody").append(row)
+                    });
+                    $("#AddBtn").attr("disabled", false);
+                    $("#AddBtn").val("Add")
+                    $('input.per').change();
+                    $('input.add-comma').commaTextbox();
+                }
+            });
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+            calculatetotal();
+        }
+        function Calculation(row) {
+            debugger
+            var Amount = parseFloat(row.closest("tr").find('.amount').val().replace(/,/g, "")) || 0.0;
+            var Discount = parseFloat(row.closest("tr").find('.per').val()) || 0.0;
+            if (Discount > 100) {
+                debugger;
+                swal("", "Percentage is not greater than 100", "warning")
+                parseFloat(row.closest("tr").find('.per').val(""))
+                return false;
+            }
+            var AmountDiscount = parseFloat((Amount * Discount) / 100).toFixed(4);
+            parseFloat(row.closest("tr").find('.comAmt').val(AmountDiscount))
+            $('input.add-comma').commaTextbox();
+            calculatetotal();
+        }
+
+        function Validation() {
+            var productType = $("#ProductTypeId").val();
+            var commissionAgentId = $("#CommissionAgentId").val();
+            var discountPercent = $(".per").val();
+            if (productType == 0) {
+                swal("", "Please select Product Type!", "warning");
+                return false;
+            } else if (commissionAgentId == 0) {
+                swal("", "Please select Commission Agent!", "warning");
+                return false;
+            } else if (discountPercent == "") {
+                swal("", "Please enter Discount Percent!", "warning");
+                return false;
+            } else if ($('#tblDetail tr').length == 1) {
+                swal("", "Commission Agent has no data!", "warning");
+                return false;
+            } else {
+                $("#form").on("submit", function () {
+                    $("#SaveBtn").attr("disabled", true);
+                    $("#SaveBtn").val("Saving...");
+                });
+                return true;
+            }
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function calculatetotal() {
+            var GrandTotal = 0;
+
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var Amount = Number($(this).find('.comAmt').val().replace(/,/g, ""));
+                GrandTotal = parseFloat(parseFloat(GrandTotal) + parseFloat(Amount)).toFixed(4);
+            });
+            $("#Grand").val(GrandTotal);
+            $('input.add-comma').commaTextbox();
+        }
+        $("#form").on("submit", function () {
+            debugger
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+        });
+    </script>
+}

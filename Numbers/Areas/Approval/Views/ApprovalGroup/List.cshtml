@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Numbers.Entity.ViewModels.ApprovalGroupVM>
+@{
+    ViewData["Title"] = "List";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                    <div class="text-center">
+                        @*<h5>List of SecurityProfiles</h5>*@
+
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="ApprovalGroup" asp-action="Index"><strong>Create New</strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SysApprovalGroup.Id)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SysApprovalGroup.Group_Name)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SysApprovalGroup.Description)
+                                </th>
+
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SysApprovalGroup.Id)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SysApprovalGroup.Group_Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SysApprovalGroup.Description)
+                                    </td>
+
+                                    <td>
+                                        <a asp-action="Index" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.SysApprovalGroup.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="DeleteProfile" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.SysApprovalGroup.Id"><i class="fa fa-trash" title="Delete"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

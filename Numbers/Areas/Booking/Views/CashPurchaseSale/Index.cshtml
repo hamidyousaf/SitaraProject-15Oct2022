@@ -1,0 +1,121 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgCashPurchaseSale>
+
+@{
+    ViewData["Title"] = "List of Cash Purchase/Sale Vehicle ";
+    ViewData["CurrentPage"] = "Cash Purchase/Sale Vehicle";
+}
+<style>
+    #approve-btn-width {
+        width:70px
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>List of Cash Purchase/Sale Vehicle</h5>
+
+
+
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+                    </div>
+                    <br /><br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Id)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TransDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BookingNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BookingDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Item.Name)
+                                </th>
+                                <th>
+                                    Customer Name
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IGPNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.EngineNo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ChassisNo)
+                                </th>
+
+                                <th>Booking Voucher</th>
+                                <th>Purchase Voucher</th>
+                                <th>Sales Voucher</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Id)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TransDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.BookingNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.BookingDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Item.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Customer.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IGPNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.EngineNo)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ChassisNo)
+                                </td>
+
+                                <td> @Html.DisplayFor(modelItem => item.Vehicle.VoucherId)</td>
+                                <td>@Html.DisplayFor(modelItem => item.SalePayment.Id)</td>
+                                <td>@Html.DisplayFor(modelItem => item.SaleReceipt.Id)</td>
+                                <td id="approve-btn-width">
+                                    @if (item.Status != "Approved")
+                                    {
+                                        <a asp-action="Create" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="Approve" onclick="return confirm('Are you sure you want to approve ?')" asp-route-id="@item.Id" class="btn btn-sm btn-success m-t-n-xs"><i class="fa fa-thumbs-up" title="Approve"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Edit" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                    }
+
+                                    @*<a asp-action="VehicleIGPDetail" class="btn btn-sm btn-success m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-list-alt"></i></a>*@
+                                    @*<a asp-action="DeleteVehicle" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-trash-o" title="Delete"></i></a>*@
+
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

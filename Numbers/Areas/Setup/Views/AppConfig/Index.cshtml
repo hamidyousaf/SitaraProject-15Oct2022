@@ -1,0 +1,152 @@
+﻿@model Numbers.Entity.Models.AppCompanyConfigBase
+
+@{
+    ViewData["Title"] = "Application Configuration";
+    ViewData["CurrentPage"] = "Configuration Values";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+}
+
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        @*<div class="ibox-title">
+            <h5>@ViewBag.EntityState Application Configuration</h5>
+            <span class="label label-success pull-right status"></span>
+        </div>*@
+        <div class="ibox-content">
+            <form class="form-horizontal" method="post" id="appConfig" asp-action="Submit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-group">
+                            <label asp-for="Id" class="col-lg-1 control-label">Category</label>
+                            <div class="col-lg-4">
+                                <select asp-for="Id" asp-items="@(new SelectList(ViewBag.CategoriesList,"Id","Name","","Module"))" autofocus class="form-control" data-validation="required" onchange="loadConfiguration($(this));">
+                                    <option value="" selected disabled>Please select</option>
+                                </select>
+                                <span asp-validation-for="Id" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div id="jsGrid"></div>
+                    </div>                  
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <input type="hidden" name="deletedIds" id="deletedIds" />
+                        <input type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="Category" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+
+@section customJS{
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        function loadConfiguration(item) {
+            debugger
+            var baseId = item.val();
+            var invOrg =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.InvOrganization));
+            $("input[name=deletedIds]").val('');
+
+
+            $("#jsGrid").jsGrid({
+                width: "100%",
+                height: "auto",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: true,
+                inserting: true,
+                deleteConfirm: "Do you really want to delete?",
+                pageButtonCount: 10,
+                controller: {
+                    loadData: function () {
+                        var d = $.Deferred();
+                        return $.ajax({
+                            url: "/Api/GetConfigValuesById/" + baseId,
+                            dataType: "json"
+                        }).done(function (response) {
+                            d.resolve(response.value);
+                        });
+                        return d.promise();
+                    }
+                },
+                fields: [
+                    { name: "id", type: "text", width: 0, visible: false },
+                    { name: "configValue", type: "text", title: "Name", validate: "required", width: 150 },
+                    { name: "configDescription", type: "text", title: "Description", validate: "required", width: 200 },
+                    { name: "userValue1", type: "text", title: "User Value 1" },
+                    { name: "userValue2", type: "text", title: "User Value 2" },
+                    { name: "userValue3", type: "text", title: "User Value 3", visible: false },
+                    { name: "userValue3", type: "select", items: invOrg, title: "User Value 3", valueField: "Value", textField: "Text" },
+                    {
+                        name: "isActive", type: "checkbox", title: "Active",
+                        insertTemplate: function () { //By default True
+                            var input = this.__proto__.insertTemplate.call(this);
+                            input[0].checked = true;
+                            return input;
+                            Submit
+                        }
+                    },
+                    { type: "control" }
+                ],
+                onItemDeleted: function (arg) {
+                    var deletedId = $("input[name=deletedIds]").val();
+                    if (deletedId == "")
+                        $("input[name=deletedIds]").val(arg.item.id);
+                    else {
+                        $("input[name=deletedIds]").val(deletedId.concat(",", arg.item.id));
+                    }
+                },
+            });
+
+        }
+    </script>
+
+
+    <script>
+        $("#appConfig").submit(function (event) {
+
+            /* stop form from submitting normally */
+            event.preventDefault();
+
+            var data = $("#jsGrid").jsGrid("option", "data");
+            var baseId = $("#Id").val();
+            var deleteIds = $("#deletedIds").val();
+
+            /* get the action attribute from the <form action=""> element */
+            var $form = $(this),
+                url = $form.attr('action');
+
+            /* Send the data using post with element id name and name2*/
+            var posting = $.post(url, { data: JSON.stringify(data), baseId: baseId, deletedIds: deleteIds });
+
+            /* Alerts the results */
+            posting.done(function (data) {
+                toasterMessage(false, "Values has been saved");
+            });
+        });
+    </script>
+
+
+}

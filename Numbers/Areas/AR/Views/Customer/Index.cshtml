@@ -1,0 +1,127 @@
+﻿@model IEnumerable<Numbers.Entity.Models.ARCustomer>
+@{
+    ViewData["Title"] = "Customer Index";
+    ViewData["CurrentPage"] = "Customers";
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                @*<h5>List of Customers</h5>*@
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Customer" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="8%">Id</th>
+                                <th class="searchHeader" width="15%">Name</th>
+                                <th class="searchHeader" width="14%">Account</th>
+                                <th class="searchHeader" width="15%">Address</th>
+                                <th class="searchHeader" width="8%">Phone1</th>
+                                @*<th width="8%">Phone2</th>*@
+                                <th class="searchHeader" width="8%">NTNo</th>
+                                <th class="searchHeader" width="8%">GSTNo</th>
+                                <th width="14%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").DataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/AR/Customer/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [7] }],
+                columns: [
+                    { "data": "arCustomer.id", "name": "Id", className: "text-center" },
+                    { "data": "arCustomer.name", "name": "Name", className: "text-left" },
+                    { "data": "accountName", "name": "AccountId", className: "text-left" },
+                    { "data": "arCustomer.address", "name": "Address", className: "text-left" },
+                    { "data": "arCustomer.phone1", "name": "Phone1", className: "text-center" },
+                    //{ "data": "arCustomer.phone2", "name": "Phone2", className: "text-center" },
+                    { "data": "arCustomer.ntNo", "name": "NTNo", className: "text-center" },
+                    { "data": "arCustomer.gstNo", "name": "GSTNo", className: "text-center" },
+                    {
+                        "data": "arCustomer", className: "text-center",
+                        "render": function (data, row) {
+                            return "<a href='/AR/Customer/Detail?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/AR/Customer/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/AR/Customer/DeleteCustomer?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+    </script>
+}

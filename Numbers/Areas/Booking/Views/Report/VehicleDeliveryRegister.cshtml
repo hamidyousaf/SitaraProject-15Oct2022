@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "VehicleDeliveryRegister";
+    ViewData["CurrentPage"] = "Vehicle Delivery Register";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Vehicle Delivery Register</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post" asp-action="BookingLedger" asp-controller="Report">
+                    <input type="hidden" name="ReportTitle" value="VehicleDeliveryRegister" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    @*<input type="hidden" name="ReportPath" id="ReportPath" value=@GetPath />*@
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                    @*<input class="form-control custom-date-picker" data-validation="required" type="text" id="name" name="name" value=@GetPath />*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

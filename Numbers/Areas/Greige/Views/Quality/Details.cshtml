@@ -1,0 +1,272 @@
+﻿@model Numbers.Entity.ViewModels.GRQualityViewModel
+
+@{
+    ViewData["Title"] = "List Greige Quality";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5> Greige Quality</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form method="post"  asp-controller="Quality" asp-action="Index">
+                    <div class="row">
+                        <input hidden asp-for="GRQuality.Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.GRQuality.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="GRQuality.TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="GRQuality.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Category</label>
+                                <select readonly disabled asp-for="GRQuality.GRCategoryId" class="chosen-select form-control" id="GRCategoryId" asp-items="@Model.GRCategoryLOV" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Construction</label>
+                                <select readonly disabled asp-for="GRQuality.GRConstructionId" class="chosen-select form-control" id="GRConstructionId" asp-items="@Model.GRConstructionLOV" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Width</label>
+                                <input readonly type="text" asp-for="GRQuality.Width" id="Width" class="form-control text-right" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Loom Type</label>
+                                <select readonly disabled asp-for="GRQuality.LoomTypeId" class="chosen-select form-control" id="LoomTypeId" asp-items="@Model.LoomTypeLOV" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <br />
+                             <button type="onclick"  asp-controller="Quality"asp-action="Index"  class="btn btn-warning">Back</button>
+
+                        </div>
+                    </div>
+
+
+                    @*<div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12%" class="searchHeader">Trans. #</th>
+                                                <th style="width: 18%" class="searchHeader">Date</th>
+                                                <th style="width: 38%" class="searchHeader">Greige Quality</th>
+                                                <th style="width: 12%" class="searchHeader">GSM</th>
+                                                <th style="width: 20%">Action</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script>
+        $(document).ready(function () {
+            $("#GRCategoryId").select2();
+            $("#GRConstructionId").select2();
+            $("#LoomTypeId").select2();
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            var table1 = $("#Table").DataTable({
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/Greige/Quality/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [4] }
+                ],
+                columns: [
+                    { "data": "quality.transactionNo", "name": "TransactionNo", className: "text-center" },
+                    { "data": "updatedBy", "name": "TransactionDate", className: "text-center " },
+                    { "data": "quality.description", "name": "Description", className: "text-left" },
+                    { "data": "quality.gsm", "name": "GSM", className: "text-right" },
+                    {
+                        "data": "quality", className: "text-center",
+                        "render": function (data, row) {
+
+
+                                  debugger;
+                         if (data.status != "Approved") {
+                                return "<a href='/Greige/Quality/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/Greige/Quality/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a> ";
+                            }
+                            else {
+                                return "<a href='/Greige/Quality/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/Greige/Quality/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>";
+                            }
+
+
+                           // return "<a href='/Greige/Quality/Delete?id=" + data + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+        function validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+        //    if ($('#GRCategoryId').find(":selected").val() == 0) {
+        //        swal({
+        //            icon: 'warning',
+        //            text: "Please Select Greige Category!",
+        //            closeModal: false
+        //        }).then(function () {
+        //            swal.close();
+        //            $('#GRCategoryId').focus();
+        //        });
+        //        return false;
+        //    }
+        //    else if ($('#GRConstructionId').find(":selected").val() == 0) {
+        //        swal({
+        //            icon: 'warning',
+        //            text: "Please Select Greige Contruction!",
+        //            closeModal: false
+        //        }).then(function () {
+        //            swal.close();
+        //            $('#GRConstructionId').focus();
+        //        });
+        //        return false;
+        //    }
+        //    else if ($('#Width').val() == 0 || $('#Warp').val() == "") {
+        //        swal({
+        //            icon: 'warning',
+        //            text: "Please Enter Width!",
+        //            closeModal: false
+        //        }).then(function () {
+        //            swal.close();
+        //            $('#Width').focus();
+        //        });
+        //        return false;
+        //    }
+        //    else if ($('#LoomTypeId').find(":selected").val() == 0) {
+        //        swal({
+        //            icon: 'warning',
+        //            text: "Please Select Greige Loom Type!",
+        //            closeModal: false
+        //        }).then(function () {
+        //            swal.close();
+        //            $('#LoomTypeId').focus();
+        //        });
+        //        return false;
+        //    }
+            $("#btnSave").attr("disabled", true)
+            $("#btnSave").text("Saving...")
+            return true;
+        }
+
+    </script>
+}

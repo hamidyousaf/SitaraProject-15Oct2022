@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Numbers.Entity.Models.ARInvoice>
+@{
+    ViewData["Title"] = "Un-Approve Sale Return";
+    ViewData["CurrentPage"] = "Un-Approve";
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <table class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.InvoiceNo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.InvoiceDate)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ReferenceNo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.OGPNo)
+                            </th>
+                            <th class="text-right">
+                                @Html.DisplayNameFor(model => model.Total)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.InvoiceDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReferenceNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.OGPNo)
+                                </td>
+                                <td class="text-right">
+                                    @{
+                                        var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usGrandTotal, "{0:N}", item.GrandTotal)
+                                    }
+                                    @*@Html.DisplayFor(modelItem => item.GrandTotal)*@
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Status)
+                                </td>
+                                <td>
+                                    @if (item.Status == "Approved")
+                                    {
+                                        <span title="Click to View Voucher">
+                                            <a asp-action="Details" asp-controller="SalesReturn" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" aria-hidden="true"></i></a>
+                                        </span>
+                                        <span title="Click to Un-Approve">
+                                            <a asp-action="UnApproveVoucher" asp-controller="SalesReturn" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to Un-Approve Sale Return?')"><i class="fa fa-thumbs-down"></i></a>
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+

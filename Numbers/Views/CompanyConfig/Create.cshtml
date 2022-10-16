@@ -1,0 +1,229 @@
+﻿@model Numbers.Entity.Models.AppCompanyConfigBase
+
+@{
+    ViewData["Title"] = "Create Company Config";
+    ViewData["CurrentPage"] = "Manage Configurations";
+
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Create Company Config</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="configForm" class="form-horizontal" method="post" asp-action="Create" asp-controller="CompanyConfig">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <input type="hidden" asp-for="Id" />
+
+                                    <div class="form-group">
+                                        <label asp-for="ModuleId" class="col-lg-4 control-label"></label>
+                                        <div class="col-lg-8">
+                                            <select asp-for="ModuleId" class="form-control" data-validation="required" data-validation-error-msg="Module name is required" data-validation-error-msg-container="#modulename">
+                                                @*<option selected="selected" disabled>Select..</option>*@
+                                            </select>
+                                            <span id="module"></span>
+                                            <span asp-validation-for="ModuleId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                        <div class="col-lg-8">
+                                            <select asp-for="Name" asp-items="@ViewBag.listOfConfigNames" class="form-control" data-validation="required" data-validation-error-msg="Config name is required" data-validation-error-msg-container="#configname">
+                                                <option selected="selected" disabled>Select..</option>
+                                            </select>
+                                            <span id="configname"></span>
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+
+
+
+                                </div>
+
+                                @*<div class="col-md-6">
+
+                <div class="form-group">
+                    <label asp-for="UserValue1" class="col-lg-4 control-label"></label>
+                    <div class="col-lg-8">
+                        <input asp-for="UserValue1" type="text" class="form-control" data-validation="required" />
+                        <span asp-validation-for="UserValue1" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserValue2" class="col-lg-4 control-label"></label>
+                    <div class="col-lg-8">
+                        <input asp-for="UserValue2" type="text" class="form-control" data-validation="required" />
+                        <span asp-validation-for="UserValue2" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+            </div>*@
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label asp-for="Description" class="col-lg-2 control-label">Description</label>
+                                        <div class="col-lg-10">
+                                            <textarea asp-for="Description" type="text" class="form-control" data-validation="required"></textarea>
+                                            <span asp-validation-for="Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label asp-for="IsActive" class="col-lg-2 control-label"></label>
+                                        <div class="col-lg-4">
+                                            <div class="checkbox checkbox-success">
+                                                <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked" />
+                                                <label for="IsActive"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <input type="hidden" name="ConfigGrid" value="@ViewBag.ConfigGrid" />
+                                    <input type="hidden" name="DeletedGridItems" value="" />
+                                    <div id="jsGrid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+      
+
+
+
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-1">
+                                <a value="Back" class="btn btn-white" asp-controller="CompanyConfig" asp-action="Index">Back</a>
+                                <button type="button" value="Submit" class="btn btn-primary" onclick="submitForm();" > Submit </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJs{
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+        function submitForm() {
+            setGridValues();
+            $("#configForm").submit();
+        }
+        function setGridValues() {
+            var items = $("#jsGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=ConfigGrid]").val(json); //set JS tree data to hidden field
+        }
+        _applySelect($('#ModuleId'));
+        function _applySelect(item, self, value) {
+            setTimeout(function () {
+                item.select2({
+                    width: "100%", //self.width,
+                    placeholder: 'Search for a Module',
+                    //allowClear: true,
+                    templateResult: formatOption,
+                    ajax: ({
+                        url: '/CompanyConfig/GetConfigurations',
+                        dataType: 'json',
+                        delay: 250,
+                        processResults: function (data, params) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    })
+                });
+            });
+        }
+        function formatOption(data) {
+            var option = $('<div><strong>Module : </strong>' + data.module + '</div><div><strong>Name : </strong>' + data.name + '</div><div><strong>description : </strong>' + data.description + '</div>');
+            return option;
+        }
+    </script>
+    <script>
+
+        $(function () {
+            var empFamilyMembers = JSON.parse($("input[name=ConfigGrid").val());
+            $("#jsGrid").jsGrid({
+                height: "90%",
+                width: "100%",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: false,
+                inserting: true,
+                pageSize: 100,
+                pageButtonCount: 5,
+                data: empFamilyMembers,
+                noDataContent: "No data, please click + button to add row",
+                deleteConfirm: "Do you really want to delete?",
+
+                fields: [
+                    { name: "Id", type: "text", width: 0, visible: false },
+                    { name: "BaseId", type: "text", width: 0, visible: false },
+
+                    {
+                        name: "ConfigName", title: "Name", width: 60, type: "text", visible: true, validate: "required"
+                    },
+
+                    {
+                        name: "ConfigValue", title: "Config Value", type: "text", width: 60, visible: true, validate: "required"
+                    },
+
+                    {
+                        name: "UserValue1", title: "Value 1", type: "text", width: 60, visible: true, validate: "required" 
+
+                    },
+                    {
+                        name: "UserValue2", title: "Value 2", type: "text", width: 45, visible: true, validate: "required"
+
+                    },
+
+
+                    { type: "control" }
+                ]
+            });
+        });
+    </script>
+}

@@ -1,0 +1,174 @@
+﻿@model LoginViewModel
+
+
+@{
+    Layout = null;
+    ViewBag.Title = "Log in to Numbers Portal";
+}
+<br />
+<br />
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Numbers | Login</title>
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    @*<link href="~/css/font-awesome.css" rel="stylesheet">*@
+   
+    <link href="~/css/animate.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+
+
+    <link href="~/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <style>
+        #checkBox {
+            margin-left: -148px;
+        }
+        .margin-top{
+            margin-top:70px;
+            margin-bottom:20px;
+        }
+        .btn-primary {
+            background-color: #10265b;
+            border-color: #1ab394;
+            color: #FFFFFF;
+        }
+        .page-background-class {
+            background-image: url(~/img/SitaraLogoTransparent.png)
+        }
+        @*.hero-image {
+            background-image: url("../img/loginBackground.png");
+            background-color: #cccccc;
+            transition-property: all;
+            height: 500px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }*@
+        .hero-image {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .hero-image::before {
+                content: "";
+                background-image: url("../img/LoginBackgroudImage.jpg");
+                @*background-image: url("../img/backgroung.jpg");*@
+                background-size: cover;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                bottom: 0px;
+                left: 0px;
+                opacity: 0.9;
+            }
+        .transparent {
+           
+        }
+        .loginscreen.middle-box {
+            width: 80%;
+            margin-top: 15px;
+        }
+
+        .wrapper {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            min-height: 100%;
+            padding: 20px;
+        }
+
+        #formContent {
+            -webkit-border-radius: 10px 10px 10px 10px;
+            border-radius: 10px 10px 10px 10px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            padding: 0px;
+            -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+            box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+            text-align: center;
+            background-color: rgba(255,255,255,0.9)
+        }
+
+        
+    </style>
+</head>
+@*<body class="gray-bg">*@
+<body class="hero-image">
+    @*<div class="hero-image">*@
+    
+    <!--------------------------------------------------------------------------->
+    <div class="wrapper">
+        <div id="formContent">
+            <div class="row align-items-center justify-content-center" style="padding: 23px;">
+                <div class="middle-box text-center loginscreen animated fadeInDown">
+
+                    <div>
+                        <div width="80%">
+                            <img class="img-fluid " src="~/img/SitaraLogoTransparent.png" />
+                        </div>
+                        <h2 style="color: #10265b;"><b>Login</b></h2>
+                        <p style="color: #10265b;">Please Enter Your Username and Password</p>
+                        <p style="color: #10265b;">@TempData["CurrentCompany"]</p>
+
+                        <form asp-action="Login" asp-controller="Account" method="post" class="form-horizontal" role="form">
+
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <div class="form-group">
+
+                                <input style="border-radius: 10px; padding: 20px 13px;" asp-for="UserName" class="form-control" data-validation="required" placeholder="User Name" />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <input style="border-radius: 10px; padding: 20px 13px;" asp-for="Password" class="form-control" data-validation="required" placeholder="Password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            @*<div class="form-group">
+                <select asp-for="CompanyId" asp-items="@(new SelectList(ViewBag.Companies,"Id","Name"))" class="form-control m-b">
+                    <option>Please select Company</option>
+                </select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>*@
+
+                            <div class="form-group">
+                                <input type="submit" style="border-radius: 10px; padding: 10px 13px;" class="btn btn-primary block full-width m-b" value="LOGIN" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!--------------------------------------------------------------------------->
+        @*</div>*@
+        <!-- Mainly scripts -->
+        <script src="~/js/jquery-3.1.1.min.js"></script>
+        <script src="~/js/bootstrap.min.js"></script>
+        <script src="~/lib/jquery-form-validator/jquery.form-validator.min.js"></script>
+
+
+</body>
+
+</html>
+
+<script>
+    $.validate();
+</script>

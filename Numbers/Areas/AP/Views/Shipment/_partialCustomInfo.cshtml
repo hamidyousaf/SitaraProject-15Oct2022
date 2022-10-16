@@ -1,0 +1,211 @@
+﻿@model APShipmentViewModel
+<div class="modal fade" id="CustomInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 85%;">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h3 class="modal-title" id="exampleModalLabel">Custom Info</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <input asp-for="APCustomInfo.Id" hidden />
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>Custom #</label>
+                            @if (Model.APCustomInfo == null)
+                            {
+                                <input tabindex="-1" asp-for="APCustomInfo.CustomNo" value="@ViewBag.Custom" class=" text-right form-control on-focus-change-color" readonly />
+                            }
+                            else
+                            {
+                                <input tabindex="-1" asp-for="APCustomInfo.CustomNo" class=" text-right form-control on-focus-change-color" readonly />
+                            }
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>GD #</label>
+                            <input autofocus asp-for="APCustomInfo.GDNo" type="text" onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label>GD Date</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="APCustomInfo.GDDate" id="GDDate" value=@CommonHelper.CurrentDate data-validation="required" data-validation-error-msg="GD Date is required" class="form-control custom-date-picker date" type="text" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>IGM #</label>
+                            <input asp-for="APCustomInfo.IGMNo" type="text" onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label>IGM Date</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="APCustomInfo.IGMDate" value=@CommonHelper.CurrentDate data-validation="required" data-validation-error-msg="IGM Date is required" class="form-control custom-date-picker date" type="text" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>Clearing Agent</label>
+                            <Select asp-for="APCustomInfo.ClearingAgent_Id" id="ClearingAgent" class="form-control on-focus-change-color" data-validation="required" asp-items="@ViewBag.ClearingAgent">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>SRO Benefit</label>
+                            <Select asp-for="APCustomInfo.SROBenefit_Id" id="SROBenefit" class="form-control on-focus-change-color" data-validation="required">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </Select>
+                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="form-group">
+                            <label>Asse. Val(PKR)</label>
+                            <input onkeypress='return isNumberKey(event)'  onpaste="return false;" ondrop="return false;" asp-for="APCustomInfo.AssetValue" type="text" class="text-right form-control on-focus-change-color" />
+                        </div> 
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea style="resize:none;" asp-for="APCustomInfo.Remarks" id="CIRemarks" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-4">
+                        <div class="form-group">
+                            <label>Attachment</label>
+                            <div class="custom-file">
+                                <input type="file" name="CustomFile" class="form-control custom-file-input" />
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="form-group col-lg-1">
+                                <label class="control-label">PDC #</label>
+                                <div>
+                                    <input id="CIPDCNo" class="form-control" />
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <label class="control-label">PDC Date</label>
+                                <div>
+                                    <input id="CIPDCDate" value=@CommonHelper.CurrentDate class="form-control custom-date-picker date" type="text" />
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <label class="control-label">PDC Amount</label>
+                                <div>
+                                    <input onkeypress='return isNumberKey(event)'  onpaste="return false;" ondrop="return false;" id="CIPDCAmount" class="form-control text-right" autocomplete="off" />
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <label class="control-label">PDC Bank</label>
+                                <div>
+                                    <select id="CIPDCBank" class="form-control" asp-items="@ViewBag.Bank">
+                                        <option value="0" selected disabled>
+                                            Select...
+                                        </option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <label class="control-label">Status</label>
+                                <div>
+                                    <select id="CIStatus" class="form-control">
+                                        <option value="0" selected disabled>
+                                            Select...
+                                        </option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Approved">Approved</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <label class="control-label">Remarks</label>
+                                <div>
+                                    <input id="CIRemarkss" autocomplete="off" class="form-control" />
+
+                                </div>
+                            </div>
+                            <div class="form-group col-lg-1">
+                                <label class="control-label"></label>
+                                <div>
+                                    <button type="button" class="btn btn-primary" onclick="addCustomInfoRow();" style="margin-top:4px">Add</button>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <table id="tblCustomInfo" class="table table-bordered" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>PDC #</th>
+                                    <th>PDC Date</th>
+                                    <th>PDC Amount</th>
+                                    <th>PDC Bank</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.APCustomInfoDetails != null)
+                                {
+
+                                    @for (int i = 0; i < Model.APCustomInfoDetails.Count; i++)
+                {
+                                 <tr>
+                                    <td hidden><input name="PDCId" class="id" value="@Model.APCustomInfoDetails[i].Id" /></td>
+                                    <td><input name="PDCNo" class="text-right No" value="@Model.APCustomInfoDetails[i].PDCNo" readonly /></td>
+                                    <td><input name="PDCDate" class="Date" value="@Model.APCustomInfoDetails[i].PDCDate" readonly /></td>
+                                    <td><input name="PDCAmount" class="text-right Amount" value="@Model.APCustomInfoDetails[i].PDCAmount" readonly /></td>
+                                    <td><input name="PDCBankId" class="Bank text-right" value="@Model.APCustomInfoDetails[i].PDCBank_Id" readonly /></td>
+                                    <td><input name="PDCStatus" class="Status" value="@Model.APCustomInfoDetails[i].Status" readonly /></td>
+                                    <td><input name="PDCRemarks" class="Remarks" value="@Model.APCustomInfoDetails[i].Remarks" /></td>
+                                    <td>
+                                        <a onclick="editrow($(this));" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-edit" title="Edit"></i></a> <a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                    </td>
+                                </tr>
+                }
+}
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

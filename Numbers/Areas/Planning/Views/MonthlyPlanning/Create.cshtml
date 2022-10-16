@@ -1,0 +1,659 @@
+﻿@model VMMonthllyPlanning
+@{ ViewData["Title"] = "Monthly Planning";
+    ViewData["CurrentPage"] = "Monthly Planning";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+@using Numbers.Areas.GL.Controllers;
+@using Numbers.Repository.Helpers;
+@using Microsoft.AspNetCore.Http;
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+
+    .table > thead {
+        background-color: #4857a5;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    table td {
+        position: relative;
+    }
+
+        table td input:not([type='checkbox']) {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    .PopupHeight {
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 200px;
+        max-height: 450px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState </h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this); ">
+                    <div class="row">
+                        <input hidden id="PlanMonthlyId" asp-for="PlanMonthly.Id" />
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans. #</label>
+                                @if (Model.PlanMonthly.TransactionNo != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" value="@TempData["Code"]" data-validation="required" asp-for="PlanMonthly.TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Transaction Date</label>
+                                <div class="input-group date" autofocus>
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="PlanMonthly.TransactionDate" class="form-control" data-validation="required" type="text" value=@(Model.PlanMonthly.Id == 0 ? CommonHelper.CurrentDate : Model.PlanMonthly.TransactionDate.ToString(CommonHelper.DateFormat)) readonly tabindex="-1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">SP #</label>
+                                <select class="form-control" id="SPID" asp-items="@ViewBag.SPNo" asp-for="PlanMonthly.SPId">
+                                    <option disabled value="0" >Select please..</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Plan Of</label>
+                                <select class="form-control" id="PlanOf" asp-items="ViewBag.Planofmonth" asp-for="PlanMonthly.Planofmonth">
+                                    <option value="0" disabled>Select please..</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-9 col-sm-12 Pad-rht">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <input asp-for="PlanMonthly.Remarks" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="normal col-lg-3 col-sm-12 pull-right ">
+                            <label></label>
+                            <button type="button" class="btn btn-primary btn-block" onclick="Search()" data-toggle="modal">Get From Seasonal Planning</button>
+                        </div>
+                    </div>
+                    
+
+                    <div class="modal fade" id="myModal" role="dialog">
+                        <div class="modal-dialog" style="width:80%">
+
+                            <!----------------------------- Modal content----------------------------------------->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div class="form-group">
+                                        <div class="col-lg-3 col-md-3">
+                                            <input class="form-control" id="myInput" autocomplete="off" placeholder="Search here..." />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-body PopupHeight" style="padding: 15px 20px 0px 20px">
+                                    <div class="row">
+                                        <div class="col-md-12 col-lg-12">
+                                            <table id="ModalTable" class="table table-bordered table-striped t">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden style="width: 5%">Item CategoryId</th>
+                                                        <th style="width: 5%">Item Category 4</th>
+                                                        <th style="width: 15%">Greige Quality</th>
+                                                        <th style="width: 5%">Season</th>
+                                                        <th style="width: 5%">Period</th>
+                                                        <th style="width: 5%">Season Dsgn Cnt</th>
+                                                        <th style="width: 5%">Season Run Qty</th>
+                                                        <th style="width: 5%">Season Fabric Plan</th>
+                                                        <th style="width: 5%">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!------------------------------------------------End Of Modal-------------------------------------------------->
+                    <!------------------------------------------Start of Detail--------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="">
+                                <div class="">
+                                    <table id="tblDetail" class="table table-bordered ">
+                                        <thead>
+                                            <tr>
+                                                <th hidden>Id</th>
+                                                <th hidden>SecificationId</th>
+                                                <th style="width:25%;">Item Category 4</th>
+                                                <th style="width:25%;">Greige Quality</th>
+                                                <th hidden>Month</th>
+                                                <th style="width:8%;">Season Dsgn Cnt</th>
+                                                <th style="width:8%;">Season Run Qty</th>
+                                                <th style="width:9%;">Season Fabric Plan</th>
+                                                <th style="width:8%;">Month Dsgn Cnt</th>
+                                                <th style="width:8%;">Month Run Qty</th>
+                                                <th style="width:9%;">Month Fabric Plan</th>
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                           @if (Model.PlanMonthlyPlanningDetail != null)
+                                           {
+                                               @for (int i = 0; i < Model.PlanMonthlyPlanningDetail.Count; i++)
+                                               {
+
+                                            <tr >
+                                                <td hidden><input name='Id' asp-for="PlanMonthlyPlanningDetail[i].Id" value='@Model.PlanMonthlyPlanningDetail[i].Id' type='hidden' /></td>
+
+                                                <td hidden><input class="detailIDid" name='SeasonalDetailId' asp-for="PlanMonthlyPlanningDetail[i].SeasonalDetailId" value='@Model.PlanMonthlyPlanningDetail[i].SeasonalDetailId' type='hidden' /></td>
+
+
+
+
+                                                <td hidden><input name='FourhcategoryId' asp-for="PlanMonthlyPlanningDetail[i].ForthLevelCategoryId" value='@Model.PlanMonthlyPlanningDetail[i].ForthLevelCategoryId' type='hidden' /></td>
+                                                <td hidden><input name='PlanningId' asp-for="PlanMonthlyPlanningDetail[i].PlannigId" value='@Model.PlanMonthlyPlanningDetail[i].PlannigId' type='hidden' /></td>
+                                                <td><input readonly style="background-color: #eee;" tabindex="-1" class='text-left  ' name='CategoryNamename' asp-for="PlanMonthlyPlanningDetail[i].CategoryName" value='@Model.PlanMonthlyPlanningDetail[i].CategoryName' /></td>
+                                                <td><input readonly style="background-color: #eee;" tabindex="-1" class='text-left  ' name='specification' asp-for="PlanMonthlyPlanningDetail[i].PlanSpecificationId" value='@Model.PlanMonthlyPlanningDetail[i].PlanSpecificationId' /></td>
+                                                <td hidden><input readonly class='text-left  ' name='spec_Id' asp-for="PlanMonthlyPlanningDetail[i].spec_Id" value='@Model.PlanMonthlyPlanningDetail[i].spec_Id' /></td>
+                                                <td hidden><input readonly style="background-color: #eee;" tabindex="-1" class='text-left  MonthId' name='MonthId' asp-for="PlanMonthlyPlanningDetail[i].MonthId" value='@Model.PlanMonthlyPlanningDetail[i].MonthId' /></td>
+                                                <td><input readonly style="background-color: #eee;" tabindex="-1" class='text-right  seasonalDesignCount' name='seasonalDesignCount' asp-for="PlanMonthlyPlanningDetail[i].SeasonalDesignCount" value='@Model.PlanMonthlyPlanningDetail[i].SeasonalDesignCount' /></td>
+                                                <td><input readonly style="background-color: #eee;" tabindex="-1" class='text-right  seasonalRun' name='seasonalRun' asp-for="PlanMonthlyPlanningDetail[i].SeasonalRunQty" value='@Model.PlanMonthlyPlanningDetail[i].SeasonalRunQty' /></td>
+                                                <td><input readonly style="background-color: #eee;" tabindex="-1" class='text-right  seasonalFabricCons' name='seasonalFabricCons' asp-for="PlanMonthlyPlanningDetail[i].SeasonalFabricCons" value='@Model.PlanMonthlyPlanningDetail[i].SeasonalFabricCons' /></td>
+                                                <td><input class='text-right  monthlyDesignCount' onchange='Calgain($(this));' min="0" type="number" onkeypress='return isNumberKey(event)' name='monthlyDesignCount' asp-for="PlanMonthlyPlanningDetail[i].MonthlyDesignCount" value='@Model.PlanMonthlyPlanningDetail[i].MonthlyDesignCount' /></td>
+                                                <td><input style="background-color: #eee;" tabindex="-1" class='text-right  monthlyRun' name='monthlyRun' readonly min="0" onchange='Calgain($(this));' onkeypress='return isNumberKey(event)' type="number" asp-for="PlanMonthlyPlanningDetail[i].MonthlyRunQty" value='@Model.PlanMonthlyPlanningDetail[i].MonthlyRunQty' /></td>
+                                                <td style="height: 40px;"><input readonly style="background-color: #eee;" tabindex="-1" class='text-right  monthlyFabricCons' name='monthlyFabricCons' asp-for="PlanMonthlyPlanningDetail[i].MonthlyFabricCons" value='@Model.PlanMonthlyPlanningDetail[i].MonthlyFabricCons' /></td>
+
+                                            </tr>
+                                               }
+                                           }
+                                        </tbody>
+                            @*<tfoot id="myfoot">
+                                <tr style='font-weight: bold'>
+
+                                    <td style="text-align: right;">Total:</td>
+                                    <td class='text-right '>0.00</td>
+                                    <td class='text-right '>0.00</td>
+                                    <td class='text-right'>0.00</td>
+                                    <td class='text-right'>0.00</td>
+                                    <td class='text-right'>0.00</td>
+
+                                </tr>
+                            </tfoot>*@
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row pull-right">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-4 col-sm-12">
+                            <div class="form-group">
+                                <label>Bal Design Count</label>
+                                <input id="BDC" tabindex="-1" class="form-control text-right" autocomplete="off" readonly/>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-12 hidden ">
+                            <div class="form-group">
+                                <label>Bal Run Qty</label>
+                                <input id="BRQ" class="form-control text-right" autocomplete="off" readonly />
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-12 ">
+                            <div class="form-group">
+                                <label>Bal Total Fab. Cons.</label>
+                                <input id="BTFC" class="form-control text-right"  tabindex="-1" autocomplete="off" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="MonthlyPlanning" asp-action="Index" class="btn btn-white">List</a>
+                            <button class="btn btn-primary" type="submit" onclick="return validate();" asp-controller="MonthlyPlanning" asp-action="Create" id="btnSave">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section CustomJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#SPID").select2();
+            $("#ItemCategoryLevel2").select2();
+            $("#ItemCategoryLevel4").select2();
+            $("#GRQualityId").select2();
+            $("#PlanOf").change(function () {
+                debugger
+                $("#tblDetail > tbody > tr").remove();
+            });
+
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#ModalTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            ///////////////// Allow Numeric only
+
+            $(".allow-numeric").bind("keypress", function (e) {
+                var keyCode = e.which ? e.which : e.keyCode
+
+                if (!(keyCode >= 48 && keyCode <= 57)) {
+                    $(".error").css("display", "inline");
+                    return false;
+                } else {
+                    $(".error").css("display", "none");
+                }
+            });
+
+            ////////////////////////////////////
+
+        });
+    </script>
+
+
+    <script>
+
+        var MonthName = "";
+
+        $(document).ready(function () {
+            $('#SPID').change(function () {
+                debugger;
+                var divisions = $("#SPID option:selected").val();
+                if (divisions != "select..." && divisions != 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Planning/MonthlyPlanning/FindSeasonalMonths',
+                        dataType: 'json',
+                        data: { id: divisions}
+                    }).done(function (data) {
+                        debugger;
+
+                        if (data != null) {
+                            $('#PlanOf').empty();
+                            $('#PlanOf').append($('<option>', {
+                                value: 0,
+                                text: "Select..."
+                            }));
+                            $.each(data, function (i, item) {
+                                $('#PlanOf').append($('<option>', {
+                                    value: item.id,
+                                    text: item.id
+                                }));
+                            });
+                        }
+
+
+
+                    });
+                }
+            });
+            GetRowFooter();
+            
+            var divisions = $("#SPID option:selected").val();
+            var planMonthlyId = $("#PlanMonthlyId").val();
+
+            if (divisions !=0) {
+                
+                if (divisions != "select..." && divisions != 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Planning/MonthlyPlanning/FindSeasonalMonths',
+                        dataType: 'json',
+                        data: { id: divisions }
+                    }).done(function (data) {
+                        debugger;
+                            
+                        if (data != null && planMonthlyId == 0) {
+                            $('#PlanOf').empty();
+                            $('#PlanOf').append($('<option>', {
+                                value: MonthName,
+                                text: MonthName
+                            }));
+                            $.each(data, function (i, item) {
+                                $('#PlanOf').append($('<option>', {
+                                    value: item.id,
+                                    text: item.id
+                                }));
+                            });
+                        }
+
+
+
+                    });
+                }
+            }
+
+            
+
+        });
+
+
+        function checkCode() {
+            debugger;
+           $("#Status").html("Checking...");
+        $.post("@Url.Action("checkDescriptionAlreadyExists", "CostCenter", "CostCenter")",
+            {
+                description: $("#Description").val()
+            },
+            function (data) {
+                debugger;
+            if (data == 0) {
+                $("#Status").html('<font color="Green"></font>');
+                $("#Description").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+
+            }
+            //else {
+            //    $("#Status").html('<font color="Red">Cost Center already exists.</font>');
+            //    $("#Description").css("border-color", "Red");
+            //    $(".submit").attr("disabled", "disabled");
+            //}
+        });
+        }
+         function openReport(id) {
+            generateApArReport(id, "CostCenter", "@companyName",@companyId);
+        }
+
+        function validate() {
+            debugger;
+
+            var SPID = $("#SPID").val();
+            var monthlyDesignCount = ""; //Number(row.closest("tblDetail tbody tr").find(".monthlyDesignCount").val());
+            var monthlyRun = ""; //Number(row.closest("tblDetail tbody tr").find(".monthlyDesignCount").val());
+
+            monthlyDesignCount = $("#tblDetail tbody tr").find(".monthlyDesignCount").val();
+            monthlyRun = $("#tblDetail tbody tr").find(".monthlyRun").val();
+          
+            
+
+           
+           
+            
+           
+            if (SPID == 0) {
+                swal("", "Seasonal Planning must be selected.","warning");
+                return false;
+            }
+            if (monthlyDesignCount == 0 || monthlyDesignCount == "") {
+                swal("", "Monthly Design Count must be Entered", "warning");
+                return false;
+
+            }
+            if (monthlyRun == 0 || monthlyRun == "") {
+                swal("", "Monthly Run Count must be Entered.", "warning");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+//////////////////////////////////////////////////// Modal
+        var skipIds = [];//skip from loading table rows
+        function Search() {
+            debugger
+
+            var SPId = $('#SPID').val();
+            var Pllanof = $('#PlanOf').val();
+            var month = $('#PlanOf').find(":selected").val();
+            var skipIds = [];//skip from loading table rows
+
+            $("#tblDetail > tbody > tr").each(function () {
+                skipIds.push($(this).find(".detailIDid").val());
+            })
+
+
+            var type = $("#typeimport").find(":selected").text();
+            if (SPId != "0" && Pllanof !="0") {
+                $.ajax({
+                    method: "POST",
+                    url: "/Planning/MonthlyPlanning/FindSeasonalPlanning",
+                    dataType: 'json',
+                    data: { id: SPId, skipIds: skipIds, month: month }
+                }).fail(function (res) {
+
+                }).done(function (data) {
+                    $('#ModalTable tbody tr').remove();
+                    $.each(data, function (i, item) {
+                        debugger
+                        if (item.length != 0) {
+
+                                var row = "<tr>" +
+                                    "<td hidden class='text-right id'>" + item.id + "</td>" +
+                                    "<td hidden class='text-right iddetailidid'>" + item.detailId + "</td>" +
+                                    "<td hidden class='text-right categoryId'>" + item.categoryId + "</td>" +
+                                    "<td class='text-left itemCategory'>" + item.itemCategory + "</td>" +
+                                    "<td  class='text-left specification'>" + item.specification + "</td>" +
+                                    "<td class='text-left season'>" + item.season + "</td>" +
+                                    "<td class='text-left period'>" + item.period + "</td>" +
+                                    "<td  class='text-right seasonalDesignCount'>" + item.seasonalDesignCount + "</td>" +
+                                    "<td  class='text-right seasonalRun'>" + item.seasonalRun + "</td>" +
+                                    " <td class='text-right seasonalFabricCons'>" + item.seasonalFabricCons + "</td> " +
+                                    '<td class="text-center"><input onclick="CheckRow($(this),' + item.detailId + ');" type="checkbox" /> </td>'
+                                "</tr>";
+                                $("#ModalTable tbody").append(row)
+
+                        }
+                    });
+                    $('#myModal').modal('show');
+                });
+            }
+            else {
+                swal("", "Please Select Seasonal Planning # and Plan of Month ", "warning")
+                return false;
+            }
+        }
+
+
+
+        //////////////////////////////////////////// Modal to Table
+
+        function CheckRow(row, id) {
+
+            $("#ModalTable > tbody > tr").each(function () {
+                debugger
+                skipIds.push(Number($(row).closest("tr").find(".iddetailidid").text()));
+            });
+
+
+            var Planof = $('#PlanOf').val();
+
+            row.closest("tr").remove();
+            //var type = $("#typeimport").find(":selected").text();
+            $.ajax({
+                method: "POST",
+                url: "/Planning/MonthlyPlanning/FindSeasonalDetailData",
+                data: { id: id }
+            })
+                .done(function (data) {
+                    $.each(data, function (i, item) {
+
+                        var row = "<tr>";
+                        row += "<td hidden><input name='Id' value='0' type='hidden'  /></td>";
+                        row += "<td hidden><input name='SeasonalDetailId'  id='' value='" + item.detailId + "' class='detailIDid' type='hidden'  /></td>";
+                        row += "<td hidden><input name='FourhcategoryId'  id='username' value='" + item.categoryId + "' class='id' type='hidden'  /></td>";
+                        row += "<td ><input name='CategoryNamename'  value='" + item.itemCategory + "' class='id'  readonly  style='background-color: #eee;' tabindex='-1' /></td>";
+                        row += "<td><input name='specification' name='prDetailId' value='" + item.specification + "' id='username' class='id' readonly style='background-color: #eee;' tabindex='-1'  /></td>";
+                        row += "<td hidden><input name='spec_Id' name='prDetailId' value='" + item.spec_Id + "' id='username' class='id' readonly style='background-color: #eee;' tabindex='-1'  /></td>";
+                        row += "<td hidden><input name='MonthId' value='" + Planof + "' id='MonthId' class=''  readonly style='background-color: #eee;' tabindex='-1' /></td>";
+                        row += "<td><input name='seasonalDesignCount' value='" + item.seasonalDesignCount + "'  class='text-right seasonalDesignCount' id='username'  readonly style='background-color: #eee;' tabindex='-1' /></td>";
+                        row += "<td><input name='seasonalRun' value='" + item.seasonalRun + "'  class='text-right seasonalRun' readonly  style='background-color: #eee;' tabindex='-1' /></td> ";
+                        row += "<td><input name='seasonalFabricCons' value='" + item.seasonalFabricCons + "' type='text' class='text-right seasonalFabricCons' readonly  style='background-color: #eee;' tabindex='-1' /></td>";
+                        row += "<td><input name='monthlyDesignCount'  min='0' value='" + 0 + "' type='number' class='text-right monthlyDesignCount ' onchange='Calgain($(this));'  onkeypress='return isNumberKey(event)' /></td> ";
+                        row += "<td ><input name='monthlyRun' readonly type='number' min='0' value='" + item.seasonalRun + "' type='number' class='text-right monthlyRun ' onchange='Calgain($(this));' onkeypress='return isNumberKey(event)'  style='background-color: #eee;' tabindex='-1'  /></td>";
+                        row += "<td  style='height: 40px;'><input name='monthlyFabricCons' type='text' value='" + 0 + "' class='text-right monthlyFabricCons' readonly style='background-color: #eee;' tabindex='-1' /></td>";
+                        row += "</tr>";
+                        $("#tblDetail tbody").append(row)
+                       // $("#BilityNo").val(item.builityNo)
+                    });
+                   // $('#myModal').modal('show');
+                    return false;
+                    
+                  
+                });
+
+        }
+
+    
+
+        function Calgain(row) {
+            debugger
+            var freshQty = $(row).closest("tr").find(".monthlyDesignCount").val();
+            var foldQty = $(row).closest("tr").find(".monthlyRun").val();
+
+            var SeaD = $(row).closest("tr").find(".seasonalDesignCount").val();
+            var SeaR = $(row).closest("tr").find(".seasonalRun").val();
+
+            if (Number(freshQty) > Number(SeaD)) {
+                $(row).closest("tr").find(".monthlyDesignCount").val(0);
+                swal("", "Monthly Design Count Cannot be greate than Seasonal Design Count", "warning");
+                return false;
+            }
+            if (Number(foldQty) > Number(SeaR)) {
+                $(row).closest("tr").find(".monthlyRun").val(0);
+                swal("", "Monthly Run Count Cannot be greate than Seasonal Run Count", "warning");
+                return false;
+            }
+
+            var monthlyFabricCons = foldQty * freshQty;
+            $(row).closest("tr").find(".monthlyFabricCons").val(monthlyFabricCons);
+            
+            GetRowFooter();
+            //ClearTextBox();
+        }
+
+        function GetRowFooter() {
+            debugger
+            var TotalSQty = 0;
+            var TotalSRQty = 0;
+            var TotalSFQty = 0;
+            var TotalMQty = 0;
+            var TotalMRQty = 0;
+            var TotalMFQty = 0;
+            
+
+
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var qty1 = Number($(this).find(".seasonalDesignCount").val());
+                TotalSQty = TotalSQty + qty1;
+
+
+                var qty2 = Number($(this).find(".seasonalRun").val());
+                TotalSRQty = TotalSRQty + qty2;
+
+
+                var qty3 = Number($(this).find(".seasonalFabricCons").val());
+                TotalSFQty = TotalSFQty + qty3;
+
+                var qty4 = Number($(this).find(".monthlyDesignCount").val());
+                TotalMQty = TotalMQty + qty4;
+
+
+                var qty5 = Number($(this).find(".monthlyRun").val());
+                TotalMRQty = TotalMRQty + qty5;
+
+
+                var qty6 = Number($(this).find(".monthlyFabricCons").val());
+                TotalMFQty = TotalMFQty + qty6;
+
+                MonthName = $(this).find(".MonthId").val();
+            });
+
+            var BalD = TotalSQty - TotalMQty;
+            var BalR = TotalSRQty - TotalMRQty;
+            var BalBF = TotalSFQty - TotalMFQty;
+
+            $("#BDC").val(BalD);
+            $("#BRQ").val(BalR);
+            $("#BTFC").val(BalBF);      
+            
+        }
+
+
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+    
+}     

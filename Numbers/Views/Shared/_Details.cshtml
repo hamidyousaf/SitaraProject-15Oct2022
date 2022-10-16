@@ -1,0 +1,85 @@
+﻿
+@model Numbers.Entity.Models.BkgVehicle
+@{
+    
+}
+<div class="ibox-title">
+    <h5>Booking Details</h5>
+
+</div>
+<div class="ibox-content">
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Booking No</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4 id="BookingDetailBookingNo">@Model.BookingNo</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Date</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4>@Model.BookingDate.ToString(CommonHelper.DateFormat)</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Vehicle</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4>@Model.Item.Name</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Customer</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4 id="BookingDetailCustomerName">@Model.Customer.Name</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Price</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4>@Model.Price</h4>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Received</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4>@Model.ReceivedAmount</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Receivable</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4 class="text-danger" id="receivable">@(Model.Price - Model.ReceivedAmount)</h4>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Payment</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4>@Model.PaymentAmount</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <h4><b>Payable</b></h4>
+        </div>
+        <div class="col-lg-7">
+            <h4 class="text-danger" id="payable">@(Model.Price - Model.PaymentAmount)</h4>
+        </div>
+    </div>
+</div>

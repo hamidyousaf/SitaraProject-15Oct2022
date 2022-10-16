@@ -1,0 +1,324 @@
+﻿@model IEnumerable<Numbers.Entity.Models.GLVoucher>
+@{
+    ViewData["Title"] = ViewBag.Title;
+}
+
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="modal fade" id="imagemodal" tabindex="-3" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body ">
+                <div id="imagearea" class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.Title</h5>
+                </div>*@
+            <input type="hidden" value="@ViewBag.Type" id="type" />
+            <div class="ibox-content">
+                <div class="text-center">
+                    <div class="">
+                        <a class="btn btn-primary pull-left" asp-action="Create" asp-route-type=@ViewBag.VoucherType>Create New</a>
+                    </div>
+                    <div class="pull-right row" style="margin-right:auto">
+                        @if (ViewBag.Approve == true)
+                        {
+                            <a class="btn btn-success" onclick="ApproveAll()">Approve All</a>
+                        }
+                            @*<a class="btn btn-danger" onclick="UnapproveAll()">Unapprove All</a>*@
+                        </div>
+                    <!--<form id="form" method="get" asp-action="Index" asp-controller="Voucher">
+                    <input name="type" id="type" type="hidden" />
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input id="Date" name="Date" class="form-control monthpicker " data-validation="required" type="text" value=@(CommonHelper.MonthYear)-->
+                    @*value=@(Model.Id =0 ? CommonHelper.CurrentDate : Model.VoucherDate.ToString(CommonHelper.DateFormat))*@
+                    <!--/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <input type="submit" onclick="getFilteredVouchers();" value="Filter" class="btn btn-primary col-md-8"-->
+                    @*asp-action="Index" asp-controller="Voucher" *@
+                    <!--/>
+                        </div>
+                    </form>-->
+                </div>
+                <br /><br /><br />
+                <table width="100%" class="table table-bordered table-striped dataTables-example" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th class="searchHeader" style="width:9%">@Html.DisplayNameFor(model => model.VoucherNo)</th>
+                            <th class="searchHeader" style="width:12%">@Html.DisplayNameFor(model => model.VoucherDate)</th>
+                            <th class="searchHeader" style="width:22%">@Html.DisplayNameFor(model => model.Description)</th>
+                            <th class="searchHeader" style="width:8%">@Html.DisplayNameFor(model => model.Currency)</th>
+                            <th class="searchHeader" style="width:9%">Amount</th>
+                            <th class="searchHeader" style="width:10%">@Html.DisplayNameFor(model => model.CreatedBy)</th>
+                            <th class="searchHeader" style="width:10%">@Html.DisplayNameFor(model => model.ApprovedBy)</th>
+                            <th style="width:14%"></th>
+                            <th style="width:6%">All <input id="AllSelect" type="checkbox" /></th>
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        function modelclose() {
+            $("#imagemodal").modal("hide");
+        }
+        $(document).ready(function () {
+            $("#imagemodal").css("display", "none");
+            GetList();
+        });
+        function showmodelimage(id) {
+
+         var myArray = [];
+
+    @foreach (var d in Model)
+    {
+       @:myArray.push([@d.Id,"@d.Photo"]);
+    }
+            var patch = "";
+            for (var i = 0; i < myArray.length; i++) {
+                if (myArray[i][0] == 4425) {
+                    debugger
+                }
+                if (myArray[i][0] == id) {
+                    patch = myArray[i][1];
+                }
+            }
+
+            document.getElementById("imagearea").innerHTML = "";
+            var img = ' <img src="' + patch + '" alt="No image to show "   style="width:500px; height:500px" >';
+
+
+            $("#imagearea").append(img);
+          //  $("#imagemodal").modal("show");
+
+
+            $.ajax({
+                url: '/Gl/Api/GetVoucherImage?id=' + id,
+                type: 'GET'
+            }).done(function (data) {
+                debugger;
+                for (var i = 0; i < data.length; i++) {
+                    var imgs = ' <img src="/img/' + data[i] + '" alt="No image to show" class="col-2 img-responsive" style="" > <br/><br/>';
+
+
+                    $("#imagearea").append(imgs);
+                }
+
+            });
+
+            $("#imagemodal").modal("show");
+
+        }
+        //function getFilteredVouchers() {
+        //    var date = $('#searchDate').val();
+        //    if (date != '')
+        //    {
+        //        const urlParams = new URLSearchParams(window.location.search);
+        //        const myParam = urlParams.get('type');
+        //        $('#type').val(myParam);
+        //    }
+        //    else
+        //        alert('Date not found');
+        //}
+
+        function getFilteredVouchers() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const myParam = urlParams.get('type');
+            $('#type').val(myParam);
+
+            $.get('/GL/Voucher/Index',
+                $("#form").serialize()).done(function (data) {
+                });;
+        }
+        var Ids = [];
+        $("#AllSelect").change(function () {  //"select all" change
+            debugger
+            var status = this.checked; // "select all" checked status
+            $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                debugger
+                this.checked = status; //change ".checkbox" checked status
+            });
+        });
+        function ApproveAll() {
+            let bit = false;
+            $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                if (this.checked) {
+                    Ids = [];
+                    bit = this.checked; //change ".checkbox" checked status
+                    return;
+                }
+            });
+            if (bit) {
+                $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                    if (this.checked) {
+                        Ids.push(this.value);
+                    }
+                });
+                $.ajax({
+                    url: "/GL/Voucher/VouchersApproved",
+                    type: "POST",
+                    data: { Ids: Ids },
+                }).done(function (resp) {
+                    if (resp == true) {
+                        $("#dataTable").DataTable().draw();
+                        swal('', 'Selected Vouchers Approved', 'success');
+                    }
+                });
+            } else {
+                swal('', 'Please select atleast one record.', 'error');
+                Ids = [];
+                return;
+            };
+        }
+        function GetList() {
+            debugger
+            var type = $("#type").val();
+            var table1 = $("#dataTable").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/GL/Voucher/GetGLVouchers",
+                    "data": { type: type},
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [7, 8] },
+                    {
+                        targets: [4],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }
+                ],
+
+                "columns": [
+                    { "data": "voucherNo", "name": "VoucherNo", className: "text-center" },
+                    { "data": "shortdate", "name": "VoucherDate", className: "text-center" },
+                    { "data": "description", "name": "Description", className: "text-left" },
+                    { "data": "currency", "name": "Currency", className: "text-center" },
+                    { "data": "amount", "name": "Amount", className: "text-right" },
+                    { "data": "user.userName", "name": "User.UserName", className: "text-center" },
+                    { "data": "auser", "name": "ApprovalUser.UserName", className: "text-center" },
+                    {
+                        "data": "id", className: "text-center",
+                        "Status": "status", className: "text-center",
+                        "render": function (data, Status, row) {
+                            debugger
+                            if (row.status != "Approved") {
+                                if (row.approve == true) {
+                                    return "<a href='/GL/Voucher/ApproveVoucher?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>    <a href='/GL/Voucher/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/GL/Voucher/Delete?id=" + data + "'class='btn btn-sm btn-danger  m-t-n-xs' onclick='return confirm('Are you sure you want to delete Voucher?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >";
+                                }
+                                else {
+                                    return "  <a href='/GL/Voucher/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/GL/Voucher/Delete?id=" + data + "'class='btn btn-sm btn-danger  m-t-n-xs' onclick='return confirm('Are you sure you want to delete Voucher?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >";
+
+                                }
+                            }
+                            else {
+                                debugger;
+                               
+                                    return '<a href="/GL/Voucher/Details?id=' + data + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>    <a href=@ViewBag.ReportPath' + data + ' target="_blank" class="btn btn-sm btn-success btn-lg m-t-n-xs"><i class="fa fa-print" title="Print Report"></i></a>   <a class="btn btn-sm btn-success m-t-n-xs" id="modelshow" onclick="showmodelimage(' + data + ')"><i class="fa fa-image" aria-hidden="true"></i></a>';
+                                
+                            }
+                        }
+                    },
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data, Status, row) {
+                            if (row.status != "Approved") {
+                                return '<input class="selectorApproval" value="' + data + '" type="checkbox"/>';
+                            } else {
+                                return '<input checked disabled type="checkbox"/>';
+                            }
+                        }
+                    }
+                ],
+
+            })
+            $('#dataTable thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    debugger
+                    if (!(this.type == "checkbox")) {
+                        debugger
+                        that.search(this.value).draw()
+                    }
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        }
+    </script>
+}

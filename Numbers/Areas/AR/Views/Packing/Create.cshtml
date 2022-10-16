@@ -1,0 +1,685 @@
+﻿@model PackingViewModel
+@{ ViewData["Title"] = "Create Packing Items";
+    ViewData["CurrentPage"] = "Packing Items";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="Packing" enctype="multipart/form-data" onsubmit="return submitdetails();">
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="PackingNo"></label>
+                            <div class="input-group">
+                                @if (Model.PackingNo != 0)
+                                {
+                                    <input tabindex="-1" asp-for="PackingNo" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" value="" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="PackingDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input tabindex="-1" asp-for="PackingDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.PackingDate.ToString(CommonHelper.DateFormat))" readonly />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label asp-for="WareHouseId">Ware House</label>
+                            <Select asp-for="WareHouseId" asp-items="@ViewBag.WareHouseLOV" class="form-control" data-validation="required" data-validation-error-msg="Ware House is required" data-validation-error-msg-container="#wHouse">
+                                @*<option selected disabled>
+                        Select...
+                    </option>*@
+                            </Select>
+                            <p id="wHouse"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select autofocus asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-sm-6">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input id="address" value="@Model.Address" readonly type="text" tabindex="-1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="SRIId"></label>
+                            <Select id="SRIId" asp-for="SRIId" asp-items="ViewBag.SRINo" class="form-control">
+                                <option selected value="0">Select...</option>
+                            </Select>
+                            <p id="sigp"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label>4th Category</label>
+                            <Select -for="FourthCategoryId" asp-items="@ViewBag.FourthLevelCategoryLOV" id="FourthCat" class="form-control" data-validation="required" data-validation-error-msg="Category is required" data-validation-error-msg-container="#dCat">
+                                <option value="0" selected>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="dCat"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Bales Mtr</label>
+                            <div class="input-group">
+                                <input tabindex="-1" type="text" readonly id="BaleQty" min="0" step="1" class="add-comma form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Bales Balance</label>
+                            <div class="input-group">
+                                <input tabindex="-1" type="text" readonly id="BaleBalance" min="0" step="1" class="add-comma form-control text-right" />
+                                <input type="hidden" readonly id="CheckBaleBalance" min="0" step="1" class="form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <Select id="ItemId" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="Itemid"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label for="OGPQty">Quantity</label>
+                            <div class="input-group">
+                                <input id="Qty" type="text" min="0" step="1" class="add-comma form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label> Reason Type</label>
+                            <Select id="reasonTypeId" asp-items="@Model.ReasonType" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="reasonTypeId"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label> Return Type</label>
+                            <Select id="returnTypeId" asp-items="@Model.ReturnType" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="returnTypeId"></p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label> Season</label>
+                            <Select id="seasonId" asp-items="@Model.Season" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="seasonId"></p>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-lg-1">
+                        <label class="control-label">  </label>
+                        <div>
+                            <button type="button" class="btn btn-primary" onclick="addItem();" style="margin-top:4px">Add</button>
+
+                        </div>
+                    </div>
+
+
+                    <div class="spinner-border text-danger"></div>
+                </div>
+                <div class="row">
+                    <div class="container-fluid table-responsive">
+                        <table id="tblItem" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Item Category</th>
+                                    <th>Item Code & Description</th>
+                                    <th>Qty</th>
+                                    <th>Return Type</th>
+                                    <th>Season</th>
+                                    <th>Reason Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.PackingItemsList != null)
+                                {
+                                    @foreach (var item in Model.PackingItemsList)
+                                    {
+                                        <tr class="removed">
+                                            <td class="Id" hidden>@Html.DisplayFor(modelItem => item.Id)</td>
+
+                                            <td class="fourthItemCategoryId" hidden>@Html.DisplayFor(modelItem => item.FourthItemCategoryId)</td>
+                                            <td class="fourthItemCategoryText">@item.FourthLevel.Code - @item.FourthLevel.Name</td>
+                                            <td class="ItemId" hidden>@Html.DisplayFor(modelItem => item.ItemId)</td>
+                                            <td class="Item">@item.Item.Name</td>
+                                            <td class="qty text-right">@Html.DisplayFor(modelItem => item.Qty)</td>
+                                            <td class="returnTypeId" hidden>@Html.DisplayFor(modelItem => item.ReturnTypeId)</td>
+                                            <td class="returnTypeText">@item.ReturnType.ConfigValue</td>
+                                            <td class="seasonId" hidden>@Html.DisplayFor(modelItem => item.SeasonId)</td>
+                                            <td class="seasonText">@item.Season.ConfigValue</td>
+                                            <td class="reasonTypeId" hidden>@Html.DisplayFor(modelItem => item.ReasonTypeId)</td>
+                                            <td class="reasonTypeText">@item.ReasonType.ConfigValue</td>
+                                            <td>
+                                                <a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                            </tbody>
+                            <tfoot id="myfoot">
+                                <tr style='font-weight: bold'>
+                                    <td></td>
+                                    <td style="text-align: right;">Total:</td>
+                                    <td class='text-right'>0.00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left mb-3">
+                <a asp-controller="Packing" asp-action="Index" class="btn btn-white">List</a>
+                <button id="SaveBtn" type="submit" class="btn btn-primary">@ViewBag.EntityState</button>
+                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+            </div>
+        </div>
+        <input hidden id="packingDetail" name="PackingDetail" />
+        <input id="TotalQty" name="TotalQty" class="hidden" />
+    </form>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+
+            $('input.add-comma').commaTextbox();
+            $("#FourthCat").select2();
+            $("#ItemId").select2();
+            $("#reasonTypeId").select2();
+            $("#returnTypeId").select2();
+            $("#seasonId").select2();
+            $("#CustomerId").select2();
+            $("#SRIId").select2();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+          
+            $('#CustomerId').on('change', function () {
+                debugger
+                var customerId = $('#CustomerId').val();
+                $('#SRIId').find('option').not(':first').remove();
+                $('#FourthCat').find('option').not(':first').remove();
+                $('#BaleQty').val("");
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/InwardGatePass/GetCustomerAddress",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#address').val(data);
+                        return false;
+                    }
+                });
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/Packing/GetSaleReturnNo",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#SRIId').append($('<option>', {
+                                value: item.id,
+                                text: item.transactionNo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+            })
+
+            $('#SRIId').on('change', function () {
+
+                $('#FourthCat').find('option').not(':first').remove();
+
+                var srItemId = $('#SRIId').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/Packing/GetFourthCategoryId",
+                    data: { saleReturnId: srItemId }
+                }).done(function (data) {
+                    debugger;
+                    //var item = $.parseJSON(data);
+                    $.each(data, function (i, item) {
+                        debugger;
+                        $('#FourthCat').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                });
+
+                $('#ItemId').val(0).trigger('change.select2');
+                $('#BaleQty').val("");
+            })
+
+            $('#FourthCat').on('change', function () {
+
+                $('#ItemId').find('option').not(':first').remove();
+                var saleReturnId = $('#SRIId').find(':selected').val();
+
+                var catId = $('#FourthCat').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/Api/GetItemsByCategoryId",
+                    data: { categoryId: catId }
+                }).done(function (data) {
+                    debugger;
+                    $.each(data, function (i, item) {
+                        debugger;
+                        $('#ItemId').append($('<option>', {
+                            value: item.id,
+                            text: item.name + " " + item.brand
+                        }));
+                    });
+                });
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/Packing/GetBaleQuantity",
+                    data: { FourthCatId: catId, SaleReturnId: saleReturnId}
+                }).done(function (data) {
+                    debugger
+
+                    var TotalQty = 0;
+                    var fourthItemCategoryId = $("#FourthCat").find(":selected").val();
+
+                    $("#tblItem > tbody > tr").each(function () {
+                        debugger
+                        var tFourthCat = $(this).find(".fourthItemCategoryId").text();
+                        var tId = $(this).find(".Id").text();
+                        if (tFourthCat == fourthItemCategoryId && tId == 0) {
+                            debugger
+                            var qty = Number($(this).find(".qty").text());
+                            TotalQty = TotalQty + qty;
+                        }
+                    });
+
+
+                    if (data != null) {
+                        $('#BaleQty').val(data.meters);
+                        $("#BaleBalance").val(data.metersBalance - TotalQty);
+                        $("#CheckBaleBalance").val(data.metersBalance);
+                        $('input.add-comma').commaTextbox();
+
+                        return false;
+                    } else {
+                        $('#BaleQty').val("");
+                        $("#BaleBalance").val("");
+                        $("#CheckBaleBalance").val("");
+                    }
+                });
+                $('#ItemId').val(0).trigger('change.select2');
+            })
+
+            GetRowFooter();
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function addItem() {
+            debugger;
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            var ItemId = $("#ItemId").find(":selected").val();
+            var ItemIdText = $("#ItemId").find(":selected").text();
+            var fourthItemCategoryId = $("#FourthCat").find(":selected").val();
+            var fourthItemCategoryText = $("#FourthCat").find(":selected").text();
+            var returnTypeId = $("#returnTypeId").find(":selected").val();
+            var returnTypeText = $("#returnTypeId").find(":selected").text();
+            var seasonId = $("#seasonId").find(":selected").val();
+            var seasonText = $("#seasonId").find(":selected").text();
+            var reasonTypeId = $("#reasonTypeId").find(":selected").val();
+            var reasonTypeText = $("#reasonTypeId").find(":selected").text();
+            var qty = Number($("#Qty").val());
+
+            if (fourthItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select fourth Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#FourthCat').focus();
+                });
+                return false;
+            }
+            if (qty == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter Qty",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Qty').focus();
+                });
+                return false;
+            }
+            if (ItemId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemId').focus();
+                });
+                return false;
+            }
+            if (reasonTypeId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Reason Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#reasonTypeId').focus();
+                });
+                return false;
+            }
+            if (returnTypeId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Return Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#returnTypeId').focus();
+                });
+                return false;
+            }
+            if (seasonId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Season!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#seasonId').focus();
+                });
+                return false;
+            }
+
+            var check = false;
+            $("#tblItem > tbody > tr").each(function () {
+                debugger
+                var tItemId = $(this).find(".ItemId").text();
+                if (tItemId == ItemId) {
+                    check = true;
+                    return false;
+                }
+            });
+            if (check == true) {
+                swal({
+                    icon: 'warning',
+                    text: "This item already selected!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemId').focus();
+                });
+                return false;
+            }
+            var Balance = Number($("#BaleBalance").val());
+            if (qty > Balance) {
+                swal({
+                    icon: 'warning',
+                    text: "Quantity is greater than balance!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Qty').focus();
+                });
+                return false;
+            }
+
+            item_data = '';
+
+            item_data = '';
+            item_data += '<tr>';
+            item_data += '<td class ="Id" hidden>0</td>';
+            item_data += '<td class ="fourthItemCategoryId" hidden>' + fourthItemCategoryId + '</td>';
+            item_data += '<td class ="fourthItemCategoryText">' + fourthItemCategoryText + '</td>';
+            item_data += '<td class ="ItemId" hidden>' + ItemId + '</td>';
+            item_data += '<td class ="Item">' + ItemIdText + '</td>';
+            item_data += '<td class ="qty text-right" >' + qty + '</td>';
+            item_data += '<td class ="returnTypeId" hidden>' + returnTypeId + '</td>';
+            item_data += '<td class ="returnTypeText">' + returnTypeText + '</td>';
+            item_data += '<td class ="seasonId" hidden>' + seasonId + '</td>';
+            item_data += '<td class ="seasonText">' + seasonText + '</td>';
+            item_data += '<td class ="reasonTypeId" hidden>' + reasonTypeId + '</td>';
+            item_data += '<td class ="reasonTypeText">' + reasonTypeText + '</td>';
+            item_data += '<td>';
+            item_data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            item_data += '</tr>';
+            $('#tblItem tbody').append(item_data);
+            $("#FourthCat").focus();
+
+            $('input.add-comma').commaTextbox();
+            ClearTextBox();
+            GetRowFooter();
+        }
+        function ClearTextBox() {
+            debugger;
+            $('#FourthCat').val(0).trigger('change.select2');
+            $('#ItemId').val(0).trigger('change.select2');
+            $('#returnTypeId').val(0).trigger('change.select2');
+            $('#seasonId').val(0).trigger('change.select2');
+            $('#reasonTypeId').val(0).trigger('change.select2');
+            $("#Qty").val("");
+            $("#BaleQty").val("");
+            $("#BaleBalance").val("");
+            $("#CheckBaleBalance").val("");
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+            GetRowFooter();
+            ClearTextBox();
+        };
+
+        function GetRowFooter() {
+            debugger
+            var TotalQty = 0;
+            var check = false;
+            var BaleBalance = $("#BaleBalance").val();
+            var CheckBaleBalance = $("#CheckBaleBalance").val();
+
+            $.each($("#tblItem tbody tr"), function () {
+                debugger;
+                var qty = Number($(this).find('.qty').text());
+                TotalQty = TotalQty + qty;
+
+                //if (TotalBales > checkBalance) {
+                //    swal({
+                //        icon: 'warning',
+                //        text: "Bale qty is greater than balance qty!",
+                //        closeModal: false
+                //    }).then(function () {
+                //        swal.close();
+                //        $('#bales').focus();
+                //    });
+                //    $(this).closest("tr").remove();
+                //    check = true;
+                //    return false;
+                //}
+            });
+
+            if (check == true) {
+                return false;
+            }
+
+            $('#TotalQty').val(TotalQty);
+            //$("#BaleBalance").val(CheckBaleBalance - TotalQty);
+
+            $.each($("#tblItem tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    "<td ></td>" +
+                    "<td style'text-aligin: right;'>Total:</td> " +
+                    "<td class='text-right TotalQuantity'>" + Number(TotalQty).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    " <td ></td> "
+                "</tr>"
+
+                $("#tblItem tfoot").append(row);
+            });
+
+        }
+
+        function submitdetails(form) {
+            debugger;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+
+            var itemDetails = [];
+            $.each($("#tblItem tbody tr"), function () {
+                itemDetails.push({
+                    Id: $(this).find('.Id').html(),
+                    FourthItemCategoryId: $(this).find('.fourthItemCategoryId').html(),
+                    ItemId: $(this).find('.ItemId').html(),
+                    ReturnTypeId: $(this).find('.returnTypeId').html(),
+                    SeasonId: $(this).find('.seasonId').html(),
+                    ReasonTypeId: $(this).find('.reasonTypeId').html(),
+                    Qty: $(this).find('.qty').html()
+                    
+                });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#packingDetail").val(model);
+
+            if (itemDetails.length <= 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter At Least One Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#FourthCat').focus();
+                });
+                return false;
+            }
+            if ($("#CustomerId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the Customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if ($("#SRIId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter Select the SRI No.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SRIId').focus();
+                });
+                return false;
+            }
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+    </script>
+}

@@ -1,0 +1,781 @@
+﻿@model APPurchaseReturnViewModel
+@using Numbers.Areas.AR.Controllers
+@{
+    ViewData["Title"] = "Create Purchase Return";
+    ViewData["CurrentPage"] = "Purchase Return";
+}
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        /*This class adds loader to paragraph bofore ajax request*/
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid blue;
+            border-right: 16px solid green;
+            border-bottom: 16px solid red;
+            border-left: 16px solid pink;
+            width: 120px;
+            height: 120px;
+            margin-left: 40%;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+
+        .on-focus-change-color:focus {
+            background-color: palegreen;
+        }
+
+        @@-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .withscroll {
+            width: 1500px;
+            overflow-x: scroll;
+            white-space: nowrap;
+        }
+
+        .t td {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+        #del {
+            margin-top: -11px;
+            margin-bottom: -7px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="Form" method="post" asp-action="Create" asp-controller="PurchaseReturn">
+                    <input asp-for="Id" type="hidden" />
+                    <input value="@ViewBag.Mode" id="mode" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                @if (ViewBag.ReturnMaxNo != null)
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="ReturnNo"></label>
+                                            <div class="input-group">
+                                                <input class="form-control" readonly tabIndex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="ReturnNo"></label>
+                                            <div class="input-group">
+                                                <input asp-for="ReturnNo" value="@(TempData["ReturnNo"]==null?1:TempData["ReturnNo"])" readonly data-validation="required" class="form-control" tabIndex="-1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="col-lg-3 col-sm-4">
+                                    <div class="form-group">
+                                        <label asp-for="ReturnDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="ReturnDate" autofocus data-validation="required" data-validation-error-msg="Return Date is required" data-validation-error-msg-container="#rDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.ReturnDate.ToString(CommonHelper.DateFormat))" />
+                                        </div>
+                                        <p id="rDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="WareHouseId"></label>
+                                        <Select id="WareHouseId" asp-for="WareHouseId" asp-items="@ViewBag.WareHouse" data-validation="required" data-validation-error-msg="Ware house is required" data-validation-error-msg-container="#wareHouse" class="form-control">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                        <p id="wareHouse"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="ReferenceNo"></label>
+                                        <input asp-for="ReferenceNo" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="SupplierId"></label>
+                                        @if (Model != null)
+                                        {
+                                            <Select id="SupplierId" asp-for="SupplierId" asp-items="ViewBag.Supplier" data-validation="required" data-validation-error-msg="Supplier is required" data-validation-error-msg-container="#supplier" class="form-control">
+                                                <option selected disabled>
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                        }
+                                        else
+                                        {
+                                            <Select id="SupplierId" asp-for="SupplierId" data-validation="required" data-validation-error-msg="Supplier is required" data-validation-error-msg-container="#supplier" class="form-control">
+                                                <option selected disabled>
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                        }
+                                        <p id="supplier"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 col-sm-6">
+                                    <div class="form-group">
+                                        <label asp-for="Remarks"></label>
+                                        <textarea asp-for="Remarks" style="resize:none;" rows="2" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                        <div class="col-lg-2 col-sm-12 hide">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Currency Exchange
+                                </div>
+                                <div class="panel-body">
+                                    <label asp-for="Currency"></label>
+                                    <select asp-items="@(new SelectList(Model.Currencies,"Id","Symbol"))" asp-for="Currency" class="form-control" name="Currency">
+                                    </select>
+                                    <p id="currency"></p>
+                                    <label asp-for="CurrencyExchangeRate"></label>
+                                    <input asp-for="CurrencyExchangeRate" placeholder="1.00" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right mb-3">
+                        <button type="button" tabindex="0" id="add-purchaseReturn-popUp" class="btn btn-success" onclick="getPurchaseInvoicesToReturn();">Get items from Invoice</button>
+                        @*<a id="add-purchaseReturn-item" class="btn btn-success add-purchaseReturn-item"><i class="fa fa-plus"></i></a>
+                            </div>*@
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped dataTables-example" id="PurchaseItemDetail">
+                                <thead>
+                                    <tr>
+                                        <th style="width:27%">Item</th>
+                                        @if (ViewBag.Responsibility == "Yarn Purchase")
+                                        {
+                                            <th style="width:9%">Brand</th>
+                                        }
+                                        <th style="width:5%">Pur. No.</th>
+                                        <th style="width:6%">Pur. Qty</th>
+                                        <th style="width:6%">Qty</th>
+                                        <th style="width:6%">Rate</th>
+                                        <th style="width:6%">Total</th>
+                                        <th style="width:10%">Tax</th>
+                                        <th style="width:8%">Tax%</th>
+                                        <th style="width:8%">Tax Amt</th>
+                                        <th style="width:8%">Line Total</th>
+                                        <th style="width:10%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.APPurchaseItemList != null)
+                                    {
+                                        NumbersDbContext _dbcontext = new NumbersDbContext();
+                                        ApiController brand = new ApiController(_dbcontext);
+                                        foreach (var item in Model.APPurchaseItemList)
+                                        {
+                                            var brnd = brand.GetBrand(item.BrandId);
+                                            <tr>
+                                                <td hidden><input name="PRItemId" value="@item.Id" /></td>
+                                                <td hidden><input name="PurchaseInvoiceItemId" class="PurchInvoiceItemId" value="@item.ReturnInvoiceItemId" /></td>
+                                                <td>
+                                                    <select disabled asp-for="@item.ItemId" class="form-control ItemSelect2" id="ItemId" asp-items="@ViewBag.ItemCategory">
+                                                        <option value="0" selected>Select...</option>
+                                                    </select>
+                                                </td>
+                                                <td hidden><input name="ItemId" value="@item.ItemId" /></td>
+                                                @if (ViewBag.Responsibility == "Yarn Purchase")
+                                                {
+                                                    <td><input style='background-color: #eee;' name='Brand' value='@brnd' type='text' class='text-left form-control' readonly /></td>
+                                                }
+                                                <td><input style='background-color: #eee;' name="InvoiceNo" value="@item.ReturnPurchaseNo" class="text-right" readonly /></td>
+                                                <td><input style='background-color: #eee;' name="InvoiceQty" value="@item.InvoiceQty" class="text-right PQty add-comma" readonly /></td>
+                                                <td><input name="Qty" onchange='CalculateTotal($(this))' class="text-right Qty add-comma" value="@item.Qty" /></td>
+                                                <td hidden><input style='background-color: #eee;' value="" name="UOM" readonly /></td>
+                                                <td><input value="@item.Rate" name="Rate" class="text-right Rate add-comma" /></td>
+                                                <td><input style='background-color: #eee;' value="@item.Total" name="Total_" class="text-right Total add-comma" readonly /></td>
+                                                <td>
+                                                    <select asp-for="@item.TaxId" disabled asp-items="@ViewBag.Tax" class="SelectTax form-control" onchange="Calculation($(this))">
+                                                        <option value="0" selected>Select...</option>
+                                                    </select>
+                                                    @*<select class="SelectTax" name="TaxId" onchange="Calculation($(this))">
+                                                            <option selected disabled>Select...</option>
+                                                        </select>*@
+                                                </td>
+                                                <td hidden>
+                                                    <select asp-for="@item.TaxId" name="TaxId" asp-items="@ViewBag.Tax" class="SelectTax form-control" onchange="Calculation($(this))">
+                                                        <option value="0" selected>Select...</option>
+                                                    </select>
+                                                    @*<select class="SelectTax" name="TaxId" onchange="Calculation($(this))">
+                                                            <option selected disabled>Select...</option>
+                                                        </select>*@
+                                                </td>
+                                                <td><input style='background-color: #eee;' name="SalesTaxPercentage" value="@item.SalesTaxPercentage" class="text-right SaleTaxPercentage" readonly /></td>
+                                                <td><input style='background-color: #eee;' name="SalesTaxAmount" value="@item.SalesTaxAmount" class="text-right TotalTax add-comma" readonly /></td>
+                                                <td><input style='background-color: #eee;' name="LineTotal" value="@item.LineTotal" class="text-right GrandTotal add-comma" readonly /></td>
+                                                <td hidden><input name="Item" class="itemID" value=" + data.itemId+" /></td>
+
+                                                <td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    @* <div class="ibox-title">
+                            <h5 class="font-bold">Return Items</h5>
+                        </div>*@
+                    @*<p id="p"></p>*@
+
+
+                    <!--Page level calculations like total amount  etc-->
+                    <div class="ibox" hidden>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input asp-for="Total" name="Total" id="Total" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                    @*<div class="col-lg-2"><label>Total Discount Amount:</label> <input asp-for="TotalDiscountAmount" name="TotalDiscountAmount" id="TotalDiscountAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1"/></div>*@
+                                    <div class="col-lg-2 col-sm-3"><label>Total Tax Amount:</label> <input asp-for="TotalSaleTaxAmount" name="TotalSaleTaxAmount" id="TotalSaleTaxAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+                    <!-- Modal -->
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <div class="modal fade" id="returnModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Purchase Return Invoices</h4>
+                                    </div>
+                                    <div class="modal-body PopupHeight">
+                                        <div class="row text-center">
+                                            <div class="col-md-12">
+                                                <div class="ibox ">
+                                                    <p id="itemTable"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    <div class="text-left mb-3">
+                        <a asp-controller="PurchaseReturn" asp-action="Index" class="btn btn-white">List</a>
+                        @if (Model.Status != "Approved")
+                        {
+                            <button id="SaveBtn" type="submit" onclick="return Validate()" class="btn btn-primary">@ViewBag.EntityState</button>
+                        }
+                        else
+                        {
+                            <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                        }
+                        <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        <input type="hidden" id="Responsibility" value="@ViewBag.Responsibility" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+    @*<script src="~/js/jquery-3.1.1.min.js"></script>*@
+    <script src="~/js/AP/purchaseReturnItems.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('input.add-comma').commaTextbox();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            GetRowFooter();
+            $('#SupplierId').change(function () {
+                var supplierId = $(this).find(":selected").val();
+                if (supplierId != 0) {
+                    $("#PurchaseItemDetail > tbody > tr").remove();
+                    GetRowFooter();
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+    $.validate();
+     $(function () {
+        // bind customer select2
+         if ($("#mode").val() != "Update") {
+             var select2 = $('#SupplierId');
+            bindSelect2(select2, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', @Model.SupplierId);
+         }
+
+     });
+
+
+
+    @*$('#SupplierId').select2({
+        placeholder: 'Select a supplier',
+        width: 'resolve',
+        ajax: {
+            url: '/AP/Api/GetSuppliers',
+            dataType: 'json',
+            delay: 250,
+            placeholder: {
+                id: '-1', // the value of the option
+                text: 'Select an option'
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        }
+    });
+    if ("@ViewBag.Id" != null)
+        {
+            var id = "@ViewBag.Id";
+        }
+    var accountSelect = $('#SupplierId');
+    $.ajax({
+        type: 'GET',
+        url: '/AP/Api/GetSupplier?id=' + id
+    }).then(function (data) {
+        var option = new Option(data.text, data.id, true, true);
+        accountSelect.append(option).trigger('change');
+        accountSelect.trigger({
+            type: 'select2:select',
+            params: {
+                data: data
+            }
+        });
+    });*@
+
+    //for pop-up modal
+    var skipIds = [];//skip from loading table rows
+    function getPurchaseInvoicesToReturn() {
+        var supplierId = $('#SupplierId').val();
+        var counter = 1;
+        var skipId = [];
+        $("#PurchaseItemDetail > tbody > tr").each(function () {
+            debugger
+            skipId.push($(this).find(".PurchInvoiceItemId").val());
+        });
+
+
+
+        // AJAX request
+        $.ajax({
+            url: '/AP/PurchaseReturn/GetInvoicesToReturnBySupplierId',
+            type: 'POST',
+            method:'POST',
+            data: { id: supplierId, skipIds: skipId },
+            success: function (response) {
+                $('#itemTable').html(response);
+                // Display Modal
+                $('#returnModal').modal('show');
+            },
+            fail: function (response) {
+                // console.log('message from fail...', response.responseText);
+            }
+        });
+        counter++;
+    }
+    $('#button').click(function () {
+    var table = document.getElementById('invoiceTable');
+    var arrayOfValues = [];
+    arrayOfValues = $('input:checkbox:checked', table).map(function () {
+        return $(this).closest('tr').find('td').html();
+    });
+    var arrLength = arrayOfValues.length;
+    var values = [];
+    for (i = 0; i < arrLength; i++) {
+        values.push(parseInt(arrayOfValues[i]));
+    }
+    for (i = 0; i < arrLength; i++) {
+        $.ajax({
+            type: 'GET',
+            async: false,
+            url: '/AP/PurchaseReturn/GetPurchaseInvoiceItems?purchaseInvoiceItemId=' + parseInt(values[i]),
+            beforeSend: function () {
+                @*skipIds.push(values[i]);
+                $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');*@
+                $('#button').prop('disabled', true);
+            },
+        }).done(function (data) {
+            $('#p').append(data);
+            debugger
+            var ItemList = data.itemList;
+            var TaxList = data.taxList;
+            var row = "<tr>";
+            row += "<td hidden><input name='PRItemId' value=" + data.prItemId + " /></td>";
+            row += "<td hidden><input name='PurchaseInvoiceItemId' class='PurchInvoiceItemId' value=" + data.purchaseInvoiceItemId + "  /></td>";
+               /* '<td><select name="ItemId" class="select-item SelectItem"><option selected="selected"> Select... </option></select></td>' +*/
+            row += '<td><select disabled class="select-item SelectItem form-control ItemSelect2"><option disabled selected="selected"> Select... </option></select></td>';
+            row += '<td hidden><select name="ItemId" class="select-item SelectItem form-control ItemSelect2"><option disabled selected="selected"> Select... </option></select></td>';
+
+            if (data.brandId != 0) {
+                row += "<td hidden> <input  name='BrandId' type='hidden' class='form-control BrandId'  value='" + data.brandId + "' /></td>";
+                row += "<td><input class='form-control'  value='" + data.brandName + "' tabindex='-1' readonly /></td>";
+            }
+
+            row += "<td><input name='InvoiceNo' value=" + data.invoiceNo + "  class='text-right' tabindex='-1' readonly style='background-color: #eee;'/></td>";
+            row += "<td><input  name='InvoiceQty' tabindex='-1' value=" + data.invoiceQty + "   class='text-right PQty add-comma'  readonly style='background-color: #eee;' /></td>";
+            row += "<td><input  name='Qty' onchange='CalculateTotal($(this))' class='text-right Qty add-comma' value=" + data.invoiceQty + " /></td>";
+            row += "<td hidden><input class='CheckQty' value='" + data.invoiceQty + "' /></td>";
+            row += "<td hidden><input value=" + data.uom + " name='UOM' readonly style='background-color: #eee;' /></td>";
+            row += "<td><input  value=" + data.rate + " name='Rate' class='text-right Rate add-comma' onchange='Calculation($(this))' /></td>";
+            row += "<td hidden><input class='CheckRate' value='" + data.rate + "' /></td>";
+            row += "<td><input tabindex='-1' value=" + (data.rate * data.invoiceQty) + " name='Total_' class='text-right Total add-comma' readonly  style='background-color: #eee;' /></td>";
+            row += "<td><Select value=" + data.taxId + " class='SelectTax form-control' disabled onchange='Calculation($(this))' ></Select></td>";
+            row += "<td hidden><input name='TaxId' value='" + data.taxId + "'  /></td>";
+            row += "<td><input  tabindex='-1' name='SalesTaxPercentage' value=" + data.salesTaxPercentage + " class='text-right SaleTaxPercentage' readonly style='background-color: #eee;' /></td>";
+            row += "<td><input name='SalesTaxAmount' tabindex='-1' value=" + data.salesTaxAmount + " class='text-right TotalTax add-comma' readonly  style='background-color: #eee;'/></td>";
+            row += "<td hidden><input class='CheckTotalTax' value='" + data.salesTaxAmount + "' /></td>";
+            row += "<td><input name='LineTotal' tabindex='-1' value=" + data.lineTotal + " class='text-right GrandTotal add-comma' readonly style='background-color: #eee;' /></td>";
+            row += "<td hidden><input class='CheckGrandTotal' value='" + data.lineTotal + "' /></td>";
+            row += "<td hidden><input  class='itemID' value=" + data.itemId + "  /></td>";
+            row += '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+            row += "</tr>";
+            $('#PurchaseItemDetail').append(row);
+            $('input.add-comma').commaTextbox();
+
+            GetRowFooter();
+
+            $('#button').prop('disabled', false);
+            $('#returnModal').modal("hide");
+            var table = document.getElementById("PurchaseItemDetail");
+            var row = table.rows[table.rows.length - 2]
+            for (var j = 0; j < TaxList.length; j++) {
+                debugger;
+                optionText = TaxList[j].name;
+                optionValue = TaxList[j].id;
+                if (data.brandId != 0) {
+                    $(row).find('td:eq(14)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                } else {
+                    $(row).find('td:eq(12)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                }
+                //$(row).find('td:eq(10)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+            }
+            for (var i = 0; i < ItemList.length; i++) {
+                debugger;
+                optionText = ItemList[i].name;
+                optionValue = ItemList[i].id;
+                $(row).find('td:eq(2)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+                $(row).find('td:eq(3)').find('select').append('<option value=' + optionValue + '>' + optionText + '</option>');
+            }
+            loadItemCategory();
+        }).fail(function (error) {
+            //console.log(error.responseText);
+        });
+    }
+    });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#WareHouseId").select2();
+            $("#SupplierId").select2();
+           // $('input.add-comma').commaTextbox();
+        loadCategory();
+    var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+        var counter = 1;
+        if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            } else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+        }
+    $('#add-purchaseReturn-item').on('click', function () {
+        $.post("/AP/PurchaseReturn/PartialPurchaseReturnItems", { counter: counter }
+        ).done(function (data) {
+            $("#p").append(data);
+            counter++;
+            }).fail(function (data) {
+               // console.log(data.responseText);
+            });
+    });
+     lockOutInputs(@ViewBag.Counter);
+});
+    function deleterow(row) {
+        row.closest("tr").remove();
+        GetRowFooter();
+    }
+    function loadCategory() {
+        debugger;
+        $.each($("#PurchaseItemDetail tbody tr"), function () {
+            var itemId = Number($(this).find('.itemID').val());
+            if (itemId != 0) {
+                $(this).find('.SelectItem').val(itemId);
+            }
+        });
+    }
+    function loadItemCategory() {
+        debugger;
+        $.each($("#PurchaseItemDetail tbody tr"), function () {
+            var itemId = Number($(this).find('.itemID').val());
+            if (itemId != 0) {
+                $(this).find('.SelectItem').val(itemId);
+                }
+            });
+            GetRowFooter();
+    }
+    function GetRowFooter() {
+        debugger;
+        var Total = 0;
+        var Totalax = 0;
+        var GrandTotal = 0;
+        var responsibility = $("#Responsibility").val();
+        $.each($("#PurchaseItemDetail tbody tr"), function () {
+            debugger;
+            var total = parseFloat($(this).find('.Total').val().replace(/,/g, ""))||0.0;
+            var totalTax = parseFloat($(this).find('.TotalTax').val().replace(/,/g, "")) || 0.0;
+            var grandTotal = parseFloat($(this).find('.GrandTotal').val().replace(/,/g, "")) || 0.0;
+            Total = Total + total;
+            Totalax = Number(Totalax + totalTax);
+            GrandTotal = Number(GrandTotal + grandTotal);
+        });
+        @*
+            $('#NetPayable').val(Total);
+        $('#Total1').val(Total);*@
+
+    $.each($("#PurchaseItemDetail tfoot tr"), function () {
+            debugger;
+        $(this).closest("tr").remove();
+        var row = "";
+        row += "<tr style='font-weight: bold'>";
+        row += "<td ></td>";
+        if (responsibility == "Yarn Purchase") {
+            row += "<td ></td>";
+        }
+        row += "<td ></td>";
+        row += "<td ></td>";
+        row += "<td ></td>";
+        row += "<td ></td> ";
+        row += "<td class='text-right'>" + Total.toFixed(2) + "</td> ";
+        row += "<td ></td> ";
+        row += "<td ></td> ";
+        row += "<td class='text-right'>" + parseFloat(Totalax).toFixed(2) + "</td> ";
+        row += "<td class='text-right'>" + parseFloat(GrandTotal).toFixed(2) + "</td> ";
+        row += " <td ></td> ";
+        row += "</tr>";
+            $("#PurchaseItemDetail tfoot ").append(row);
+    });
+        $("#Total").val(Total);
+        $("#TotalSaleTaxAmount").val(Totalax);
+        $("#GrandTotal").val(GrandTotal);
+
+
+    }
+    function Calculation(row) {
+        debugger;
+        var id = $(row).closest("tr").find(".SelectTax").val()
+        var TotalAmt = parseFloat($(row).closest("tr").find(".Total").val()) || 0.0;
+         $.ajax({
+             url:'/AR/Api/GetTaxValues',
+             dataType: "json",
+             data: { "id": id },
+             method: 'GET',
+             success: function (data) {
+                 var salesTaxPercentage = parseFloat(data.salesTaxPercentage)||0.0;
+                 var TaxAmt = parseFloat((salesTaxPercentage / 100) * TotalAmt)||0.0;
+                 var GrandTotal = parseFloat(TotalAmt + TaxAmt)||0.0;
+                 $(row).closest("tr").find(".SaleTaxPercentage").val(salesTaxPercentage)
+                 $(row).closest("tr").find(".TotalTax").val(Number(TaxAmt).toFixed(2))
+                 $(row).closest("tr").find(".GrandTotal").val(GrandTotal)
+                 GetRowFooter();
+             },
+             error: function (err) {
+                 console.log(err);
+                 alert(err);
+             }
+         });
+    }
+    function CalculateTotal(row) {
+        debugger;
+        var qty = parseFloat($(row).closest("tr").find(".Qty").val().replace(/,/g, "")) || 0.0;
+        var CheckGrandTotal = parseFloat($(row).closest("tr").find(".CheckGrandTotal").val().replace(/,/g, "")) || 0.0;
+        var CheckQty = parseFloat($(row).closest("tr").find(".CheckQty").val().replace(/,/g, "")) || 0.0;
+        var CheckRate = parseFloat($(row).closest("tr").find(".CheckRate").val().replace(/,/g, "")) || 0.0;
+        var CheckTotalTax = parseFloat($(row).closest("tr").find(".CheckTotalTax").val().replace(/,/g, "")) || 0.0;
+        var purchasQty = parseFloat($(row).closest("tr").find(".PQty").val().replace(/,/g, ""))||0.0;
+        if (qty <= purchasQty) {
+            var rate = parseFloat($(row).closest("tr").find(".Rate").val().replace(/,/g, "")) || 0.0;
+            $(row).closest("tr").find(".Total").val(qty * rate);
+            var total = parseFloat($(row).closest("tr").find(".Total").val()) || 0.0;
+            var salesTaxPercentage = parseFloat($(row).closest("tr").find(".SaleTaxPercentage").val());
+            var taxAmt = parseFloat((salesTaxPercentage / 100) * total).toFixed(2) || 0.0;
+            $(row).closest("tr").find(".TotalTax").val(taxAmt)
+            var TaxAmt = parseFloat($(row).closest("tr").find(".TotalTax").val()) || 0.0;
+            $(row).closest("tr").find(".GrandTotal").val(total + TaxAmt);
+            GetRowFooter();
+        } else {
+            $(row).closest("tr").find(".Qty").val(CheckQty);
+            $(row).closest("tr").find(".TotalTax").val(CheckTotalTax);
+            $(row).closest("tr").find(".GrandTotal").val(CheckGrandTotal);
+            $(row).closest("tr").find(".Total").val(CheckQty * CheckRate);
+            GetRowFooter();
+            swal("", "Qty must be less than or equal to Pur.Qty", "warning");
+
+        }
+    }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('input.add-comma').commaTextbox();
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+        if (items != null) {
+            for (i = 0; i < items.length; i++) {
+                $.ajax({
+                    type: 'GET',
+                    async:false,
+                    url: '/AP/PurchaseReturn/GetReturnItems',
+                    data: { id: items[i].Id, itemId: items[i].ItemId },
+                    beforeSend: function () {
+                        toggleLoader(true);
+                    }
+                }).done(function (data) {
+                    toggleLoader(false);
+                    $('#p').append(data);
+                });
+            }
+        }
+    });
+
+    //disabled every fiels after Approved
+         $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+                $('#add-purchaseReturn-item').hide();
+                $('#add-purchaseReturn-popUp').hide();
+            }
+         });
+        $("#Form").on("submit", function () {
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+        });
+        function Validate() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            var checkQty = false;
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var length = $("#PurchaseItemDetail > tbody > tr").length;
+            if (length == 0) {
+                swal("", "Item must be enter!", "warning");
+                return false;
+            }
+            $("#PurchaseItemDetail > tbody > tr").each(function () {
+                debugger
+                var qty = $(this).find(".Qty").val();
+                if (qty == 0) {
+                    checkQty = true;
+                }
+                return false;
+            });
+            if (checkQty == true) {
+                debugger
+                swal("", "Please enter the quantity!", "warning");
+                return false;
+            }
+        }
+    </script>
+
+}

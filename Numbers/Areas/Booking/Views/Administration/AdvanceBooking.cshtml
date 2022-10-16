@@ -1,0 +1,181 @@
+﻿@model BkgAdvanceBooking
+@{
+    var type = ViewBag.Type;
+    ViewData["Title"] = "AdvanceBookingPurchase";
+    ViewData["CurrentPage"] = type;
+}
+
+<div class="row">
+    <div class="col-md-10">
+        <div class="ibox-title">
+            <h5>@type</h5>
+        </div>
+        <div class="ibox-content">
+            <form id="myForm" asp-controller="Administration" method="post">
+                <input asp-for="Id" type="hidden" />
+                @if (type == "Advance Booking Purchase")
+                {
+                    <input asp-for="Type" type="hidden"  value="@type" />
+                }
+                else if (type == "Advance Booking Sales")
+                {
+                    <input asp-for="Type" type="hidden" value="@type" />
+                }
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Select Booking#</label>
+                            <div class="col-lg-4">
+                                <select id="BookingNumber" class="chosen-select" onchange="checkBookingNo();" data-validation="required number" data-validation-error-msg="Booking Number is Required" data-validation-error-msg-container="#container">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                            <span id="container"></span>
+
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div id="booking" class="col-md-12">
+                        <div class="col-md-2">
+                            <label>Booking#</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input asp-for="BookingNo" data-validation="" class="form-control" />
+
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group" id="data_1">
+                            <label asp-for="BookingDate" class="col-lg-2 control-label"></label>
+                            <div class="col-lg-4">
+
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input asp-for="BookingDate" type="text" data-validation="" class="form-control custom-date-picker" value="@(CommonHelper.CurrentDate.ToString())" />
+                                    <span asp-validation-for="BookingDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div id="reference" class="col-md-12">
+                        <div class="col-md-2">
+                            <label>Payment</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input asp-for="PaymentAmount" data-validation="" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div id="customer" class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">C.N.I.C #</label>
+                            <div class="col-lg-4">
+                                <select asp-for="CustomerId" class="chosen-select form-control" data-validation="required number" data-validation-error-msg="CNIC is Required" data-validation-error-msg-container="#customerContainer">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                            <span id="customerContainer"></span>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-2">
+                                <label>Remarks</label>
+                            </div>
+                            <div class="col-md-10">
+                                <textarea asp-for="Remarks" data-validation="" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-4 col-md-offset-2">
+                                <input asp-action="AdvanceBooking" type="submit" class="btn btn-primary" value="Update" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{ 
+    <script>
+        $.validate();
+        $(function () {
+            $('#BookingNumber').select2({
+                ajax: {
+                    url: '/Booking/Api/GetVehiclesById',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Booking Number',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        $(function () {
+            $('#CustomerId').select2({
+                ajax: {
+                    url: '/Booking/Api/GetCustomers',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Customer',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+        })
+        function checkBookingNo() {
+            var bkgId = $('#BookingNumber').val();
+           // $('#container').html(bkgId);
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/Api/GetBookingInformation',
+                data: {bkgId }
+            }).then(function (data) {
+                if (data) {
+                    $('#Id').val(data.id);
+                    $('#BookingNo').val(data.bookingNo);
+                    //$('#BookingDate').val(data.bookingDate);
+                    $("#BookingDate").val(dateFormat(data.bookingDate));
+
+                    $('#PaymentAmount').val(data.paymentAmount);
+                }
+                else {
+                    $('#container').html('Data Not found');
+                }
+            })
+        }
+    </script>
+}

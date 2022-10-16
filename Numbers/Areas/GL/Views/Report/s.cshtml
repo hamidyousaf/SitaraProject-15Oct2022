@@ -1,0 +1,215 @@
+﻿@{
+    ViewData["Title"] = "Trial Balance 123";
+    ViewData["CurrentPage"] = "Trial Balance 123";
+}
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Trial Balance by Date</h5>
+            </div>
+            <div class="ibox-content">
+    <form class="form-horizontal" method="post" asp-action="Create" asp-controller="Report" >         
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input class="form-control radio-primary" name="AccountSelection"  data-validation="required" type="radio" id="AllAccount" value="All" />
+                                    <label>All Account</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input class="form-control radio-primary" name="AccountSelection"  data-validation="required" type="radio" id="AccountSelection" value="Selection" />
+                                    <label>Account Selection</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">                                                              
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="chosen-select" id="StartAccount" data-validation="required"  name="StartAccount">
+                                        <option>Please select account...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ending Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="chosen-select" id="EndingAccount" data-validation="required" name="EndingAccount">
+                                        <option>Please select account...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">                  
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="submit"  id="saveReport" value="Preview Report" class="btn btn-primary"  />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@section customJS{
+    <script>
+        //Select 2 for account selection
+        $('#StartAccount').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/GL/ChartofAccount/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        $('#EndingAccount').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/GL/ChartofAccount/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        $('#saveReport123').click(function () {
+            allAcc = document.getElementById("AllAccount").checked;
+            accSelect = document.getElementById("AccountSelection").checked;
+            //var parameters[];
+
+
+
+
+            if (allAcc == false && accSelect == false) {
+                alert("Please Select one option Either 'All Account' or 'Account Selection'");
+            }
+            else if (allAcc == true) {
+                var startAccount = @ViewBag.StartAccount;
+                var endAccount = @ViewBag.EndingAccount;
+                var sDate = $('#StartDate').val();
+                var eDate = $('#EndDate').val();
+            }
+            else if (accSelect == true) {
+                var startAccount = $("#StartAccount").val();
+                var endAccount = $("#EndingAccount").val();
+                var sDate = $("#StartDate").val();
+                var eDate = $("#EndDate").val();
+            }
+            $.ajax({
+                url:  '/GL/Report/Create',
+                data: { 'startAccount': startAccount, 'endingAccount': endAccount, 'startDate': sDate, 'endingDate': eDate },
+                type: "POST",
+                cache: false,
+                success: function (savingStatus) {
+                    //$("#hdnOrigComments").val($('#txtComments').val());
+                    //$('#lblCommentsNotification').text(savingStatus);
+                    alert("Report Parameters saved successsfully...");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    //$('#StartAccount').text("Error encountered while saving the comments.");
+                alert("Report Parameters saved successsfully...");
+                }
+            });
+        });
+        //Query string
+        @*function generateReport() {        
+            allAcc = document.getElementById("AllAccount").checked;
+            accSelect = document.getElementById("AccountSelection").checked;
+            if (allAcc == false && accSelect == false) {
+                alert("Please Select one option Either 'All Account' or 'Account Selection'");
+            }
+            else if (allAcc == true) {  
+             
+                var startAccount = @ViewBag.StartAccount;
+                var endAccount = @ViewBag.EndingAccount;
+                var startDate = $("#StartDate").val();
+                var endDate = $("#EndDate").val();
+                var reportURL = "http://localhost:53525/ReportViewer?Report=TrialBalance";       
+                //   reportURL += "&AllAccount=" + allAcc;
+                //reportURL += "&AccountSelection=" + accSelect;
+                reportURL += "&StartAccount=" + startAccount;
+                reportURL += "&EndingAccount=" + endAccount;
+                reportURL += "&StartDate=" + startDate;
+                reportURL += "&EndDate=" + endDate;
+                window.open(reportURL, "_blank");
+            }
+            //else if (accSelect == true && startAccount == undefined)
+            //{
+            //    alert(startAccount);
+            //}
+            else {              
+                var startAccount = $("#StartAccount").val();
+                var endAccount = $("#EndingAccount").val();              
+                var startDate = $("#StartDate").val();
+                var endDate = $("#EndDate").val();
+                var reportURL = "http://localhost:53525/ReportViewer?Report=TrialBalance";
+                //reportURL += "&AccountSelection=" + accSelect;
+                //reportURL += "&AllAccount=" + allAcc;
+                reportURL += "&StartAccount=" + startAccount;
+                reportURL += "&EndingAccount=" + endAccount;
+                reportURL += "&StartDate=" + startDate;
+                reportURL += "&EndDate=" + endDate;
+                window.open(reportURL, "_blank");
+            }           
+        }*@
+        //Add Data Function   
+        
+        $("#AllAccount").click(function () {           
+                $("#StartAccount").prop("disabled", true);
+                $("#EndingAccount").prop("disabled", true);          
+        });
+        $("#AccountSelection").click(function () {            
+                $("#StartAccount").prop("disabled", false);
+                $("#EndingAccount").prop("disabled", false);           
+        });
+    </script>   
+}

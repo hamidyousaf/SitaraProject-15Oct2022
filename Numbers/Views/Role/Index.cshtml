@@ -1,0 +1,55 @@
+﻿@model IEnumerable< Numbers.Entity.ViewModels.RoleViewModel>
+
+
+@{
+    ViewData["Title"] = "List of Roles";
+    ViewData["CurrentPage"] = "User Roles";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                @*<h5>List of Roles</h5>*@
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-action="CreateRole"><strong>Create New Role</strong></a>
+                    </div>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.RoleName)
+                                </th>
+
+                                <th>
+                                    Assign Role
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.RoleName)
+                                    </td>
+                                    <td>
+                                        @*<a  asp-action="EditRegisteredUser" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit"></i></a>*@
+                                        <a asp-controller="Role" asp-action="AssignRole" asp-route-id="@item.RoleId" class="btn btn-sm btn-primary m-t-n-xs"><i class="fa fa-user" title="User permission"></i></a>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

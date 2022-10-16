@@ -1,0 +1,433 @@
+﻿@model Numbers.Entity.ViewModels.GRMendingViewModel
+
+@{
+    ViewData["Title"] = "Create Greige Purchase Contract";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+    var weavingContractNo = "";
+    var purchaseContractNo = "";
+    var contractQuality = "";
+    var loomQuality = "";
+    @if (Model.GRMending.Id != 0)
+     {
+        weavingContractNo = Model.WeavingContract != null ? Model.WeavingContract.TransactionNo.ToString() : "";
+        purchaseContractNo = Model.PurchaseContract != null ? Model.PurchaseContract.ContractNo.ToString() : "";
+
+        contractQuality = Model.PurchaseContract != null ? Model.PurchaseContract.ContractGRQuality.Description.ToString() : Model.WeavingContract.GreigeQuality.Description.ToString();
+        loomQuality = Model.PurchaseContract != null ? Model.PurchaseContract.PurchaseGRQuality.Description.ToString() : Model.WeavingContract.GreigeQualityLoom.Description.ToString();
+    }
+}
+@section customCSS{
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input:not([type='checkbox']) {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form asp-controller="Mending" asp-action="Create" method="post" onsubmit="return OnSubmit($(this)); ">
+                    <input asp-for="GRMending.Id" hidden />
+                    <div class="row">
+                        <input hidden />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRMending.TransactionNo"></label>
+                                @if (Model.GRMending.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" asp-for="GRMending.TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label asp-for="GRMending.TransactionDate"></label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input readonly  tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="GRMending.TransactionDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="GRMending.GRIGPId"></label>
+                                <select readonly disabled asp-for="GRMending.GRIGPId" class="chosen-select form-control" id="IGPId" asp-items="@Model.InwardGatePassLOV">
+                                    <option value="0" disabled >Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Weaving Contract # </label>
+                                <input  type="text" id="WeavingContract" value="@weavingContractNo" class="form-control" tabindex="-1" readonly />
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Purchase Contract #</label>
+                                <input  type="text" id="PurchaseContract" value="@purchaseContractNo" class="form-control" tabindex="-1" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Greige Received Quality Information</h2>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Contract Greige Quality</label>
+                                <input type="text" tabindex="-1" value="@contractQuality" id="GreigeQuality" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label">On Loom Greige Quality</label>
+                                <input  type="text" tabindex="-1" id="LoomQuality" value="@loomQuality" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Received Quantity</label>
+                                <input readonly type="text" id="ReceivedQuantity" asp-for="GRMending.ReceivedQuantity" value="@Model.GRMending.ReceivedQuantity" class="form-control" tabindex="-1" readonly />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Lot #</label>
+                                <input readonly type="text" id="LotNo"asp-for="GRMending.LotNo" value="@Model.GRMending.LotNo" class="form-control" tabindex="-1" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2 style="font-weight:bold;">Mending Information</h2>
+                        </div>
+                        <div class="col-lg-12 col-sm-12">
+                            <div class="container-fluid table-responsive">
+                                <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th style="width: 10%">Sr #</th>
+                                            <th style="width: 15%">Received Qty</th>
+                                            <th style="width: 15%">Rejected Qty</th>
+                                            <th style="width: 20%">Fresh Qty</th>
+                                            <th style="width: 20%">Mend Qty</th>
+                                            <th style="width: 20%">Damage Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.GRMendingDetail != null)
+                                        {
+                                            @if (Model.GRMendingDetail.Count() > 0)
+                                            {
+                                                int i = 0;
+                                                @foreach (var item in Model.GRMendingDetail)
+                                                {
+                                                    <tr>
+                                                        <td hidden><input class="Id" value="@item.Id" /></td>
+                                                        <td hidden><input class="igpDetailId" value="@item.IGPDetailId" /></td>
+                                                        <td><input tabindex="-1" style="background-color: #eee;" readonly class="SrNo text-center" value="@item.SrNo" /></td>
+                                                        <td><input tabindex="-1" style="background-color: #eee;" readonly class="ActualQuantity text-right" value="@item.ReceivedQuantity" /></td>
+                                                        <td><input tabindex="-1" style="background-color: #eee;" readonly class="RejectedQuantity text-right" value="@item.RejectedQuantity" type="number" min=0 onchange="CalculateQuantity($(this));" /></td>
+                                                        <td hidden><input class="CheckRejectedQuantity text-right" value="@item.RejectedQuantity" type="hidden" /></td>
+                                                        <td><input style="background-color: #eee;" readonly tabindex="-1" class="FreshQuantity text-right" value="@item.FreshQuantity" /></td>
+                                                        <td hidden><input style="background-color: #eee;" readonly tabindex="-1" class="CheckFreshQuantity text-right" type="hidden" value="@item.FreshQuantity" /></td>
+                                                        <td><input style="background-color: #eee;" readonly tabindex="-1" class="MendQuantity text-right" value="@item.MendingQuantity" /></td>
+                                                        <td hidden><input type="hidden" style="background-color: #eee;" readonly tabindex="-1" class="CheckMendQuantity text-right" value="@item.MendingQuantity" /></td>
+                                                        <td><select readonly disabled class="form-control DamageTypeId" asp-items="Model.DamageTypeLOV" asp-for="GRMendingDetail[i].DamageTypeId" data-validation="required">
+                                                                <option value="0" disabled selected>Please Select...</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                          <tfoot id="myfoot">
+                                           
+                                        </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <hr>
+                    <br>
+                    <a asp-controller="Mending" asp-action="Index" class="btn btn-warning">List</a>
+                   
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#IGPId").select2();
+            $(".DamageTypeId").select2();
+            //On IGP Change
+            $("#IGPId").change(function () {
+                debugger
+                $("#Table > tbody > tr").remove();
+                $('#WeavingContract').val("");
+                $('#PurchaseContract').val("");
+                $('#GreigeQuality').val("");
+                $('#LoomQuality').val("");
+                $('#ReceivedQuantity').val("");
+                $('#LotNo').val("");
+
+                var igpId = $(this).find(':selected').val();
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Mending/GetInwardGatePass",
+                    data: { Id: igpId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        if (data.grInwardGatePass.weavingContractId != 0) {
+                            $('#WeavingContract').val(data.contractNo);
+                        } else if (data.grInwardGatePass.purchaseContractId != 0) {
+                            $('#PurchaseContract').val(data.contractNo);
+                        }
+                        $('#GreigeQuality').val(data.contractQuality);
+                        $('#LoomQuality').val(data.loomQuality);
+                        $('#ReceivedQuantity').val(data.grInwardGatePass.totalActualQuantity);
+                        $('#LotNo').val(data.grInwardGatePass.lotNo);
+
+                        $.each(data.grInwardGatePassDetail, (index, item) => {
+                            debugger
+                            row = '';
+                            row += '<tr>';
+                            row += '<td hidden><input class ="Id" value="0" /></td>';
+                            row += '<td hidden><input class ="igpDetailId" value="' + item.id + '" /></td>';
+                            row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="SrNo text-center" value="' + item.srNo + '" /></td>';
+                            row += '<td><input tabindex="-1" style="background-color: #eee;" readonly class ="ActualQuantity text-right" value="' + item.actualQuantity + '" /></td>';
+
+                            row += '<td><input class ="RejectedQuantity text-right" value="0" type="number" min=0 onchange="CalculateQuantity($(this));"  /></td>';
+                            row += '<td hidden><input class="CheckRejectedQuantity text-right" value="0" type="hidden" /></td>';
+
+                            row += '<td><input style="background-color: #eee;" readonly  tabindex="-1" class ="FreshQuantity text-right" value="' + item.actualQuantity + '" /></td>';
+                            row += '<td hidden><input style="background-color: #eee;" readonly  tabindex="-1" class ="CheckFreshQuantity text-right" type="hidden" value="' + item.actualQuantity + '" /></td>';
+
+                            row += '<td><input style="background-color: #eee;" readonly  tabindex="-1" class ="MendQuantity text-right" value="0" /></td>';
+                            row += '<td hidden><input type="hidden" style="background-color: #eee;" readonly tabindex="-1" class="CheckMendQuantity text-right" value="0" /></td>';
+
+                            row += '<td><select class="form-control DamageTypeId" data-validation="required">';
+                            row += '<option value="0" disabled selected >Please Select...</option >';
+                            $.each(data.damageTypeLOV, (index, item) => {
+                                row += '<option value="' + item.value + '" >' + item.text+'</option >';
+                            })
+                            
+                            row += '</select ></td>';
+                            $('#Table tbody').append(row);
+                            
+                        });
+                        $(".DamageTypeId").select2();
+                        return false;
+                    } else {
+                        return false;
+                    }
+                });
+            });
+        });
+
+        function CalculateQuantity(row) {
+            debugger
+            var rejectedQuantity = Number(row.closest("tr").find(".RejectedQuantity").val());
+            var receivedQuantity = Number(row.closest("tr").find(".ActualQuantity").val());
+            var checkFreshQuantity = Number(row.closest("tr").find(".CheckFreshQuantity").val());
+            var checkRejectedQuantity = Number(row.closest("tr").find(".CheckRejectedQuantity").val());
+            var checkMendQuantity = Number(row.closest("tr").find(".CheckMendQuantity").val());
+            if (rejectedQuantity > receivedQuantity) {
+                swal({
+                    icon: 'warning',
+                    text: "Rejected Quantity must be less than Received Quantity.",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    row.closest("tr").find(".RejectedQuantity").focus();
+                    row.closest("tr").find(".RejectedQuantity").val(checkRejectedQuantity);
+                    row.closest("tr").find(".FreshQuantity").val(checkFreshQuantity);
+                    row.closest("tr").find(".MendQuantity").val(checkMendQuantity);
+                });
+            }
+            var fQuantity = (checkFreshQuantity + checkRejectedQuantity) - rejectedQuantity;
+            var mQuantity = fQuantity + rejectedQuantity;
+            row.closest("tr").find(".FreshQuantity").val(fQuantity);
+            row.closest("tr").find(".MendQuantity").val(mQuantity);
+        }
+
+
+        function GetRowFooter() {
+            debugger
+            var TotalRcvQty = 0;
+            var TotalFrQty = 0;
+            var TotalFolQty = 0;
+            var TotalGLQty = 0;
+            var TotalActQty = 0;
+            var check = false;
+            
+
+            $.each($("#Table tbody tr"), function () {
+                debugger;
+                var qty1 = Number($(this).find(".ActualQuantity").val());
+                TotalRcvQty = TotalRcvQty + qty1;
+                
+
+                var qty2 = Number($(this).find(".RejectedQuantity").val());
+                TotalFrQty = TotalFrQty + qty2;
+                
+
+                var qty3 = Number($(this).find(".FreshQuantity").val());
+                TotalFolQty = TotalFolQty + qty3;
+              
+
+                var qty4 = Number($(this).find(".MendQuantity").val());
+                TotalGLQty = TotalGLQty + qty4;
+                
+            });
+
+            $("#Actty").val(TotalActQty);
+            $("#glqty").val(TotalGLQty);
+            $("#folty").val(TotalFolQty);
+            $("#medty").val(TotalFrQty);
+            $("#recty").val(TotalRcvQty);
+            if (check == true) {
+                return false;
+            }
+
+            //$('#TotalQty').val(TotalQty);
+           
+
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    
+                    "<td style'text-aligin: right;'>Total:</td> " +
+                    "<td class='text-right TotalRcvQty' name='TotalRcvQty'>" + Number(TotalRcvQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFrQty' name='TotalFrQty'>" + Number(TotalFrQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalFolQty' name='TotalFolQty'>" + Number(TotalFolQty).toFixed(2) + "</td> " +
+                    "<td class='text-right TotalGLQty' name='TotalGLQty'>" + Number(TotalGLQty).toFixed(2) + "</td> " +
+                "</tr>"
+
+                $("#Table tfoot").append(row);
+           
+
+        }
+
+
+        function OnSubmit() {
+            var itemDetails = [];
+            $.each($("#Table tbody tr"), function () {
+                debugger
+                itemDetails.push({
+                    Id: $(this).find('.Id').val(),
+                    IGPDetailId: $(this).find('.igpDetailId').val(),
+                    SrNo: $(this).find('.SrNo').val(),
+                    ReceivedQuantity: $(this).find('.ActualQuantity').val(),
+                    RejectedQuantity: $(this).find('.RejectedQuantity').val(),
+                    FreshQuantity: $(this).find('.FreshQuantity').val(),
+                    MendingQuantity: $(this).find('.MendQuantity').val(),
+                    DamageTypeId: $(this).find(":selected").val(),
+                });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#itemDetail").val(model);
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+        function GetRowFooter() {
+            debugger
+            var TotalRcvQty = 0;
+            var TotalRejQty = 0;
+            var TotalFreshQty = 0;
+            var TotalGradedQty = 0;
+            var check = false;
+
+
+            $.each($("#Table tbody tr"), function () {
+                var qty1 = Number($(this).find(".ActualQuantity ").val());
+                TotalRcvQty = TotalRcvQty + qty1;
+
+
+                var qty2 = Number($(this).find(".RejectedQuantity").val());
+                TotalRejQty = TotalRejQty + qty2;
+
+
+                var qty3 = Number($(this).find(".FreshQuantity").val());
+                TotalFreshQty = TotalFreshQty + qty3;
+
+
+                var qty4 = Number($(this).find(".MendQuantity").val());
+                TotalGradedQty = TotalGradedQty + qty4;
+
+            });
+
+            $("#TotalRecievedQuantity").val(TotalRcvQty.toFixed(2));
+            $("#TotalRejectedQuantity").val(TotalRejQty.toFixed(2));
+            $("#TotalFreshQuantity").val(TotalFreshQty.toFixed(2));
+            $("#TotalGradedQuantity").val(TotalGradedQty.toFixed(2));
+
+            if (check == true) {
+                return false;
+            }
+
+            //$('#TotalQty').val(TotalQty);
+
+
+            $.each($("#Table tfoot tr"), function () {
+                $(this).closest("tr").remove();
+
+                var row = "";
+                row += "<tr style='font-weight: bold'>";
+                row += '<td style="text-align: right;">Total:</td>';
+                row += "<td class='text-right '>" + Number(TotalRcvQty).toFixed(2) + "</td>";
+                row += "<td class='text-right '>" + Number(TotalRejQty).toFixed(2) + "</td>";
+                row += "<td class='text-right'>" + Number(TotalFreshQty).toFixed(2) + "</td>";
+                row += "<td class='text-right'>" + Number(TotalGradedQty).toFixed(2) + "</td>";
+                row += "<td class='text-right'></td>";
+                row += "</tr>";
+                $("#Table tfoot").append(row);
+            });
+
+        }
+    </script>
+}

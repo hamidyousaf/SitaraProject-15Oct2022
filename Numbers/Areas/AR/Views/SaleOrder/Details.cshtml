@@ -1,0 +1,190 @@
+﻿@model ARSaleOrder
+@{
+    ViewData["Title"] = "Approved Sales Order";
+    var x = "";
+}
+@using System.Globalization
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="SaleOrder" asp-action="Index" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Customer Name: <strong class="text-navy"> @Model.Customer.Name</strong></span></h4>
+                        <span><strong>Product Type: </strong> @Model.ProductType.ConfigValue</span><br />
+                        <span><strong>Item Category: </strong> @Model.ItemCategory.Name</span><br />
+                        <span><strong>Customer Balance: </strong><span id="CustomerBalance"></span></span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Sale Order No. <strong class="text-navy">@Model.SaleOrderNo</strong></span></h4>
+                        <p>
+                            <span><strong>Sale Order Date:</strong> @Model.SaleOrderDate.ToString(CommonHelper.DateFormat)</span><br />
+                        </p>
+                        <span><strong>Ware House:</strong> @Model.WareHouse.ConfigValue</span><br />
+                        <span><strong>Reference No:</strong> @Model.ReferenceNo</span><br />
+                        <span hidden><strong>Currency:</strong> @Model.Currency  @Model.CurrencyExchangeRate</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Bale Type</th>
+                                <th>Avail. Stock</th>
+                                <th>Bal. Stock</th>
+                                <th>Mtr/Bale</th>
+                                <th>Sale Qty</th>
+                                <th>Rate</th>
+                                <th>Cnvrtn</th>
+                                <th>Price</th>
+                                <th>UOM Qty</th>
+                                <th>Total Meters</th>
+                                <th class="text-right">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<ARSaleOrderItem>)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Item.Code) -
+                                        @Html.DisplayFor(modelItem => item.Item.Name)
+                                    </td>
+                                    <td>
+                                        @item.BaleType
+                                    </td>
+                                    <td class="text-right">
+                                        @item.AvailableStock
+                                    </td>
+                                    <td class="text-right">
+                                        @item.BalanceStock
+                                    </td>
+                                    <td class="text-center">
+                                        @item.Meters
+                                    </td>
+                                    <td class="text-right">
+                                        @Math.Abs(item.Qty)
+                                    </td>
+                                    <td class="text-right">
+                                        @item.Rate
+                                    </td>
+                                    <td class="text-right">
+                                        @item.Conversion
+                                    </td>
+                                    <td class="text-right">
+                                        @item.Price
+                                    </td>
+                                    <td class="text-right">
+                                        @item.UOMQty
+                                    </td>
+                                    <td class="text-right">
+                                        @item.TotalMeter
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var xxx = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(xxx, "{0:N}", item.TotalMeterAmount)
+                                        }
+                                    </td>
+                                </tr>
+                                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                <table class="table invoice-total">
+                    <tbody>
+                        <tr>
+                            <td><strong>Sub Total :</strong></td>
+                            <td>
+                                @{
+                                    var usSubTotal = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSubTotal, "{0:N}", Model.Total)
+                                }
+                            </td>
+                        </tr>
+                        <tr hidden>
+                            <td><strong>Sales Tax :</strong></td>
+                            <td>
+                                @{
+                                    var usSTAmount = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSTAmount, "{0:N}", Model.TotalTaxAmount)
+                                }
+                            </td>
+                        </tr>
+                        <tr hidden>
+                            <td><strong>Freight :</strong></td>
+                            <td>
+                                @{
+                                    var freight = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSTAmount, "{0:N}", Model.Freight)
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grand Total :</strong></td>
+                            <td>
+                                <b>
+                                    @{
+                                        var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usGrandTotal, "{0:N}", Model.GrandTotal)
+                                    }
+                                </b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="well-remarks m-t">
+                    <strong>Remarks:</strong>
+                    @Model.Remarks
+                </div>
+                <input type="hidden" value="@Model.CustomerId" id="CustId" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script src="~/js/AR/salesOrderItems.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            debugger
+            GetBalance();
+        })
+        function GetBalance() {
+            debugger
+            var cusid = $('#CustId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetCustomerBalance",
+                data: { customerId: cusid }
+            }).done(function (data) {
+                debugger
+                $('#CustomerBalance').text(data);
+            });
+        }
+    </script>
+}

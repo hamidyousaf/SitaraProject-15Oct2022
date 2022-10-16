@@ -1,0 +1,224 @@
+﻿@model Numbers.Entity.Models.GLBankCashAccount
+@{
+    ViewData["Title"] = "Create Bank/Cash Account";
+    ViewData["CurrentPage"] = "Define Bank/Cash";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form class="form-horizontal" asp-controller="BankCashAccount" asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        @*<input type="hidden" asp-for="Id" />*@
+                        <input type="hidden" asp-for="CompanyId" />
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">ID</label>
+                                <div class="col-lg-2">
+                                    <div class="input-group m-b">
+                                        @if (Model.Id != 0)
+                                        {
+                                            <input tabindex="-1" asp-for="Id" class="form-control" readonly />
+                                        }
+                                        else
+                                        {
+                                            <input value="" autofocus class="form-control" readonly />
+                                        }
+                                        <input tabindex="-1" type="text" name="buttonType" id="buttonType" readonly hidden />
+                                    </div>
+                                </div>
+
+                                <label class="col-lg-3 control-label">Date</label>
+                                <div class="col-lg-4">
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input tabindex="-1"  asp-for="Date" class="form-control" data-validation="required" type="text" value=@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.Date.ToString(CommonHelper.DateFormat)) readonly />
+                                    </div>
+                                </div>
+                            </div>
+                             
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AccountName" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="AccountName" autofocus class="form-control" data-validation="required" data-validation-error-msg="Account Name is required" data-validation-error-msg-container="#acname" />
+                                    <span id="acname"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AccountNumber" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="AccountNumber" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="VoucherType" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="form-control" asp-for="VoucherType">
+                                        <option selected="selected" value="-1">Select...</option>
+                                        <option>BRV</option>
+                                        <option>CRV</option>
+                                    </select>
+                                    <span asp-validation-for="VoucherType" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PaymentVoucherType" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="form-control" asp-for="PaymentVoucherType">
+                                        <option selected="selected" value="-1">Select...</option>
+                                        <option>BPV</option>
+                                        <option>CPV</option>
+                                    </select>
+                                    <span asp-validation-for="PaymentVoucherType" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="AccountId" class="form-control" asp-for="AccountId"  data-validation-error-msg="Account is required" data-validation-error-msg-container="#account">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="AccountId" class="text-danger"></span>
+                                    <span id="account"></span>
+                                </div>
+                            </div>
+                        </div>
+                        @*@if (Model.Id == 0)
+                        {
+                            <div class="col-md-4">
+                                <div class="checkbox checkbox-success">
+                                    <input id="manualBankCashGLAccount" type="checkbox">
+                                    <label for="manualBankCashGLAccount">Manual Bank/Cash GL Account</label>
+                                </div>
+                            </div>
+                        }*@
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4">  </div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="IsActive" type="checkbox">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-2">
+                                    <a class="btn btn-white" asp-action="Index">List</a>
+                                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+@section customJS{
+    <script>
+        //call manualBankCashGLAccount() to disable "manualBankCashGLAccount-checkbox"
+        //$('#manualBankCashGLAccount').change(function () {
+        //    var isChecked = false;
+        //    if ($('#manualBankCashGLAccount').is(":checked"))
+        //        isChecked = true;
+        //    if (isChecked) { //manual gl account
+        //        $("#AccountId").attr('data-validation', 'required');
+        //        $("#AccountId").removeAttr('disabled');
+        //    }
+        //    else {
+        //        $("#AccountId").removeAttr('data-validation');
+        //        $("#AccountId").attr('disabled', true);
+        //    }
+        //});
+
+        //call when edit-form will open 
+        @*var bankCashId =@Model.Id;
+        if (bankCashId != 0) {
+            $("#AccountId").removeAttr('disabled');
+        }*@
+    </script>
+    <script>
+        $.validate();
+        $(function () {
+            var accountId = $('#AccountId');
+            bindSelect2(accountId,'/GL/ChartofAccount/GetAccounts', '/GL/ChartofAccount/Get?id=', @Model.AccountId);
+     });
+        //$('#AccountId').select2({
+        //    ajax: {
+        //        url: '/GL/ChartofAccount/GetAccounts',
+        //        dataType: 'json',
+        //        delay: 250,
+        //        placeholder: 'Search for GL Account',
+        //        processResults: function (data,params) {
+        //            return {
+        //                results: data
+        //            };
+        //        },
+        //        cache:true
+        //    }
+        //});
+
+        // Fetch the preselected item, and add to the control
+        @*var id = @Model.AccountId;
+        var accountSelect = $('#AccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/ChartofAccount/Get?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+        
+        //id.trigger('change'); 
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

@@ -1,0 +1,274 @@
+﻿@model BkgVehicle
+@{
+    ViewData["Title"] = "ChangeBookingInformation";
+    ViewData["CurrentPage"] = "Change Booking Information";
+}
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+<div class="row">
+    <div class="col-md-10">
+        <div class="ibox-title">
+            <h5>Change Booking Information</h5>
+
+        </div>
+        <div class="ibox-content table table-danger">
+            <form id="myForm" asp-controller="Administration" method="post">
+                <input asp-for="BankName" type="hidden" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Select Booking#</label>
+                            <div class="col-lg-8">
+                                <select id="BookingNumber" class="chosen-select" onchange="checkBookingNo();" data-validation="required-number" data-validation-error-msg="Booking Number is Required" data-validation-error-msg-container="#container">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <b>
+                            <span id="container"></span>
+                        </b>
+                    </div>
+                </div>
+                <hr />
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label>Old Booking#</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="OldBookingNo" readonly class="form-control" />
+                        </div>
+                    </div>
+                    <div id="booking" class="col-md-6">
+                        <div class="col-md-4">
+                            <label>New Booking#</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="BookingNo" data-validation="" class="form-control" onfocus="return $('#').show();" />
+                        </div>
+                        <div class="col-md-2">
+                            @*<a id="booking" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label>Old Payment</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="OldPayment" readonly class="form-control" />
+                        </div>
+                    </div>
+                    <div id="payment" class="col-md-6">
+                        <div class="col-md-4">
+                            <label>New Payment</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="PaymentAmount" data-validation="" class="form-control" onfocus="return $('#').show();" />
+                        </div>
+                        <div class="col-md-2">
+                            @*<a id="payment" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label>Old Reference</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="OldReference" readonly class="form-control" />
+                        </div>
+                    </div>
+                    <div id="reference" class="col-md-6">
+                        <div class="col-md-4">
+                            <label>New Reference</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="ReferenceNo" data-validation="" class="form-control" onfocus="return $('#').show();" />
+                        </div>
+                        <div class="col-md-2">
+                            @*<a id="reference" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label>Old Price</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input id="OldPrice" readonly class="form-control" />
+                        </div>
+                    </div>
+                    <div id="price" class="col-md-6">
+                        <div class="col-md-4">
+                            <label>New Price</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="Price" data-validation="" class="form-control" onfocus="return $('#').show();" />
+                        </div>
+                        <div class="col-md-2">
+                            @*<a id="price" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Selected Vehicle</label>
+                            <div class="col-lg-8">
+                                <select id="Item" disabled class="chosen-select form-control">
+                                    <option selected="selected" disabled>None...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                @*<a id="item" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div id="item" class="col-md-6">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Select Vehicle</label>
+                            <div class="col-lg-8">
+                                <select asp-for="ItemId" class="chosen-select form-control">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                @*<a id="item" class="btn btn-sm btn-primary"  onclick="updateItem();">Update</a>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <br />
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <input asp-action="UpdateBooking" type="submit" class="btn btn-primary" value="Update" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section customJS{ 
+<script>
+    $.validate();
+    $(document).ready(function () {
+        $('#booking,#payment,#reference,#price,#item').hide();
+    })
+    function unhide() {
+        $('#booking,#payment,#reference,#price,#item').show('slow');
+
+    }
+        $(function () {
+            $('#BookingNumber').select2({
+                ajax: {
+                    url: '/Booking/Api/GetBookingNo',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a Booking Number',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+            
+        })
+    function checkBookingNo() {
+        
+        var bkgNo = $('#BookingNumber').val();
+        $('#BankName').val(bkgNo);
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/CheckBookingNoAlreadyExists/',
+            data: { bkgNo }
+        
+        }).then(function (data) {
+            if (data) {
+                $('#OldBookingNo,#BookingNo').val(data.bookingNo);
+                $('#OldPayment,#PaymentAmount').val(data.paymentAmount);
+                $('#OldReference,#ReferenceNo').val(data.referenceNo);
+                $('#OldPrice,#Price').val(data.price);
+                getItemId(data.itemId);
+                unhide();
+            }
+        });
+    }
+    function getItemId(itemId) {
+        var itemSelect = $('#ItemId,#Item');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/API/GetItem/' + itemId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            itemSelect.append(option).trigger('change');
+            itemSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    }
+    $(function () {
+        $('#ItemId').select2({
+            placeholder: "Select an item",
+            ajax: {
+                url: '/Booking/Api/GetItems',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        })
+    })
+</script>
+}

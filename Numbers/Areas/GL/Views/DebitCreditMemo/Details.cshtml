@@ -1,0 +1,381 @@
+﻿@model GLDebitCreditMemoViewModel
+@{
+    ViewData["Title"] = "Create Invoice & Debit/Credit Memo";
+    ViewData["CurrentPage"] = "Purchases Invoice";
+}
+@section customCSS{
+    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewData["Title"]</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form id="Form" method="post" asp-action="Create" asp-controller="DebitCreditMemo" onsubmit=" return Validate()">
+                    <input asp-for="GLDebitCreditMemo.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label" asp-for="GLDebitCreditMemo.TransactionNo"></label>
+                                        @if (Model.GLDebitCreditMemo.Id != 0)
+                                        {
+                                            <input autofocus readonly class="form-control" id="TransactionNo" asp-for="GLDebitCreditMemo.TransactionNo" autocomplete="off" tabindex="-1" />
+                                        }
+                                        else
+                                        {
+                                            <input autofocus readonly class="form-control" id="TransactionNo" value="" autocomplete="off" tabindex="-1" />}
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.TransactionDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="GLDebitCreditMemo.TransactionDate" class="form-control " type="text" value="@(Model.GLDebitCreditMemo.Id == 0 ? CommonHelper.CurrentDate : Model.GLDebitCreditMemo.TransactionDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="Purchase Date is required" data-validation-error-msg-container="#pDate" />
+                                        </div>
+                                        <p id="pDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.TransactionTypeId"></label>
+                                        <select disabled asp-for="GLDebitCreditMemo.TransactionTypeId" onchange="getCustomerOrVender()" id="TransactionTypeId" class="chosen-select form-control" asp-items="@Model.TransactionType">
+                                            <option value="0" disabled>Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-4">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.DocumentNo"></label>
+                                        <div>
+                                            <input readonly asp-for="GLDebitCreditMemo.DocumentNo" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.OperatingUnitId"></label>
+                                        <select disabled asp-for="GLDebitCreditMemo.OperatingUnitId" id="OperatingUnitId" class="chosen-select form-control" asp-items="@Model.OperatingUnit">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-lg-4 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.PartyId"></label>
+                                        <Select disabled asp-for="GLDebitCreditMemo.PartyId" asp-items="Model.Party" id="PartyId" class="form-control" data-validation="required" data-validation-error-msg="Party is required" data-validation-error-msg-container="#supplier">
+                                            <option value="0" disabled>Please select</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-3">
+                                    <div class="form-group">
+                                        <label  asp-for="GLDebitCreditMemo.ReferenceNo"></label>
+                                        <input readonly asp-for="GLDebitCreditMemo.ReferenceNo" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.DocumentDate"></label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="GLDebitCreditMemo.DocumentDate" class="form-control " data-validation="required" type="text" value="@(Model.GLDebitCreditMemo.Id == 0 ? CommonHelper.CurrentDate : Model.GLDebitCreditMemo.DocumentDate.ToString(CommonHelper.DateFormat))" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="form-group">
+                                        <label asp-for="GLDebitCreditMemo.Remarks"></label>
+                                        <textarea readonly asp-for="GLDebitCreditMemo.Remarks" style="resize:none;" rows="1" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                    </div>
+                    @await Html.PartialAsync("_serviceInvoiceDetails")
+                    <p id="p"></p>
+                    <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                    <!--Page level calculations like total amount after taxes and total taxes amount etc-->
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input asp-for="GLDebitCreditMemo.Total" name="Total" id="Total" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Discount Amount:</label><input asp-for="GLDebitCreditMemo.TotalDiscountAmount" name="TotalDiscountAmount" id="discountAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>ST Amount:</label> <input asp-for="GLDebitCreditMemo.TotalSTAmount" name="TotalSalesTaxAmount" id="salesTaxAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                    <div class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input asp-for="GLDebitCreditMemo.GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of Page level calculations like total amount after taxes and total taxes amount etc-->
+                    <div class="text-left mb-2">
+                        <a asp-controller="DebitCreditMemo" asp-action="Index" class="btn btn-white">List</a>
+                        <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                    </div>
+                    <input id="PType" type="hidden" name="PartyType" value="@Model.PartyType" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#TransactionTypeId").select2();
+            $("#OperatingUnitId").select2();
+            $("#PartyId").select2();
+            $(".subAccountId").select2();
+            $(".departmentId").select2();
+            $(".subDepartmentId").select2();
+            $(".costCenterId").select2();
+            $(".taxId").select2();
+
+
+           var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ServiceInvoices));
+            if (items != null) {
+                for (i = 0; i < items.length; i++) {
+                    $.ajax({
+                        type: 'POST',
+                        async: false,
+                        url: '/GL/DebitCreditMemo/GetInvoiceItemsDetails',
+                        data: { id: items[i].Id, itemId: items[i].GLAccountId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            //getSubDepartments(id);
+            //getCostCenter(id);
+        });
+    </script>
+    <script>
+        $.validate();
+         $(function () {
+          // bind customer select2
+            @*var select2 = $('#SupplierId');
+            bindSelect2(select2, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', @Model.SupplierId);*@
+         });
+        @*$('#SupplierId').select2({
+            placeholder: 'Select a supplier',
+            width: 'resolve',
+            ajax: {
+                url: '/AP/Api/GetSuppliers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if ("@ViewBag.Id" != null)
+            {
+                var id = "@Model.SupplierId";
+            }
+        var accountSelect = $('#SupplierId');
+        $.ajax({
+            type: 'GET',
+            url: '/AP/Api/GetSupplier?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+    </script>
+    <script>
+         $(function () {
+            @*if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+                $('#add-purchase-item').hide();
+            }*@
+         });
+
+        function getSubDepartments(id) {
+            debugger
+            var a = "#" + id;
+            var subdep = id.substring(10, id.length);
+            var subdepartment = "#" + "SubDepartment" + subdep;
+            var depart = $(a).find(":selected").val();
+            $(subdepartment).find('option').not(':first').remove();
+            $.ajax({
+                method: "GET",
+                url: "/AP/Api/GetSubDepartments",
+                data: { Id: depart }
+            }).done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $(subdepartment).append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+                    });
+                });
+        }
+
+        function getCostCenter(id) {
+            debugger
+            var a = "#" + id;
+            var cost = id.substring(13, id.length);
+            var costCenter = "#" + "CostCenter" + cost;
+            var depart = $(a).find(":selected").val();
+            $(costCenter).find('option').not(':first').remove();
+            $.ajax({
+                method: "GET",
+                url: "/AP/Api/GetCostsCenter",
+                data: { Id: depart }
+            }).done(function (data) {
+                debugger
+                $.each(data, function (i, item) {
+                    $(costCenter).append($('<option>', {
+                        value: item.value,
+                        text: item.text
+                    }));
+                });
+            });
+        }
+        function getCustomerOrVender() {
+            debugger
+            var transactionTypeId = $("#TransactionTypeId").find(":selected").val();
+            if (transactionTypeId == 0) {
+                return false;
+            }
+            $("#PartyId").find('option').not(':first').remove();
+            $.ajax({
+                method: "GET",
+                url: "/GL/DebitCreditMemo/getCustomerOrVender",
+                data: { transactionTypeId }
+            }).done(function (data) {
+                debugger
+                $.each(data.party, function (i, item) {
+                    $("#PartyId").append($('<option>', {
+                        value: item.value,
+                        text: item.text
+                    }));
+                });
+                console.log(data.partyType);
+                $("#PType").val(data.partyType);
+                document.getElementById("PType").value = data.partyType;
+            });
+        }
+        $("#purchaseForm").on("submit", function () {
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+        });
+
+        function Validate() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+        }
+
+        function calculateLineTotals(lineId) {
+            debugger
+            var digits = 2; //up to two digit will be dynamic later.
+            var taxPercentage = 0;
+            var taxPercentage = 0;
+            var lineTotal = 0;
+            var total = $("#Total_" + lineId).val();
+            var taxId = $("#TaxSlab_" + lineId).val();
+            total = (total == "" ? 0 : total);
+            var discountPercentage = $('#DiscountPercentage_' + lineId).val();
+            discountPercentage = (discountPercentage == "" ? 0 : discountPercentage);
+            var discountAmount = ((discountPercentage / 100) * total).toFixed(digits);
+            total = total - discountAmount;
+            var amount = total;
+            if (taxId == 0) {
+                return false;
+            }
+            $.ajax({
+                url: '/GL/Api/CalculateTax',
+                data: { taxId, amount },
+                type: 'GET',
+                async: false
+            }).done(function (data) {
+                debugger
+                taxPercentage = data.salesTaxAmount;
+            });
+            var taxAmount = (taxPercentage).toFixed(digits);
+            var lineTotal = (parseFloat(total) + parseFloat(taxAmount)).toFixed(digits);
+
+            $("#DiscountAmount_" + lineId).val(discountAmount);
+            $("#SalesTaxAmount_" + lineId).val(taxAmount);
+            $("#LineTotal_" + lineId).val(lineTotal);
+            calculateGrandTotals();
+        }
+        function calculateGrandTotals() {
+            debugger
+            //Calculating total of all the amounts at present page
+            var totalAmount = 0;
+            var netValue = 0;
+            var discountAmount = 0;
+            var salesTaxAmount = 0;
+            $("input[name='GLDebitCreditMemoDetail.LineTotal']").each(function () {
+                debugger
+                totalAmount = (Number(totalAmount) + Number($(this).val())).toFixed(2);
+                $('#GrandTotal').val(totalAmount);
+            });
+            $("input[name='GLDebitCreditMemoDetail.Total']").each(function () {
+                netValue = (Number(netValue) + Number($(this).val())).toFixed(2);
+                $('#Total').val(netValue);
+            });
+            $("input[name='GLDebitCreditMemoDetail.DiscountAmount']").each(function () {
+                discountAmount = (Number(discountAmount) + Number($(this).val())).toFixed(2);
+                $('#discountAmount').val(discountAmount);
+            });
+            $("input[name='GLDebitCreditMemoDetail.TaxAmount']").each(function () {
+                salesTaxAmount = (Number(salesTaxAmount) + Number($(this).val())).toFixed(2);
+                $('#salesTaxAmount').val(salesTaxAmount);
+            });
+        }
+    </script>
+
+}
+
+
+

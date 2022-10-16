@@ -1,0 +1,131 @@
+﻿@model ARInvoiceViewModel
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}{1}","sale-invoice_",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item_",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-6 col-md-6 col-lg-6 tooltest0" id="select2Div">
+                    <input asp-for="InvoiceItemId" type="hidden" id=@string.Format("{0}{1}","InvoiceItemId",ViewBag.Counter) />
+                    <label asp-for="ServiceAccountId">GL Account</label>
+                    <select asp-for="ServiceAccountId" name="ServiceAccountId" id=@string.Format("{0}{1}","ServiceAccountId",ViewBag.Counter) onchange="getItemDetails(this.id)" class="form-control" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_item",ViewBag.Counter)>
+                        @*<option disabled selected>Select an item...</option>*@
+                    </select>
+                    <p id=@string.Format("_item{0}",ViewBag.Counter)></p>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <label asp-for="InvoiceItemRemarks"></label>
+                    <input asp-for="InvoiceItemRemarks" name="Remarks" id=@string.Format("{0}{1}","Remarks",ViewBag.Counter) class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="Total"></label>
+                    <input asp-for="Total_" name="Total_" id=@string.Format("{0}{1}","Total_",ViewBag.Counter) class="form-control text-right" type="number" step=".01" onchange="calculateLineTotal(@ViewBag.Counter);" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="DiscountPercentage">Discount %</label>
+                    <input asp-for="DiscountPercentage" name="DiscountPercentage" id=@string.Format("{0}{1}","DiscountPercentage_",ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" step=".01" onchange="calculateLineTotal(@ViewBag.Counter);" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="DiscountAmount">Discount Amount</label>
+                    <input asp-for="DiscountAmount" name="DiscountAmount" id=@string.Format("{0}{1}","DiscountAmount_",ViewBag.Counter) readonly tabIndex="-1" class="form-control text-right" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="TaxSlab"></label>
+                    <select asp-for="TaxSlab" asp-items="@(new SelectList(Model.TaxList,"Id","Name"))" name="TaxSlab" id='@string.Format("{0}{1}","TaxSlab_",ViewBag.Counter)' class="form-control" onchange="calculateTax(this.id)" data-validation="required" data-validation-error-msg="Tax is required" data-validation-error-msg-container=@string.Format("#_taxSlab{0}",ViewBag.Counter)>
+                        <option selected disabled>
+                            Select...
+                        </option>
+                    </select>
+                    <p id=@string.Format("_taxSlab{0}",ViewBag.Counter)></p>
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2" hidden>
+                    <label asp-for="SalesTaxPercentage"></label>
+                    <input asp-for="SalesTaxPercentage" name="SalesTaxPercentage" id=@string.Format("{0}{1}","SalesTaxPercentage_",ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" type="number" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="SalesTaxAmount">Tax Amount</label>
+                    <input asp-for="SalesTaxAmount" name="SalesTaxAmount" id=@string.Format("{0}{1}","SalesTaxAmount_",ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+                <div class="col-sm-3 col-md-6 col-lg-2">
+                    <label asp-for="LineTotal"></label>
+                    <input asp-for="LineTotal" name="LineTotal" id=@string.Format("{0}{1}","LineTotal_",ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script src="~/js/AR/serviceInvoice.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+<script>
+    $(document).ready(function () {
+         // bind service Account select2 
+       var serviceAccountId = $('#ServiceAccountId' + @ViewBag.Counter+'');
+       bindSelect2(serviceAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', '@ViewBag.ItemId');
+
+        @*var counter = @ViewBag.Counter;
+        var itemId='@ViewBag.ItemId';
+        //preselected item
+        var selectVal = $('#ServiceAccountId' + counter);
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + itemId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            selectVal.append(option).trigger('change');
+            selectVal.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+            });*@
+        lockOutInputs(@ViewBag.Counter);
+        $('#ServiceAccountId' + @ViewBag.Counter+'').select2({
+            width: "100%", //self.width,
+            placeholder: 'Search for an Account',
+            //templateResult: formatOption,
+            ajax: ({
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            })
+        });
+        //function formatOption(option) {
+        //    var $option = $(
+        //        '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+        //    );
+        //    return $option;
+        //}
+    });
+</script>
+
+

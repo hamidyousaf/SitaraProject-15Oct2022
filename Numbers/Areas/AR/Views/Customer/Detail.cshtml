@@ -1,0 +1,1108 @@
+﻿@model ARCustomer
+@{ ViewData["Title"] = "Create Customer";
+    ViewData["CurrentPage"] = "Customers";
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+    .disable{
+        cursor: not-allowed;
+       
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.EntityState Customer</h5>
+                </div>*@
+            <div class="ibox-content">
+                <form id="CustomerForm" class="form-horizontal" asp-action="Create" enctype="multipart/form-data" onsubmit="return submitdetails();">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Name" autofocus data-validation="required" class="form-control" data-validation-error-msg-container="#name" autocomplete="off" />
+                                    <p id="name"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="CNIC" class="col-lg-4 control-label"></label>
+
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="CNIC" class="form-control" data-mask="99999-9999999-9" autocomplete="off" />
+                                    <span asp-validation-for="CNIC" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Phone1" name="Phone1" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Phone1" class="form-control" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Phone2" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Phone2" class="form-control" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                                    <span asp-validation-for="Phone2" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="GSTNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="GSTNo" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="GSTNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="NTNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="NTNo" class="form-control" data-validation-error-msg="NTN No. is required" data-validation-error-msg-container="#ntn" autocomplete="off" />
+                                    <span asp-validation-for="NTNo" class="text-danger"></span>
+                                    <span id="ntn"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Email" type="email" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Web" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Web" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="Web" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Fax" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Fax" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="Fax" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="ContactPerson" class="col-lg-4 control-label">Contact Person</label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="ContactPerson" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="Address" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ShippingAddress" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input readonly asp-for="ShippingAddress" class="form-control" autocomplete="off" />
+                                    <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">GL Account<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8 " >
+                                    <select disabled  name="AccountId" class="form-control disable" asp-for="AccountId" data-validation="required" data-validation-error-msg="Account is required" data-validation-error-msg-container="#account">
+                                        <option  selected>Select...</option>
+                                    </select>
+                                    <span  asp-validation-for="AccountId" class="text-danger"></span>
+                                    <span  id="account"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Product Type<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select readonly disabled name="ProductTypeId" asp-items="@ViewBag.ProductType" class="form-control" asp-for="ProductTypeId" id="ProductType" data-validation="required" data-validation-error-msg="Product Type  is required" data-validation-error-msg-container="#product">
+                                        <option value="" selected>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="ProductTypeId" class="text-danger"></span>
+                                    <span id="product"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @if (Model.Id == 0)
+                        {
+                            <div class="col-lg-6 col-sm-6 hidden">
+                                <div class="form-group">
+                                    <div class="col-lg-4"></div>
+                                    <div class="col-lg-8">
+                                        <div  class="checkbox checkbox-success">
+                                            <input disabled readonly id="manualCustomerGLAccount" class="checked" type="checkbox">
+                                            <label for="manualCustomerAccount">Manual Customer GL Account</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <div class="col-lg-4"></div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input disabled readonly id="isActive" asp-for="IsActive" type="checkbox" checked="checked">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label asp-for="CountryId"></label>
+                                <select readonly disabled name="CountryId" class="form-control select-country-city" asp-for="CountryId" asp-items="@ViewBag.AppCountries" required onchange="getCities();" data-validation="required" data-validation-error-msg="Country is required" data-validation-error-msg-container="#country">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span asp-validation-for="CountryId" class="text-danger"></span>
+                                <span id="country"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label asp-for="CityId"></label>
+                                <select readonly disabled name="CityId" class="form-control city select-country-city" asp-for="CityId" asp-items="@ViewBag.AppCities" data-validation="required" data-validation-error-msg="City is required" data-validation-error-msg-container="#city">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span asp-validation-for="CityId" class="text-danger"></span>
+                                <span id="city"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label asp-for="ShippingCountry"></label>
+                                <select readonly disabled name="ShippingCountry" class="form-control select-country-city" asp-for="ShippingCountry" asp-items="@ViewBag.AppCountries" required onchange="getShippingCities();" data-validation="required" data-validation-error-msg="Shipping Country is required" data-validation-error-msg-container="#shipingCountry">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span asp-validation-for="ShippingCountry" class="text-danger"></span>
+                                <span id="shipingCountry"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label asp-for="ShippingCity"></label>
+                                <select disabled readonly name="ShippingCity" class="form-control city select-country-city" asp-for="ShippingCity" asp-items="@ViewBag.ShippingCities" required data-validation="required" data-validation-error-msg="Shipping City is required" data-validation-error-msg-container="#shipingCity">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span asp-validation-for="ShippingCity" class="text-danger"></span>
+                                <span id="shipingCity"></span>
+                            </div>
+                        </div>
+                        <div class=" col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label>Sales Person<i style="color: #a94442;">*</i></label>
+                                <select readonly disabled name="SalesPersonId" id="SalesPersonId" class="form-control city select-country-city" asp-for="SalesPersonId" asp-items="@ViewBag.SalesPersons" data-validation="required" data-validation-error-msg="Sales Person is required" data-validation-error-msg-container="#spId">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span asp-validation-for="SalesPersonId" class="text-danger"></span>
+                                <span id="spId"></span>
+                            </div>
+                        </div>
+                        <div class=" col-md-2 col-sm-6" style="padding: 0 20px;">
+                            <div class="form-group">
+                                <label asp-for="CustomerCategoryID"></label>
+                                <select readonly disabled name="CustomerCategoryID" class="form-control city select-country-city" asp-for="CustomerCategoryID" asp-items="@ViewBag.CustomerCategory" required data-validation="required" data-validation-error-msg="Customer Category is required" data-validation-error-msg-container="#ccId">
+                                    <option selected="selected">Select...</option>
+                                </select>
+                                <span asp-validation-for="CustomerCategoryID" class="text-danger"></span>
+                                <span id="ccId"></span>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-lg-offset-4">
+                                        <a class="btn btn-white" asp-action="Index">List</a>
+                                        <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <div class="wrapper wrapper-content animated fadeIn">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#home">Contact Person</a></li>
+                            <li><a data-toggle="tab" href="#menu1">Shipping Detail</a></li>
+                            <li><a data-toggle="tab" href="#itemCategory">Item Category<i style="color: #a94442;">*</i></a></li>
+                            <li><a data-toggle="tab" href="#creditLimit">Credit Limit<i style="color: #a94442;">*</i></a></li>
+                        </ul>
+
+                        <div class="tab-content ">
+                            <div id="home" class="tab-pane fade in active">
+                                <div class="row" style="margin-left:10px">
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Name</label>
+                                        <div>
+                                            <input readonly id="tabname" class="form-control" autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Designation</label>
+                                        <div>
+                                            <input readonly id="tabdesignation" class="form-control" autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Phone#</label>
+                                        <div>
+                                            <input readonly id="tabphone" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-1" style="margin-left:5px">
+                                        <label class="control-label">Ext</label>
+                                        <div>
+                                            <input readonly id="tabext" class="form-control" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Cell</label>
+                                        <div>
+                                            <input readonly id="tabcell" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Email</label>
+                                        <div>
+                                            <input readonly id="tabemail" class="form-control" type="email" autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-1" style="margin-left:5px">
+                                        <label class="control-label">  </label>
+                                        <div>
+                                            <a readonly  class="btn btn-primary"  style="margin-top:4px">Add</a>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container-fluid table-responsive">
+                                    <table id="tblPerson" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Designation</th>
+                                                <th>Phone#</th>
+                                                <th>Ext</th>
+                                                <th>Cell</th>
+                                                <th>Email</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (var item in Model.ARContactPerson)
+                                            {
+                                                <tr class="removed">
+                                                    <td class="Id" hidden>
+                                                        @Html.DisplayFor(modelItem => @item.Id)
+                                                    </td>
+                                                    <td readonly class="name">
+                                                        @Html.DisplayFor(modelItem => @item.PersonName)
+                                                    </td>
+                                                    <td readonly class="designation">
+                                                        @Html.DisplayFor(modelItem => @item.Designation)
+                                                    </td>
+                                                    <td readonly class="phone">
+                                                        @Html.DisplayFor(modelItem => @item.PhoneNo)
+                                                    </td>
+                                                    <td readonly class="Ext">
+                                                        @Html.DisplayFor(modelItem => @item.Ext)
+                                                    </td>
+                                                    <td readonly class="Cell">
+                                                        @Html.DisplayFor(modelItem => @item.CellNo)
+                                                    </td>
+                                                    <td readonly class="Email">
+                                                        @Html.DisplayFor(modelItem => @item.Email)
+                                                    </td>
+                                                    <td readonly>
+
+                                                        <a class="btn btn-sm btn-danger m-t-n-xs" > <i class="fa fa-trash" title="Delete"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div id="menu1" class="tab-pane fade">
+                                <div class="row" style="margin-left:10px">
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Location</label>
+                                        <div>
+                                            <input readonly id="tablocation" class="form-control" autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-6" style="margin-left:5px">
+                                        <label class="control-label">Address</label>
+                                        <div>
+                                            <input readonly id="tabaddress" class="form-control" autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Phone</label>
+                                        <div>
+                                            <input readonly id="tabphone1" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">  </label>
+                                        <div readonly>
+                                            <a  class="btn btn-primary" style="margin-top:4px">Add</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container-fluid table-responsive">
+                                    <table id="tblshipping" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Location</th>
+                                                <th>Address</th>
+                                                <th>Phone#</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.ARShippingDetail)
+                                            {
+                                                <tr class="removedship">
+                                                    <td class="Id" hidden>
+                                                        @Html.DisplayFor(modelItem => @item.Id)
+                                                    </td>
+                                                    <td readonly class="location">
+                                                        @Html.DisplayFor(modelItem => @item.Location)
+                                                    </td>
+                                                    <td readonly class="address">
+                                                        @Html.DisplayFor(modelItem => @item.Address)
+                                                    </td>
+                                                    <td readonly class="phone">
+                                                        @Html.DisplayFor(modelItem => @item.PhoneNo)
+                                                    </td>
+                                                    <td readonly>
+                                                        <a class="btn btn-sm btn-danger m-t-n-xs" > <i class="fa fa-trash" title="Delete"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="itemCategory" class="tab-pane fade">
+                                <div class="row" style="margin-left:10px">
+                                    <div class="form-group col-lg-3" style="margin-left:5px">
+                                        <label class="control-label">Item Category</label>
+                                        <div>
+                                            <select readonly disabled id="listOfItem" asp-items="@ViewBag.Categories" style="width:240px">
+                                                <option selected="selected" disabled>Select...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">  </label>
+                                        <div readonly>
+                                            <a class="btn btn-primary"  style="margin-top:4px">Add</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="container-fluid table-responsive">
+                                    <table id="ItemCategoryTable" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Item Category</th>
+
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (ViewBag.ItemCategory != null)
+                                            {
+                                                @foreach (var item in ViewBag.ItemCategory)
+                                                {
+                                                    <tr class="removedCat">
+
+                                                        <td class="Id">
+                                                            @foreach (var itm in ViewBag.listOfItemCategories)
+                                                            {
+                                                                if (itm.Value == Convert.ToString(item.CategoryId))
+                                                                {
+                                                                    <input readonly type="text" class="form-control Cat" name="CategoryName" readonly value='@itm.Text' />
+                                                                    <input readonly type="hidden" class="form-control CatI" name="categoryId" value="@itm.Value" />
+                                                                }
+                                                            }
+                                                        </td>
+
+                                                        <td readonly>
+                                                            <a class="btn btn-sm btn-danger m-t-n-xs " > <i class="fa fa-trash" title="Delete"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div id="creditLimit" class="tab-pane fade">
+                                <div class="row" style="margin-left:10px">
+                                    <input id="id" hidden />
+                                    <div class="form-group col-lg-3" style="margin-left:5px">
+                                        <label class="control-label">From Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly id="CLFromDate" class="form-control custom-date-picker" type="text" value="@CommonHelper.CurrentDate" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-3" style="margin-left:5px">
+                                        <label class="control-label">To Date</label>
+                                        <div class="input-group date">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly id="CLToDate" class="form-control custom-date-picker" type="text" value="@CommonHelper.CurrentDate" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">Credit Limit</label>
+                                        <div>
+                                            <input readonly id="CreditLimitAmount" class="form-control" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-lg-2" style="margin-left:5px">
+                                        <label class="control-label">  </label>
+                                        <div readonly>
+                                            <a class="btn btn-primary" style="margin-top:4px">Add</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container-fluid table-responsive">
+                                    <table id="tblCreditLimit" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>From Date</th>
+                                                <th>To Date</th>
+                                                <th>Credit Limit</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.CreditLimitList.OrderByDescending(p => p.Id))
+                                            {
+
+                                                <tr class="removedCreditLimit">
+                                                    <td class="CLId " hidden>@item.Id</td>
+                                                    <td readonly class="CLFromDate text-center">@item.FromDate.ToString(CommonHelper.DateFormat)</td>
+                                                    <td readonly class="CLToDate text-center">@item.ToDate.ToString(CommonHelper.DateFormat)</td>
+                                                    <td readonly class="CLAmount text-right">
+                                                        @if (item.IsCreditLimitExceed == false)
+                                                        {<i class="fa fa-arrow-alt-down" style="color:red"></i> }
+                                                        else if (item.IsCreditLimitExceed == true)
+                                                        {<i class="fa fa-arrow-alt-up" style="color:green"></i>}
+                                                        else
+                                                        { <i class="fa fa-arrow-alt-right"></i>}
+                                                        @item.CreditLimit
+                                                    </td>
+                                                    @if (item.IsClosed == true)
+                                                    {
+                                                        <td readonly class="text-center"><b>Closed</b></td>
+                                                        <td hidden class="CLIsClosed">@item.IsClosed</td>
+                                                        <td hidden class="CLIsExpired">@item.IsExpired</td>
+
+                                                    }
+                                                    else if (item.IsExpired == true)
+                                                    {
+                                                        <td readonly class="text-center"><b>Expired</b></td>
+                                                        <td hidden class="CLIsClosed">@item.IsClosed</td>
+                                                        <td hidden class="CLIsExpired">@item.IsExpired</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td readonly class="text-center"><a @*asp-controller="Customer" asp-action="CloseCreditLimit" asp-route-id="@item.Id"*@  class="btn btn-sm btn-danger m-t-n-xs">Close</a></td>
+                                                        <td hidden class="CLIsClosed">@item.IsClosed</td>
+                                                        <td hidden class="CLIsExpired">@item.IsDeleted</td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-lg-offset-4">
+                                        <a class="btn btn-white" asp-action="Index">List</a>
+                                        <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+                    <a class="btn btn-white" asp-action="Index">List</a>
+                  @*  <input hidden type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />*@
+
+                    <input hidden id="contactperson" name="ContactPerson1" />
+                    <input hidden id="shippingDetail" name="ShippingDetail" />
+                    <input hidden id="creLimit" name="CredtLimit" />
+                    <input hidden id="_itemcategory" name="ItemsCategory" />
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script src="~/lib/moment.js"></script>
+    <script>
+        $("#tblCreditLimit tbody").on("click", ".fa-edit", function () {
+                debugger;
+            var id = $(this).closest("tr")
+                .find(".CLId").text();
+            var CLFromDate = $(this).closest("tr")
+                    .find(".CLFromDate")
+                    .text();
+            var CLToDate = $(this).closest("tr")
+                    .find(".CLToDate")
+                    .text();
+            var CLAmount = $(this).closest("tr")
+                    .find(".CLAmount")
+                    .text();
+
+            $('#id').val(id);
+            $('#CLFromDate').val(CLFromDate);
+            $('#CLToDate').val(CLToDate);
+            $('#CreditLimitAmount').val(CLAmount);
+
+            $(this).closest("tr").remove();
+
+        });
+         //call manualOrNot() to disable "isManual-checkbox"
+        $('#manualCustomerGLAccount').change(function () {
+            debugger
+            var isChecked = false;
+            if ($('#manualCustomerGLAccount').is(":checked"))
+                isChecked = true;
+            if (isChecked) { //manual gl account
+                $("#AccountId").attr('data-validation', 'required');
+                $("#AccountId").removeAttr('disabled');
+            }
+            else {
+                $("#AccountId").removeAttr('data-validation');
+                $("#AccountId").attr('disabled', true);
+            }
+        });
+
+         //call when edit-form will open
+        var bankCashId =@Model.Id;
+        if (bankCashId != 0) {
+            $("#AccountId").removeAttr('disabled');
+        }
+    </script>
+    <script>
+        $.validate();
+     //   $('#listOfItem').select2();
+        $(document).ready(function () {
+            var accountId = $('#AccountId');
+            bindSelect2(accountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', "@ViewBag.AccountId");
+            accountId.prop('disabled', 'disabled');
+        });
+            @*if ("@ViewBag.AccountId" != null) {
+             var id = "@ViewBag.AccountId";
+            bindSelect2(accountId, '/GL/Api/GetAccount?id=', id);
+            }
+
+            $('#AccountId').select2({
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    placeholder: 'Search for a GL Account',
+                    dataType: 'json',
+                    delay: 250,
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });*@
+
+            // Fetch the preselected item, and add to the control
+            @*if ("@ViewBag.AccountId" != null)
+            {
+                var id = "@ViewBag.AccountId";
+            }
+        var accountSelect = $('#AccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+        function getCities() {
+            var countryId = $('#CountryId').val();
+            $.ajax({
+                type: 'GET',
+                url: '/Api/GetCities?id=' + countryId
+            }).then(function (data) {
+                var city = $("#CityId");
+                city.empty();
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    city.append($("<option />").val(data[i].id).text(data[i].name));
+                }
+            });
+        }
+        function getShippingCities() {
+            var countryId = $('#ShippingCountry').val();
+            $.ajax({
+                type: 'GET',
+                url: '/Api/GetCities?id=' + countryId
+            }).then(function (data) {
+                var city = $("#ShippingCity");
+                city.empty();
+                for (var i = 0; i < data.length; i++) {
+                    city.append($("<option />").val(data[i].id).text(data[i].name));
+                }
+            });
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            //change selectboxes to selectize mode to be searchable
+            $(".select-country-city").select2();
+            $("#ProductType").select2();
+            $(".CLToDate").each(function (index) {
+                debugger
+                var CLId = $(".CLId").eq(index).text();
+                const ToDate = moment(new Date($(this).text())).format('MM/DD/YYYY');
+                const CurrentDate = moment(new Date()).format('MM/DD/YYYY');
+
+                debugger
+                if (CurrentDate > ToDate) {
+                    $.ajax({
+                        method: "POST",
+                        url: "/AR/Customer/ExpireCreditLimit/" + CLId,
+                    })
+                        .done(function (msg) {
+
+                        });
+                }
+
+
+
+            });
+        });
+    </script>
+
+
+    <script>
+        function addShippingRow() {
+            debugger;
+            if ($("#tablocation").val() == "") {
+                swal("", "Please enter location.", "warning");
+                return false;
+            }
+            var location = $("#tablocation").val();
+            var address = $("#tabaddress").val();
+            var phone = $("#tabphone1").val();
+            employee_data = '';
+
+            employee_data = '';
+            employee_data += '<tr class="removedship">';
+            employee_data += '<td class ="Id" hidden>0</td>';
+            employee_data += '<td class ="location">' + location + '</td>';
+            employee_data += '<td class ="address">' + address + '</td>';
+            employee_data += '<td class ="phone" >' + phone + '</td>';
+            employee_data += '<td>';
+            employee_data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterowship($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            employee_data += '</tr>';
+
+            $('#tblshipping tbody').append(employee_data);
+
+            $("#tablocation").val("");
+            $("#tabaddress").val("");
+            $("#tabphone1").val("");
+
+        }
+        function AddItemCategory() {
+            debugger;
+            var a = $("#listOfItem").find(":selected").text();
+            if (a == "") {
+                swal("", "There is no category.", "warning");
+                return false;
+            }
+            else if ($("#listOfItem").find(":selected").text() == "Select..." || $("#listOfItem").find(":selected").text() == "") {
+                swal("", "Please select item category.", "warning");
+                return false;
+            }
+            else {
+                var category = $("#listOfItem").find(":selected").text();
+                var category_Id = $("#listOfItem").find(":selected").val();
+                var row = "<tr class='removedCat'>" +
+                    "<td > <input type='text' value='" + category + "' name='categoryName' id='Category' class='form-control text-left Cat'  readonly /></td>" +
+                    "<td hidden> <input value=" + category_Id + " name='categoryId' class='CategoryID CatI' readonly /></td>" +
+                    '<td> <a id="del" onclick="deleterowCat($(this));" class="btn btn-sm btn-danger"> <i class="fa fa-trash" title="Delete"></i> </a> </td>'
+                "</tr>"
+                $('#ItemCategoryTable tbody').append(row);
+                $("#listOfItem").find(":selected").remove();
+            }
+
+        }
+
+
+
+        function addCreditLimit() {
+            debugger;
+            var fromDate = $("#CLFromDate").val();
+            var toDate = $("#CLToDate").val();
+            var creditLimit = $("#CreditLimitAmount").val();
+
+            if (fromDate == "") {
+                swal("", "Please select From Date!", "warning");
+                return false;
+            } if (toDate == "") {
+                swal("", "Please select To Date!", "warning");
+                return false;
+            } else if (creditLimit == "") {
+                swal("", "Please Enter Credit Limit Amount!", "warning");
+                return false;
+            } else {
+
+                credit_limit = '';
+                credit_limit += '<tr class="removedCreditLimit">';
+                credit_limit += '<td class ="CLId" hidden>0</td>';
+                credit_limit += '<td class ="CLFromDate text-center">' + fromDate + '</td>';
+                credit_limit += '<td class ="CLToDate text-center">' + toDate + '</td>';
+                credit_limit += '<td class ="CLAmount text-right" >' + creditLimit + '</td>';
+                credit_limit += '<td hidden class ="CLIsClosed" >false</td>';
+                credit_limit += '<td hidden class ="CLIsExpired" >false</td>';
+                credit_limit += '<td class ="text-center">';
+                credit_limit += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterowCreditLimit($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                credit_limit += '</tr>';
+
+                $('#tblCreditLimit tbody').prepend(credit_limit);
+
+
+                $("#CreditLimitAmount").val("");
+            }
+
+        }
+        $('#CityId').on('change', function () {
+            debugger
+            $('#SalesPersonId').find('option').not(':first').remove();
+            var city = $('#CityId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Customer/GetSlaePerson",
+                data: { Id: city, }
+            })
+                .done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#SalesPersonId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                });
+        })
+    </script>
+
+    <script>
+        function addPersonRow() {
+            debugger;
+            if ($("#tabname").val() == "") {
+                swal("", "Please enter name.", "warning");
+                return false;
+            }
+            var name = $("#tabname").val();
+            var designation = $("#tabdesignation").val();
+            var phone = $("#tabphone").val();
+            var Ext = $("#tabext").val();
+            var Cell = $("#tabcell").val();
+            var Email = $("#tabemail").val();
+            employee_data = '';
+
+            employee_data = '';
+            employee_data += '<tr class="removed">';
+            employee_data += '<td class ="Id" hidden>0</td>';
+            employee_data += '<td class ="name">' + name + '</td>';
+            employee_data += '<td class ="designation">' + designation + '</td>';
+            employee_data += '<td class ="phone" >' + phone + '</td>';
+            employee_data += '<td class ="Ext">' + Ext + '</td>';
+            employee_data += '<td class ="Cell">' + Cell + '</td>';
+            employee_data += '<td class ="Email" >' + Email + '</td>';
+            employee_data += '<td>';
+            employee_data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            employee_data += '</tr>';
+
+            $('#tblPerson tbody').append(employee_data);
+
+            $("#tabname").val("");
+            $("#tabdesignation").val("");
+            $("#tabphone").val("");
+            $("#tabext").val("");
+            $("#tabcell").val("");
+            $("#tabemail").val("");
+        }
+    </script>
+
+    <script>
+        function submitdetails(form) {
+            debugger;
+            var shippingdetails = [];
+            $.each($("#tblshipping tbody tr"), function () {
+                shippingdetails.push({
+                    Id: $(this).find('.Id').html(),
+                    Location: $(this).find('.location').html(),
+                    Address: $(this).find('.address').html(),
+                    PhoneNo: $(this).find('.phone').html(),
+                });
+
+            });
+            var model = JSON.stringify(shippingdetails);
+            $("#shippingDetail").val(model);
+
+            var Contactdetails = [];
+            $.each($("#tblPerson tbody tr"), function () {
+                Contactdetails.push({
+                    Id: $(this).find('.Id').html(),
+                    PersonName: $(this).find('.name').html(),
+                    Designation: $(this).find('.designation').html(),
+                    PhoneNo: $(this).find('.phone').html(),
+
+                    Ext: $(this).find('.Ext').html(),
+                    CellNo: $(this).find('.Cell').html(),
+                    Email: $(this).find('.Email').html(),
+
+                });
+
+            });
+
+            var model = JSON.stringify(Contactdetails);
+            $("#contactperson").val(model);
+
+            debugger
+
+
+            var creditLimit = [];
+            $.each($("#tblCreditLimit tbody tr"), function () {
+                console.log($(this).find('.CLIsExpired').text());
+                debugger
+                creditLimit.push({
+                    Id: $(this).find('.CLId').html(),
+                    FromDate: $(this).find('.CLFromDate').text(),
+                    ToDate: $(this).find('.CLToDate').text(),
+                    CreditLimit: $(this).find('.CLAmount').text(),
+                    IsClosed: $(this).find('.CLIsClosed').text(),
+                    IsExpired: $(this).find(".CLIsExpired").text()
+                });
+
+            });
+
+            var model = JSON.stringify(creditLimit);
+            $("#creLimit").val(model);
+
+            var Categories = [];
+            $.each($("#ItemCategoryTable tbody tr"), function () {
+                Categories.push({
+                    Id: $(this).find('.CategoryID').html(),
+                });
+            });
+            debugger;
+            var accountId = $('#AccountId').val();
+            var salesPersonId = $('#SalesPersonId').val();
+            if (salesPersonId == "Select...") {
+                swal("", "Select Account First ..!", "info");
+                return false;
+            }
+            else if (salesPersonId == "Select...") {
+                swal("", "Select Sale Person First ..!", "info");
+                return false;
+            }
+            else if (Categories.length <= 0) {
+                swal("", "Enter At Least One Record in Item Category!", "info");
+                return false;
+            }
+            else if (creditLimit.length <= 0) {
+                swal("", "Enter At Least One Record in Credit Limit!", "info");
+                return false;
+            }
+
+
+            return true;
+        }
+
+    </script>
+
+
+    <script>
+        function deleterow(row) {
+            debugger
+            var b = row.closest("tr").index();
+            $('.removed').eq(b).remove();
+        }
+        function deleterowship(row) {
+            debugger
+            var b = row.closest("tr").index();
+            $('.removedship').eq(b).remove();
+        }
+        //function deleterowCat(row) {
+        //    debugger
+        //    var b = row.closest("tr").index();
+        //    $('.removedCat').eq(b).remove();
+        //}
+        function deleterowCat(row) {
+            debugger
+            var b = row.closest("tr").index();
+            var CatName = $('.Cat').eq(b).val();
+            var CatId = $('.CatI').eq(b).val();
+            $('#listOfItem').append('<option value="' + CatId + '">' + CatName + '</option>');
+
+            $('.removedCat').eq(b).remove();
+
+            //$("#listOfItem").find(":selected").hide();
+            //$("#listOfItem").find(":selected").text("Select...");
+        }
+        function deleterowCreditLimit(row) {
+            debugger
+            var b = row.closest("tr").index();
+            $('.removedCreditLimit').eq(b).remove();
+        }
+
+    </script>
+    <script>
+        $(".updaterow").click(function () {
+            debugger;
+            var name = $(this).closest("tr").find('.name').html();
+            var designation = $(this).closest("tr").find('.designation').html();
+            var phone = $(this).closest("tr").find('.phone').html();
+
+            var ext = $(this).closest("tr").find('.Ext').html();
+            var cell = $(this).closest("tr").find('.Cell').html();
+            var email = $(this).closest("tr").find('.Email').html();
+
+            $("#tabname").val(5);
+            $("#tabdesignation").val(designation);
+            $("#tabphone").val(phone);
+            $("#tabext").val(ext);
+            $("#tabcell").val(cell);
+            $("#tabemail").val(email);
+
+            $(this).closest("tr").remove();
+
+        });
+
+
+    </script>
+    <script>
+        $(".updaterow1").click(function () {
+            debugger;
+            var $location = $(this).closest("tr").find('.location').html();
+            var $address = $(this).closest("tr").find('.address').text();
+            var $phone = $(this).closest("tr").find('.phone').html();
+
+
+
+            $("#tablocation").val($location);
+            $("#tabaddress").val($address);
+            $("#tabphone1").val($phone);
+
+            $(this).closest("tr").remove();
+
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+
+
+
+}
+

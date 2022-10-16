@@ -1,0 +1,547 @@
+﻿@model OrganizationViewModel
+@using Numbers.Repository.Helpers;
+@{
+    ViewBag.Title = "Organization";
+    ViewData["CurrentPage"] = "Create Organization";
+}
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form id="QuotationForm" class=" ibox-content form-horizontal" asp-action="Create" asp-controller="Organizations" enctype="multipart/form-data" onsubmit="submitdetails()">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div>
+                    <input type="hidden" asp-for="Organization_Id" />
+                </div>
+
+                <div class="row">
+                    <div class="ibox-title">
+                        <h2>Organization</h2>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="form-group">
+                            <label asp-for="OrgName" class="col-lg-4 control-label">Name</label>
+                            <div class="col-lg-8">
+                                <input asp-for="OrgName" autofocus class="form-control on-focus-change-color" />
+                                <p id="name"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="form-group">
+                            <label asp-for="EffectiveFromDate" class="col-lg-4 control-label">Effective From Date</label>
+                            <div class="col-lg-8">
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="EffectiveFromDate" autofocus data-validation="required" data-validation-error-msg="Effective From Date is required" data-validation-error-msg-container="#tDate" class="form-control custom-date-picker" type="text" value="@(Model.OrganizationId == 0 ? CommonHelper.CurrentDate : Model.EffectiveFromDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                                <p id="tDate"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-5">
+                        <div class="form-group">
+                            <label asp-for="ShortName" class="col-lg-4 control-label">Short Name</label>
+                            <div class="col-lg-8">
+                                <input asp-for="ShortName" class="form-control on-focus-change-color" />
+                                <p id="name"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="EffectiveToDate" class="col-lg-4 control-label">Effective To Date</label>
+                            <div class="col-lg-8">
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="EffectiveToDate" autofocus data-validation="required" data-validation-error-msg=" Effective To Date is required" data-validation-error-msg-container="#tDate" class="form-control custom-date-picker" type="text" value="@(Model.OrganizationId == 0 ? CommonHelper.CurrentDate : Model.EffectiveToDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                                <p id="tDate"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="form-group">
+                            <label asp-for="CompanyId" class="col-lg-4 control-label">Company</label>
+                            <div class="col-lg-8">
+                                <select asp-for="CompanyId" id='CompanyId' asp-items="@ViewBag.Company" class="form-control select-item">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2>Address</h2>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <label asp-for="OrgLocation" class="col-lg-4 control-label">Location</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="OrgLocation" autofocus class="form-control on-focus-change-color" />
+                                    <p id="name"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <label asp-for="OrgInternalExternal" class="col-lg-4 control-label">Internal Or External</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="OrgInternalExternal" class="form-control on-focus-change-color" type="text" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="form-group">
+                                <label asp-for="OrgLocation" class="col-lg-2 control-label">Location Address</label>
+                                <div class="col-lg-10">
+                                    <input asp-for="OrgLocation" autofocus class="form-control on-focus-change-color" />
+                                    <p id="name"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">Internal Address</label>
+                                <div class="col-lg-10">
+                                    <input asp-for="OrgType" class="form-control on-focus-change-color" type="text" />
+                                    <span class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ibox-title">
+                        <h2>Organization Classification</h2><br />
+                        <div class="row">
+
+                            <div class="col-lg-3 col-sm-3" style="margin-left:25px;">
+                                <input id="id" type="hidden" />
+                                <div class="form-group">
+                                    <label> Name</label>
+                                    <select name="name" id='Classname' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @*<div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Ledger</label>
+                            <input id="Ledger" class="form-control on-focus-change-color" type="text" />
+                        </div>
+                    </div>*@
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label> Ledger</label>
+                                    <select name="Ledger" id='Ledger' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label>Operating Unit</label>
+                                    <select name="OperatingUnit" id='OperatingUnit' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                            @*<div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Business Unit</label>
+                            <input id="BusinessUnit" class="form-control on-focus-change-color" type="text" />
+                        </div>
+                    </div>*@
+                            <div class="col-lg-3 col-sm-3" hidden>
+                                <div class="form-group">
+                                    <label> Business Unit</label>
+                                    <select name="BusinessUnit" id='BusinessUnit' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-1 col-sm-1 m-t-md">
+                                <div class="form-group">
+                                    <button id="btnAdd1" type="button" class="btn btn-primary" onclick="addrows();">ADD</button>
+                                    <button id="btnUpdateMaster" style="display:none;" type="button" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wrapper wrapper-content animated fadeIn">
+                        <div class="table-info">
+                            <input hidden id="menudetails" name="Details" type="text" />
+                            <div class="tab-content ">
+                                <div id="quot" class="tab-pane fade in active">
+                                    <div class="container-fluid">
+                                        <table id="tblMenu" style="table-layout:fixed" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th hidden style="width:100px;">Item Desc</th>
+                                                    <th>Name</th>
+                                                    <th>Ledger</th>
+                                                    <th>Operating Unit</th>
+                                                    <th hidden>Business Unit</th>
+                                                    <th hidden>Enable</th>
+
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.InvStoreIssueItems != null)
+                                                {
+                                                    @if (Model.InvStoreIssueItems.Count > 0)
+                                                    {
+                                                        foreach (var items in Model.InvStoreIssueItems)
+                                                        {
+                                                            NumbersDbContext _dbcontext = new NumbersDbContext();
+                                                            var Organization = new ConfigValues(_dbcontext).GetCompanyConfig(Convert.ToInt32(items.ClassificationId));
+                                                            var Ledger = new ConfigValues(_dbcontext).GetCompanyConfig(Convert.ToInt32(items.Ledger_Id));
+                                                            var OperatingUnit = new ConfigValues(_dbcontext).GetOperatingUnit(Convert.ToInt32(items.OperationUnitId));
+                                                            var BusinessUnit = new ConfigValues(_dbcontext).GetCompanyConfig(Convert.ToInt32(items.BusinessUnitId));
+
+                                                            <tr>
+                                                                <td hidden name='Sr' class='Sr'>0</td>
+                                                                <td name='id' hidden class='id'>@items.ClassificationDetailId</td>
+                                                                <td name='id' hidden class='id'>@items.ClassificationDetailId</td>
+                                                                <td hidden name='ItemId1' class='ItemId'>@items.ClassificationId</td>
+                                                                <td class='itemt'> @Organization</td>
+
+                                                                @*<td name='Ledger' class='text-right Ledger'>@items.Ledger_Id</td>*@
+                                                                <td hidden name='LedgerId' class='LedgerId'>@items.Ledger_Id</td>
+                                                                <td class='Ledgert'>  @Ledger</td>
+                                                                <td hidden name='OperatingUnitId' class='OperatingUnitId'>@items.OperationUnitId</td>
+                                                                <td class='OperatingUnitt'>  @OperatingUnit</td>
+                                                                @*<td name='OperatingUnit' class='OperatingUnit'> @items.OperationUnitId</td>*@
+                                                                @*<td name='BusinessUnit' class='BusinessUnit'> @items.BusinessUnitId</td>*@
+                                                                <td hidden name='BusinessUnitId' class='BusinessUnitId'>@items.BusinessUnitId</td>
+                                                                <td hidden class='BusinessUnitt'>  @BusinessUnit</td>
+                                                                <td class="text-center"> <a class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a><a class=""> </a><a class="btn btn-danger"><i class="fas fa-trash remove-row"></i></a></td>
+                                                            </tr>
+
+
+                                                        }
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+                    <br />
+                    <br />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-1">
+                                    <a class="btn btn-white" asp-action="Index">List</a>
+                                    @*<input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />*@
+                                    <button asp-action="Create" onclick="return Validation()" asp-controller="Organizations" class="btn btn-primary">Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        $(document).ready(function () {
+            debugger;
+            var itemId = $('#Classname');
+            $(".date").datepicker({
+                dateFormat: 'DD-MM-YYYY'
+            });
+            bindSelect2(itemId, '/ApplicationModule/Api/GetInvOrganizations', '/ApplicationModule/Api/GetInvOrganization?id=', '@ViewBag.ItemId');
+              var Ledger = $('#Ledger');
+            bindSelect2(Ledger, '/ApplicationModule/Api/GetLedgers', '/ApplicationModule/Api/GetLedger?id=', '@ViewBag.ItemId');
+            var OperatingUnit = $('#OperatingUnit');
+            bindSelect2(OperatingUnit, '/ApplicationModule/Api/GetOperatingUnits', '/ApplicationModule/Api/GetOperatingUnit?id=', '@ViewBag.ItemId');
+
+
+            @*var Ledger = $('#Ledger');
+            bindSelect2(Ledger, '/ApplicationModule/Api/GetInvOrganizations', '/ApplicationModule/Api/GetInvOrganization?id=', '@ViewBag.ItemId');
+
+            var BusinessUnit = $('#BusinessUnit');
+            bindSelect2(BusinessUnit, '/ApplicationModule/Api/GetInvOrganizations', '/ApplicationModule/Api/GetInvOrganization?id=', '@ViewBag.ItemId');*@
+    });
+    </script>
+    <script>
+        $('#Classname').change(function () {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var itemt = $("#Classname option:selected").text();
+            var itemv = $("#Classname option:selected").val();
+            if (itemt != "Operating Unit") {
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/ApplicationModule/Api/GetValueNamebyId?id=' + itemv,
+                }).done(function (data) {
+                    debugger;
+                    if (data != null) {
+                        debugger;
+                        console.log(data);
+                        $('#OperatingUnit').val(data.configDescription);
+                    }
+                });
+                $("#Ledger").prop("disabled", false);
+                $("#OperatingUnit").prop("disabled", false);
+            }
+            else {
+                debugger;
+                $("#Ledger").prop("disabled", true);
+                $("#OperatingUnit").prop("disabled", true);
+             //   $('#Ledger option:not(:selected)').attr('disabled', true);
+             ////   $('#Ledger option:not(:selected)').prop('disabled', true);
+
+             //   $('#OperatingUnit option:not(:selected)').attr('disabled', true);
+             //  // $('#OperatingUnit option:not(:selected)').prop('disabled', true);
+
+               
+            }
+        });
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var formdetails = [];
+            $.each($("#tblMenu tbody tr"), function () {
+                formdetails.push({
+                    ClassificationId: Number( $(this).find('.ItemId').html()),
+                    Ledger_Id: Number($(this).find('.LedgerId').html()),
+                    OperationUnitId: Number($(this).find('.OperatingUnitId').html()),
+                    //BusinessUnitId: Number($(this).find('.BusinessUnitId').html()),
+                    ClassificationDetailId: Number( $(this).find('.id').html()),
+                });
+            });
+
+            var model = JSON.stringify(formdetails);
+            $("#menudetails").val(model);
+            if (formdetails.length <= 0) {
+                swal("", "Enter At Least One Record!", "info");
+                return false;
+            }
+        }
+
+    </script>
+    <script>
+
+        function addrows() {
+            debugger;
+            var itemt = $("#Classname option:selected").text();
+            var itemv = $("#Classname option:selected").val();
+            //   var Ledger = $("#Ledger").val();
+            var Ledgert = $("#Ledger option:selected").text();
+            var Ledgerv = 0;
+            if (Ledgert !="Select Please.." && Ledgert !="") {
+                  Ledgerv = $("#Ledger option:selected").val();
+            } 
+          
+            
+            //var OperatingUnit = $("#OperatingUnit").val();
+            var OperatingUnitt = $("#OperatingUnit option:selected").text();
+            var OperatingUnitv = 0;
+            if (OperatingUnitt !="Select Please.." && OperatingUnitt !="") {
+                  OperatingUnitv = $("#OperatingUnit option:selected").val();
+            }  
+            //  var BusinessUnit = $("#BusinessUnit").val();
+            //var BusinessUnitt = $("#BusinessUnit option:selected").text();
+            //var BusinessUnitv = $("#BusinessUnit option:selected").val();
+
+            if (itemt != "Select Please.." && itemt !="") {
+
+                if (itemt == "Operating Unit") {
+                    Ledgert = "";
+                    Ledgerv = 0;
+                    OperatingUnitt = "";
+                    OperatingUnitv = 0;
+                }
+                var row = "<tr>" +
+                    "<td hidden name='Sr' class='Sr'>" + 0 + "</td> " +
+                    "<td name='id' hidden class='id'>0</td>" +
+                    "<td hidden name='ItemId1' class='ItemId'>" + itemv + "</td>" +
+                    "<td class='itemt'>" + itemt + "</td> " +
+                    // "<td name='Ledger' class='Ledger'>" + Ledger + "</td> " +
+                    "<td hidden name='LedgerId' class='LedgerId'>" + Ledgerv + "</td>" +
+                    "<td class='Ledgert'>" + Ledgert + "</td> " +
+
+                    "<td hidden name='OperatingUnitId' class='OperatingUnitId'>" + OperatingUnitv + "</td>" +
+                    "<td class='OperatingUnitt'>" + OperatingUnitt + "</td> " +
+                   // "<td name='OperatingUnit' class='OperatingUnit'>" + OperatingUnit + "</td> " +
+                    // "<td name='BusinessUnit' class='BusinessUnit'>" + BusinessUnit + "</td> " +
+                    //"<td hidden name='BusinessUnitId' class='BusinessUnitId'>" + BusinessUnitv + "</td>" +
+                    //"<td hidden class='BusinessUnitt' >" + BusinessUnitt + "</td> " +
+                    '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                "</tr>"
+
+                $("#tblMenu tbody").append(row);
+                numberRows();
+            }
+            else {
+                swal("", "Please Enter Required Field..!", "info");
+                return;
+            }
+            clearTexbox();
+
+        }
+        function clearTexbox() {
+            debugger;
+            $('#Classname').val(null).trigger('change.select2');
+            $('#Ledger').val(null).trigger('change.select2');
+            //  $('#Ledger').val("");
+           // $('#OperatingUnit').val("");
+            $('#OperatingUnit').val(null).trigger('change.select2');
+            // $('#BusinessUnit').val("");
+        }
+    </script>
+    <script>
+
+        $("#tblMenu tbody").on("click", ".fa-edit", function () {
+            //    var check = "";
+            debugger;
+            if ($('#btnUpdateMaster').css('display') == 'none') {
+                debugger;
+                var $id = $(this).closest("tr")
+                    .find(".id").html();
+                var $item1 = $(this).closest("tr")
+                    .find(".ItemId")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find(".LedgerId")
+                    .html();
+                var $item3 = $(this).closest("tr")
+                    .find(".OperatingUnitId")
+                    .html();
+                var $item4 = $(this).closest("tr")
+                    .find(".BusinessUnitId")
+                    .html();
+                debugger;
+                $('#id').val($id);
+                $('#Classname').val($item1);
+                $('#Ledger').val($item2);
+                $('#OperatingUnit').val($item3);
+               // $('#BusinessUnit').val($item4);
+
+                var itemId = $('#Classname');
+                bindSelect2(itemId, '/ApplicationModule/Api/GetInvOrganizations', '/ApplicationModule/Api/GetInvOrganization?id=', $item1);
+
+                  var Ledger = $('#Ledger');
+                bindSelect2(Ledger, '/ApplicationModule/Api/GetLedgers', '/ApplicationModule/Api/GetLedger?id=', $item2);
+
+                var OperatingUnit = $("#OperatingUnit option:selected").val();
+                bindSelect2(OperatingUnit, '/ApplicationModule/Api/GetOperatingUnits', '/ApplicationModule/Api/GetOperatingUnit?id=', $item3);
+
+                $(this).closest("tr").remove();
+                $('#btnUpdateMaster').css('display', 'block');
+                $('#btnAdd1').css('display', 'none');
+            }
+            else if ($('#btnUpdateMaster').css('display') == 'block') {
+
+                swal("", "Please Finish Updating Current Part.", "warning");
+            }
+        });
+
+        function numberRows() {
+            $('#tblMenu tbody tr').each(function (idx) {
+                $(this).children("td:eq(0)").html(idx + 1);
+            });
+        }
+
+        $('#btnUpdateMaster').click(function () {
+
+            var id = $("#id").val();
+            debugger;
+            var itemt = $("#Classname option:selected").text();
+            var itemv = $("#Classname option:selected").val();
+            //   var Ledger = $("#Ledger").val();
+            var Ledgert = $("#Ledger option:selected").text();
+            var Ledgerv = 0;
+            if ( Ledgert != "") {
+                Ledgerv = $("#Ledger option:selected").val();
+            }
+            var OperatingUnitt = $("#OperatingUnit option:selected").text();
+            var OperatingUnitv = 0;
+            if ( OperatingUnitt != "") {
+                OperatingUnitv = $("#OperatingUnit option:selected").val();
+            }  
+
+            if ( itemt != "Select Please..") {
+
+                if (itemt == "Operating Unit") {
+                    Ledgert = "";
+                    Ledgerv = 0;
+                    OperatingUnitt = "";
+                    OperatingUnitv = 0;
+                }
+                var row = "<tr>" +
+                    "<td hidden name='Sr' class='Sr'>" + 0 + "</td> " +
+                    "<td name='id' hidden class='id'>" + id + "</td>" +
+                    "<td hidden name='ItemId1' class='ItemId'>" + itemv + "</td>" +
+                    "<td class='itemt'>" + itemt + "</td> " +
+                    // "<td name='Ledger' class='Ledger'>" + Ledger + "</td> " +
+                    "<td hidden name='LedgerId' class='LedgerId'>" + Ledgerv + "</td>" +
+                    "<td class='Ledgert'>" + Ledgert + "</td> " +
+
+                    "<td hidden name='OperatingUnitId' class='OperatingUnitId'>" + OperatingUnitv + "</td>" +
+                    "<td class='OperatingUnitt'>" + OperatingUnitt + "</td> " +
+                    //"<td hidden name='BusinessUnitId' class='BusinessUnitId'>" + BusinessUnitv + "</td>" +
+                    //"<td hidden class='BusinessUnitt'>" + BusinessUnitt + "</td> " +
+                    '<td class="text-center"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-danger"><i class="fas fa-trash remove-row"></a></td>'
+                "</tr>"
+
+                $("#tblMenu tbody").append(row);
+                numberRows();
+            }
+            else {
+                swal("", "Please Enter Required Field..!", "info");
+                return;
+            }
+
+            $('#btnUpdateMaster').css('display', 'none');
+            $('#btnAdd1').css('display', 'block');
+
+            numberRows();
+            clearTexbox();
+        });
+
+    </script>
+
+
+    <script>
+
+
+        $("#tblMenu tbody").on("click", ".remove-row", function () {
+            $(this).closest("tr").remove();
+        });
+
+    </script>
+
+}

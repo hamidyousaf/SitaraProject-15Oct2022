@@ -1,0 +1,128 @@
+﻿@model InvAdjustmentViewModel
+@{
+    ViewData["Title"] = "_AdjustmentItem";
+}
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+@if (ViewBag.AdjustmentItems == null)
+{
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-sm-4 col-md-6 col-lg-5">
+                <input type="hidden" asp-for="AdjustmentId" name="AdjustmentId" id=@string.Format("{0}{1}", "AdjustmentId", ViewBag.Counter) />
+                <input type="hidden" asp-for="AdjustmentItemId" name="AdjustmentItemId" id=@string.Format("{0}{1}", "AdjustmentItemId", ViewBag.Counter) />
+                <label>Item Name</label>
+                <select name="ItemId" asp-for="ItemId" id='@string.Format("{0}{1}", "ItemId", ViewBag.Counter)' onchange="getItemValues(this.id, $(this).val())" class="form-control select-item" data-validation="required" data-validation-error-msg="Item is required" data-validation-error-msg-container=@string.Format("#_item{0}", ViewBag.Counter)>
+                    <option disabled selected>Select an item...</option>
+                </select>
+                <p id=@string.Format("_item{0}", ViewBag.Counter)></p>
+            </div>
+            <div class="col-lg-7">
+                <div class="col-sm-8 col-md-6 col-lg-6">
+
+                    @*<div class="col-sm-8 col-md-6 col-lg-12">
+                        <label asp-for="PhysicalStock" class="col-lg-6 col-sm-6"></label>
+                        <label asp-for="Stock" class="col-lg-6 col-sm-6"></label>
+                        <div class="input-group">
+                            <input name="PhysicalStock" asp-for="PhysicalStock" id=@string.Format("{0}{1}", "PhysicalStock_", ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" data-validation="required" data-validation-error-msg="Quantity is required" data-validation-error-msg-container=@string.Format("#_qty{0}",ViewBag.Counter) />
+                            <span name="UOM_Value" class="input-group-addon @string.Format("{0}{1}", "UOM_Value", ViewBag.Counter)" id=@string.Format("{0}{1}", "UOM_Value", ViewBag.Counter)></span>
+                            <input asp-for="UOM" name="UOM" readonly id=@string.Format("{0}{1}", "UOMId_", ViewBag.Counter) class="input-group-addon @string.Format("{0}{1}", "UOMId_", ViewBag.Counter)" type="hidden" />
+                            <input asp-for="Stock" name="Stock" id=@string.Format("{0}{1}", "Stock_", ViewBag.Counter) readonly class="form-control text-right" type="number" tabIndex="-1" />
+                        </div>
+                        <p id=@string.Format("_qty{0}",ViewBag.Counter)></p>
+                    </div>*@
+
+
+                    <div class="col-sm-4 col-md-6 col-lg-4">
+                        <label asp-for="PhysicalStock"></label>
+                        <input name="PhysicalStock" asp-for="PhysicalStock" id=@string.Format("{0}{1}", "PhysicalStock_", ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" />
+                    </div>
+                    <div class="col-sm-4 col-md-6 col-lg-4">
+                        <label asp-for="UOM"></label>
+                        <input type="hidden" asp-for="UOM" name="UOM" id=@string.Format("{0}{1}", "UOMId_", ViewBag.Counter) />
+                        <input name="UOM_Value" readonly class="form-control calculate-total dependent on-focus-change-color" id=@string.Format("{0}{1}", "UOM_Value", ViewBag.Counter) tabIndex="-1" />
+                    </div>
+                    <div class="col-sm-4 col-md-6 col-lg-4">
+                        <label asp-for="Stock"></label>
+                        <input name="Stock" asp-for="Stock" id=@string.Format("{0}{1}", "Stock_", ViewBag.Counter) class="form-control text-right calculate-total" readonly type="text" tabIndex="-1" />
+                    </div>
+                </div>
+                @*<div class="col-sm-4 col-md-6 col-lg-2">
+                <label asp-for="PhysicalStock"></label>
+                <input name="PhysicalStock" asp-for="PhysicalStock" id=@string.Format("{0}{1}", "PhysicalStock_", ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" tabIndex="-1" />
+            </div>
+            <div class="col-sm-4 col-md-6 col-lg-2">
+                <label asp-for="UOM"></label>
+                <input type="hidden" asp-for="UOM" name="UOM" id=@string.Format("{0}{1}", "UOMId_", ViewBag.Counter) />
+                <input name="UOM_Value" readonly class="form-control calculate-total dependent on-focus-change-color" id=@string.Format("{0}{1}", "UOM_Value", ViewBag.Counter) />
+            </div>*@
+
+                <div class="col-sm-12 col-md-6 col-lg-2">
+                    <label asp-for="Balance"></label>
+                    <input asp-for="Balance" name="Balance" id=@string.Format("{0}{1}", "Balance_", ViewBag.Counter) class="form-control text-right calculate-total dependent" type="number" readonly tabIndex="-1" />
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-2">
+                    <label asp-for="Rate"></label>
+                    <input name="Rate" asp-for="Rate" id=@string.Format("{0}{1}", "Rate_", ViewBag.Counter) class="form-control text-right calculate-total dependent on-focus-change-color" type="number" data-validation="required" data-validation-error-msg="Rate is required" data-validation-error-msg-container=@string.Format("#_rate{0}", ViewBag.Counter) /> <p id=@string.Format("_rate{0}", ViewBag.Counter)></p>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-2">
+                    <label asp-for="LineTotal"></label>
+                    <input asp-for="LineTotal" name="LineTotal" id=@string.Format("{0}{1}", "LineTotal_", ViewBag.Counter) readonly class="form-control on-focus-change-color" tabIndex="-1" />
+                </div>
+                <div hidden class="col-sm-12 col-md-6 col-lg-2">
+                    <label hidden> Remarks</label>
+                    <textarea hidden asp-for="Remarks" name="Remarks" rows="1" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control on-focus-change-color"></textarea>
+                </div>
+            </div>
+        </div>
+
+        @*<div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-12">
+                <label> Remarks</label>
+                <textarea asp-for="Remarks" name="Remarks" rows="1" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control on-focus-change-color"></textarea>
+            </div>
+        </div>*@
+    </div>
+}
+<p id="p"></p>
+<div class="text-right mb-3">
+    <a id="add-adjustment-item" class="btn btn-success add-adjustment-item"><i class="fa fa-plus"></i></a>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+@*<script src="~/lib/select2/select2.min.js"></script>*@
+<script src="~/js/INV/adjustmentItem.js"></script>
+<script src="~/js/INV/customSelect2.js"></script>
+<script>
+    $(document).ready(function () {
+    _applySelect($('#ItemId'+@ViewBag.Counter ));
+        var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.AdjustmentItems));
+        var counter = 1;
+        if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            } else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+        }
+        $('#add-adjustment-item').on('click', function () {
+            $.post("/Inventory/Adjustment/PartialAdjustmentItem", { counter: counter }).done(function (data) {
+                $("#p").append(data);
+                counter++;
+            });
+         });
+
+    });
+</script>
+

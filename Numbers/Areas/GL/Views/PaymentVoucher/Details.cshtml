@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Numbers.Entity.ViewModels.GLVoucherViewModel>
+@{
+    ViewData["Title"] = "Voucher Detail";
+    decimal debit = 0;
+    decimal totalcredit = 0;
+    decimal totaldebit = 0;
+    decimal difference = 0;
+}
+@using Numbers.Areas.GL.Controllers;
+@using System.Globalization;
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="PaymentVoucher" asp-action="Index" asp-route-type="@Model.FirstOrDefault().GLVouchers.VoucherType" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Voucher No: <strong class="text-navy">@Model.FirstOrDefault().GLVouchers.VoucherNo</strong></span></h4>
+                        <span><strong>Voucher Date: </strong>@Model.FirstOrDefault().GLVouchers.VoucherDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>Voucher Type: </strong>@Model.FirstOrDefault().GLVouchers.VoucherType</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Bank: <strong class="text-navy">@Model.FirstOrDefault().GLVouchers.BankCashAccount.AccountName - @Model.FirstOrDefault().GLVouchers.BankCashAccount.AccountNumber</strong></span></h4>
+                        <p>
+                            @{
+                                if (Model.FirstOrDefault().VoucherType == "CPV" || Model.FirstOrDefault().VoucherType == "CRV")
+                                {
+                                    totaldebit = Model.Sum(x => x.Debit);
+                                    if (totaldebit == 0)
+                                    {
+                                        totaldebit = Model.Sum(x => x.Credit);
+                                    }
+                                }
+                                else if (Model.FirstOrDefault().VoucherType == "BPV" || Model.FirstOrDefault().VoucherType == "BRV")
+                                {
+                                    totaldebit = Model.Sum(x => x.Credit);
+                                    if (totaldebit == 0)
+                                    {
+                                        totaldebit = Model.Sum(x => x.Debit);
+                                    }
+                                }
+                                difference = totaldebit - totaldebit;
+                            }
+                            <span><strong>Debit: </strong> @totaldebit.ToString("N", new CultureInfo("en-US"))</span><br />
+                            <span><strong>Credit: </strong>@totaldebit.ToString("N", new CultureInfo("en-US"))</span><br />
+                            <span><strong>Difference: </strong>@difference.ToString("N", new CultureInfo("en-US"))</span><br />
+                        </p>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Seq</th>
+                                <th>Account Name</th>
+                                <th>Sub Account</th>
+                                <th>Department</th>
+                                <th>Sub Department</th>
+                                <th>Cost Center</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+
+                                <tr>
+                                    <td class="text-center">
+                                        @item.Seq
+                                    </td>
+                                    <td class="numbers">
+                                        @Html.DisplayFor(modelItem => item.Account)
+
+                                    </td>
+                                    <td class="text-left">
+                                        @item.subAccount
+
+                                    </td>
+                                    <td>
+                                        @item.Department
+                                    </td>
+                                    <td>
+                                        @item.subDepartment
+                                    </td>
+                                    <td class="text-left">
+                                        @item.CostCenter
+                                    </td>
+                                    <td class="text-right ">
+
+                                        @{
+                                            if (item.Debit == 0)
+                                            {
+                                                debit = item.Credit;
+                                            }
+                                            else
+                                            {
+                                                debit = item.Debit;
+                                            }
+                                        }
+                                        @debit.ToString("N",new CultureInfo("en-US"))
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+                @*<table class="table invoice-total">
+                        <tbody>
+                            <tr>
+                                <td><strong>Sub Total :</strong></td>
+                                <td>
+                                    @{
+                                        var usSubTotal = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usSubTotal, "{0:N}", Model.GrandTotal)
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sales Tax :</strong></td>
+                                <td>
+                                    @{
+                                        var usSTAmount = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usSTAmount, "{0:N}", ViewBag.TaxAmount)
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grand Total :</strong></td>
+                                <td>
+                                    <b>
+                                        @{
+                                            var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usGrandTotal, "{0:N}", Model.GrandTotal + ViewBag.TaxAmount)
+                                        }
+                                    </b>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>*@
+                <div class="well-remarks m-t">
+                    <strong>Description: </strong>
+                    @Model.FirstOrDefault().GLVouchers.Description
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

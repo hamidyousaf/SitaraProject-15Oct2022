@@ -1,0 +1,113 @@
+USE [SitaraNew]
+GO
+
+/****** Object:  Table [dbo].[SysApprovalGroup]    Script Date: 9/2/2021 5:52:12 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[SysApprovalGroup](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Group_Name] [nvarchar](200) NULL,
+	[Description] [nvarchar](200) NULL,
+	[IsActive] [bit] NULL,
+	[IsDeleted] [bit] NULL,
+	[CompanyId] [int] NULL,
+	[Resp_ID] [int] NULL,
+	[CreatedBy] [nvarchar](200) NULL,
+	[CreatedDate] [datetime2](7) NULL,
+	[UpdatedBy] [nvarchar](200) NULL,
+	[UpdatedDate] [datetime2](7) NULL,
+ CONSTRAINT [PK_SysApprovalGroup] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+------------------------------------------
+
+USE [SitaraNew]
+GO
+
+/****** Object:  Table [dbo].[SysApprovalGroupDetails]    Script Date: 9/2/2021 5:53:24 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[SysApprovalGroupDetails](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Approval_Group_Id] [int] NULL,
+	[User_ID] [nvarchar](200) NULL,
+	[Description] [nvarchar](200) NULL,
+ CONSTRAINT [PK_SysApprovalGroupDetails] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+--------------------------------
+
+USE [SitaraNew]
+GO
+
+/****** Object:  Table [dbo].[Sys_Rules_Approval]    Script Date: 9/2/2021 5:55:02 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Sys_Rules_Approval](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Rule_Name] [nvarchar](200) NULL,
+	[Description] [nvarchar](200) NULL,
+	[Type] [nvarchar](200) NULL,
+	[Group] [nvarchar](200) NULL,
+	[IsDeleted] [bit] NULL,
+	[CreatedBy] [nvarchar](200) NULL,
+	[CreatedDate] [datetime2](7) NULL,
+	[UpdatedBy] [nvarchar](200) NULL,
+	[UpdatedDate] [datetime2](7) NULL,
+	[IsActive] [bit] NULL,
+ CONSTRAINT [PK_Sys_Rules_Approval] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+--------------------------------
+
+
+USE [SitaraNew]
+GO
+
+/****** Object:  Table [dbo].[Sys_Rules_Approval_Details]    Script Date: 9/2/2021 5:55:39 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Sys_Rules_Approval_Details](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Rule_Id] [int] NULL,
+	[Attribute_Name] [nvarchar](200) NULL,
+	[Operator] [nvarchar](200) NULL,
+	[Table_Name] [nvarchar](200) NULL,
+	[Value] [nvarchar](200) NULL,
+ CONSTRAINT [PK_Sys_Rules_Approval_Details] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+

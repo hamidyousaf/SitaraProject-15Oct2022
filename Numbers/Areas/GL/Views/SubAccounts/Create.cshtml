@@ -1,0 +1,296 @@
+﻿@model SubAccountVM
+@{ ViewData["Title"] = "Sub Accounts";
+    ViewData["CurrentPage"] = "Sub Accounts"; }
+
+
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Sub Accounts</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="" method="post" onsubmit="return check(this);">
+                    <div class="row">
+                        <input hidden asp-for="GLSubAccount.Id" />
+                        <div class="col-md-2 col-lg-2">
+                            @if (Model.GLSubAccount.Id == 0)
+                            {
+                                <div class="form-group">
+                                    <label class="col-form-label">Code</label>
+                                    <input id="Code" class="form-control" value="" readonly />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <label class="col-form-label">Code</label>
+                                    <input asp-for="GLSubAccount.Code" class="form-control" id="Code" readonly />
+                                </div>
+                            }
+                        </div>
+                        <div class="col-lg-3 col-sm-4">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="GLSubAccount.Date" class="form-control" data-validation="required" type="text" value=@(Model.GLSubAccount.Id == 0 ? CommonHelper.CurrentDate : Model.GLSubAccount.Date.ToString(CommonHelper.DateFormat)) readonly tabindex="-1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-5">
+                            <div class="form-group">
+                                <label class="col-form-label">Description</label>
+                                <input autofocus class="form-control" data-validation="required" asp-for="GLSubAccount.Description" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="col-lg-4">  </div>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label"></label>
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="GLSubAccount.IsActive" type="checkbox">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="ibox-title">
+                        <h5>Sub Account Detail</h5>
+                        <span class="label label-success pull-right status"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-2" hidden>
+                            <div class="form-group">
+                                <label class="control-label">Code</label>
+                                <div>
+                                    @*<input class="form-control" id="accountmaintenanceGLAccount" />*@
+                                    <input class="form-control" id="DetailCode" value="0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label class="control-label">Description</label>
+                                <div>
+                                    <input class="form-control" id="DetailDescription" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <a id="addbtn" class="btn btn-success" style="margin-top:22px;"><i class="fa fa-plus"></i> </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid table-responsive">
+                        <table id="tblDetail" class="table table-bordered table-striped ">
+                            <thead>
+                                <tr>
+                                    <th width="20%" hidden >
+                                        Code
+                                    </th>
+                                    <th width="70%">
+                                        Description
+                                    </th>
+                                    <th width="10%">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var item in Model.GLSubAccountDetails)
+                                 {
+                                <tr>
+                                    <td hidden> <input value="@item.Id" id="DetailId" name="DetailId" class="form-control" readonly /></td>
+                                    <td hidden><input value="@item.Code" id="tblDetailCode" name="tblDetailCode" class="form-control transparentInput" readonly /></td>
+                                    <td><input value="@item.Description" id="DetailDescription" name="Description" class="form-control transparentInput" readonly /></td>
+                                    <td>
+                                        @*<a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>*@
+                                        <a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a>
+                                        <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>
+                                    </td>
+
+
+
+
+                                    @*@if (item.Description != null && item.Description != "")
+                                    {
+                                        <td><input value="@item.Description" id="DetailDescription" name="Description" class="form-control transparentInput" readonly /></td>
+                                        <td hidden><input value="0" id="LCId" name="LCId" class="form-control" readonly /></td>
+                                        <td hidden><input value="0" class="form-control transparentInput" readonly /></td>
+                                    }
+                                    else
+                                    {
+                                        <td hidden><input value="" id="DetailDescription" name="Description" class="form-control transparentInput" readonly /></td>
+                                        <td hidden><input value="@item.LCID" id="LCId" name="LCId" class="form-control" readonly /></td>
+                                        <td><input value="@item.LCNo" class="form-control transparentInput" readonly /></td>
+                                    }
+                                    @if (item.Description != null && item.Description != "")
+                                    {
+                                        <td>
+                                            <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>
+                                            <a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a>
+                                            <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>
+                                        </td>
+                                    }*@
+                                </tr>
+                                }
+                                @*@if (ViewBag.ModuleId != null)
+                                 {
+                                   @foreach (var item in ViewBag.ModuleId)
+                                    {
+                                       <tr>
+                                           <td><input value="@item" class="form-control" readonly /></td>
+                                           <td>
+                                               <a id="editrow" onclick="editrow($(this));" class="btn btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a>
+                                               <a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>
+                                           </td>
+                                       </tr>
+                                    }
+                                 }*@
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <div class="col-lg-4 ">
+                                <a value="List" class="btn btn-white" asp-controller="SubAccounts" asp-action="Index">List</a>
+                                <input type="submit" onclick="return Validate();" value="Save" class="btn btn-primary" asp-action="Create" asp-controller="SubAccounts" />
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section CustomJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.validate();
+        });
+    </script>
+    <script>
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+    </script>
+    <script>
+        function editrow(row) {
+            row.closest("tr").find("#DetailDescription").attr("readonly", false);
+            row.closest("tr").find("#doneEdit").show();
+            row.closest("tr").find("#editrow").hide();
+        }
+        function doneEdit(row) {
+            row.closest("tr").find("#DetailDescription").attr("readonly", true);
+            row.closest("tr").find("#doneEdit").hide();
+            row.closest("tr").find("#editrow").show();
+        }
+        doneEdit
+    </script>
+
+    <script>
+        $('#addbtn').click(function () {
+            debugger;
+            var DetailCode = $("#DetailCode").val();
+            var DetailDescription = $("#DetailDescription").val();
+            if ( DetailDescription == "") {
+                swal("", "Please Fill Code And Description", "warning")
+            }
+            else {
+                var code = $("#DetailDescription").val();
+                var value = false;
+                $('#tblDetail > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find("#DetailDescription").val();
+                    if (code == check) {
+                        value = true;
+                    }
+                });
+
+                if (value == false) {
+                    //////////////////
+                    var items = '';
+                    items += '<tr>';
+                    items += '<td hidden> <input value="0" id="DetailId" name="DetailId" class="form-control" readonly /></td>';
+                    items += '  <td hidden> <input value="' + DetailCode + '" id="tblDetailCode" name="tblDetailCode" class="form-control transparentInput" readonly /></td>';
+                    items += '<td> <input value="' + DetailDescription + '" id="DetailDescription" name="Description" class="form-control transparentInput" readonly /></td>';
+
+                    items += '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                    items += '</tr>';
+                    $("#tblDetail").append(items);
+                    $("#DetailDescription").val("");
+                    $("#DetailCode").val("");
+                }
+                else {
+                    swal("", "Description already exists..", "warning")
+                }
+            }
+        });
+
+    </script>
+    <script>
+        function check(form) {
+            debugger;
+            var code = $("#Code").val();
+            var chk = 0;
+            var model = @Model.GLSubAccount.Id;
+            if (model == 0) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/GL/SubAccounts/CheckCode?code=' + code,
+                    async: false,
+                }).done(function (data) {
+                    if (data == true) {
+                        chk = 1;
+                    }
+                });
+            }
+            debugger;
+            if (chk == 1) {
+                $.notify("Sub Account Code already Exist", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function Validate() {
+            debugger
+            var length = $("#tblDetail > tbody > tr").length;
+            if (length == 0) {
+                swal("", "Sub Account Detail must be enter.", "warning");
+                return false
+            } else {
+                return true;
+            }
+        }
+    </script>
+
+
+
+}
+

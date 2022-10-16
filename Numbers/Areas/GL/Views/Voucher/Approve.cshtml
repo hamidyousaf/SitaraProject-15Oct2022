@@ -1,0 +1,164 @@
+﻿
+@model IEnumerable<Numbers.Entity.Models.GLVoucher>
+@{
+    ViewData["Title"] = "Approve Voucher";
+    ViewData["CurrentPage"] = "Approve";
+
+}
+
+
+
+<div class="modal inmodal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>Approve Voucher</h5>
+                </div>*@
+            <div class="ibox-content">
+                <table class="table table-bordered table-striped dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.VoucherNo)
+                            </th>
+                            @*<th>
+                                @Html.DisplayNameFor(model => model.VoucherType)
+                            </th>*@
+                            <th>
+                                @Html.DisplayNameFor(model => model.VoucherDate)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Reference)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Description)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Currency)
+                            </th>
+                            <th class="text-right">
+                                @Html.DisplayNameFor(model => model.Amount)
+                            </th>
+                            @*<th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>*@
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(model => item.VoucherType) -
+                                    @Html.DisplayFor(modelItem => item.VoucherNo)
+                                </td>
+                                @*<td>
+                                    @Html.DisplayFor(modelItem => item.VoucherType)
+                                </td>*@
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.VoucherDate)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Reference)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Currency)
+                                </td>
+                                <td class="text-right">
+                                    @{
+                                        var us = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(us, "{0:N}", item.Amount)
+                                    }
+                                    @*@Html.DisplayFor(modelItem => item.Amount)*@
+                                </td>
+                                @*<td>
+                                        @Html.DisplayFor(modelItem => item.Status)
+                                    </td>*@
+                                <td>
+                                    <a onclick="getVoucherDetails(@item.Id);" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="Voucher Detail"></i></a>
+                                    <a class="btn btn-sm btn-success m-t-n-xs" asp-controller="Voucher" asp-action="ApproveVoucher" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to Approve Voucher?')"><i class="fa fa-thumbs-up" title="Approve"></i></a>
+                                    @if (item.Status != "Approved")
+                                    {
+                                        <a asp-action="DeleteVoucher" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to delete voucher?')"><i class="far fa-trash-alt" title="Delete"></i></a>
+                                    }
+                                    <a href="@string.Format(ViewBag.ReportPath, item.Id)" target="_blank" class="btn btn-sm btn-primary btn-lg m-t-n-xs"><i class="fa fa-print" title="Print Report"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal pop-up -->
+<!-- Trigger the modal with a button -->
+<div class="modal fade" id="voucherModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><strong>Voucher Detail</strong></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox">
+                            <p id="voucherTable"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+          function getVoucherDetails(id) {
+              var voucherId = id;     
+            var counter = 1;
+            // AJAX request
+            $.ajax({
+                url: '/GL/Voucher/PreviewVoucher',
+                type: 'GET',
+                method:'GET',
+                data: { id: voucherId },
+                success: function (response) {   
+                    $('#voucherTable').html(response);
+                    // Display Modal
+                    $('#voucherModal').modal('show');
+                },
+                fail: function (response) {
+                    console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+    </script>
+    @*<script>
+        function Approve(id) {
+            $.ajax({
+                url: "/GL/Voucher/Approve?id=" + id
+            })
+                .done(function (data) {
+                    $("#modal").html(data);
+                    $("#modal").modal("show");
+                })
+                .fail(function (data) {
+                    swal("Error", data.statusText, "warning");
+                });
+        }
+    </script>*@
+
+}

@@ -1,0 +1,259 @@
+﻿@model IEnumerable<APIGPVm>
+@{
+    ViewData["Title"] = "List of IPG";
+    ViewData["CurrentPage"] = "APIGP";
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="IGP" asp-action="Index"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped" style="width:100%" id="igpTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.IGP)</th>
+                                <th style="width: 8%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.IGPDate)</th>
+                                <th style="width: 15%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.VendorId)</th>
+                                <th style="width: 8%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.Bility)</th>
+                                <th style="width: 10%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.Vehicle)</th>
+                                <th style="width: 8%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.DC)</th>
+                                <th style="width: 15%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.UnloadingAmount)</th>
+                                <th style="width: 10%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.CreatedBy)</th>
+                                <th style="width: 10%" class="searchHeader">@Html.DisplayNameFor(model => model.APIGP.ApprovedBy)</th>
+                                <th style="width: 11%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trigger the modal with a button -->
+<div class="modal fade" id="builtyUpdateModal" role="dialog" style="margin-left:0px">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Unloading</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>IGP #</label>
+                            <input id="dcNo" onkeypress="return isCharacter()" onpaste="return false;" ondrop="return false;" type="text" data-validation="required" data-validation-error-msg="IGP # is required" disabled autocomplete="off" class="form-control" />
+                            <p id="dcNumber"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Unloading Date</label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input id="builtyDate" data-validation="required" data-validation-error-msg="Date is required" data-validation-error-msg-container="#builtyDate" class="form-control custom-date-picker" type="text" value="@(CommonHelper.CurrentDate)" disabled />
+                            </div>
+                            <p id="builtyDate"></p>
+                        </div>
+                        <div class="col-md-3">
+                            
+                            <label>Freight Amount</label>
+                            <input id="freightAmount" autofocus type="text" data-validation="required" data-validation-error-msg="Freight is required" autocomplete="off" class="form-control" />
+                            <p id="freightAmount"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="hidden" id="hdndcId" />
+                            <label>Unloading Amount</label>
+                            <input id="builtyNumber" autofocus type="text" data-validation="required" data-validation-error-msg="Unloading is required" autocomplete="off" class="form-control" />
+                            <p id="builtyNumber"></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="builtyNumberUpdatebtn" onclick="saveBuiltyNumber()" class="btn btn-primary" data-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            debugger
+            $("#igpTable").dataTable({
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AP/IGP/GetIGP",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [9] }],
+
+                "columns": [
+                    { "data": "apigp.igp", "name": "IGP", className: "text-center" },
+                    { "data": "igpDate", "name": "IGPDate", className: "text-center" },
+                    {"data": "vendor", "name": "VendorId"},
+                    { "data": "apigp.bility", "name": "Bility", className: "text-center" },
+                    { "data": "apigp.vehicle", "name": "Vehicle", className: "text-center" },
+                    { "data": "apigp.dc", "name": "DC", className: "text-center" },
+                    { "data": "apigp.unloadingAmount", "name": "UnloadingAmount", className: "text-right" },
+                    { "data": "apigp.createdUser.userName", "name": "CreatedUser.UserName", className: "text-center" },
+                    { "data": "apigp.auser", "name": "ApprovalUser.UserName", className: "text-center" },
+                    {
+                        "data": "apigp", className: "text-center",
+                        "render": function (data, row) {
+                            debugger;
+                            if (!data.isApproved) {
+                                //return "<div style=''> <a href='/AP/IGP?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/IGP/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a  href='/AP/IGP/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a> </div>";
+                                if (data.unloadingAmount == 0 || data.freightAmount == 0 ) {
+                                    // return "<a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> " + "<a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/AP/IGP/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a><a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a><a href='@ViewBag.ReportPathVoucher" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-print' title='Voucher'></i></a>";
+                                    // return "<a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> " + "<a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/AP/IGP/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a><a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a>";
+                                    if (data.approve == true) {
+                                        return "<div style=''><a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ", " + data.freightAmount + ", " + data.unloadingAmount + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> <a href='/AP/IGP?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/IGP/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a  href='/AP/IGP/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a> </div>";
+                                    } else {
+                                        return "<div style=''><a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ", " + data.freightAmount + ", " + data.unloadingAmount + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> <a href='/AP/IGP?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/IGP/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a> </div>";
+                                    }
+                                }
+                                else {
+                                    if (data.approve == true) {
+                                        return "<div style=''> <a href='/AP/IGP?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/IGP/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a  href='/AP/IGP/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a> </div>";
+                                    } else {
+                                        return "<div style=''> <a href='/AP/IGP?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AP/IGP/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a> </div>";
+                                    }
+                                }
+                            }
+                            else {
+                                if (data.unloadingAmount == 0 || data.freightAmount == 0) {
+                                    if (data.unapprove == true) {
+                                        return " <a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ", " + data.freightAmount + ", " + data.unloadingAmount + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> <a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/AP/IGP/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>    <a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a><a href='@ViewBag.ReportPathVoucher" + data.voucherId + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-print' title='Voucher'></i></a>";
+                                    } else {
+                                        return " <a onclick='getBuiltyUpdateForm(" + data.id + ", " + data.igp + ", " + data.freightAmount + ", " + data.unloadingAmount + ")' class='btn btn-sm btn-warning btn-lg m-t-n-xs' ><i class='fa fa-plus' title='Amount'></i></a> <a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a><a href='@ViewBag.ReportPathVoucher" + data.voucherId + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-print' title='Voucher'></i></a>";
+                                    }
+                                } else {
+                                    if (data.unapprove == true) {
+                                        return "<a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/AP/IGP/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>    <a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a>    <a href='@ViewBag.ReportPathVoucher" + data.voucherId + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-print' title='Voucher'></i></a>";
+                                    } else {
+                                        return "<a href='/AP/IGP/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='@ViewBag.ReportPath" + data.id + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs' >IGP</a>    <a href='@ViewBag.ReportPathVoucher" + data.voucherId + "' target='_blank' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-print' title='Voucher'></i></a>";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+
+            })
+
+
+            $('#igpTable thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+
+
+        });
+
+        function getBuiltyUpdateForm(id, dcNo,freightAmount,unloadingAmount) {
+            $('#hdndcId').val(id);
+            $('#dcNo').val(dcNo);
+            $('#freightAmount').val(freightAmount);
+            $('#builtyNumber').val(unloadingAmount);
+            $('#builtyUpdateModal').modal('show');
+        }
+
+        function saveBuiltyNumber() {
+            debugger;
+            let dcId = $('#hdndcId').val();
+            let unloadingAmount = $('#builtyNumber').val();
+            let freightAmount = $('#freightAmount').val();
+            let unloadingDate = $('#builtyDate').val();
+            if (parseInt(dcId) == 0) {
+                swal('', 'Please enter bulity number', 'Error');
+                return;
+            } else {
+                $.ajax({
+                    url: '/AP/IGP/UpdateUnloadingAmount',
+                    type: 'POST',
+                    method: 'POST',
+                    data: { id: dcId, freightAmount: freightAmount, unloadingAmount: unloadingAmount, unloadingDate: unloadingDate },
+                    success: function (response) {
+                        $('#igpTable').DataTable().draw();
+                    },
+                    fail: function (response) {
+                        // console.log('message from fail...', response.responseText);
+                    }
+                });
+            }
+        }
+
+    </script>
+}
+
+
+

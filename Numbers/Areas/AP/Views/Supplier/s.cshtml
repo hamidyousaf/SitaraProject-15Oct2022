@@ -1,0 +1,253 @@
+﻿@model APSupplier
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Supplier</h5>
+
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal" asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Name" class="form-control" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ContactPerson" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ContactPerson" class="form-control" />
+                                    <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Phone1" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Phone1" class="form-control" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Phone2" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Phone2" class="form-control" />
+                                    <span asp-validation-for="Phone2" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="GSTNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="GSTNo" class="form-control" />
+                                    <span asp-validation-for="GSTNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="NTNNo" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="NTNNo" class="form-control" />
+                                    <span asp-validation-for="NTNNo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Email" type="email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Web" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Web" class="form-control" />
+                                    <span asp-validation-for="Web" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="AccountId" class="form-control" asp-for="AccountId">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="AccountId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Fax" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Fax" class="form-control" />
+                                    <span asp-validation-for="Fax" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+  
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Address" class="form-control" />
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="Country" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="Country" class="form-control" asp-for="Country" asp-items="@ViewBag.AppCountries" onchange="selectCities();">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="Country" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="City" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="City" class="form-control" asp-for="City" asp-items="@ViewBag.AppCities">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4">  </div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-4">
+                                    <a class="btn btn-white" asp-action="Index" asp-controller="Supplier">Back</a>
+                                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+    $.validate();
+    </script>
+    <script>
+        $(function () {
+            $('#AccountId').select2({
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a GL Account',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            // Fetch the preselected item, and add to the control
+            if ("@ViewBag.Id" != null)
+            {
+                var id = "@ViewBag.Id";
+            }             
+        var accountSelect = $('#AccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+        function selectCities() {
+            var countryId = $('#Country').val();
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/API/GetCities?id=' + countryId
+            }).done(function (data) {
+                alert();
+                debugger;
+                var city = $("#City");
+                
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    //city.append($("<option />").val(data[i].id).text(data[i].name));
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewData["Title"] = "Ledger";
+    ViewData["CurrentPage"] = "Ledger";
+    // var GetPath = Context.Session.GetString("ReportPath").ToString();
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Booking Ledger</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    <input type="hidden" name="ReportTitle" value="BookingLedger" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    @*<input type="hidden" name="ReportPath" id="ReportPath" value=@GetPath />*@
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Booking Number</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="chosen-select" id="bkgNo" data-validation="required" name="bkgNo">
+                                        <option>Please select a Booking Number...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                    @*<input class="form-control custom-date-picker" data-validation="required" type="text" id="name" name="name" value=@GetPath />
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        <div class="col-lg-6">
+                            @*<input type="button" value="Preview" class="btn btn-primary" onclick="return openReport();" />*@
+                            <input type="submit" value="Preview"  class="btn btn-sm btn-primary m-t-n-xs" onclick="return openReport($('#bkgNo').val());" />
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+<script>
+        $('#bkgNo').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/Booking/Api/GetVehiclesById',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        function openReport(val) {
+            var reportURL = "/Booking/Vehicle/Detail?Id=" + val;
+            window.open(reportURL, "_blank");
+        }
+    </script>
+
+}

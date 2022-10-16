@@ -1,0 +1,146 @@
+﻿@model IEnumerable<InvStoreIssue>
+@{
+    ViewData["Title"] = "List of Store Issues";
+    ViewData["CurrentPage"] = "Store Issue Note";
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="StoreIssue" asp-action="Create"> <strong> Create New </strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table style="width:100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="8%">Issue No</th>
+                                <th class="searchHeader" width="10%">Issue Date</th>
+                                <th class="searchHeader" width="12%">Ware House</th>
+                                <th class="searchHeader" width="15%">Department</th>
+                                <th class="searchHeader" width="15%">Sub Department</th>
+                                <th class="searchHeader" width="14%">Cost Center</th>
+                                <th class="searchHeader" width="10%">CreatedBy</th>
+                                <th class="searchHeader" width="10%">Status</th>
+                                <th width="6%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            var table1 = $("#Table").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                "processing": true,
+                "serverSide": true,
+                "filter": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/Inventory/StoreIssue/GetStoreIssue",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [6] }],
+
+                "columns": [
+                    { "data": "storeIssue.issueNo", "name": "IssueNo", className: "text-right" },
+                    { "data": "storeIssuesDate", "name": "IssueDate", className: "text-center" },
+                    { "data": "storeIssue.wareHouse.configValue", "name": "WareHouse.ConfigValue", className: "text-left" },
+
+                    { "data": "storeIssue.department.name", "name": "Department.Name", className: "text-left" },
+                    { "data": "storeIssue.subDepartment.name", "name": "SubDepartment.Name", className: "text-left" },
+
+                    { "data": "storeIssue.costCenter.description", "name": "CostCenter.Description", className: "text-left" },
+                    { "data": "storeIssue.user.fullName", "name": "User.FullName", className: "text-center" },
+                    { "data": "storeIssue.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "storeIssue",
+                        "render": function (data, row) {
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<a href='/Inventory/StoreIssue/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/Inventory/StoreIssue/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a>    <a  href='/Inventory/StoreIssue/Approve?id=" + data.id + "' class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up'  title='Approve'></i></a>";
+                                } else {
+                                    return "<a href='/Inventory/StoreIssue/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a href='/Inventory/StoreIssue/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash-alt' title='Delete'></i></a>";
+                                }
+                            }
+                            else {
+                                return '<a href="/Inventory/StoreIssue/Details?id=' + data.id + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>  <a href="@ViewBag.ReportPath2' + data.id + '" target="_blank" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-print" title="print"></i></a>';
+                            }
+
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+    </script>
+}

@@ -1,0 +1,512 @@
+﻿@model Numbers.Entity.ViewModels.ItemPricingVM
+
+@{
+    ViewData["Title"] = "Create";
+}
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.EntityState Customer</h5>
+                </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form id="CustomerForm" asp-action="Create" enctype="multipart/form-data" onsubmit="return submitdetails();">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="itemPricing.ID" />
+                    </div>
+                    <div class="row">
+                        @if (Model.itemPricing == null)
+                        {
+                            <div class="col-lg-1 col-sm-2 Pad-rht">
+                                <div class="form-group">
+                                    <label asp-for="itemPricing.TrancationNo"></label>
+                                    <label></label>
+                                    <input asp-for="itemPricing.TrancationNo" value="@ViewBag.Tran" data-validation="required" class="chosen-select form-control text-right" readonly>
+                                    @*<input asp-for="APPurchaseRequisition.PrNo" class="chosen-select form-control text-right" readonly>*@
+                                </div>
+                            </div> }
+                        else
+                        {
+                            <div class="col-lg-1 col-sm-2 Pad-rht">
+                                <div class="form-group">
+                                    <label asp-for="itemPricing.TrancationNo"></label>
+                                    <label></label>
+                                    <input asp-for="itemPricing.TrancationNo" class="chosen-select form-control text-right" data-validation="required" readonly>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-lg-2 col-sm-4 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="itemPricing.ProductType_Id"></label>
+                                <select autofocus asp-for="itemPricing.ProductType_Id" id="Itemcategory" asp-items="@ViewBag.ProductType" class="chosen-select form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="itemPricing.ItemCategory_Id"></label>
+                                <select asp-for="itemPricing.ItemCategory_Id" id="ItemcategorySecondL" asp-items="@ViewBag.listOfItemCategories" class="chosen-select form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <input id="id" hidden />
+                            <div class="form-group">
+                                <label asp-for="itemPricing.ItemCategory_Id3"></label>
+                                <select asp-for="itemPricing.ItemCategory_Id3" name="ItemCategory_Id3" asp-items="@ViewBag.listOfItemCategories3" id="ItemcategorythirdL" class="chosen-select form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>Item Category 4</label>
+                                <select id="ItemcategoryfourthL" class="chosen-select form-control">
+                                    <option value="0" selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 Pad-rht">
+                            <input type="hidden" id="UOM1" />
+                            <input type="hidden" id="UOM2" />
+                            <div class="form-group">
+                                <label>Season</label>
+                                <select id="Season" asp-items="@ViewBag.Season" class="chosen-select form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <div class="row">
+                        <div class="col-lg-1 col-sm-2 Pad-rht">
+                            <div class="form-group">
+                                <label>Price/Unit</label>
+                                <input id="ItemPrice" class="form-control" maxlength="15" value="0.00" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4 Pad-rht">
+                            <div class="form-group">
+                                <label>Price Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="PriceStartDate" class="form-control custom-date-picker" autocomplete="off" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 Pad-rht">
+                            <div class="form-group">
+                                <label>Price End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="PriceEndDate" class="form-control custom-date-picker" autocomplete="off" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-2 Pad-rht" hidden>
+                            <div class="form-group">
+                                <label>Disc.%</label>
+                                <input id="DiscPrice" onchange="AmountCalculation();" class="form-control" value="0.00" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-2 Pad-rht">
+                            <div class="form-group">
+                                <label>Disc. Amt</label>
+                                <input id="DiscAmount" onchange="PercCalculation();" class="form-control" value="0.00" maxlength="15" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-4 Pad-rht">
+                            <div class="form-group">
+                                <label>Discount Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="DiscStartDate" class="form-control custom-date-picker" type="text" autocomplete="off" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4 Pad-rht">
+                            <div class="form-group">
+                                <label>Discount Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="DiscEndDate" class="form-control custom-date-picker" type="text" autocomplete="off" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-1">
+                            <label class="control-label">  </label>
+                            <div>
+                                <a class="btn btn-primary" onclick="addItem();" style="margin-top:4px">Add</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive ">
+                            <table id="tblDetail" class="table table-bordered table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Season</th>
+                                        <th>Price</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>UOM1</th>
+                                        <th hidden>UOM2</th>
+                                        <th hidden>Disc.%</th>
+                                        <th>Disc.Amt</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.itemPricingList != null)
+                                    {
+                                        foreach (var item in Model.itemPricingList)
+                                        {
+                                            <tr>
+                                                <td class="ID" hidden>@item.ID</td>
+                                                <td class="Item_ThirdLevel" hidden>@item.Item_ThirdLevel</td>
+                                                <td class="ItemID text-right" hidden>@item.ItemId</td>
+                                                <td class="ItemName text-right">@item.Item</td>
+                                                <td class="SeasonId text-right" hidden>@item.SeasonId</td>
+                                                <td class="text-left SeasonName">@item.Season</td>
+                                                <td class="Price text-right">@item.Price</td>
+                                                <td class="PriceStart text-center">@item.Price_StartDate</td>
+                                                <td class="PriceEnd text-center">@item.Price_EndDate</td>
+                                                <td class="UOM2 text-center">@item.UOM1</td>
+                                                <td hidden class="UOM2 text-center">@item.UOM2</td>
+                                                <td hidden class="Discount text-right">@item.Discount</td>
+                                                <td class="Discount text-right">@item.DiscountAmount</td>
+                                                <td class="DiscStart text-center">@item.Dis_StartDate</td>
+                                                <td class="DiscEnd text-center">@item.Dis_EndDate</td>
+                                                <td> <a id="delrow" onclick="deleteItem($(this));" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleteItem($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                            </tr>
+
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--------------------------------------------------------------------------------->
+                    <a class="btn btn-white" asp-action="Index">List</a>
+                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+
+                    <input hidden id="detail" name="detail" />
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/js/notify.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#Itemcategory").select2();
+            $("#ItemcategorySecondL").select2();
+            $("#ItemcategoryfourthL").select2();
+            $("#ItemcategorythirdL").select2();
+            $("#Season").select2();
+            $('#ItemcategorySecondL').change();
+            $.each($("#tblDetail tbody tr"), function () {
+                var item = ($(this).find('.ItemID').val());
+                $("#ItemcategoryfourthL option[value='" + item + "']").remove();
+            });
+            $("#ItemPrice").change(function () {
+                $("#DiscPrice").val(0.00.toFixed(2));
+                $("#DiscAmount").val(0.00.toFixed(2));
+            });
+        });
+        //Loading 3rd Level Category
+        $('#ItemcategorySecondL').on('change', function () {
+            debugger
+            $('.removedItem').remove();
+            $('#ItemcategorythirdL').find('option').not(':first').remove();
+            $('#ItemcategoryfourthL').find('option').not(':first').remove();
+            var item = $('#ItemcategorySecondL').val();
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItem",
+                data: { Id: item, level: 3 }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#ItemcategorythirdL').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+
+        })
+        //Loading 4th Level Category
+        $('#ItemcategorythirdL').on('change', function () {
+            debugger
+            $('.removedItem').remove();
+            $('#ItemcategoryfourthL').find('option').not(':first').remove();
+
+            var item = $('#ItemcategorythirdL').val();
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetItem",
+                data: { Id: item, level: 4 }
+            })
+                .done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#ItemcategoryfourthL').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                    debugger
+                    $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+                });
+        })
+        $('#ItemcategoryfourthL').on('change', function () {
+            debugger
+            var item = $('#ItemcategoryfourthL').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetUOM",
+                data: { Id: item }
+            }).done(function (data) {
+                if (data == true) {
+                    $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+                    swal("", "This category has already priced!", "error")
+                    return false;
+                }
+                debugger
+                var UOM1 = data.uoM1;
+                var UOM2 = " ";
+                if (data.uoM2 != null)
+                    UOM2 = data.uoM2;
+                $('#UOM1').val(UOM1);
+                $('#UOM2').val(UOM2);
+               });
+        })
+
+        function checkPricing() {
+            debugger
+            var item = $('#ItemcategoryfourthL').val();
+            if (item == "0" || item == null) {
+                return;
+            }
+            $.ajax({
+                method: "GET",
+                url: "/Inventory/ItemPricing/GetUOM",
+                data: { Id: item }
+            }).done(function (data) {
+                if (data == true) {
+                    $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+                    swal("", "This category has already priced!", "error")
+                    return false;
+                }
+                debugger
+                var UOM1 = data.uoM1;
+                var UOM2 = " ";
+                if (data.uoM2 != null)
+                    UOM2 = data.uoM2;
+                $('#UOM1').val(UOM1);
+                $('#UOM2').val(UOM2);
+            });
+        }
+        //Appending Rows
+        function addItem() {
+
+
+            debugger;
+            var item = $("#ItemcategoryfourthL").find(":selected").text();
+            var itemId = $("#ItemcategoryfourthL").find(":selected").val();
+            var itemIdthird = $("#ItemcategorythirdL").find(":selected").val();
+            var Season = $("#Season").find(":selected").text();
+            var SeasonId = $("#Season").find(":selected").val();
+            var Price =Number($("#ItemPrice").val());
+            var PriceStartDate = $("#PriceStartDate").val();
+            var PriceEndDate = $("#PriceEndDate").val();
+            var Discount = parseFloat($("#DiscPrice").val()).toFixed(2);
+            var DiscountAmount = parseFloat($("#DiscAmount").val()).toFixed(2);
+            var DiscStartDate = $("#DiscStartDate").val();
+            var DiscEndDate = $("#DiscEndDate").val();
+            var UOM1 = $('#UOM1').val();
+            var UOM2 = $('#UOM2').val();
+            if (item == "Select...") {
+                swal('', 'Please Select Item', 'error');
+                return false;
+            }
+            else if (SeasonId == "Select...") {
+                swal('','Please Select Season','error');
+                return false;
+            } else if (Price == "" || Price==0) {
+                swal('', 'Price must be greater than 0', 'error');
+                return false;
+            } else if (Discount == "") {
+                swal('', 'Discount cannot be empty', 'error');
+                return false;
+            } else if (PriceStartDate == "") {
+                swal('', 'Price Start Date cannot be empty', 'error');
+                return false;
+            } else if (PriceEndDate == "") {
+                swal('', 'Price End Date cannot be empty', 'error');
+                return false;
+            }
+            else {
+                @*$.ajax({
+                    method: "GET",
+                    url: "/Inventory/ItemPricing/GetUOM",
+                    data: { Id: itemId }
+                }).done(function (data) {
+                    UOM1 = data.uoM1;
+                    UOM2 = " ";
+                    if (data.uoM2!=null)
+                        UOM2 = data.uoM2;
+
+                });*@
+
+                itemCategory = '';
+                itemCategory += '<tr class="removedItem">';
+                itemCategory += '<td class ="ID" hidden>0</td>';
+                itemCategory += '<td class ="Item_ThirdLevel" hidden>' + itemIdthird +'</td>';
+                itemCategory += '<td class ="ItemID" hidden>' + itemId + '</td>';
+                itemCategory += '<td class ="text-right ItemName">' + item + '</td>';
+                itemCategory += '<td class ="SeasonId" hidden>' + SeasonId + '</td>';
+                itemCategory += '<td class ="text-left SeasonName">' + Season + '</td>';
+                itemCategory += '<td class ="text-right Price">' + Price + '</td>';
+                itemCategory += '<td class ="text-center PriceStart">' + PriceStartDate + '</td>';
+                itemCategory += '<td class ="text-center PriceEnd">' + PriceEndDate + '</td>';
+                itemCategory += '<td class ="text-center UOM1">' + UOM1 + '</td>';
+                itemCategory += '<td hidden class ="text-center UOM2">' + UOM2 + '</td>';
+                itemCategory += '<td hidden class ="text-right Discount">' + Discount + '</td>';
+                itemCategory += '<td class ="text-right DiscountAmount">' + DiscountAmount + '</td>';
+                itemCategory += '<td class ="text-center DiscStart">' + DiscStartDate + '</td>';
+                itemCategory += '<td class ="text-center DiscEnd">' + DiscEndDate + '</td>';
+                itemCategory += '<td><a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleteItem($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+                itemCategory += '</tr>';
+
+                $('#tblDetail tbody').prepend(itemCategory);
+                $("#ItemcategoryfourthL").find(":selected").remove();
+                $("#ItemcategoryfourthL").val(0);
+                $("#ItemPrice").val(0.00.toFixed(2));
+                $("#DiscPrice").val(0.00.toFixed(2));
+                $("#DiscAmount").val(0.00.toFixed(2));
+            }
+
+        }
+
+        $("form").submit(function (e) {
+
+            //Model Binding of Items
+            var ItemPricingDetails = [];
+            $.each($("#tblDetail tbody tr"), function () {
+                ItemPricingDetails.push({
+                    ID: $(this).find('.ID').html(),
+                    //ItemID_ThirdLevel: $(".Item_ThirdLevel").find(":selected").text(),
+                    ItemID_FourthLevel: $(this).find('.ItemID').text(),
+                    ItemID_ThirdLevel: $(this).find('.Item_ThirdLevel').text(),
+                    Season: $(this).find('.SeasonId').text(),
+                    ItemPrice: $(this).find('.Price').text(),
+                    Price_StartDate: $(this).find('.PriceStart').text(),
+                    Price_EndDate: $(this).find('.PriceEnd').text(),
+                    ItemDiscount: $(this).find('.Discount').text(),
+                    DiscountAmount: $(this).find('.DiscountAmount').text(),
+                    Dis_StartDate: $(this).find('.DiscStart').text(),
+                    Dis_EndDate: $(this).find('.DiscEnd').text(),
+                });
+            });
+            debugger
+            var model = JSON.stringify(ItemPricingDetails);
+            if (ItemPricingDetails.length > 0) {
+                $("#detail").val(model);
+                return true;
+            } else {
+                swal('', 'Form values cannot be empty', 'error');
+                return false;
+            }
+
+        });
+        function deleteItem(row) {
+            var b = row.closest("tr").index();
+            debugger;
+            var ItemName = $('.ItemName').eq(b).text();
+            var ItemID = $('.ItemID').eq(b).text();
+            $('#ItemcategoryfourthL').append('<option value="' + ItemID + '">' + ItemName + '</option>');
+            row.closest("tr").remove();
+        }
+
+        //Validating fields for numbers
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        function discountType(id) {
+            var a = "#" + id;
+            var type = $(a).find(":selected").val();
+            var nmbr = id.substring(8, id.length);
+            var discount = "#" + "DiscountPercentage_" + nmbr;
+            var Amount = "#" + "DiscountAmount_" + nmbr;
+            if (type == 1) {
+                $(discount).prop('readonly', false);
+                $(Amount).prop('readonly', true);
+            } else {
+                $(discount).prop('readonly', true);
+                $(Amount).prop('readonly', false);
+            }
+        }
+
+        function AmountCalculation() {
+            debugger
+            var DisPerc = Number($("#DiscPrice").val()).toFixed(2);
+            if (DisPerc > 100) {
+                swal("", "Discount must be less than 100%.");
+                $("#DiscPrice").val(0.00.toFixed(2));
+                $("#DiscAmount").val(0.00.toFixed(2));
+                return false;
+            }
+            var Price = $("#ItemPrice").val();
+            DiscAmount = Price * (DisPerc / 100);
+            $("#DiscAmount").val(Number(DiscAmount).toFixed(2));
+        };
+
+        function PercCalculation() {
+            debugger
+            var DiscAmount =Number( Number($("#DiscAmount").val()).toFixed(2));
+            var Price =Number( Number($("#ItemPrice").val()).toFixed(2));
+            if (DiscAmount > Price) {
+                swal("", "Discount Amount must be less than price.");
+                $("#DiscAmount").val(0.00.toFixed(2));
+                $("#DiscPrice").val(0.00.toFixed(2));
+                return false;
+            }
+            
+            if (Price != 0) {
+                DiscPrice = (DiscAmount / Price) * 100;
+                $("#DiscPrice").val(Number(DiscPrice).toFixed(2));
+            }
+        };
+
+    </script>
+}

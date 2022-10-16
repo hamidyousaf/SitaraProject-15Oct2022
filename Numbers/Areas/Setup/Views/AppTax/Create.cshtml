@@ -1,0 +1,271 @@
+﻿@model AppTax
+@{
+    ViewData["Title"] = "Create Tax";
+    ViewData["CurrentPage"] = "Define Tax";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" method="post" asp-action="Create" asp-controller="AppTax">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Name" autofocus class="form-control" data-validation="required" data-validation-error-msg="Name is required" data-validation-error-msg-container="#name" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                    <span id="name"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SalesTaxAccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="SalesTaxAccountId" class="form-control" asp-for="SalesTaxAccountId" data-validation="required" data-validation-error-msg="Sales Tax Account is required" data-validation-error-msg-container="#staccount">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="SalesTaxAccountId" class="text-danger"></span>
+                                    <span id="staccount"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SalesTaxPercentage" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="SalesTaxPercentage" class="form-control" />
+                                    <span asp-validation-for="SalesTaxPercentage" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ExciseTaxAccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="ExciseTaxAccountId" class="form-control" asp-for="ExciseTaxAccountId" data-validation="required" data-validation-error-msg="Excise Tax Account is required" data-validation-error-msg-container="#etaccount">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="ExciseTaxAccountId" class="text-danger"></span>
+                                    <span id="etaccount"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ExciseTaxPercentage" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ExciseTaxPercentage" class="form-control" />
+                                    <span asp-validation-for="ExciseTaxPercentage" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="IncomeTaxAccountId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select name="IncomeTaxAccountId" class="form-control" asp-for="IncomeTaxAccountId" data-validation="required" data-validation-error-msg="Income Tax Account is required" data-validation-error-msg-container="#itaccount">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="IncomeTaxAccountId" class="text-danger"></span>
+                                    <span id="itaccount"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="IncomeTaxPercentage" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="IncomeTaxPercentage" class="form-control" />
+                                    <span asp-validation-for="IncomeTaxPercentage" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CompanyId" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <select class="form-control" asp-items="ViewBag.Company" asp-for="CompanyId" data-validation="required" data-validation-error-msg="Company is required" data-validation-error-msg-container="#itcompany">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                    <span asp-validation-for="CompanyId" class="text-danger"></span>
+                                    <span id="itcompany"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-lg-2 control-label"></label>
+                                <div class="col-lg-10">
+                                    <textarea asp-for="Description" rows="3" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-2 col-lg-offset-2">
+                                    <label asp-for="IsActive" class="control-label"></label>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked" />
+                                        <label for="IsActive"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-4">
+                                    <a value="Back" class="btn btn-white" asp-controller="AppTax" asp-action="Index">List</a>
+                                    <button asp-action="Create" asp-controller="AppTax" type="submit" class="btn btn-primary">@ViewBag.EntityState</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+    $.validate();
+        $(function () {
+         var salesTaxAccountId = $('#SalesTaxAccountId');
+        var exciseTaxAccountId = $('#ExciseTaxAccountId');
+        var incomeTaxAccountId = $('#IncomeTaxAccountId');
+        bindSelect2(salesTaxAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.SalesTaxAccountId);
+        bindSelect2(exciseTaxAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.ExciseTaxAccountId);
+        bindSelect2(incomeTaxAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', @Model.IncomeTaxAccountId);
+        });
+
+        @*$('#SalesTaxAccountId').select2({
+            placeholder: "Select an account",
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        var GLAssetAccountId = $('#SalesTaxAccountId');
+                var id = @Model.SalesTaxAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLAssetAccountId.append(option).trigger('change');
+            GLAssetAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+
+
+    @*$(function () {
+        $('#ExciseTaxAccountId').select2({
+            placeholder: "Select an account",
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        })
+        var GLSaleAccountId = $('#ExciseTaxAccountId');
+        var id=@Model.ExciseTaxAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLSaleAccountId.append(option).trigger('change');
+            GLSaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });*@
+    @*$(function () {
+        $('#IncomeTaxAccountId').select2({
+            placeholder: "Select an account",
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a an item',
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        })
+
+        var GLCostofSaleAccountId = $('#IncomeTaxAccountId');
+        var id=@Model.IncomeTaxAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLCostofSaleAccountId.append(option).trigger('change');
+            GLCostofSaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });*@
+
+    </script>
+}

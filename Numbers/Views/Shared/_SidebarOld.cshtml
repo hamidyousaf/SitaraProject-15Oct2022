@@ -1,0 +1,130 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Numbers.Entity.Models.ApplicationUser> SignInManager
+
+
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <div class="row" id="collapse-button" style="display:none">
+                <a href="javascript:;" class="navbar-minimalize minimalize-styl-2"
+                   style="margin: 0px !important;
+                            font-size: 10px;
+                            background-color: #ed5565;
+                            padding: 28px 2px;
+                            color: white;">
+                    <i class="fa fa-exchange"></i>
+                </a>
+            </div>
+            
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header " style="padding: 0px 0px 0px">
+                    <div class="dropdown profile-element">
+                        <span>
+                            <a href="/Dashboard/Index">
+                                @*@if (Context.Session.GetInt32("CompanyId").Value == 2)
+                                {
+                                    <img alt="@Context.Session.GetString("CompanyName")" style="width:100%; height:100%;" src="~/img/userphotos/usman-agro-4.jpg" />
+                                }*@
+                               
+                                    <img alt="@Context.Session.GetString("CompanyName")" src="@Context.Session.GetString("CompanyLogo")" width="100%" height="114px" />
+                                
+                            </a>
+                        </span>
+                    </div>
+                </li>
+                @*<li><a asp-controller="ChartofAccount" asp-action="index">Chart of Account</a></li>*@
+                @if (User.Identity.IsAuthenticated && Context.Session.GetString("menus") != null)
+                {
+                    var str = Context.Session.GetString("menus");
+                    var obj = JsonConvert.DeserializeObject<List<AppMenu>>(str);
+                    //NumbersDbContext numbersDbContext = new NumbersDbContext();
+                    //numbersDbContext.AppMenus.
+
+                    string currentPage = "";
+                    string currentPageFirstParent = "";
+                    string currentPageSecondParent = "";
+                    string menuId =  Context.Request.Cookies["menuid"];
+                    Numbers.Repository.Common.AppMenuRepo appMenu = new Numbers.Repository.Common.AppMenuRepo();
+                    
+                    List<int> parentId = appMenu.GetParentMenuId(Convert.ToInt32(menuId), true);
+
+                    currentPage = ViewBag.CurrentPage == null ? "null" : ViewBag.CurrentPage;
+                    currentPage = ViewBag.CurrentPage == "" ? "null" : ViewBag.CurrentPage;
+                    currentPageFirstParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPage).
+                                                    Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+                    currentPageSecondParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPageFirstParent).
+                            Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+
+                    string currentPageClass = "";
+                    foreach (var level1 in obj.Where(x => x.ParentId == 0))
+                    {
+                        if (parentId.Exists(element => element == level1.Id))
+                        {
+                            currentPageClass = "active";
+                        }
+                        <li class="@currentPageClass">
+                            @{currentPageClass = "";}
+                            <a href="@level1.Url">
+                                <i class="@level1.IconClass"></i> <span class="nav-label">@level1.Name.Trim()</span> 
+                                @if (level1.HasSubMenus)
+                                {<span class="fa arrow"></span>}
+                            </a>
+
+
+
+                            @if (level1.HasSubMenus)
+                            {
+                                <ul class="nav nav-second-level">
+                                    @foreach (var level2 in obj.Where(x => x.ParentId == level1.Id))
+                                    {
+                                        if (parentId.Exists(element => element == level2.Id))
+                                        {
+                                            currentPageClass = "active";
+                                        }
+
+                                        <li class="@currentPageClass">
+
+                                            <a href="@level2.Url">
+                                                <i class="@level2.IconClass"></i>@level2.Name.Trim()
+                                                @if (level2.HasSubMenus)
+                                                {<span class="fa arrow"></span>}
+                                            </a>
+                                            @{currentPageClass = "";}
+
+
+
+
+                                            @if (level2.HasSubMenus)
+                                            {
+                                                <ul class="nav nav-third-level">
+                                                    @foreach (var level3 in obj.Where(x => x.ParentId == level2.Id))
+                                                    {
+                                                        if (menuId == level3.Id.ToString())
+                                                        {
+                                                            currentPageClass = "active";
+                                                        }
+                                                        <li class="@currentPageClass">
+                                                            @{currentPageClass = "";}
+
+                                                            <a href="@level3.Url" data-menuid="@level3.Id" onclick="javascript:setCookie('menuid',@level3.Id);"><i class="@level3.IconClass"></i>@level3.Name.Trim()</a>
+                                                        </li>
+
+
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                }
+                else
+                {
+                    await SignInManager.SignOutAsync();
+
+                }
+
+            </ul>
+        </div>
+    </nav>

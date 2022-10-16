@@ -1,0 +1,118 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Numbers.Entity.Models.ApplicationUser> SignInManager
+
+
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <div class="row" id="collapse-button" style="display:none">
+                <a href="javascript:;" class="navbar-minimalize minimalize-styl-2"
+                   style="margin: 0px !important;
+                            font-size: 10px;
+                            background-color: #ed5565;
+                            padding: 28px 2px;
+                            color: white;">
+                    <i class="fa fa-exchange"></i>
+                </a>
+            </div>
+
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                        <span>
+                            <a asp-controller="Dashboard" asp-action="Index">
+                                <img alt="@Context.Session.GetString("CompanyName")" src="~/img/userphotos/logo-02.png" />
+                            </a>
+                        </span>
+                    </div>
+                </li>
+                @*<li><a asp-controller="ChartofAccount" asp-action="index">Chart of Account</a></li>*@
+                @if (User.Identity.IsAuthenticated && Context.Session.GetString("menus") != null)
+                {
+
+                    var str = Context.Session.GetString("menus");
+                    var obj = JsonConvert.DeserializeObject<List<AppMenu>>(str);
+                    //NumbersDbContext numbersDbContext = new NumbersDbContext();
+                    //numbersDbContext.AppMenus.
+
+                    string currentPage = "";
+                    string currentPageFirstParent = "";
+                    string currentPageSecondParent = "";
+                    currentPage = ViewBag.CurrentPage == null ? "null" : ViewBag.CurrentPage;
+                    currentPage = ViewBag.CurrentPage == "" ? "null" : ViewBag.CurrentPage;
+                    currentPageFirstParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPage).
+                                                    Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+                    currentPageSecondParent = obj.Where(w => w.Id == (obj.Where(ww => ww.Name == currentPageFirstParent).
+                            Select(ss => ss.ParentId).FirstOrDefault())).Select(s => s.Name).FirstOrDefault();
+
+                    string currentPageClass = "";
+                    foreach (var level1 in obj.Where(x => x.ParentId == 0))
+                    {
+                        if (level1.Name.Equals(currentPageFirstParent))
+                        { currentPageClass = "active"; }
+                        else if (level1.Name.Equals(currentPageSecondParent))
+                        { currentPageClass = "active"; }
+
+                        <li class="@currentPageClass">
+                            @{currentPageClass = "";}
+                            <a href="@level1.Url">
+                                <i class="@level1.IconClass"></i> <span class="nav-label">@level1.Name.Trim()</span> @if (level1.HasSubMenus)
+                                {<span class="fa arrow"></span>}
+                            </a>
+                            @if (level1.HasSubMenus)
+                            {
+                                <ul class="nav nav-second-level">
+                                    @foreach (var level2 in obj.Where(x => x.ParentId == level1.Id))
+                                    {
+                                        if (level2.Name.Equals(currentPageFirstParent))
+                                        { currentPageClass = "active"; }
+                                        else if (level2.Name.Equals(currentPageSecondParent))
+                                        { currentPageClass = "active"; }
+                                        else if (level2.Name.Equals(currentPage))
+                                        { currentPageClass = "active"; }
+
+                                        <li class="@currentPageClass">
+
+                                            <a href="@level2.Url">
+                                                <i class="@level2.IconClass"></i>@level2.Name.Trim()@if (level2.HasSubMenus)
+                                                {<span class="fa arrow"></span>}
+                                            </a>
+                                            @{currentPageClass = "";}
+
+                                            @if (level2.HasSubMenus)
+                                            {
+                                                <ul class="nav nav-third-level">
+                                                    @foreach (var level3 in obj.Where(x => x.ParentId == level2.Id))
+                                                    {
+                                                        if (level3.Name.Equals(currentPageFirstParent))
+                                                        { currentPageClass = "active"; }
+                                                        else if (level3.Name.Equals(currentPageSecondParent))
+                                                        { currentPageClass = "active"; }
+                                                        else if (level3.Name.Equals(currentPage))
+                                                        { currentPageClass = "active"; }
+
+                                                        <li class="@currentPageClass">
+                                                            @{currentPageClass = "";}
+
+                                                            <a href="@level3.Url"><i class="@level3.IconClass"></i>@level3.Name.Trim()</a>
+                                                        </li>
+
+
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                }
+                else
+                {
+                    await SignInManager.SignOutAsync();
+
+                }
+
+            </ul>
+        </div>
+    </nav>

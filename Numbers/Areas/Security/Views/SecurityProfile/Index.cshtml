@@ -1,0 +1,178 @@
+﻿@model Numbers.Entity.ViewModels.SecurityProfileVM
+@{
+    ViewData["Title"] = "Create";
+}
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Security Profile</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form class="form-horizontal" asp-controller="SecurityProfile" asp-action="Create" enctype="multipart/form-data" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="@Model.sys_ORG_Profile.ID" />
+                    </div>
+                    <div>
+                    </div>
+                    <div class="col">
+                        <div class="col-md-5 col-sm-5">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Profile Name</label>
+                                <div class="col-lg-8">
+                                    <input autofocus asp-for="@Model.sys_ORG_Profile.ProfileName" name="ProfileName" class="form-control" />
+                                    <span asp-validation-for="@Model.sys_ORG_Profile.ProfileName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                        <input id="id" type="hidden" />
+                        @if (Model.sys_ORG_Profile != null)
+                        {
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Classification</label>
+                                <div class="col-lg-8">
+                                    <select name="CalssificationId" id='Class'asp-items="Model.ClassificationList" asp-for="@Model.sys_ORG_Profile.CalssificationId" class="form-control">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Classification</label>
+                            <div class="col-lg-8">
+                                <select name="CalssificationId" asp-items="Model.ClassificationList" id='Classname' asp-for="@Model.sys_ORG_Profile.CalssificationId" class="form-control">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    <table id="tblOrganization" style="table-layout:fixed" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Organizaion Name</th>
+                                <th>Include</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Sys_ORG_Profile_Details != null)
+                            {
+                                foreach (var item in Model.Sys_ORG_Profile_Details)
+                                {
+                            <tr>
+                                <td hidden><input name="Organization_ID" value="@item.Organization_ID" type="hidden"></td>
+                                <td hidden><input type="hidden" value="@item.ID" name="ID" /></td>
+                                @foreach (var itm in ViewBag.Organization)
+                                {
+                                    if (itm.Organization_Id == item.Organization_ID)
+                                    {
+                                        <td> <input name="OrganizationName" value="@itm.OrgName" class="form-control" readonly /></td>
+                                    }
+                                    @*else
+            {
+            <td> <input name="OrganizationName" value="" class="form-control" readonly /></td>
+
+            }*@
+                                }
+                                @if (item.IsEnable == true)
+                                {
+                                    <td><input onclick="CheckBox($(this));" type="checkbox" checked /></td>
+                                    <td hidden> <input type="hidden" name="IsEnable" class="IsEnable" value="true"></td>
+                                }
+                                else
+                                {
+                                    <td><input onclick="CheckBox($(this));" type="checkbox" /></td>
+                                    <td hidden> <input type="hidden" name="IsEnable" class="IsEnable" value="false"></td>
+                                }
+                            </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <a value="List" class="btn btn-white" asp-action="List" asp-controller="SecurityProfile">List</a>
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        @*$(document).ready(function () {
+            var itemId = $('#Classname');
+            bindSelect2(itemId, '/ApplicationModule/Api/GetInvOrganizations', '/ApplicationModule/Api/GetInvOrganization?id=', '@ViewBag.ItemId');
+        });*@
+
+        $("#Classname").select2();
+        $(document).on("change", "#Classname", function () {
+            debugger;
+            getAllOrganizaion()
+        });
+
+        function getAllOrganizaion() {
+            $.ajax({
+                url:'@Url.Action("GetOrganizationName", "SecurityProfile")',
+                dataType: "json",
+                data: { "id": $('#Classname').val() },
+                method: 'GET',
+                success: function (data) {
+                    debugger;
+                    var tblOrganization = $('#tblOrganization tbody');
+                    tblOrganization.empty();
+                    var Itemrow = '';
+                    for (var i = 0; i < data.length; i++) {
+                        Itemrow = '';
+                        Itemrow += '<tr>';
+                        Itemrow += ' <input name="Organization_ID" value=' + data[i].organization_Id +' type="hidden" >';
+                        Itemrow += '<td> <input name="OrganizationName"  value="' + data[i].orgName + '"  class ="form-control" readonly /></td>';
+                        
+                        Itemrow += '<td hidden> <input type="hidden" class="IsEnable" name="IsEnable" value="true"></td>';
+                        Itemrow += '<td> <input checked="true" type="checkbox" onclick="CheckBox($(this))"  /></td>';
+                        Itemrow += '</tr>';
+
+                        $('#tblOrganization tbody').append(Itemrow);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert(err);
+
+                }
+            });
+        }
+        function CheckBox(row) {
+            debugger
+            var index = row.closest("tr").index();
+            var val = row.closest("tr").find('.IsEnable').val();
+
+            if (val == "true") {
+                row.closest("tr").find('.IsEnable').val("false");
+            } else if (val == "false") {
+                row.closest("tr").find('.IsEnable').val("true");
+            } else {
+                row.closest("tr").find('.IsEnable').val("");
+            }
+        }
+
+    </script>
+}

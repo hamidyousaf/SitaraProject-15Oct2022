@@ -1,0 +1,160 @@
+﻿@model GLDebitCreditMemoViewModel
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}{1}","purchase-items_",ViewBag.Counter) class="border border-danger">
+    <div class="ibox-content">
+        <!--Remove button-->
+        <a id=@string.Format("{0}{1}","remove-item_",ViewBag.Counter) class="remove-item pull-right trash-position"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-sm-2 col-md-2 col-sm-2 tooltest0" id="tooltest0">
+                        <input asp-for="GLDebitCreditMemoDetail.Id" type="hidden" />
+                        <input asp-for="GLDebitCreditMemoDetail.GLDebitCreditMemoId" type="hidden" id=@string.Format("{0}{1}","PurchaseItemId",ViewBag.Counter) />
+                        <label asp-for="GLDebitCreditMemoDetail.GLAccountId"></label>
+                        <select asp-for="GLDebitCreditMemoDetail.GLAccountId" id='@string.Format("{0}{1}", "ServiceAccountId", ViewBag.Counter)' onchange="getItemDetails(this.id)" class="form-control select-item" data-validation="required" data-validation-error-msg="Account is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_item",ViewBag.Counter)>
+                        </select>
+                        <p id=@string.Format("_item{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.SubAccountId"></label>
+                        <select asp-for="GLDebitCreditMemoDetail.SubAccountId" asp-items="@Model.SubAccounts" id='@string.Format("{0}{1}", "SubAccountId", ViewBag.Counter)' class="form-control select-item subAccountId" data-validation="required" data-validation-error-msg="SubAccount is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_subAcc",ViewBag.Counter)>
+                            <option selected disabled>Please select</option>
+                        </select>
+                        <p id=@string.Format("_subAcc{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.DepartmentId"></label>
+                        <select asp-for="GLDebitCreditMemoDetail.DepartmentId" asp-items="@Model.Department" id='@string.Format("{0}{1}", "Department", ViewBag.Counter)' onchange="getSubDepartments(this.id)" class="form-control select-item departmentId" data-validation="required" data-validation-error-msg="Department is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_dep",ViewBag.Counter)>
+                            <option selected disabled>Please select</option>
+                        </select>
+                        <p id=@string.Format("_dep{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.SubDepartmentId"></label>
+                        <select asp-for="GLDebitCreditMemoDetail.SubDepartmentId" asp-items="Model.SubDepartment" id='@string.Format("{0}{1}", "SubDepartment", ViewBag.Counter)' onchange="getCostCenter(this.id)" class="form-control select-item subDepartment subDepartmentId" data-validation="required" data-validation-error-msg="SubDepartment is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_subDep",ViewBag.Counter)>
+                            <option selected disabled>Please select</option>
+                        </select>
+                        <p id=@string.Format("_subDep{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.CostCenterId"></label>
+                        <select asp-for="GLDebitCreditMemoDetail.CostCenterId" asp-items="Model.CostCenter" id='@string.Format("{0}{1}", "CostCenter", ViewBag.Counter)' class="form-control select-item costCenterId" data-validation="required" data-validation-error-msg="CostCenter is required" data-validation-error-msg-container=@string.Format("{0}{1}","#_costCenter",ViewBag.Counter)>
+                            <option selected disabled>Please select</option>
+                        </select>
+                        <p id=@string.Format("_costCenter{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.Remarks"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.Remarks" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.Total"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.Total" id=@string.Format("{0}{1}", "Total_", ViewBag.Counter) onchange="calculateLineTotals(@ViewBag.Counter);" type="number" step=".01" class="form-control text-right calculate-total" />
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.DiscountPercentage"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.DiscountPercentage" id=@string.Format("{0}{1}", "DiscountPercentage_", ViewBag.Counter) onchange="calculateLineTotals(@ViewBag.Counter);" type="number" step=".01" class="form-control text-right calculate-total" />
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.DiscountAmount"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.DiscountAmount" id=@string.Format("{0}{1}", "DiscountAmount_", ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label  asp-for="GLDebitCreditMemoDetail.TaxId"></label>
+                        <select asp-items="@Model.Tax" asp-for="GLDebitCreditMemoDetail.TaxId" id='@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)' onchange="calculateLineTotals(@ViewBag.Counter)" class="form-control calculate-total taxId" data-validation="required" data-validation-error-msg="Tax is required" data-validation-error-msg-container=@string.Format("#_taxSlab{0}",ViewBag.Counter)>
+                        </select>
+                        <p id=@string.Format("_taxSlab{0}",ViewBag.Counter)></p>
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.TaxAmount"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.TaxAmount" id=@string.Format("{0}{1}", "SalesTaxAmount_", ViewBag.Counter) readonly class="form-control text-right calculate-total" tabIndex="-1" />
+                    </div>
+                    <div class="col-sm-3 col-md-6 col-lg-2">
+                        <label asp-for="GLDebitCreditMemoDetail.LineTotal"></label>
+                        <input asp-for="GLDebitCreditMemoDetail.LineTotal" id=@string.Format("{0}{1}", "LineTotal_", ViewBag.Counter) readonly class="form-control text-right" tabIndex="-1" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-3.1.1.min.js"></script>
+<script src="~/js/AP/serviceInvoice.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#@string.Format("{0}{1}", "SubAccountId", ViewBag.Counter)").select2();
+        $("#@string.Format("{0}{1}", "Department", ViewBag.Counter)").select2();
+        $("#@string.Format("{0}{1}", "SubDepartment", ViewBag.Counter)").select2();
+        $("#@string.Format("{0}{1}", "CostCenter", ViewBag.Counter)").select2();
+        $("#@string.Format("{0}{1}", "TaxSlab_", ViewBag.Counter)").select2();
+        //bind service accounts select2
+         var serviceAccountId = $('#ServiceAccountId' + @ViewBag.Counter+'');
+        bindSelect2(serviceAccountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', '@ViewBag.ItemId');
+    });
+
+        @*$('#ServiceAccountId' + @ViewBag.Counter+'').select2({
+            width: "100%", //self.width,
+            placeholder: 'Search for an Account',
+           // templateResult: formatOption,
+            ajax: ({
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            })
+        });*@
+        //function formatOption(option) {
+        //    var $option = $(
+        //        '<div><strong>' + option.code + '</strong></div><div>' + option.name + '</div>'
+        //    );
+        //    return $option;
+        //}
+
+        @*var counter = @ViewBag.Counter;
+        var accountId='@ViewBag.ItemId';
+        //preselected item
+        var selectVal = $('#ServiceAccountId' + counter);
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + accountId
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            selectVal.append(option).trigger('change');
+            selectVal.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });*@
+</script>
+

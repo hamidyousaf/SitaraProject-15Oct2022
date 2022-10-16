@@ -1,0 +1,84 @@
+﻿@model IEnumerable<APGRNViewModel>
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="table-responsive">
+    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th hidden>IRNItemId</th>
+                @*<th hidden>PurchaseInvoice Id</th>*@
+                <th hidden>IRNItemId</th>
+                <th>IRN No</th>
+                <th hidden>Id</th>
+                <th hidden>Item Code</th>
+                <th>Item</th>
+                <th>QTY</th>
+                <th>GRN QTY</th>
+                <th>Rejected Qty</th>
+                <th>Accepted Qty</th>
+                <th>Balance Qty</th>
+                <th>Rate</th>
+                <th hidden>Total</th>
+                <th hidden>LocationId</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var grnQty = item.GRNQty - item.BalanceQty;
+                <tr>
+                    <td hidden>@item.Id</td>
+                    <td>@item.IRNNo</td>
+                    <td hidden>@item.Item.Id</td>
+                    <td hidden>@item.Item.Code</td>
+                    <td class="text-left">@item.Item.Code -@item.Item.Name</td>
+                    <td class="text-right">@item.GRNQty</td>
+                    <td class="text-right">@grnQty</td>
+                    <td class="text-right">@item.RejectedQty</td>
+                    <td class="text-right">@item.AcceptedQty</td>
+                    <td class="text-right">
+                        @item.BalanceQty
+                    </td>
+                    @*This field contains Purchase Quantity value
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TotalDiscountAmount)
+                        </td>*@
+                    <td class="text-right">
+                        @item.Item.PurchaseRate
+                    </td>
+                    <td hidden>
+                        @item.Total
+                    </td>
+                    <td hidden>
+                        @item.PRDetailId
+                    </td>
+                    <td hidden>
+                        @item.SaleTaxId
+                    </td>
+                    <td hidden>
+                        @item.Freight
+                    </td> 
+                    <td hidden>
+                        @item.LocationId
+                    </td>
+                    <td class="text-center"><input type="checkbox" class="IsSelect" onclick="Create($(this))" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

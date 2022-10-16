@@ -1,0 +1,207 @@
+﻿@model IEnumerable<Numbers.Entity.Models.GLBankCashAccount>
+@{
+    ViewData["Title"] = "List of Bank/Cash Accounts";
+    ViewData["CurrentPage"] = "Define Bank/Cash";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+    </style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div @*class="ibox-title"*@>
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-action="Create"><strong>Create New</strong></a>
+                        <a onclick="generateApArReport(0,'BankCash','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg m-t-n-xs pull-right"><i class="fas fa-print" title="Print Report"> Print Report</i></a>
+                    </div>
+                    <br /><br />
+                    <table width="100%" class="table table-bordered table-striped dataTables-example" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" style="width: 12%">Id</th>
+                                <th class="searchHeader" style="width: 12%">Date</th>
+                                <th class="searchHeader" style="width: 18%">Account Name</th>
+                                <th class="searchHeader" style="width: 12%">Account Number</th>
+                                <th class="searchHeader" style="width: 8%">Receipt V.T</th>
+                                <th class="searchHeader" style="width: 8%">Payment V.T</th>
+                                <th class="searchHeader" style="width: 10%">Status</th>
+                                <th style="width: 8%">IsActive</th>
+                                <th style="width: 12%">Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<textarea id="lblmessage" hidden="hidden">@ViewBag.message</textarea>
+<textarea id="lblsuccess" hidden="hidden">@ViewBag.success</textarea>
+@section customJS{
+    <script>
+        var message = document.getElementById('lblmessage').innerHTML;
+        var success = document.getElementById('lblsuccess').innerHTML;
+
+        $(function () {
+
+            if (message != '') {
+                if (success) { //no error
+                    toasterMessage(false, "Booking Customer", message);
+                    $('#modal').modal('hide');
+                }
+                else
+                    toasterMessage(true, "Booking Customer", message);
+            }
+        });
+        $(document).ready(function () {
+            GetList();
+           // getrowSearch();
+        });
+        function GetList() {
+            var table1 = $("#dataTable").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": false,
+                "searching": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/GL/BankCashAccount/GetBankCash",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                }, { "orderable": false, "targets": [7, 8] }],
+
+                "columns": [
+                    { "data": "glBankCashAccount.id", "name": "Id", className: "text-center" },
+                    { "data": "shortDate", "name": "Date", className: "text-center" },
+                    { "data": "glBankCashAccount.accountName", "name": "AccountName", className: "text-left"},
+                    { "data": "glBankCashAccount.accountNumber", "name": "AccountNumber", className: "text-center"},
+                    { "data": "glBankCashAccount.voucherType", "name": "VoucherType", className: "text-center"},
+                    { "data": "glBankCashAccount.paymentVoucherType", "name": "PaymentVoucherType", className: "text-center" },
+                    { "data": "glBankCashAccount.status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "glBankCashAccount", className: "text-center",
+                        "render": function (data, row) {
+                            debugger;
+                            if (data.isActive == true) {
+                                
+                                return "<input type='checkbox' checked disabled />";
+                                
+                            }
+                            else {
+                                return "<input type='checkbox' unchecked disabled />";
+                            }
+                        }
+                    },
+                    {
+                        "data": "glBankCashAccount", className: "text-center",
+                        "render": function (data, row) {
+                            debugger;
+                            if (data.status != "Approved") {
+                                if (data.approve == true) {
+                                    return "<div style=''><a href='/GL/BankCashAccount/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/GL/BankCashAccount/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a></div>";
+                                } else {
+                                    return "<div style=''><a href='/GL/BankCashAccount/Create?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a></div>";
+                                }
+                            }
+                            else {
+                                if (data.unapprove == true) {
+                                    return "<a href='/GL/BankCashAccount/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>    <a href='/GL/BankCashAccount/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>";
+                                } else {
+                                    return "<a href='/GL/BankCashAccount/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>";
+                                }
+                            }
+                        }
+                    }
+                ],
+
+            })
+            $('#dataTable thead th').each(function () {
+                debugger;
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                debugger;
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        }
+        
+    </script>
+
+<script>
+
+    function getrowSearch() {
+
+        $('#dataTable thead th').each(function () {
+            var title = $('#dataTable tfoot th').eq($(this).index()).text();
+            $(this).html('&amp;lt;input type=&amp;quot;text&amp;quot; placeholder=&amp;quot;Search ' + title + '&amp;quot; /&amp;gt;');
+        });
+
+        // DataTable
+        var table = $('#dataTable').DataTable();
+
+        // Apply the search
+        table.columns().eq(0).each(function (colIdx) {
+            $('input', table.column(colIdx).header()).on('keyup change', function () {
+                table
+                    .column(colIdx)
+                    .search(this.value)
+                    .draw();
+            });
+        });
+
+
+
+    }
+ 
+</script>
+}

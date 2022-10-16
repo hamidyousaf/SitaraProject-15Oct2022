@@ -1,0 +1,131 @@
+﻿@model HRIncrementViewModel
+@{
+    Layout = null;
+}
+<style>
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 0%;
+        top: 39px;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+@if (ViewBag.Items == null)
+{
+    <div class="border border-danger">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5 class="font-bold">Add Employee's Increment</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="col-lg-3 col-sm-12">
+                                    <div class="form-group">
+                                        <input asp-for="IncrementItemId" type="hidden" name="IncrementItemId" id=@string.Format("{0}{1}","IncrementItemId",ViewBag.Counter) />
+                                        <label asp-for="Employee"></label>
+                                        <Select asp-for="Employee" asp-items="@(new SelectList(Model.EmployeeTypes,"Id","Name"))" name="Employee" id='@string.Format("{0}{1}","Employee",ViewBag.Counter)' class="form-control select-item">
+                                            <option selected disabled>
+                                                Select...
+                                            </option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-12">
+                                    <div class="form-group">
+                                        <label asp-for="CurrentPay"></label>
+                                        <input asp-for="CurrentPay" value="@(Model.CurrentPay)" name="CurrentPay" required class="form-control text-right" type="number" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-2">
+                                    <label asp-for="IncrementPercentage"></label>
+                                    <input asp-for="IncrementPercentage" name="IncrementPercentage" required class="form-control text-right" type="number" />
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-2">
+                                    <label asp-for="Amount"></label>
+                                    <input asp-for="Amount" name="Amount" required class="form-control text-right" type="number" />
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-2">
+                                    <label asp-for="OldGrade"></label>
+                                    <input asp-for="OldGrade" name="OldGrade" class="form-control text-right " />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="col-sm-12 col-md-6 col-lg-2 col-lg-offset-6">
+                            <div class="form-group">
+                                <label asp-for="OldDesignation"></label>
+                                <input asp-for="OldDesignation" name="OldDesignation" class="form-control text-right" type="number" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-2">
+                            <label asp-for="NewGrade"></label>
+                            <input asp-for="NewGrade" name="NewGrade" class="form-control text-right" />
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-2">
+                            <label asp-for="NewDesignation"></label>
+                            <input asp-for="NewDesignation" name="NewDesignation" class="form-control text-right" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6 col-lg-12">
+                                <label> Remarks</label>
+                                <textarea asp-for="Remarks" name="Remarks" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>}
+<p id="p"></p>
+<div class="text-right mb-3">
+    <a id="add-increment-item" class="btn btn-success add-increment-item"><i class="fa fa-plus"></i></a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="~/js/HR/HRIncrementItems.js"></script>
+<script src="~/lib/select2/select2.min.js"></script>
+<script src="~/js/Inventory/CustomSelect2.js"></script>
+<script>
+$(document).ready(function () {
+    @*_applySelect($('#' +@ViewBag.Counter));*@
+    var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+        var counter = 1;
+        if (items != null) {
+            if (items.length == 0) {
+                counter = counter;
+            } else if (items.length != 0) {
+                counter = items.length + 1;
+            }
+        }
+    $('#add-increment-item').on('click', function () {
+        $.post("/HR/Increment/PartialIncrementItems", { counter: counter }
+        ).done(function (data) {
+            $("#p").append(data);
+            counter++;
+            }).fail(function (data) {
+                console.log(data.responseText);
+            });
+    });
+     @*lockOutInputs(@ViewBag.Counter);*@
+    });
+</script>

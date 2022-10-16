@@ -1,0 +1,425 @@
+﻿@model Numbers.Entity.Models.ARAdvance
+
+@{
+    ViewData["Title"] = "List Advances";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <!--<div class="ibox-title">-->
+                @*<h5> Advance</h5>*@
+            <!--</div>-->
+                <span class="label label-success pull-right status"></span>
+            
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return validation();" asp-controller="Advance" asp-action="Create">
+                    <div class="row">
+                        <input hidden asp-for="Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+                                @if (Model.Id != 0)
+                                {
+                                    <input  autofocus readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input autofocus readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input  id="TransactionDate" class="form-control custom-date-picker" asp-for="TransactionDate" type="text"  value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label class="col-form-label">Customer Name</label>
+                                <select asp-for="CustomerId" class="chosen-select form-control" id="CustomerId" onchange="getCategoryById();" asp-items="@Model.dtoCustomer" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Advance Account</label>
+                                <select asp-for="AdvanceAccountId" class="chosen-select form-control" id="AdvanceAccountId" asp-items="@Model.dtoAdvanceAccount" required>
+                                    
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Bank/Cash Account</label>
+                                <select asp-for="GLBankCashId" class="chosen-select form-control" id="BankCashId" asp-items="@Model.dtoGLBankCash" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Ref. #</label>
+                                <input  class="form-control" id="RefrenceNo" data-validation="required" asp-for="RefrenceNo" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Ref. Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ReferanceDate" autofocus class="form-control custom-date-picker" asp-for="ReferanceDate" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.ReferanceDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Amount</label>
+                                <input  class="form-control text-right add-comma" id="Amount" data-validation="required" asp-for="Amount" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-11">
+                            <div class="form-group">
+                                <label class="col-form-label">Remarks</label>
+                                <input class="form-control" id="Remarks" data-validation="required" asp-for="Remarks" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-lg-1">
+                            <br />
+                            <button class="btn btn-primary" type="submit" id="btnSave">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-content">
+                                    <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12%" class="searchHeader">Trans. #</th>
+                                                <th style="width: 18%" class="searchHeader">Date</th>
+                                                <th style="width: 38%" class="searchHeader">Customer</th>
+                                                <th style="width: 12%" class="searchHeader">Amount</th>
+                                                <th style="width: 20%">Action</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script>
+        $(document).ready(function () {
+            $("#CustomerId").select2();
+            $("#AdvanceAccountId").select2();
+            $("#BankCashId").select2();
+
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+              $("#SaveBtnFocus").val('OFF');
+            });
+            
+
+
+            var table1 = $("#Table").DataTable({
+                    lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                paging: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                ajax: {
+                    "url": "/AR/Advance/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                columnDefs: [{
+                    "targets": '_all',
+                    "defaultContent": "-"
+                },
+                    { "orderable": false, "targets": [3] },
+                    {
+                        targets: [3],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }
+                ],
+                columns: [
+                    { "data": "transactionNo", "name": "TransactionNo", className: "text-center" },
+                    { "data": "updatedBy", "name": "updatedBy", className: "text-center " },
+                    { "data": "createdBy", "name": "createdBy", className: "text-left" },
+                    { "data": "amount", "name": "amount", className: "text-right" },
+                    {
+                        "data": "arAdvanceModel", className: "text-center",
+                        "render": function (data, row) {
+
+
+                            debugger;
+                            if (data.status != "Approved") {
+
+                                return "<a href='/AR/Advance/Index?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href='/AR/Advance/Approve?id=" + data.id + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>   <a href='/AR/Advance/Delete?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a> ";
+
+                            }else {
+                                return "<a href='/AR/Advance/Details?id=" + data.id + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a>   <a href='/AR/Advance/UnApprove?id=" + data.id + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-thumbs-down m-t-n-xs' title='Un Approve'></i></a>  <a href='@ViewBag.ReportPath" + data.voucherId +"' target='_blank' class='btn btn-sm btn-primary m-t-n-xs'><i class='fa fa-print'></i></a> ";
+                            }
+
+
+                           // return "<a href='/AP/Advance/Delete?id=" + data + "' class='btn btn-sm btn-danger m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                        }
+                    }
+                ]
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+        });
+
+        function validation() {
+            debugger
+            var customerId = Number($("#CustomerId").find(":selected").val());
+            var advanceAccountId = Number($("#AdvanceAccountId").find(":selected").val());
+            var Amount = Number($("#Amount").val());
+            if (customerId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if (advanceAccountId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Bank!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#AdvanceAccountId').focus();
+                });
+                return false;
+            }
+            if (Amount <= 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Amount!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Amount').focus();
+                });
+                return false;
+            }
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($('#GRCategoryId').find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Greige Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GRCategoryId').focus();
+                });
+                return false;
+            }
+            else if ($('#GRConstructionId').find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Greige Contruction!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GRConstructionId').focus();
+                });
+                return false;
+            }
+            else if ($('#Width').val() == 0 || $('#Warp').val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Width!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Width').focus();
+                });
+                return false;
+            }
+            else if ($('#LoomTypeId').find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Greige Loom Type!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#LoomTypeId').focus();
+                });
+                return false;
+            }
+            $("#btnSave").attr("disabled", true)
+            $("#btnSave").text("Saving...")
+            return true;
+        }
+
+
+        //On change Category
+        function validateWidth() {
+
+            debugger
+            var categoryId =Number( $('#GRCategoryId').val());
+            var width = Number($('#Width').val());
+            if (width != 0 && categoryId!=0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Api/GetCategory",
+                    data: { id: categoryId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+
+                        if (width >= data.minWidth && width <= data.maxWidth) {
+
+                            return true
+                        } else {
+
+                            $('#Width').val(0);
+
+                            swal({
+                                icon: 'warning',
+                                text: "Width must be between min and max width!",
+                                closeModal: false
+                            }).then(function () {
+                                swal.close();
+                                $('#Width').focus();
+                            });
+                        }
+
+                        return false;
+                    }
+                });
+            }
+        }
+        //On change Category
+        function getCategoryById() {
+
+            debugger
+            var CustomerId = Number($('#CustomerId').val());
+            $('#Width').val(0);
+          //  if (width != 0 && categoryId!=0) {
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/Advance/GetAccountIdbyCustomer",
+                    data: { id: CustomerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+
+                        $('#AdvanceAccountId').find('option').remove();
+                        $.each(data, function (i, item) {
+                            debugger;
+                            $('#AdvanceAccountId').append($('<option>', {
+                                value: item.id,
+                                text: item.name
+                            }));
+                            $('input.add-comma').commaTextbox();
+                        });
+
+                        return false;
+                    }
+                });
+           // }
+        }
+
+    </script>
+}

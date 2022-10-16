@@ -1,0 +1,678 @@
+﻿@model VMInterSegmental
+@{
+    ViewData["Title"] = "Create";
+}
+@section customCSS{ 
+<style>
+    table td {
+        position: relative;
+    }
+        table td input[type=text], table td input[type=number] {
+            position: absolute;
+            bottom: 0;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+    .withscroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+</style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class="ibox-content" method="post" asp-action="Create" asp-controller="GRInterSegmental" onsubmit="return OnSubmit($(this));" >
+                <input asp-for="GRInterSegmental.Id" type="hidden" />
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label >Trans. # </label>
+                                    <div class="input-group">
+                                        @if (Model.GRInterSegmental.Id != 0)
+                                        {
+                                            <input asp-for="GRInterSegmental.TransactionNo" tabindex="-1" readonly class="form-control" />
+                                        }
+                                        else
+                                        {
+                                            <input value="" readonly tabindex="-1" class="form-control" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label >Trans. Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input asp-for="GRInterSegmental.TransactionDate" readonly tabindex="-1" class="form-control" type="text" value="@(Model.GRInterSegmental.Id == 0 ? CommonHelper.CurrentDate : Model.GRInterSegmental.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-2 col-sm-3" readonly>
+                                <div class="form-group">
+                                    <label>Segment<i style="color: #a94442;">*</i></label>
+                                    <input asp-for="GRInterSegmental.CompanyId" tabindex="-1" type="hidden" class="form-control" />
+                                    <input tabindex="-1" value="@ViewBag.CompanyName" readonly class="form-control" />
+
+                                </div>
+                            </div>
+                            <div  class="col-lg-2 col-sm-3">
+                                <div class="form-group">
+                                    <label>Transaction Type</label>
+                                    <Select style="width:100%;" asp-for="GRInterSegmental.TransactionType" id="TransactionType" onchange="TransactionTypeChange();"  data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        <option selected disabled value="0">Select...</option>
+                                        <option value="1">Inter-Segment Transfer</option>
+                                        <option value="2">Inter-Segment Sale</option>
+                                        <option value="3">Third Party Sale</option>
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+
+                            <div  class="col-lg-2 col-sm-3" hidden id="divSegments">
+                                <div class="form-group">
+                                    <label>Segments</label>
+                                    <Select style="width:100%;" asp-for="GRInterSegmental.SegmentsId" asp-items="@ViewBag.Segments" id="Segments"  data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-3" hidden id="divCustomers">
+                                <div class="form-group">
+                                    <label>Customers<i style="color: #a94442;">*</i></label>
+                                    <Select style="width:100%;" asp-for="GRInterSegmental.CustomerId" asp-items="@ViewBag.Customers"  id="Customers"  data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                        <option selected disabled value="0">Select...</option>
+                                    </Select>
+                                    <p id="Season"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-sm-3" >
+                            <div class="form-group">
+                                <label>Remarks<i style="color: #a94442;">*</i></label>
+                                <input tabindex="-1" asp-for="GRInterSegmental.Remarks" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-3" readonly>
+                            <div class="form-group">
+                                <label>Attachment<i style="color: #a94442;">*</i></label>
+                                <input tabindex="-1" type="file" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-2 col-sm-3" id="divGRNId" hidden>
+                            <div class="form-group">
+                                <label>GRN #<i style="color: #a94442;">*</i></label>
+                                <Select style="width:100%;" asp-for="GRInterSegmental.GRNId" asp-items="@ViewBag.GRN" id="GRNId" data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                                <p id="Season"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3" id="divItemCategory2" hidden>
+                            <div class="form-group">
+                                <label>Item Category 2<i style="color: #a94442;">*</i></label>
+                                <Select style="width:100%;" asp-for="GRInterSegmental.ItemCategory2Id" asp-items="@ViewBag.ItemCategory2" onchange="ItemCategory2Change();" id="ItemCategory2" data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                                <p id="Season"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-3" id="divItemId" hidden>
+                            <div class="form-group">
+                                <label>Item<i style="color: #a94442;">*</i></label>
+                                <Select style="width:100%;" asp-for="GRInterSegmental.ItemId" onchange="GETBRANDS();" asp-items="@ViewBag.Item" id="ItemId" data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                                <p id="Season"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-3" hidden id="divBrandId">
+                            <div class="form-group">
+                                <label>Brand<i style="color: #a94442;">*</i></label>
+                                <Select style="width:100%;" asp-for="GRInterSegmental.BrandId" asp-items="@ViewBag.BrandId" id="BrandId" data-validation="required" data-validation-error-msg="IssueType is required" data-validation-error-msg-container="#Season" class="form-control select-customer">
+                                    <option selected disabled value="0">Select...</option>
+                                </Select>
+                                <p id="Season"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="form-group">
+                                <label></label>
+                                <input type="button" value="Add" onclick="GetData();" class="btn btn-primary" />
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <table id="DetailTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="18%">Item Code</th>
+                                        <th width="18%">Description</th>
+                                        <th width="8%">UOM</th>
+                                        <th width="16%">Brand</th>
+                                        <th width="8%">Avlbl Qty</th>
+                                        <th width="8%">Sale/Transfer Qty</th>
+                                      
+                                        <th width="8%">Rate</th>
+                                        <th width="8%">Amount</th>
+                                        <th width="8%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.GRInterSegmentalDetailList != null)
+                                    {
+                                        @if (Model.GRInterSegmentalDetailList.Count() > 0)
+                                        {
+                                            @foreach (var item in Model.GRInterSegmentalDetailList)
+                                            {
+                                                 <tr>
+                                                     @*<td hidden><input class="Id" value="@item.Id" /></td>
+                                                     <td hidden><input class="Idd" value="@item.ProductionOrderDetailId" type="hidden" /></td>
+                                                     <td hidden><input class="SpecificationId" value="@item.GreigeQualityId" type="hidden" /></td>
+                                                     <td><input value="@item.GreigeQuality.Description" style="background-color: #eee;" readonly tabindex="-1" type="text" /></td>
+                                                     <td><input class="RequiredQty text-right" min="0" tabindex="-1" readonly  style="background-color: #eee;"  onchange="Calculations($(this));" value="@item.RequiredQty" type="number"  /></td>
+                                                     <td hidden><input class="alreadyIssuedQtyd text-right" min="0" tabindex="-1" readonly  style="background-color: #eee;"  onchange="Calculations($(this));" value="@item.AlreadyIssuedQty" type="number"  /></td>
+                                                     <td><input readonly  tabindex="-1" style="background-color: #eee;" class="AvailableQty text-right" min="0" onchange="Calculations($(this));" value="@item.AvailableQty" type="number" /></td>
+                                                     <td><input class="IssuanceQty text-right" value="@item.IssuanceQty" onchange="Calculations($(this));"  type="number"  /></td>
+                                                     <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>*@
+                                                 </tr>
+                                            }
+                                        }
+                                    }
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="row">
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-lg-4">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input hidden id="itemDetail" name="ItemDetail" />
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            debugger
+            $("#Customers").select2();
+            $("#Segments").select2();
+            $("#GRNId").select2();
+            $("#ItemCategory2").select2();
+            $("#BrandId").select2();
+            $("#ItemId").select2();
+        });
+
+        function TransactionTypeChange() {
+            var TransactionType = $("#TransactionType").find(":selected").val();
+           
+            if (TransactionType == 2) {
+                $('#DetailTable thead tr').remove();
+                $("#divGRNId").attr("hidden", false);
+                $("#divSegments").attr("hidden", false);
+                $("#divCustomers").attr("hidden", true);
+                $("#divItemId").attr("hidden", true);
+                $("#divItemCategory2").attr("hidden", true);
+               
+                
+                var Itemrow = '';
+                Itemrow += '<tr>';
+                Itemrow += '<th width="18%">Item Code</th>';
+                Itemrow += '<th width="18%">Description</th>';
+                Itemrow += '<th width="8%">UOM</th>';
+                Itemrow += '<th width="18%">Brand</th>';
+                Itemrow += '<th width="8%">Lot #</th>';
+                Itemrow += '<th width="8%">Weaver Qty</th>';
+                Itemrow += '<th width="8%">Mending Qty</th>';
+                Itemrow += '<th width="8%">Folding Qty</th>';
+                Itemrow += '<th width="8%">Rate</th>';
+                Itemrow += '<th width="8%">Amount</th>';
+                Itemrow += '<th width="8%">Action</th>';
+                Itemrow += '</tr>';
+                $('#DetailTable thead').append(Itemrow);
+            } else if (TransactionType == 1) {
+
+                $('#DetailTable thead tr').remove();
+                //GRNId
+                $("#divGRNId").attr("hidden", true);
+                $("#divSegments").attr("hidden", false);
+                $("#divCustomers").attr("hidden", true);
+                $("#divItemId").attr("hidden", false);
+                $("#divItemCategory2").attr("hidden", false);
+               
+                var Itemrow = '';
+                Itemrow += '<tr>';
+                Itemrow += '<th width="18%">Item Code</th>';
+                Itemrow += '<th width="18%">Description</th>';
+                Itemrow += '<th width="8%">UOM</th>';
+                Itemrow += '<th width="16%">Brand</th>';
+                Itemrow += '<th width="8%">Avlbl Qty</th>';
+                Itemrow += '<th width="8%">Sale/Transfer Qty</th>';
+           
+                Itemrow += '<th width="8%">Rate</th>';
+                Itemrow += '<th width="8%">Amount</th>';
+                Itemrow += '<th width="8%">Action</th>';
+                Itemrow += '</tr>';
+                $('#DetailTable thead').append(Itemrow);
+            } else if (TransactionType == 3) {
+                $('#DetailTable thead tr').remove();
+                //GRNId
+                $("#divGRNId").attr("hidden", true);
+                $("#divSegments").attr("hidden", true);
+                $("#divItemId").attr("hidden", false);
+                $("#divItemCategory2").attr("hidden", false);
+                $("#divCustomers").attr("hidden", false);
+                var Itemrow = '';
+                Itemrow += '<tr>';
+                Itemrow += '<th width="18%">Item Code</th>';
+                Itemrow += '<th width="18%">Description</th>';
+                Itemrow += '<th width="8%">UOM</th>';
+                Itemrow += '<th width="16%">Brand</th>';
+                Itemrow += '<th width="8%">Avlbl Qty</th>';
+                Itemrow += '<th width="8%">Sale/Transfer Qty</th>';
+
+                Itemrow += '<th width="8%">Rate</th>';
+                Itemrow += '<th width="8%">Amount</th>';
+                Itemrow += '<th width="8%">Action</th>';
+                Itemrow += '</tr>';
+                $('#DetailTable thead').append(Itemrow);
+            }
+           
+        }
+
+
+        function GETITEMS() {
+            debugger;
+            $('#ItemId').find('option').not(':first').remove();
+           
+            var ItemCategory2 = $("#ItemCategory2").find(":selected").val();
+
+            $.ajax({
+                method: "GET",
+                url: '/Greige/GRInterSegmental/GetItemsData',
+                data: { ItemCategory2: ItemCategory2 }
+            }).done(function (data) {
+                $.each(data, function (i, item) {
+                    $('#ItemId').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+        }
+
+
+
+        function GETBRANDS() {
+            debugger;
+            $('#BrandId').find('option').not(':first').remove();
+
+            var itemId = $("#ItemId").find(":selected").val();
+
+            $.ajax({
+                method: "GET",
+                url: '/Greige/GRInterSegmental/GetDataBrands',
+                data: { itemId: itemId }
+            }).done(function (data) {
+                debugger;
+                $.each(data, function (i, item) {
+                    $('#BrandId').append($('<option>', {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+            });
+        }
+
+
+
+
+
+
+        function ItemCategory2Change() {
+            debugger;
+            var TransactionType = $("#ItemCategory2").find(":selected").text();
+
+            if (TransactionType == "Yarn") {
+                GETITEMS();
+                $("#divBrandId").attr("hidden", false);
+               
+            } else {
+                GETITEMS();
+                $("#divBrandId").attr("hidden", true);
+            }
+           
+
+        }
+
+
+
+        function GetData() {
+            var TransactionType = $("#TransactionType").find(":selected").val();
+            var ItemCategory2 = $("#ItemCategory2").find(":selected").text();
+            var ItemCategory2Val = $("#ItemCategory2").find(":selected").val();
+            var ItemId = $("#ItemId").find(":selected").val();
+            var BrandId = $("#BrandId").find(":selected").val();
+            var GRNID = $("#GRNID").find(":selected").val();
+            debugger;
+            var ItemCategory2 = $("#ItemCategory2").find(":selected").text();
+
+            if (ItemCategory2 == "Yarn") {
+
+                var TransactionType = $("#TransactionType").find(":selected").val();
+
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/Greige/GRInterSegmental/GetDataYarn',
+                    data: { ItemCategory2: ItemCategory2Val, ItemId: ItemId, BrandId: BrandId},
+                }).done(function (data) {
+                    debugger;
+                    var Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].itemId  + '"  /></td>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].unitId  + '"  /></td>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].brandId  + '"  /></td>';
+                    Itemrow += '<td ><input class ="Idd" value="' + data[0].itemCode + '"  /></td>';
+                    Itemrow += '<td  ><input class ="SpecificationId" value="' + data[0].itemName  + '"  /></td>';
+                    Itemrow += '<td><input value="' + data[0].uomName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    Itemrow += '<td><input class ="RequiredQty text-right"  tabindex="-1"  value="' + data[0].brandName + '" type="text" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td ><input class ="alreadyIssuedQtyd text-right" min="0" tabindex="-1"  value="' + data[0].availableStock + '" type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].saleTransferQty + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].rate + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].amount + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+                   
+                    Itemrow += '<td class="text-center"><a id="delrow"  style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                    Itemrow += '</tr>';
+                    $('#DetailTable tbody').append(Itemrow);
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+
+            } else {
+                //$("#divBrandId").attr("hidden", true);
+            
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/Greige/GRInterSegmental/GetDataGreige',
+                    data: { ItemCategory2: ItemCategory2Val, ItemId: ItemId},
+                }).done(function (data) {
+                    debugger;
+                    var Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].itemId + '"  /></td>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].unitId + '"  /></td>';
+                    Itemrow += '<td hidden><input class ="Id" value="' + data[0].brandId + '"  /></td>';
+                    Itemrow += '<td ><input class ="Idd" value="' + data[0].itemCode + '"  /></td>';
+                    Itemrow += '<td  ><input class ="SpecificationId" value="' + data[0].itemName + '"  /></td>';
+                    Itemrow += '<td><input value="' + data[0].uomName + '"  readonly style="background-color: #eee;" tabindex="-1" type="text" /></td>';
+                    Itemrow += '<td><input class ="RequiredQty text-right"  tabindex="-1"  value="' + data[0].brandName + '" type="text" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td ><input class ="alreadyIssuedQtyd text-right" min="0" tabindex="-1"  value="' + data[0].availableStock + '" type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].saleTransferQty + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].rate + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+                    Itemrow += '<td><input class ="AvailableQty readonly text-right"  tabindex="-1" min="0" value="' + data[0].amount + '"  type="number" readonly  style="background-color: #eee;" /></td>';
+
+                    Itemrow += '<td class="text-center"><a id="delrow"  style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                    Itemrow += '</tr>';
+                    $('#DetailTable tbody').append(Itemrow);
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+            }
+
+        }
+        //onchange="Calculations($(this));"
+        function Calculations(row) {
+            debugger
+ 
+            var IssuanceQty = Number(row.closest("tr").find(".IssuanceQty").val());
+            var AvailableQty = Number(row.closest("tr").find(".AvailableQty").val());
+            var RequiredQty = Number(row.closest("tr").find(".RequiredQty").val());
+            var AlReadyissueQty = Number(row.closest("tr").find(".alreadyIssuedQtyd").val());
+            var AlreadyReq = RequiredQty - AlReadyissueQty
+            var AlreadyAvl = AvailableQty - AlReadyissueQty
+            if (IssuanceQty > AlreadyReq) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Required Qty - Already Issued Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            if (IssuanceQty > AlreadyAvl) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Available Qty - Already Issued Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            if (IssuanceQty > AvailableQty) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Available Qty!",
+                    
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+
+            }
+            if (IssuanceQty > RequiredQty) {
+                swal({
+                    icon: 'warning',
+                    text: "Issuance Qty Cannot be Greater than Required Qty!",
+
+                })
+                row.closest("tr").find(".IssuanceQty").val(0);
+            }
+            
+            
+
+        }
+        function OnSubmit() {
+            var BreakOut = false;
+            var VendorId = $(this).find(".VendorId").val();
+            var length = $("#DetailTable tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter one item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    //$('#SeasonId').focus();
+                });
+                return false;
+            }
+            //var length = $("#DetailTable tbody tr").each(function () {
+            //    debugger
+                
+            //   var designRun = $(this).find(".RequiredQty").val();
+            //    if (VendorId == 0) {
+            //        swal({
+            //            icon: 'warning',
+            //            text: "Please enter Vendor!",
+            //            closeModal: false
+            //        }).then(function () {
+            //          
+            //      swal.close();
+                    
+            
+            var length = $("#DetailTable tbody tr").each(function () {
+                debugger
+                var RequiredQty = $(this).find(".RequiredQty").val();
+                var AvailableQty = $(this).find(".AvailableQty").val();
+                var IssuanceQty = $(this).find(".IssuanceQty").val();
+                if (RequiredQty == 0 || RequiredQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter RequiredQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".RequiredQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (AvailableQty == 0 || AvailableQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter AvailableQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".AvailableQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (Number(IssuanceQty) > Number(AvailableQty) ) {
+                    swal({
+                        icon: 'warning',
+                        text: "Issuance quantity must be less than Available quantity!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".IssuanceQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+                if (IssuanceQty == 0 || IssuanceQty == "") {
+                    swal({
+                        icon: 'warning',
+                        text: "Please enter IssuanceQty!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $(this).find(".IssuanceQty").focus();
+                    });
+                    BreakOut = true;
+                    return false;
+                }
+            });
+
+
+
+
+
+            //        });
+            //        BreakOut = true;
+            //        return false;
+            //    }
+            //    if (designRun == 0) {
+            //        swal({
+            //            icon: 'warning',
+            //            text: "Please enter Design Run!",
+            //            closeModal: false
+            //        }).then(function () {
+            //            swal.close();
+            //            $(this).find(".DesignRun").focus();
+            //        });
+            //        BreakOut = true;
+            //        return false;
+            //    }
+            //});
+            if (!BreakOut) {
+                debugger;
+                var itemDetails = [];
+                $.each($("#DetailTable tbody tr"), function () {
+                    debugger;
+                    itemDetails.push({
+                        Id: $(this).find('.Id').val(),
+                        ProductionOrderDetailId: $(this).find('.Idd').val(),
+                        //FourthItemCategoryId: $(this).find('.FourthCategoryId').val(),
+                        GreigeQualityId: $(this).find('.SpecificationId').val(),
+                        RequiredQty: $(this).find('.RequiredQty').val(),
+                        AvailableQty: $(this).find('.AvailableQty').val(),
+                        IssuanceQty: $(this).find('.IssuanceQty').val()
+                    });
+
+                });
+                debugger;
+                var model = JSON.stringify(itemDetails);
+                $("#itemDetail").val(model);
+
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").text("Saving...");
+                return true;
+            }
+            return false;
+        }
+        $("#select_all").change(function () {
+            debugger
+            //"select all" change
+            var status = this.checked; // "select all" checked status
+            $('.check-box').each(function () { //iterate all listed checkbox items
+                this.checked = status; //change ".checkbox" checked status
+            });
+        });
+
+
+         $(document).ready(function () {
+            $('#SeasonId').change(function () {
+                debugger;
+                var divisions = $("#SeasonId option:selected").val();
+                if (divisions != "select..." && divisions != 0) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Planning/GreigeIssuance/GetProcess?id=' + divisions,
+                    }).done(function (data) {
+                        debugger;
+
+                            $('#VendorName').val(data);
+
+
+
+                    });
+                }
+            });
+        });
+
+
+    </script>
+}

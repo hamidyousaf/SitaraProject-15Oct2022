@@ -1,0 +1,2570 @@
+﻿@model Numbers.Entity.ViewModels.APComparativeStatementVM
+@{
+    ViewData["Title"] = "Comparative Statement";
+    ViewData["CurrentPage"] = "Comparative Statement";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+@*<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />*@
+<style>
+
+    #main {
+        display: flex;
+    }
+
+    .withscroll {
+        width: 1500px;
+        overflow-x: scroll;
+        white-space: nowrap;
+    }
+
+    .t td {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    table td {
+        position: relative;
+    }
+
+      table td input:not([type='checkbox']) {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+      }
+
+    #del {  
+        margin-top: -11px;
+        margin-bottom: -7px;
+    }
+    
+    .table-width {
+        width: 225px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>Comparative Statement</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <input hidden id="responsbilitid" value="@ViewBag.Type" />
+            <input hidden id="NoTax" value="@ViewBag.NoTax" />
+            <div class="ibox-content ibox-content-1">
+                <form class="" id="CSform" asp-controller="ComparativeStatement" asp-action="Create" enctype="multipart/form-data">
+                    <div class="row">
+                        <input hidden asp-for="APComparativeStatement.ID" />
+
+                        @*@if (ViewBag.Id != null)
+            {
+                <div class="col-md-2 col-lg-2">
+                    <div class="form-group">
+                        <label for="CSNum" class="col-form-label">CS #</label>
+                        <input type="text"  class="form-control text-right" id="CSNum" data-validation="required" readonly />
+                    </div>
+                </div>
+            }
+            else
+            {*@
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="CSNum" class="col-form-label">CS #</label>
+                                <input type="text" asp-for="APComparativeStatement.CS" class="form-control text-right" id="CSNum" data-validation="required" readonly />
+                            </div>
+                        </div>
+                        @* }*@
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="OperatingUnit" class="col-form-label">Operating Unit</label>
+                                <select asp-for="APComparativeStatement.OperatingId" id='OperatingUnit' class="form-control" asp-items="@ViewBag.OperatingUnit" required autofocus>
+                                    @*<option disabled selected>Select Please..</option>*@
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="Date">Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    @*<input type="date" asp-for="APComparativeStatement.CSDate" class="form-control" id="Date" data-validation="required" />*@
+                                    <input asp-for="APComparativeStatement.CSDate" tabindex="-1" type="text" class=" form-control" value="@(Model.APComparativeStatement == null ? CommonHelper.CurrentDate : Model.APComparativeStatement.CSDate.ToString(CommonHelper.DateFormat))" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="CSValidity" class="col-form-label">CS Validity</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input asp-for="APComparativeStatement.CSValidity" type="text" class=" form-control custom-date-picker date" value="@(Model.APComparativeStatement == null ? CommonHelper.CurrentDate : Model.APComparativeStatement.CSValidity.ToString(CommonHelper.DateFormat))" autocomplete="off" />
+
+                                    @*  <input type="date" asp-for="APComparativeStatement.CSValidity" class="form-control" id="CSValidity" data-validation="required" />*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <label class="col-form-label"></label>
+
+                            <div class="modal fade" id="myModal" role="dialog">
+                                <div class="modal-dialog" style="width:80%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <div class="form-group">
+                                                <div class="col-lg-3 col-md-3">
+                                                    <input class="form-control" id="searchPopUp" placeholder="Search here..." />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="DivId" class="PopupHeight">
+                                            <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                                                <div class="row">
+                                                    <div class="col-md-12 col-lg-12">
+                                                        <table id="CSTable" class="table table-bordered table-striped t">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>PR #</th>
+                                                                    <th>PR Date</th>
+                                                                    <th>Item Description</th>
+                                                                    <th>Department</th>
+                                                                    <th>Sale Cont./Ref#</th>
+                                                                    <th>Request</th>
+
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="CSTableBody">
+                                                                @if (ViewBag.APPurchaseRequisitionDetails != null)
+                                                                {
+                                                                    foreach (var item in ViewBag.APPurchaseRequisition)
+                                                                    {
+                                                                        foreach (var itemDetail in ViewBag.APPurchaseRequisitionDetails)
+                                                                        {
+                                                                            if (item.Id == itemDetail.APPurchaseRequisitionId)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td class="text-right">@item.PrNo</td>
+                                                                                    @{
+                                                                                        var dateAndTime = item.PrDate;
+                                                                                        var date = dateAndTime.ToString("dd/MM/yyyy");
+                                                                                    }
+                                                                                    <td>@date</td>
+                                                                                    <td class="text-left">@itemDetail.Description</td>
+
+                                                                                    @foreach (var dept in ViewBag.Department)
+                                                                                    {
+                                                                                        if (dept.Id == item.DepartmentId)
+                                                                                        {
+                                                                                            <td class="text-left">@dept.Name</td>
+
+                                                                                        }
+                                                                                    }
+                                                                                    <td class="text-right">@item.RefrenceNo</td>
+                                                                                    @foreach (var usr in ViewBag.User)
+                                                                                    {
+                                                                                        if (usr.Id == item.CreatedBy)
+                                                                                        {
+                                                                                            <td class="text-left">@usr.FullName</td>
+
+                                                                                        }
+                                                                                    }
+                                                                                    <td class="text-center"><input type="checkbox" onclick="CreateRow($(this));" /></td>
+                                                                                    <td hidden>@itemDetail.UOM</td>
+                                                                                    <td hidden>@itemDetail.Quantity</td>
+                                                                                    <td hidden>@itemDetail.ItemId</td>
+                                                                                    <td hidden>@itemDetail.Code</td>
+                                                                                    <td hidden>@itemDetail.Id</td>
+                                                                                    @foreach (var uom in ViewBag.UOM)
+                                                                                    {
+                                                                                        if (uom.Id == Convert.ToInt32(itemDetail.UOM))
+                                                                                        {
+                                                                                            <td hidden>@uom.ConfigValue</td>
+                                                                                        }
+                                                                                    }
+                                                                                    <td hidden>@item.CreatedBy</td>
+                                                                                    <td hidden>@item.DepartmentId</td>
+                                                                                    <td hidden>@itemDetail.CSRcd</td>
+
+                                                                                </tr>
+                                                                            }
+
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <div class="modal fade" id="viewModal" role="dialog">
+                                <div class="modal-dialog" style="width:80%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <div class="form-group row">
+                                                <div class="col-lg-3 col-md-3">
+                                                    <label class="row-form-label">Item Description: </label>
+                                                    @*<input class="form-control" id="itemDescrpton" readonly/>*@
+                                                    <label style="font-weight:normal !important;" id="itemDescrpton"></label>
+                                                </div>
+                                                <div class="col-lg-3 col-md-3">
+                                                    <label class="row-form-label">UOM: </label>
+                                                    @*<input class="form-control" id="itemUoM" readonly/>*@
+                                                    <label style="font-weight:normal !important;" id="itemUoM"></label>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="row-form-label">Category: </label>
+                                                    @*<input class="form-control" id="itemCategry" readonly />*@
+                                                    <label style="font-weight:normal !important;" id="itemCategry"></label>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label" style="margin-left:16px;"> Stock: </label>
+                                                        <label style="font-weight:normal !important;" id="itemstock"></label>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label"> Average Rate: </label>
+                                                        <label style="font-weight:normal !important;" id="itemavg"></label>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-3">
+                                                        <label class="row-form-label"> Avg.Consumption Per Day: </label>
+                                                        <label style="font-weight:normal !important;" id="itemconsump"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                                            <div class="row">
+                                                <div class="col-md-12 col-lg-12">
+                                                    <table id="ViewTable" class="table table-bordered table-striped t">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>PO #</th>
+                                                                <th>PO Date</th>
+                                                                <th>PO Qty</th>
+                                                                <th>GRN No</th>
+                                                                <th>GRN Date</th>
+                                                                <th>Vendor</th>
+                                                                <th>Rate</th>
+                                                                @*<th>Contact Person</th>*@
+                                                                @*<th>Phone#</th>*@
+                                                                <th hidden>GRN Qty</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4">
+                            @*<div class="row">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="form-group">
+                            <label for="RemarksTextArea" class="col-form-label">Remarks</label>
+                            <textarea id="RemarksTextArea" style="resize:none;" asp-for="APComparativeStatement.Remarks" class="form-control" rows="4" data-validation="required"></textarea>
+                        </div>
+                    </div>
+                </div>*@
+                            <div class="row">
+                                <div class="col-md-8 col-lg-8">
+                                    <div class="form-group">
+                                        <label for="RemarksTextArea" class="col-form-label">Remarks</label>
+                                        <textarea id="RemarksTextArea" style="resize:none;" asp-for="APComparativeStatement.Remarks" class="form-control" rows="8" data-validation="required"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-lg-4 text-right" style="padding: 0px !important; ">
+                                    <ul style="font-weight: bold; height: 225px; padding-right: 8px; padding-left: 0px; margin: 0px; ">
+                                        <li style="height: 45px; padding: 10px 0px;">Vendor Name</li>
+                                        <li style="height: 45px; padding: 12px 0px;">Payment Terms</li>
+                                        <li style="height: 45px; padding: 14px 0px;">Delivery Terms</li>
+                                        <li style="height: 45px; padding: 20px 0px;">PO Type</li>
+                                        <li style="height: 45px; padding: 20px 0px;">Sales Tax %</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12 " style="top: 20px; right: -14px;">
+                                    <table id="itemTable" class="table table-bordered table-striped t">
+                                        <thead>
+                                            <tr>
+                                                <th>Request</th>
+                                                <th>PR#</th>
+                                                <th>Item Des</th>
+                                                <th>UOM</th>
+                                                <th>PRQty</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.APCSRequestsList != null)
+                                            {
+                                                foreach (var item in Model.APCSRequestsList)
+                                                {
+                                                    <tr class="Item">
+                                                        @{
+                                                            var bit = false;
+                                                            foreach (var usr in ViewBag.User)
+                                                            {
+                                                                if (usr.Id == item.Request)
+                                                                {
+                                                                    bit = true;
+                                                                    <td class="text-left"><input name="CreatedByName" id="CreatedByName" value="@usr.FullName" class="form-control" readonly /></td>
+                                                                }
+                                                            }
+                                                            if (bit == false)
+                                                            {
+                                                                <td> </td>
+                                                            }
+                                                        }
+                                                        <td class="text-right"><input name="PrNo#" id="PrNo" class="form-control" value="@item.PR" readonly /></td>
+                                                        <td class="text-left"><a id="view" onclick="View($(this)); " data-toggle="modal" data-target="#viewModal"><input type="text" class="form-control" value="@item.ItemDescription" /></a></td>
+
+                                                        @{
+                                                            bit = false;
+                                                            foreach (var uom in ViewBag.UOM)
+                                                            {
+                                                                if (uom.Id == Convert.ToInt32(item.UOM))
+                                                                {
+                                                                    bit = true;
+                                                                    <td hidden>@uom.ConfigValue</td>
+                                                                    <td class="text-left"><input name="uOMConfigValue" id="ItemDescriptionConfigValue" class="form-control" value="@uom.ConfigValue" readonly /></td>
+                                                                }
+
+                                                            }
+                                                            if (bit == false)
+                                                            {
+                                                                <td> </td>
+                                                            }
+                                                        }
+                                                        <td style="height: 35px" class="text-right"><input name="IndentQuantity" id="IndentQty" value="@item.Indent_Quantity" class="form-control add-comma" readonly /></td>
+                                                        <td hidden><input type="hidden" name="ID" value="@item.ID" /></td>
+                                                        <td hidden><input name="Created" id="CreatedBy" value="@item.Request" class="form-control" readonly /></td>
+                                                        <td hidden><input name="uOM" id="uOM" class="form-control" value="@item.UOM" readonly /></td>
+                                                        <td class="text-left" hidden><input name="Description" id="ItemDescription" value="@item.ItemDescription" class="form-control" readonly /></td>
+                                                        <td class="text-left" hidden><input value="@item.ItemId" class="form-control itEmID" readonly /></td>
+                                                        <td class="text-left" hidden><input value="@item.PrDetailId" class="form-control prdetailId" readonly /></td>
+                                                    </tr>
+
+                                                }
+
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!--------------------------------------------------------------------------------------------------------------------------------------------------------------->
+                        <div class="col-md-5 col-lg-5" style="background-color:whitesmoke">
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12">
+                                    <div style="width:105%;margin-left:-12px;" id="main" class="withscroll">
+                                        <!-------Vendor 1------->
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="Vendorcheck1" value="false" id="Vendorcheck1" />
+                                                <select name="Vendor" id='Vendor1' class="form-control vendor1" value="Abcd" asp-items="@(new SelectList(ViewBag.Vendor, "Id","Name"))">
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.Vendor1 > 0)
+                                                    {
+                                                        foreach (var vendor in ViewBag.Vendor)
+                                                        {
+                                                            if (ViewBag.Vendor1 == vendor.Id)
+                                                            {
+                                                                <option selected value="@vendor.Id">@vendor.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="PaymentTerm" id='PaymentTerm1' class="form-control PaymentTerm1" asp-items="@(new SelectList(ViewBag.PaymentTerms, "Value","Text"))">
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.Paymenterm1 > 0)
+                                                    {
+                                                        foreach (var payment in ViewBag.PaymentTerms)
+                                                        {
+                                                            if (ViewBag.Paymenterm1 == Convert.ToInt32(payment.Value))
+                                                            {
+                                                                <option selected value="@payment.Value">@payment.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="DeliveryTerm" id='DeliveryTerm1' class="form-control DeliveryTerm1" asp-items="@(new SelectList(ViewBag.DeliveryTerms, "Value","Text"))">
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.Deliveryterm1 != null)
+                                                    {
+                                                        foreach (var dt in ViewBag.DeliveryTerms)
+                                                        {
+                                                            if (ViewBag.Deliveryterm1 == Convert.ToInt32(dt.Value))
+                                                            {
+                                                                <option selected value="@dt.Value">@dt.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="potype_1" name="POType" type="hidden" />
+                                                <select id='POType1' class="form-control POType1" asp-items="@(new SelectList(ViewBag.POType, "Value","Text"))" disabled>
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.POTypeList1 != null)
+                                                    {
+                                                        foreach (var po in ViewBag.POType)
+                                                        {
+                                                            if (ViewBag.POTypeList1 == Convert.ToInt32(po.Value))
+                                                            {
+                                                                <option selected value="@po.Value">@po.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="SaleTax" id='SaleTax1' class="form-control SaleTax1" asp-items="@(new SelectList(ViewBag.SalesTax, "Id","Name"))">
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.SalesTax1 != null)
+                                                    {
+                                                        foreach (var tax in ViewBag.SalesTax)
+                                                        {
+                                                            if (ViewBag.SalesTax1 == tax.Id)
+                                                            {
+                                                                <option selected value="@tax.Id">@tax.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="table-width">
+                                                <table id="V1Table" class="table table-bordered table-striped dataTables-example">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Qty
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Rate
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (ViewBag.ItemDetail1 != null)
+                                                        {
+                                                            foreach (var item in ViewBag.ItemDetail1)
+                                                            {
+                                                                <tr>
+                                                                    @if (item.IsEnable == true)
+                                                                    {
+                                                                        <td hidden> <input type="hidden" onfocus="this.oldvalue = this.value;" name="EnableV1" class="form-control" value="true" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="true" id="IsEnableV1" type="checkbox" name="Enable" checked /></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td hidden> <input type="hidden" onfocus="this.oldvalue = this.value;" name="EnableV1" class="form-control" value="false" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="false" id="IsEnableV1" type="checkbox" name="Enable" /></td>
+                                                                    }
+                                                                    <td style="width:80%;"><input name="qtyExistV1" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item.Qunatity" id="QtyV1" class="text-right add-comma" onchange="Calculation($(this))" onk type="text" placeholder=""></td>
+                                                                    <td><input name="rateV1" value="@item.Rate" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" id="RateV1" onchange="Calculation($(this))" class="text-right add-comma" type="text" placeholder="0.0"></td>
+                                                                    <td style="height: 35px"><input value="@item.Amount" name="amountV1" id="AmountV1" class="text-right add-comma" type="text" placeholder="" readonly></td>
+                                                                    <td hidden><input type="hidden" value="Vendor1" /></td>
+                                                                </tr>
+                                                            }
+
+                                                        }
+
+                                                    </tbody>
+                                                </table>
+                                                @if (ViewBag.Freight1 != null)
+                                                {
+                                                }
+                                                <div>
+                                                    <div class="form-group row" hidden>
+                                                        <label class=" col-form-label col-sm-3 col">Freight:</label>
+                                                        @if (ViewBag.Freight1 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight1' onfocus="this.oldvalue = this.value;" onchange="Freight1Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="@ViewBag.Freight1" />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight1' onfocus="this.oldvalue = this.value;" onchange="Freight1Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="0.0" />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class=" col-form-label col-sm-3 col">Total:</label>
+                                                        @if (ViewBag.GrandTotalList1 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V1TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="@ViewBag.GrandTotalList1" readonly />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V1TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="0.0" readonly />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-------Vendor 2------->
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="Vendorcheck2" value="false" id="Vendorcheck2" />
+                                                <select name="Vendor" id='Vendor2' class="form-control Vendor2" asp-items="@(new SelectList(ViewBag.Vendor, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Vendor2 != null)
+                                                    {
+                                                        foreach (var vendor in ViewBag.Vendor)
+                                                        {
+                                                            if (ViewBag.Vendor2 == vendor.Id)
+                                                            {
+                                                                <option selected value="@vendor.Id">@vendor.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="PaymentTerm" id='PaymentTerm2' class="form-control PaymentTerm2" asp-items="@(new SelectList(ViewBag.PaymentTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Paymenterm2 != null)
+                                                    {
+                                                        foreach (var payment in ViewBag.PaymentTerms)
+                                                        {
+                                                            if (ViewBag.Paymenterm2 == Convert.ToInt32(payment.Value))
+                                                            {
+                                                                <option selected value="@payment.Value">@payment.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="DeliveryTerm" id='DeliveryTerm2' class="form-control DeliveryTerm2" asp-items="@(new SelectList(ViewBag.DeliveryTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Deliveryterm2 != null)
+                                                    {
+                                                        foreach (var dt in ViewBag.DeliveryTerms)
+                                                        {
+                                                            if (ViewBag.Deliveryterm2 == Convert.ToInt32(dt.Value))
+                                                            {
+                                                                <option selected value="@dt.Value">@dt.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="potype_2" name="POType" type="hidden" />
+                                                <select id='POType2' class="form-control POType2" asp-items="@(new SelectList(ViewBag.POType, "Value","Text"))" disabled>
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.POTypeList2 != null)
+                                                    {
+                                                        foreach (var po in ViewBag.POType)
+                                                        {
+                                                            if (ViewBag.POTypeList2 == Convert.ToInt32(po.Value))
+                                                            {
+                                                                <option selected value="@po.Value">@po.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="SaleTax" id='SaleTax2' class="form-control SaleTax2" asp-items="@(new SelectList(ViewBag.SalesTax, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.SalesTax2 != null)
+                                                    {
+                                                        foreach (var tax in ViewBag.SalesTax)
+                                                        {
+                                                            if (ViewBag.SalesTax2 == tax.Id)
+                                                            {
+                                                                <option selected value="@tax.Id">@tax.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="table-width">
+                                                <table id="V2Table" class="table table-bordered table-striped dataTables-example">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Qty
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Rate
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (ViewBag.ItemDetail2 != null)
+                                                        {
+                                                            foreach (var item in ViewBag.ItemDetail2)
+                                                            {
+                                                                <tr class="Item">
+                                                                    @if (item.IsEnable == true)
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV2" class="form-control" value="true" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="true" id="IsEnableV2" type="checkbox" name="Enable" checked /></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV2" class="form-control" value="false" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="false" id="IsEnableV2" type="checkbox" name="Enable" /></td>
+                                                                    }
+                                                                    <td><input name="qtyExistV2" class="text-right add-comma" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item.Qunatity" id="QtyV2" onchange="Calculation($(this))" onk type="text" placeholder=""></td>
+                                                                    <td><input name="rateV2" value="@item.Rate" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="text-right add-comma" id="RateV2" onchange="Calculation($(this))" type="text" placeholder="0.0"></td>
+                                                                    <td style="height: 35px"><input value="@item.Amount" class="text-right add-comma" name="amountV2" id="AmountV2" type="text" placeholder="" readonly></td>
+                                                                    <td hidden><input type="hidden" value="Vendor2" /></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                                <div>
+                                                    <div class="form-group row" hidden>
+                                                        <label class=" col-form-label col-sm-3 col">Freight:</label>
+                                                        @if (ViewBag.Freight2 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight2' onfocus="this.oldvalue = this.value;" onchange="Freight2Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="@ViewBag.Freight2" />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight2' onfocus="this.oldvalue = this.value;" onchange="Freight2Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="0.0" />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class=" col-form-label col-sm-3 col">Total:</label>
+                                                        @if (ViewBag.GrandTotalList2 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V2TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="@ViewBag.GrandTotalList2" readonly />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V2TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="0.0" readonly />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-------Vendor 3------->
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="Vendorcheck3" value="false" id="Vendorcheck3" />
+                                                <select name="Vendor" id='Vendor3' class="form-control Vendor3" asp-items="@(new SelectList(ViewBag.Vendor, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Vendor3 != null)
+                                                    {
+                                                        foreach (var vendor in ViewBag.Vendor)
+                                                        {
+                                                            if (ViewBag.Vendor3 == vendor.Id)
+                                                            {
+                                                                <option selected value="@vendor.Id">@vendor.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="PaymentTerm" id='PaymentTerm3' class="form-control PaymentTerm3" asp-items="@(new SelectList(ViewBag.PaymentTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Paymenterm3 != null)
+                                                    {
+                                                        foreach (var payment in ViewBag.PaymentTerms)
+                                                        {
+                                                            if (ViewBag.Paymenterm3 == Convert.ToInt32(payment.Value))
+                                                            {
+                                                                <option selected value="@payment.Value">@payment.Text </option>
+                                                            }
+                                                        }
+                                                    }
+
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="DeliveryTerm" id='DeliveryTerm3' class="form-control DeliveryTerm3" asp-items="@(new SelectList(ViewBag.DeliveryTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Deliveryterm3 != null)
+                                                    {
+                                                        foreach (var dt in ViewBag.DeliveryTerms)
+                                                        {
+                                                            if (ViewBag.Deliveryterm3 == Convert.ToInt32(dt.Value))
+                                                            {
+                                                                <option selected value="@dt.Value">@dt.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="potype_3" name="POType" type="hidden" />
+                                                <select id='POType3' class="form-control POType3" asp-items="@(new SelectList(ViewBag.POType, "Value","Text"))" disabled>
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.POTypeList3 != null)
+                                                    {
+                                                        foreach (var po in ViewBag.POType)
+                                                        {
+                                                            if (ViewBag.POTypeList3 == Convert.ToInt32(po.Value))
+                                                            {
+                                                                <option selected value="@po.Value">@po.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="SaleTax" id='SaleTax3' class="form-control SaleTax3" asp-items="@(new SelectList(ViewBag.SalesTax, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.SalesTax3 != null)
+                                                    {
+                                                        foreach (var tax in ViewBag.SalesTax)
+                                                        {
+                                                            if (ViewBag.SalesTax3 == tax.Id)
+                                                            {
+                                                                <option selected value="@tax.Id">@tax.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="table-width">
+                                                <table id="V3Table" class="table table-bordered table-striped dataTables-example">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Qty
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Rate
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (ViewBag.ItemDetail3 != null)
+                                                        {
+                                                            foreach (var item3 in ViewBag.ItemDetail3)
+                                                            {
+                                                                <tr class="Item">
+                                                                    @if (item3.IsEnable == true)
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV3" class="form-control" value="true" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="true" id="IsEnableV3" type="checkbox" name="Enable" checked /></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV3" class="form-control" value="false" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="false" id="IsEnableV3" type="checkbox" name="Enable" /></td>
+                                                                    }
+                                                                    <td><input type="text" class="text-right add-comma" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item3.Qunatity" name="qtyExistV3" id="QtyV3" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td><input class="text-right add-comma" type="text" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item3.Rate" name="rateV3" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td style="height: 35px"><input class="text-right add-comma" name="amountV3" value="@item3.Amount" type="text" placeholder="" readonly></td>
+                                                                    <td hidden><input type="hidden" value="Vendor3" /></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                                <div>
+                                                    <div class="form-group row" hidden>
+                                                        <label class=" col-form-label col-sm-3 col">Freight:</label>
+                                                        @if (ViewBag.Freight3 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight3' onfocus="this.oldvalue = this.value;" onchange="Freight3Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="@ViewBag.Freight3" />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight3' onfocus="this.oldvalue = this.value;" onchange="Freight3Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="0.0" />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class=" col-form-label col-sm-3 col">Total:</label>
+                                                        @if (ViewBag.GrandTotalList3 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V3TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="@ViewBag.GrandTotalList3" readonly />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V3TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="0.0" readonly />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-------Vendor 4------->
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="Vendorcheck4" value="false" id="Vendorcheck4" />
+                                                <select name="Vendor" id='Vendor4' class="form-control Vendor4" asp-items="@(new SelectList(ViewBag.Vendor, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Vendor4 != null)
+                                                    {
+                                                        foreach (var vendor in ViewBag.Vendor)
+                                                        {
+                                                            if (ViewBag.Vendor4 == vendor.Id)
+                                                            {
+                                                                <option selected value="@vendor.Id">@vendor.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="PaymentTerm" id='PaymentTerm4' class="form-control PaymentTerm4" asp-items="@(new SelectList(ViewBag.PaymentTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Paymenterm4 != null)
+                                                    {
+                                                        foreach (var payment in ViewBag.PaymentTerms)
+                                                        {
+                                                            if (ViewBag.Paymenterm4 == Convert.ToInt32(payment.Value))
+                                                            {
+                                                                <option selected value="@payment.Value">@payment.Text </option>
+                                                            }
+                                                        }
+                                                    }
+
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="DeliveryTerm" id='DeliveryTerm4' class="form-control DeliveryTerm4" asp-items="@(new SelectList(ViewBag.DeliveryTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Deliveryterm4 != null)
+                                                    {
+                                                        foreach (var dt in ViewBag.DeliveryTerms)
+                                                        {
+                                                            if (ViewBag.Deliveryterm4 == Convert.ToInt32(dt.Value))
+                                                            {
+                                                                <option selected value="@dt.Value">@dt.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="potype_4" name="POType" type="hidden" />
+                                                <select id='POType4' class="form-control POType4" asp-items="@(new SelectList(ViewBag.POType, "Value","Text"))" disabled>
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.POTypeList4 != null)
+                                                    {
+                                                        foreach (var po in ViewBag.POType)
+                                                        {
+                                                            if (ViewBag.POTypeList4 == Convert.ToInt32(po.Value))
+                                                            {
+                                                                <option selected value="@po.Value">@po.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="SaleTax" id='SaleTax4' class="form-control SaleTax4" asp-items="@(new SelectList(ViewBag.SalesTax, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.SalesTax4 != null)
+                                                    {
+                                                        foreach (var tax in ViewBag.SalesTax)
+                                                        {
+                                                            if (ViewBag.SalesTax4 == tax.Id)
+                                                            {
+                                                                <option selected value="@tax.Id">@tax.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div class="table-width">
+                                                <table id="V4Table" class="table table-bordered table-striped dataTables-example">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Qty
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Rate
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (ViewBag.ItemDetail4 != null)
+                                                        {
+                                                            foreach (var item4 in ViewBag.ItemDetail4)
+                                                            {
+                                                                <tr class="Item">
+                                                                    @if (item4.IsEnable == true)
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV4" class="form-control" value="true" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="true" id="IsEnableV4" type="checkbox" name="Enable" checked /></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV4" class="form-control" value="false" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="false" id="IsEnableV4" type="checkbox" name="Enable" /></td>
+                                                                    }
+                                                                    <td><input type="text" class="text-right add-comma" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item4.Qunatity" name="qtyExistV4" id="QtyV4" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td><input class="text-right add-comma" type="text" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item4.Rate" name="rateV4" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td style="height: 35px"><input class="text-right add-comma" name="amountV4" value="@item4.Amount" type="text" placeholder="" readonly></td>
+                                                                    <td hidden><input type="hidden" value="Vendor4" /></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                                <div>
+                                                    <div class="form-group row" hidden>
+                                                        <label class=" col-form-label col-sm-3 col">Freight:</label>
+                                                        @if (ViewBag.Freight4 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight4' onfocus="this.oldvalue = this.value;" onchange="Freight4Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="@ViewBag.Freight4" />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight4' onfocus="this.oldvalue = this.value;" onchange="Freight4Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="0.0" />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class=" col-form-label col-sm-3 col">Total:</label>
+                                                        @if (ViewBag.GrandTotalList4 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V4TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="@ViewBag.GrandTotalList4" readonly />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V4TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="0.0" readonly />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-------Vendor 5------->
+                                        <div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="Vendorcheck5" value="false" id="Vendorcheck5" />
+                                                <select name="Vendor" id='Vendor5' class="form-control Vendor5" asp-items="@(new SelectList(ViewBag.Vendor, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Vendor5 != null)
+                                                    {
+                                                        foreach (var vendor in ViewBag.Vendor)
+                                                        {
+                                                            if (ViewBag.Vendor5 == vendor.Id)
+                                                            {
+                                                                <option selected value="@vendor.Id">@vendor.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="PaymentTerm" id='PaymentTerm5' class="form-control PaymentTerm5" asp-items="@(new SelectList(ViewBag.PaymentTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Paymenterm5 != null)
+                                                    {
+                                                        foreach (var payment in ViewBag.PaymentTerms)
+                                                        {
+                                                            if (ViewBag.Paymenterm5 == Convert.ToInt32(payment.Value))
+                                                            {
+                                                                <option selected value="@payment.Value">@payment.Text </option>
+                                                            }
+                                                        }
+                                                    }
+
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="DeliveryTerm" id='DeliveryTerm5' class="form-control DeliveryTerm5" asp-items="@(new SelectList(ViewBag.DeliveryTerms, "Value","Text"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.Deliveryterm5 != null)
+                                                    {
+                                                        foreach (var dt in ViewBag.DeliveryTerms)
+                                                        {
+                                                            if (ViewBag.Deliveryterm5 == Convert.ToInt32(dt.Value))
+                                                            {
+                                                                <option selected value="@dt.Value">@dt.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <input id="potype_5" name="POType" type="hidden" />
+                                                <select id='POType5' class="form-control POType5" asp-items="@(new SelectList(ViewBag.POType, "Value","Text"))" disabled>
+                                                    <option value='0'>Select Please..</option>
+                                                    @if (ViewBag.POTypeList5 != null)
+                                                    {
+                                                        foreach (var po in ViewBag.POType)
+                                                        {
+                                                            if (ViewBag.POTypeList5 == Convert.ToInt32(po.Value))
+                                                            {
+                                                                <option selected value="@po.Value">@po.Text </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <select name="SaleTax" id='SaleTax5' class="form-control SaleTax5" asp-items="@(new SelectList(ViewBag.SalesTax, "Id","Name"))">
+                                                    <option value=''>Select Please..</option>
+                                                    @if (ViewBag.SalesTax5 != null)
+                                                    {
+                                                        foreach (var tax in ViewBag.SalesTax)
+                                                        {
+                                                            if (ViewBag.SalesTax5 == tax.Id)
+                                                            {
+                                                                <option selected value="@tax.Id">@tax.Name </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="table-width">
+                                                <table id="V5Table" class="table table-bordered table-striped dataTables-example">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Qty
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Rate
+                                                            </th>
+                                                            <th class="text-right">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (ViewBag.ItemDetail5 != null)
+                                                        {
+                                                            foreach (var item5 in ViewBag.ItemDetail5)
+                                                            {
+                                                                <tr class="Item">
+                                                                    @if (item5.IsEnable == true)
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV5" class="form-control" value="true" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="true" id="IsEnableV5" type="checkbox" name="Enable" checked /></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td hidden> <input type="hidden" name="EnableV5" class="form-control" value="false" readonly /></td>
+                                                                        <td> <input class="form-check - input" onclick="CheckBox($(this))" value="false" id="IsEnableV5" type="checkbox" name="Enable" /></td>
+                                                                    }
+                                                                    <td><input type="text" value="@item5.Qunatity" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="text-right add-comma" name="qtyExistV5" id="QtyV5" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td><input type="text" class="text-right add-comma" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" value="@item5.Rate" name="rateV5" onchange="Calculation($(this))" placeholder=""></td>
+                                                                    <td style="height: 35px"><input name="amountV5" class="text-right add-comma" value="@item5.Amount" type="text" placeholder="" readonly></td>
+                                                                    <td hidden><input type="hidden" value="Vendor5" /></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                                <div>
+                                                    <div class="form-group row" hidden>
+                                                        <label class=" col-form-label col-sm-3 col">Freight:</label>
+                                                        @if (ViewBag.Freight5 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight5' class="form-control text-right add-comma" onfocus="this.oldvalue = this.value;" onchange="Freight5Calculation(this);this.oldvalue = this.value;" value="@ViewBag.Freight5" />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="Freight" id='Freight5' onfocus="this.oldvalue = this.value;" onchange="Freight5Calculation(this);this.oldvalue = this.value;" class="form-control text-right add-comma" value="0.0" />
+                                                            </div>
+                                                        }
+
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class=" col-form-label col-sm-3 col">Total:</label>
+                                                        @if (ViewBag.GrandTotalList5 != null)
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V5TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="@ViewBag.GrandTotalList5" readonly />
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-sm-9">
+                                                                <input name="VTotalAmount" id='V5TotalAmount' tabindex='-1' class="form-control text-right add-comma" value="0.0" readonly />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!------------------------------------------------------------------------>
+                        <div class="col-md-3 col-lg-3">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Attachments</label>
+                                        <input type="file" class="form-control-file" id="name" name="file" data-validation="required" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 col-lg-12 " style="top: 186px; left: -14px">
+                                    <table id="itemTable_RightSide" class="table table-bordered table-striped dataTables-example">
+                                        <thead>
+                                            <tr>
+                                                <th width="10%" class="text-right">
+                                                    T.Amount
+                                                </th>
+                                                <th>
+                                                    LstPORate
+                                                </th>
+                                                <th class="text-right">
+                                                    LstPODate
+                                                </th>
+                                                <th>
+                                                    Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.APCSRequestsList != null)
+                                            {
+                                                foreach (var item in Model.APCSRequestsList)
+                                                {
+                                                    <tr>
+                                                        <td><input style="background-color: #eee;" name="totalAppAmount" id="TotalAppAmount" value="@item.Total_App_Amount" class="form-control text-right add-comma" readonly /></td>
+                                                        <td><input style="background-color: #eee;" name="lastPORate" id="lastPORate" class="form-control text-right add-comma" value="@item.LastPORate" readonly /></td>
+                                                        @if (item.LastPODate == DateTime.MinValue)
+                                                        {
+                                                            <td><input style="background-color: #eee;" name="lastPODate" id="ItemDescription" value=" " class="form-control" readonly /></td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td><input style="background-color: #eee;" name="lastPODate" id="ItemDescription" value="@item.LastPODate" class="form-control" readonly /></td>
+                                                        }
+                                                        <td><button type="button" class="btn btn-sm btn-danger" id="del"><i class="fa fa-trash"></i></button></td>
+                                                    </tr>
+                                                }
+
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (User.GetUserName() == "Hamza")
+                    {
+                        <a class="btn btn-primary" asp-controller="ComparativeStatement" asp-action="Notify">List</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary" asp-controller="ComparativeStatement" asp-action="List">List</a>
+                    }
+
+                    @if (Model.APComparativeStatement != null)
+                    {
+                        <a href="@string.Format(ViewBag.ReportPath2, Model.APComparativeStatement.ID)" target="_blank" class="btn btn-primary"><i class="fa fa-print" title="Print Report"></i> Print</a>
+                    }
+                    <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                </form>
+                <input type="hidden" id="LstPOdate" />
+                <input type="hidden" id="LstPOrrate"/>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    @*<script src="~/js/INV/customSelect2.js"></script>
+    <script src="~/js/plugins/select2/select2.full.min.js"></script>*@
+
+
+    <script>
+        $(document).ready(function () {
+            
+            $('input.add-comma').commaTextbox();
+            $(".date").datepicker({
+            })
+            $('#POType1').val($('#responsbilitid').val());
+            $('#potype_1').val($('#responsbilitid').val());
+            $('#POType2').val($('#responsbilitid').val());
+            $('#potype_2').val($('#responsbilitid').val());
+            $('#POType3').val($('#responsbilitid').val());
+            $('#potype_3').val($('#responsbilitid').val());
+            $('#POType4').val($('#responsbilitid').val());
+            $('#potype_3').val($('#responsbilitid').val());
+            $('#POType5').val($('#responsbilitid').val());
+            $('#potype_5').val($('#responsbilitid').val());
+            if ($('#POType1').find(":selected").text() == "Import") {
+                $('#SaleTax1').val($('#NoTax').val());
+                $('#SaleTax2').val($('#NoTax').val());
+                $('#SaleTax3').val($('#NoTax').val());
+                $('#SaleTax4').val($('#NoTax').val());
+                $('#SaleTax5').val($('#NoTax').val());
+                $('#SaleTax1 option:not(:selected)').attr('disabled', true);
+                $('#SaleTax2 option:not(:selected)').attr('disabled', true);
+                $('#SaleTax3 option:not(:selected)').attr('disabled', true);
+                $('#SaleTax4 option:not(:selected)').attr('disabled', true);
+                $('#SaleTax5 option:not(:selected)').attr('disabled', true);
+
+            }
+            var today = new Date();
+            $(function () {
+                $('body').popover({
+                    selector: '[data-toggle="popover"]',
+                    trigger: 'hover',
+                    container: 'body',
+                    placement:'top',
+                    animation: false
+                }).on('hide.bs.popover', function () {
+                    if ($(".popover:hover").length) {
+                        return false;
+                    }
+                });
+
+                $('body').on('mouseleave', '.popover', function () {
+                    $('.popover').popover('hide');
+                });
+            });
+            $('#CSValidity').val(today.toISOString().substr(0, 10));
+            $('#Date').val(today.toISOString().substr(0, 10));
+            $('#OrgId').select2();
+            $('#OperatingUnit').select2();
+            $('#OperatingUnit').select2();
+            if ($("#Vendor1").find(":selected").text() != "Select Please..") {
+                $('#Vendorcheck1').val(true);
+            }
+            if ($("#Vendor2").find(":selected").text() != "Select Please..") {
+                $('#Vendorcheck2').val(true);
+            }
+            if ($("#Vendor3").find(":selected").text() != "Select Please..") {
+                $('#Vendorcheck3').val(true);
+            }
+            if ($("#Vendor4").find(":selected").text() != "Select Please..") {
+                $('#Vendorcheck4').val(true);
+            }
+            if ($("#Vendor5").find(":selected").text() != "Select Please..") {
+                $('#Vendorcheck5').val(true);
+            }
+
+            $("#Vendor1").select2();
+            $("#Vendor2").select2();
+            $("#Vendor3").select2();
+            $("#Vendor4").select2();
+            $("#Vendor5").select2();
+
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+           
+
+        });
+
+
+        function disableForm(formID) {
+            $('#' + formID).children(':input').attr('disabled', 'disabled');
+        }
+
+        function CreateRow(row) {
+            GetLastPODate(row);
+            @*GetLastPODate(row, function () {
+                Create(row);
+            });*@
+        }
+
+        function Create(row) {
+            debugger
+            var PrNo = row.closest("tr").find('td:eq(0)').text();
+            var PrDate = row.closest("tr").find('td:eq(1)').text();
+            var ItemDescription = row.closest("tr").find('td:eq(2)').text();
+            var DepartmentId = row.closest("tr").find('td:eq(3)').text();
+            var RefrenceNo = row.closest("tr").find('td:eq(4)').text();
+            var CreatedByName = row.closest("tr").find('td:eq(5)').text();
+            var UOM = row.closest("tr").find('td:eq(7)').text();
+            var IndentQuantity = parseFloat(row.closest("tr").find('td:eq(8)').text()) || 0.0;
+            var ItemId = row.closest("tr").find('td:eq(9)').text();
+            var ItemCode = row.closest("tr").find('td:eq(10)').text();
+            var PrDetailId = row.closest("tr").find('td:eq(11)').text();
+            var UOMName = row.closest("tr").find('td:eq(12)').text();
+            var CreatedBy = row.closest("tr").find('td:eq(13)').text();
+            var CSBal = parseFloat(row.closest("tr").find('td:eq(15)').text()) || 0.0;
+            var description = ItemDescription.split(" ")[0]+"...";
+            var Quantity = IndentQuantity - CSBal;
+            row.closest("tr").remove();
+            var value = false;
+            $('#itemTable > tbody > tr').each(function () {
+                var checkCreatedBy = $(this).closest("tr").find('td:eq(1) input').val();
+                var checkPrNo = $(this).closest("tr").find('td:eq(2) input').val();
+                var checkItemDescription = $(this).closest("tr").find('td:eq(3) input').val();
+                var checkUOM = $(this).closest("tr").find('td:eq(4) input').val();
+                var PrDetailID = $(this).closest("tr").find(".prdetailId").val();
+                var Qty = parseInt($(this).closest("tr").find('td:eq(5) input').val().replace(/,/g,""));
+                debugger
+                if (CreatedBy == checkCreatedBy) {
+                    value = true;
+                }
+                else if (PrNo == checkPrNo) {
+                    value = true;
+                }
+                else if (PrDetailID == PrDetailId && Qty == Quantity) {
+                    value = true;
+                }
+                else if (ItemDescription == checkItemDescription) {
+                    value = true;
+                }
+                else if (UOM == checkUOM) {
+                    value = true;
+                }
+                else
+                    value = false;
+            });
+            if (value == false) {
+
+                var row = "<tr>" +
+                    "<td > <input name='CreatedByName' tabindex='-1' id='CreatedByName' class='form-control text-left' value=" + CreatedByName + " readonly/></td>" +
+                    "<td > <input name='PrNo' id='PrNo' tabindex='-1' class='form-control text-right' value=" + PrNo + " readonly/></td>" +
+                    '<td><a id="view" onclick="View($(this)); " data-toggle="popover" data-content="' + ItemDescription + '" data-target="#viewModal" >' + description+'</a></td > '+
+                    "<td > <input  name='UOMName' id='UOMName' tabindex='-1' class='form-control text-left'  value=" + UOMName + " readonly/></td>" +
+                    "<td hidden> <input  name='ItemId' id='ItemId' class='form-control itEmID' value=" + ItemId + " readonly/></td>" +
+                    "<td > <input  name='IndentQty' tabindex='-1' id='IndentQty' class='form-control idQty text-right add-comma'  value=" + Quantity + " readonly/></td>" +
+                    "<td hidden> <input  name='ItemCode' id='ItemCode' class='form-control'  value=" + ItemCode + " readonly/></td>" +
+                    "<td hidden> <input  name='PrDetailId' id='PrDetailId' class='form-control prDetId'  value=" + PrDetailId + " readonly/></td>" +
+                    "<td hidden > <input type='hidden' name='UOM' id='UOM' class='form-control'  value=" + UOM + " readonly/></td>" +
+                    "<td hidden > <input type='hidden' name='CreatedBy' id='CreatedBy' class='form-control'  value=" + CreatedBy + " readonly/></td>" +
+                    "<td hidden > <input type='hidden' name='PRRefrenceNo' id='PRRefrenceNo' class='form-control'  value=" + RefrenceNo + " readonly/></td>" +
+                    "<td hidden> <input  name='ItemDescription' id='ItemDescription' class='form-control text-left'  value='" + ItemDescription + "' readonly/></td>" +
+                "</tr>"
+                $("#itemTable tbody").append(row);
+                $('input.add-comma').commaTextbox();
+                var row1 = "<tr>" +
+                    "<td hidden> <input type='hidden'  oldvalue = 'false' name='IsEnablV1' id='sv' class='form-control' value='false' readonly/></td>" +
+                    "<td > <input class='form-check - input' onclick='CheckBox($(this))' value='false' type='checkbox' id='IsEnableV1' ></td>" +
+                    "<td > <input type='text' name='QtyV1' value='0.0' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' id='QtyV1' class='text-right add-comma' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td > <input type='text' name='RateV1' id='RateV1' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' class='text-right add-comma' onchange='Calculation($(this))' value='0.0'  placeholder=''></td>" +
+                    "<td style='height: 35px' > <input type='text' tabindex='-1' value='0.0' name='TotalAmountV1' id='TotalAmountV1' class='form-control text-right add-comma'  readonly /></td>" +
+                    "<td hidden> <input type='hidden' value='Vendor1' readonly /></td>" +
+                "</tr>"
+                $("#V1Table tbody").append(row1);
+                $('input.add-comma').commaTextbox();
+                var row2 = "<tr>" +
+                    "<td hidden> <input type='hidden' name='IsEnablV2' class='form-control' value='false' readonly/></td>" +
+                    "<td > <input class='form-check - input' onclick='CheckBox($(this))' value='false' type='checkbox' id='IsEnableV2' name='Enable'></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='QtyV2' value='0.0' id='QtyV2' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='RateV2' id='RateV2' value='0.0' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td style='height: 35px'> <input type='text' tabindex='-1' value='0.0' name='TotalAmountV2' id='TotalAmountV2' class='form-control text-right add-comma'  readonly /></td>" +
+                    "<td hidden> <input type='hidden' value='Vendor2' readonly /></td>" +
+                "</tr>"
+                $("#V2Table tbody").append(row2);
+                $('input.add-comma').commaTextbox();
+                var row3 = "<tr>" +
+                    "<td hidden> <input type='hidden' name='IsEnablV3' class='form-control' value='false' readonly/></td>" +
+                    "<td > <input class='form-check - input' onclick='CheckBox($(this))' value='false' type='checkbox' id='IsEnableV3' name='Enable'></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='QtyV3' value='0.0' id='QtyV3' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='RateV3' id='RateV3' value='0.0' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td style='height: 35px'> <input type='text' tabindex='-1' value='0.0' name='TotalAmountV3' id='TotalAmountV3' class='form-control text-right add-comma'  readonly /></td>" +
+                    "<td hidden> <input type='hidden' value='Vendor3' readonly /></td>" +
+                "</tr>"
+                $("#V3Table tbody").append(row3);
+                $('input.add-comma').commaTextbox();
+                var row4 = "<tr>" +
+                    "<td hidden> <input type='hidden' name='IsEnablV4' class='form-control' value='false' readonly/></td>" +
+                    "<td > <input class='form-check - input' onclick='CheckBox($(this))' value='false' type='checkbox' id='IsEnableV4' name='Enable'></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='QtyV4' value='0.0' id='QtyV4' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td > <input type='text' class='text-right add-comma' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' name='RateV4' id='RateV4' value='0.0' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td style='height: 35px'> <input type='text' tabindex='-1' value='0.0' name='TotalAmountV4' id='TotalAmountV4' class='form-control text-right add-comma'  readonly /></td>" +
+                    "<td hidden> <input type='hidden' value='Vendor4' readonly /></td>" +
+                "</tr>"
+                $("#V4Table tbody").append(row4);
+                var row5 = "<tr>" +
+                    "<td hidden> <input type='hidden' name='IsEnablV5' class='form-control' value='false' readonly/></td>" +
+                    "<td > <input class='form-check - input'  onclick='CheckBox($(this))' value='false' id='IsEnableV5' type='checkbox' name='Enable'></td>" +
+                    "<td > <input type='text' name='QtyV5' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' class='text-right add-comma' value='0.0' id='QtyV5' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td > <input type='text' name='RateV5' onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' class='text-right add-comma' id='RateV5' value='0.0' onchange='Calculation($(this))' placeholder=''></td>" +
+                    "<td style='height: 35px'> <input type='text' tabindex='-1' value='0.0' name='TotalAmountV5' id='TotalAmountV5' class='form-control text-right add-comma'  readonly /></td>" +
+                    "<td hidden> <input type='hidden' value='Vendor5' readonly /></td>" +
+                "</tr>"
+                $("#V5Table tbody").append(row5);
+                $('input.add-comma').commaTextbox();
+                var lastPODate = $('#LstPOdate').val();
+                var lastPORate = $('#LstPOrrate').val();
+                var row6 = "<tr style='height: 35px'63>" +
+                    "<td style='height: 35px' ><input style='background-color: #eee;' tabindex='-1' id='TotalAppAmount' class='text-right add-comma' value='0.0' name='TotalAppAmount' readonly/></td>" +
+                    "<td style='height: 35px'> <input style='background-color: #eee;' tabindex='-1' type='text' class='text-right'  name='LastPORate' id='LastPORate' value='" + lastPORate + "' readonly/></td>" +
+                    "<td  > <input type='text' style='background-color: #eee;' class='text-left' tabindex='-1' name='LastPODate' value='" + lastPODate + "' readonly/></td>" +
+/*                    '<td> <a id="del" onclick="deleterow($(this));" class="btn btn-sm btn-danger"> <i class="fa fa-trash" title="Delete"></i> </a></td>'*/
+                    "</tr>"
+                $("#itemTable_RightSide tbody").append(row6);
+                $('input.add-comma').commaTextbox();
+            }
+            else {
+                swal("", "Already Selected", "warning")
+            }
+
+        }
+
+        function GetLastPODate(row, callback) {
+            var PrDetailId = row.closest("tr").find('td:eq(11)').text();
+            $.ajax({
+                method: "GET",
+                url: "/AP/ComparativeStatement/LastPODate",
+                data: { id: PrDetailId }
+            }).done(function (data) {
+                if (data) {
+                    $("#LstPOdate").val(data.date);
+                    $("#LstPOrrate").val(data.rate);
+                    Create(row);
+                    $('input.add-comma').commaTextbox();
+                }
+            });
+        }
+
+        function Calculation(row) {
+            var checkBoxPrev = row.closest("tr").find('td:eq(0) input').attr("oldvalue");
+            //var a = row.closest("tr").find('td:eq(0) input').oldvalue();
+            var check = row.closest("tr").find('td:eq(0) input').val();
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            var TotalQty = 0;
+            var QtyV1 = 0.0, QtyV2 = 0.0, QtyV3 = 0.0, QtyV4 = 0.0, QtyV5 = 0.0;
+            var EnableV1TAmt = 0.0, EnableV2TAmt = 0.0, EnableV3TAmt = 0.0, EnableV4TAmt = 0.0, EnableV5TAmt = 0.0;
+            var Rate = parseFloat(row.closest("tr").find('td:eq(3) input').val().replace(/,/g, "")) || 0.0;
+            var Qty = parseInt(row.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+            row_TableV1 = $("#V1Table").find('tr').eq(c);
+            row_TableV2 = $("#V2Table").find('tr').eq(c);
+            row_TableV3 = $("#V3Table").find('tr').eq(c);
+            row_TableV4 = $("#V4Table").find('tr').eq(c);
+            row_TableV5 = $("#V5Table").find('tr').eq(c);
+            row_ItemTable = $("#itemTable").find("tr").eq(c);
+            row_itemTable_RightSide = $("#itemTable_RightSide").find("tr").eq(c);
+            var IndentQty = parseInt(row_ItemTable.closest("tr").find('td:eq(5) input').val().replace(/,/g, "", 10)) || 0;
+            var checkV1 = row_TableV1.closest("tr").find('td:eq(0) input').val();
+            var checkV2 = row_TableV2.closest("tr").find('td:eq(0) input').val();
+            var checkV3 = row_TableV3.closest("tr").find('td:eq(0) input').val();
+            var checkV4 = row_TableV4.closest("tr").find('td:eq(0) input').val();
+            var checkV5 = row_TableV5.closest("tr").find('td:eq(0) input').val();
+
+            if (checkV1 == "true") {
+                QtyV1 = parseInt(row_TableV1.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+                EnableV1TAmt = parseInt(row_TableV1.closest("tr").find('td:eq(4) input').val().replace(/,/g, "", 10)) || 0;
+            }
+            if (checkV2 == "true") {
+                QtyV2 = parseInt(row_TableV2.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+                EnableV2TAmt = parseInt(row_TableV2.closest("tr").find('td:eq(4) input').val().replace(/,/g, "", 10)) || 0;
+            }
+            if (checkV3 == "true") {
+                QtyV3 = parseInt(row_TableV3.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+                EnableV3TAmt = parseInt(row_TableV3.closest("tr").find('td:eq(4) input').val().replace(/,/g, "", 10)) || 0;
+            }
+            if (checkV4 == "true") {
+                QtyV4 = parseInt(row_TableV4.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+                EnableV4TAmt = parseInt(row_TableV4.closest("tr").find('td:eq(4) input').val().replace(/,/g, "", 10)) || 0;
+            }
+            if (checkV5 == "true") {
+                QtyV5 = parseInt(row_TableV5.closest("tr").find('td:eq(2) input').val().replace(/,/g, "", 10)) || 0;
+                EnableV5TAmt = parseInt(row_TableV5.closest("tr").find('td:eq(4) input').val().replace(/,/g, "", 10)) || 0;
+            }
+
+            row_itemTable_RightSide = $("#itemTable_RightSide").find("tr").eq(c);
+            var _oldTotalAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g,""));
+            var _oldTotalAppAmoun = parseFloat(row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val().replace(/,/g, "")) || 0.0;
+            if (check == "true") {
+                var EnabletAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV3TAmt + EnableV4TAmt + EnableV5TAmt);
+                TotalQty = QtyV1 + QtyV2 + QtyV3 + QtyV4 + QtyV5;
+                if (Qty <= IndentQty) {
+                    if (TotalQty <= IndentQty) {
+                        if (Rate > 0) {
+
+                            var TotalVendorAmount = 0;
+
+                            var oldVendorTAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                            row.closest("tr").find('td:eq(4) input').val(Qty * Rate);
+                            var newVendorTAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                            debugger
+                            var tablename = row.closest("tr").find('td:eq(5) input').val();
+                            debugger
+                            if (tablename == "Vendor1")
+                            {
+                                var oldTotalVendorAmt = parseFloat($('#V1TotalAmount').val().replace(/,/g, ""));
+                                var EnableTotalAmt = parseFloat(oldVendorTAmount + EnableV2TAmt + EnableV3TAmt + EnableV4TAmt + EnableV5TAmt);
+                                var amount = 0.0;
+                                var vAmount = 0.0;
+                                var _tAmount = 0.0;
+                                var _tVAmount = 0.0;
+                                if (EnableTotalAmt == _oldTotalAppAmoun) {
+                                    amount = _oldTotalAppAmoun - oldVendorTAmount;
+                                    vAmount = oldTotalVendorAmt - oldVendorTAmount;
+                                    _tAmount = amount + newVendorTAmount;
+                                    _tVAmount = vAmount + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(_tAmount);
+                                    $('#V1TotalAmount').val(_tVAmount);
+                                    }
+                                else {
+                                    amount = _oldTotalAppAmoun + newVendorTAmount;
+                                    vAmount = oldTotalVendorAmt + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+                                    $('#V1TotalAmount').val(vAmount);
+
+                                }
+                                $('input.add-comma').commaTextbox();
+                            }
+                            debugger
+                            if (tablename == "Vendor2")
+                            {
+                                debugger
+                                var oldTotalVendorAmt = parseFloat($('#V2TotalAmount').val().replace(/,/g, ""));
+                                var EnableTotalAmt = parseFloat(EnableV1TAmt + oldVendorTAmount + EnableV3TAmt + EnableV4TAmt + EnableV5TAmt);
+                                var amount = 0.0;
+                                var vAmount = 0.0;
+                                var _tAmount = 0.0;
+                                var _tVAmount = 0.0;
+                                if (EnableTotalAmt == _oldTotalAppAmoun) {
+                                    amount = _oldTotalAppAmoun - oldVendorTAmount;
+                                    vAmount = oldTotalVendorAmt - oldVendorTAmount;
+                                    _tAmount = amount + newVendorTAmount;
+                                    _tVAmount = vAmount + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(_tAmount);
+                                    $('#V2TotalAmount').val(_tVAmount);
+                                }
+                                else {
+                                    amount = _oldTotalAppAmoun + newVendorTAmount;
+                                    vAmount = oldTotalVendorAmt + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+                                    $('#V2TotalAmount').val(vAmount);
+
+                                }
+                                $('input.add-comma').commaTextbox();
+                            }
+                            if (tablename == "Vendor3")
+                            {
+                                var oldTotalVendorAmt = parseFloat($('#V3TotalAmount').val().replace(/,/g, ""));
+                                var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + oldVendorTAmount + EnableV4TAmt + EnableV5TAmt);
+                                var amount = 0.0;
+                                var vAmount = 0.0;
+                                var _tAmount = 0.0;
+                                var _tVAmount = 0.0;
+                                if (EnableTotalAmt == _oldTotalAppAmoun) {
+                                    amount = _oldTotalAppAmoun - oldVendorTAmount;
+                                    vAmount = oldTotalVendorAmt - oldVendorTAmount;
+                                    _tAmount = amount + newVendorTAmount;
+                                    _tVAmount = vAmount + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(_tAmount);
+                                    $('#V3TotalAmount').val(_tVAmount);
+                                }
+                                else {
+                                    amount = _oldTotalAppAmoun + newVendorTAmount;
+                                    vAmount = oldTotalVendorAmt + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+                                    $('#V3TotalAmount').val(vAmount);
+
+                                }
+                                $('input.add-comma').commaTextbox();
+                            }
+                            if (tablename == "Vendor4")
+                            {
+                                var oldTotalVendorAmt = parseFloat($('#V4TotalAmount').val().replace(/,/g, ""));
+                                var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV3TAmt + oldVendorTAmount + EnableV5TAmt);
+                                var amount = 0.0;
+                                var vAmount = 0.0;
+                                var _tAmount = 0.0;
+                                var _tVAmount = 0.0;
+                                if (EnableTotalAmt == _oldTotalAppAmoun) {
+                                    amount = _oldTotalAppAmoun - oldVendorTAmount;
+                                    vAmount = oldTotalVendorAmt - oldVendorTAmount;
+                                    _tAmount = amount + newVendorTAmount;
+                                    _tVAmount = vAmount + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(_tAmount);
+                                    $('#V4TotalAmount').val(_tVAmount);
+                                }
+                                else {
+                                    amount = _oldTotalAppAmoun + newVendorTAmount;
+                                    vAmount = oldTotalVendorAmt + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+                                    $('#V4TotalAmount').val(vAmount);
+
+                                }
+                                $('input.add-comma').commaTextbox();
+                            }
+                            if (tablename == "Vendor5")
+                            {
+                                var oldTotalVendorAmt = parseFloat($('#V5TotalAmount').val().replace(/,/g, ""));
+                                var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV3TAmt + EnableV4TAmt + oldVendorTAmount);
+                                var amount = 0.0;
+                                var vAmount = 0.0;
+                                var _tAmount = 0.0;
+                                var _tVAmount = 0.0;
+                                if (EnableTotalAmt == _oldTotalAppAmoun) {
+                                    amount = _oldTotalAppAmoun - oldVendorTAmount;
+                                    vAmount = oldTotalVendorAmt - oldVendorTAmount;
+                                    _tAmount = amount + newVendorTAmount;
+                                    _tVAmount = vAmount + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(_tAmount);
+                                    $('#V5TotalAmount').val(_tVAmount);
+                                }
+                                else {
+                                    amount = _oldTotalAppAmoun + newVendorTAmount;
+                                    vAmount = oldTotalVendorAmt + newVendorTAmount;
+                                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+                                    $('#V5TotalAmount').val(vAmount);
+
+                                }
+                                $('input.add-comma').commaTextbox();
+                            }
+
+                        } else
+                            row.closest("tr").find('td:eq(4) input').val(0);
+                    }
+                    else {
+
+                        swal("", "Quantity must be less than Indent Quantity", "warning");
+                        var T_amt = parseFloat(EnabletAmt - row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(T_amt);
+                        row.closest("tr").find('td:eq(4) input').val(0);
+                        row.closest("tr").find('td:eq(2) input').val(0);
+                    }
+                }
+                else {
+                    swal("", "Quantity must be less than Indent Quantity", "warning");
+                    var T_amt = parseFloat(EnabletAmt - row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                    row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(T_amt);
+                    row.closest("tr").find('td:eq(4) input').val(0);
+                    row.closest("tr").find('td:eq(2) input').val(0);
+                }
+            }
+            else
+            {
+                var _oldTotalAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                var _oldTotalAppAmoun = parseFloat(row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val().replace(/,/g, "")) || 0.0;
+                var prevVendor1 = parseFloat(row_TableV1.closest("tr").find('td:eq(4) input').val().replace(/,/g, "")) || 0.0;
+                var prevVendor2 = parseFloat(row_TableV2.closest("tr").find('td:eq(4) input').val().replace(/,/g, "")) || 0.0;
+                var prevVendor3 = parseFloat(row_TableV3.closest("tr").find('td:eq(4) input').val().replace(/,/g, "")) || 0.0;
+                var prevVendor4 = parseFloat(row_TableV4.closest("tr").find('td:eq(4) input').val().replace(/,/g, "")) || 0.0;
+                var prevVendor5 = parseFloat(row_TableV5.closest("tr").find('td:eq(4) input').val().replace(/,/g, "")) || 0.0;
+                var Vendoramount = 0;
+                var TotalVendorAmount = 0;
+                var amount = 0;
+                debugger;
+                var oldTAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                var tablename = row.closest("tr").find('td:eq(5) input').val();
+
+                row.closest("tr").find('td:eq(4) input').val(Qty * Rate);
+                var newTAmount = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+
+                if (tablename == "Vendor1") {
+                    var vendorTotl = 0;
+                    $('#V1Table > tbody > tr').each(function () {
+                        var isenable = $(this).closest("tr").find('td:eq(0) input').val();
+                        var valu = parseFloat($(this).closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        debugger;
+                        if (isenable == "true")
+                            vendorTotl = vendorTotl + valu;
+                    });
+
+                    var EnableTotalAmt = parseFloat(EnableV2TAmt + EnableV3TAmt + EnableV4TAmt + EnableV5TAmt);
+                    var oldTotalVendorAmt = parseFloat($('#V1TotalAmount').val().replace(/,/g, ""));
+                    if (_oldTotalAppAmoun != 0) {
+                        if (_oldTotalAppAmoun != EnableTotalAmt)
+                            amount = _oldTotalAppAmoun - prevVendor1;
+                        else
+                            amount = _oldTotalAppAmoun;
+                    }
+                    $('#V1TotalAmount').val(vendorTotl);
+                    $('input.add-comma').commaTextbox();
+                }
+                if (tablename == "Vendor2") {
+                    var amt = 0.0
+                    var vendorTotl2 = 0;
+
+                    $('#V2Table > tbody > tr').each(function () {
+                        var isenable = $(this).closest("tr").find('td:eq(0) input').val();
+                        var valu = parseFloat($(this).closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        debugger;
+                        if (isenable == "true")
+                            vendorTotl2 = vendorTotl2 + valu;
+                    });
+                    var oldTotalVendorAmt = parseFloat($('#V2TotalAmount').val().replace(/,/g, ""));
+                    var prevVendor2 = parseFloat(row.closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                    var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV3TAmt + EnableV4TAmt + EnableV5TAmt);
+                    if (_oldTotalAppAmoun != 0) {
+                        if (_oldTotalAppAmoun != EnableTotalAmt)
+                            amount = _oldTotalAppAmoun - prevVendor2;
+                        else
+                            amount = _oldTotalAppAmoun;
+                    }
+                    $('#V2TotalAmount').val(vendorTotl2);
+                    $('input.add-comma').commaTextbox();
+                }
+                if (tablename == "Vendor3") {
+                    var vendorTotl3 = 0;
+                    $('#V3Table > tbody > tr').each(function () {
+                        var isenable = $(this).closest("tr").find('td:eq(0) input').val();
+                        var valu = parseFloat($(this).closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        debugger;
+                        if (isenable == "true")
+                            vendorTotl3 = vendorTotl3 + valu;
+                    });
+                    var oldTotalVendorAmt = parseFloat($('#V3TotalAmount').val().replace(/,/g, ""));
+                    var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV4TAmt + EnableV5TAmt);
+                    if (_oldTotalAppAmoun != 0) {
+                        if (_oldTotalAppAmoun != EnableTotalAmt)
+                            amount = _oldTotalAppAmoun - prevVendor3;
+                        else
+                            amount = _oldTotalAppAmoun;
+                    }
+                    $('#V3TotalAmount').val(vendorTotl3);
+                    $('input.add-comma').commaTextbox();
+                }
+                if (tablename == "Vendor4") {
+                    var vendorTotl4 = 0;
+                    $('#V4Table > tbody > tr').each(function () {
+                        var isenable = $(this).closest("tr").find('td:eq(0) input').val();
+                        var valu = parseFloat($(this).closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        debugger;
+                        if (isenable == "true")
+                            vendorTotl4 = vendorTotl4 + valu;
+                    });
+                    var oldTotalVendorAmt = parseFloat($('#V4TotalAmount').val().replace(/,/g, ""));
+                    var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV3TAmt + EnableV5TAmt);
+                    if (_oldTotalAppAmoun != 0) {
+                        if (_oldTotalAppAmoun != EnableTotalAmt)
+                            amount = _oldTotalAppAmoun - prevVendor4;
+                        else
+                            amount = _oldTotalAppAmoun;
+                    }
+                    $('#V4TotalAmount').val(vendorTotl4);
+                    $('input.add-comma').commaTextbox();
+                }
+                if (tablename == "Vendor5") {
+                    var vendorTotl5 = 0;
+                    $('#V5Table > tbody > tr').each(function () {
+                        var isenable = $(this).closest("tr").find('td:eq(0) input').val();
+                        var valu = parseFloat($(this).closest("tr").find('td:eq(4) input').val().replace(/,/g, ""));
+                        debugger;
+                        if (isenable == "true")
+                            vendorTotl5 = vendorTotl5 + valu;
+                    });
+                    var oldTotalVendorAmt = parseFloat($('#V5TotalAmount').val().replace(/,/g, ""));
+                    var EnableTotalAmt = parseFloat(EnableV1TAmt + EnableV2TAmt + EnableV3TAmt + EnableV4TAmt);
+                    if (_oldTotalAppAmoun != 0) {
+                        if (_oldTotalAppAmoun != EnableTotalAmt)
+                            amount = _oldTotalAppAmoun - prevVendor5;
+                        else
+                            amount = _oldTotalAppAmoun;
+                    }
+                    $('#V5TotalAmount').val(vendorTotl5);
+                    $('input.add-comma').commaTextbox();
+                }
+                row_itemTable_RightSide.closest("tr").find('td:eq(0) input').val(amount);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+
+        function Freight1Calculation(value) {
+            var total;
+            var totalAmt;
+            var freight1 = parseFloat($("#Freight1").val().replace(/,/g, ""));
+            var Amt = parseFloat($("#V1TotalAmount").val().replace(/,/g, ""));
+            var prev = parseFloat(value.oldvalue);
+            if (!isNaN(prev)) {
+                total = Amt - prev;
+                total = total + freight1;
+                $("#V1TotalAmount").val(total);
+            }
+            else {
+                totalAmt = Amt + freight1;
+                $("#V1TotalAmount").val(totalAmt);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+        function Freight2Calculation(value) {
+            var total;
+            var totalAmt;
+            var freight1 = parseFloat($("#Freight2").val().replace(/,/g, ""));
+            var Amt = parseFloat($("#V2TotalAmount").val().replace(/,/g, ""));
+            var prev = parseFloat(value.oldvalue);
+            if (!isNaN(prev)) {
+                total = Amt - prev;
+                total = total + freight1;
+                $("#V2TotalAmount").val(total);
+            }
+            else {
+                totalAmt = Amt + freight1;
+                $("#V2TotalAmount").val(totalAmt);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+        function Freight3Calculation(value) {
+            var total;
+            var totalAmt;
+            var freight1 = parseFloat($("#Freight3").val().replace(/,/g, ""));
+            var Amt = parseFloat($("#V3TotalAmount").val().replace(/,/g, ""));
+            var prev = parseFloat(value.oldvalue);
+            if (!isNaN(prev)) {
+                total = Amt - prev;
+                total = total + freight1;
+                $("#V3TotalAmount").val(total);
+            }
+            else {
+                totalAmt = Amt + freight1;
+                $("#V3TotalAmount").val(totalAmt);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+        function Freight4Calculation(value) {
+            var total;
+            var totalAmt;
+            var freight1 = parseFloat($("#Freight4").val().replace(/,/g, ""));
+            var Amt = parseFloat($("#V4TotalAmount").val().replace(/,/g, ""));
+            var prev = parseFloat(value.oldvalue);
+            if (!isNaN(prev)) {
+                total = Amt - prev;
+                total = total + freight1;
+                $("#V4TotalAmount").val(total);
+            }
+            else {
+                totalAmt = Amt + freight1;
+                $("#V4TotalAmount").val(totalAmt);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+        function Freight5Calculation(value) {
+            var total;
+            var totalAmt;
+            var freight1 = parseFloat($("#Freight5").val().replace(/,/g, ""));
+            var Amt = parseFloat($("#V5TotalAmount").val().replace(/,/g, ""));
+            var prev = parseFloat(value.oldvalue);
+            if (!isNaN(prev)) {
+                total = Amt - prev;
+                total = total + freight1;
+                $("#V5TotalAmount").val(total);
+            }
+            else {
+                totalAmt = Amt + freight1;
+                $("#V5TotalAmount").val(totalAmt);
+            }
+            $('input.add-comma').commaTextbox();
+        }
+
+        $("#Vendor1").on("change", function () {
+            if ($("#Vendor1").find(":selected").text() == "Select Please..") {
+                $('#Vendorcheck1').val(false);
+            } else {
+                $('#Vendorcheck1').val(true);
+            }
+
+        });
+
+        $("#Vendor2").on("change", function () {
+            if ($("#Vendor2").find(":selected").text() == "Select Please..") {
+                $('#Vendorcheck2').val(false);
+            } else {
+                $('#Vendorcheck2').val(true);
+            }
+        });
+
+        $("#Vendor3").on("change", function () {
+            if ($("#Vendor3").find(":selected").text() == "Select Please..") {
+                $('#Vendorcheck3').val(false);
+            } else {
+                $('#Vendorcheck3').val(true);
+            }
+        });
+
+        $("#Vendor4").on("change", function () {
+            if ($("#Vendor4").find(":selected").text() == "Select Please..") {
+                $('#Vendorcheck4').val(false);
+            } else {
+                $('#Vendorcheck4').val(true);
+            }
+        });
+
+        $("#Vendor5").on("change", function () {
+            if ($("#Vendor5").find(":selected").text() == "Select Please..") {
+                $('#Vendorcheck5').val(false);
+            } else {
+                $('#Vendorcheck5').val(true);
+            }
+        });
+
+        function CheckBox(row) {
+            var value = row.closest("tr").find('td:eq(0) input').val();
+            if (value == "false") {
+                row.closest("tr").find('td:eq(0) input').attr('checked', true);
+                row.closest("tr").find('td:eq(0) input').val(true)
+                row.closest("tr").find('td:eq(0) input').attr("oldvalue", false);
+                Calculation(row);
+            }
+            else {
+                row.closest("tr").find('td:eq(0) input').attr('checked', false);
+                row.closest("tr").find('td:eq(0) input').val(false)
+                row.closest("tr").find('td:eq(0) input').attr("oldvalue", true);
+                Calculation(row);
+            }
+        }
+
+        function deleterow(row) {
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            $("#itemTable").find("tr").eq(c).remove();
+            $("#V1Table").find("tr").eq(c).remove();
+            $("#V2Table").find("tr").eq(c).remove();
+            $("#V3Table").find("tr").eq(c).remove();
+            $("#V4Table").find("tr").eq(c).remove();
+            $("#V5Table").find("tr").eq(c).remove();
+            $("#itemTable_RightSide").find("tr").eq(c).remove();
+        }
+
+        function View(row) {
+            debugger
+            var b = row.closest("tr").index();
+            var c = b + 1;
+            var rowItemTable = $("#itemTable").find("tr").eq(c);
+            var itemDescription = rowItemTable.closest("tr").find('td:eq(2) input').val();
+            var UOM = rowItemTable.closest("tr").find('td:eq(3) input').val();
+            var itemID = rowItemTable.closest("tr").find(".itEmID").val();
+            var Quantity = rowItemTable.closest("tr").find('td:eq(5) input').val().replace(/,/g, "");
+            var ItemCode = rowItemTable.closest("tr").find('td:eq(6) input').val();
+            var prDetailId = rowItemTable.closest("tr").find('td:eq(7) input').val();
+            $('#itemDescrpton').html(itemDescription);
+            $('#itemUoM').html(UOM);
+            var category;
+            $.ajax({
+                method: "GET",
+                url: "/AP/ComparativeStatement/GetViewDetail",
+                data: { id: itemID,}
+            }).done(function (data) {
+                $.each($("#ViewTable tbody tr"), function () {
+                    $(this).remove();
+                });
+                $.each(data, function (i, item) {
+                    debugger
+                    if (item.grnDate != null) {
+                        var row = "<tr>" +
+                            "<td > <input name='poNo' id='poNo' class='form-control text-right' value=" + item.poNo + " readonly/></td>" +
+                            "<td > <input name='poDate' id='poDate' class='form-control text-center' value=" + item.poDate + " readonly/></td>" +
+                            "<td > <input name='poQty' id='poQty' class='form-control text-right add-comma' value=" + item.poQty + " readonly/></td>" +
+                            "<td > <input  name='grnDate' id='grnDate' class='form-control text-right'  value='" + item.grnNo + "' readonly/></td>" +
+                            "<td > <input  name='grnNo' id='grnNo' class='form-control text-center'  value=" + item.grnDate + " readonly/></td>" +
+                            "<td > <input  name='grnvendor' id='grnvendor' class='form-control text-left'  value='" + item.vendor + "' readonly/></td>" +
+                            "<td > <input  name='grnQty' id='grnQty' class='form-control text-right add-comma'  value=" + item.grnRate + " readonly/></td>" +
+                            //"<td > <input  name='grnQty' id='grnQty' class='form-control text-right'  value='" + item.contactName + "' readonly/></td>" +
+                            //"<td > <input  name='grnQty' id='grnQty' class='form-control text-right'  value='" + item.phone + "' readonly/></td>" +
+                            "<td hidden> <input  name='grnQty' id='grnQty' class='form-control text-right'  value=" + item.grnQty + " readonly/></td>"
+                        "</tr>"
+                        $("#ViewTable tbody").append(row);
+                        //$('#itemCategry').html(item.category);
+                        //$('#itemstock').html(item.stock);
+                        //$('#itemavg').html(item.average);
+                        //$('#itemconsump').html(Number(item.consumption).toFixed(2));
+                    } else {
+                        $('#itemCategry').html(item.category);
+                        $('#itemstock').html(item.stock);
+                        $('#itemavg').html(item.average);
+                        $('#itemconsump').html(Number(item.consumption).toFixed(2));
+                    }
+                });
+                $("#viewModal").modal("show");
+            });
+        }
+
+        function removeRowFromTable(table, rowIdx) {
+            var row = table.find("tr").eq(rowIdx).remove();
+            row.remove();
+        }
+
+        function Validation() {
+            var isVendor = false;
+            var breakOut;
+            var next;
+            var counter = 0;
+            var hasVendor1Value=false;
+            var hasVendor2Value=false;
+            var hasVendor3Value=false;
+            var hasVendor4Value=false;
+            var hasVendor5Value = false;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($("#OperatingUnit").find(":selected").val() == "Select Please..") {
+                swal("", "Please Select Operating Unit", "warning")
+                return false;
+            }
+            else if ($("#Date").val() == "") {
+                swal("", "Please Enter Date", "warning")
+                return false;
+            }
+            else if ($("#CSValidity").val() == "") {
+                swal("", "Please Enter CSValidity", "warning")
+                return false;
+            }
+            else if ($('#itemTable').find('td').length == 0) {
+                swal("", "Please Select atleast one Item.", "warning")
+                return false;
+            }
+            if ($('#V1Table').find('td').length != 0) {
+
+                $('#V1Table > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find('td:eq(0) input').val();
+                    var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                    var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                    if (check == "true" || qty != 0 || rate != 0) {
+                        isVendor = true;
+                        if (qty == 0) {
+                            swal("", "Please Enter Quantity for First Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if (rate == 0) {
+                            swal("", "Please Enter Item Rate for First Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor1").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select First Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor1").val() == "" || $("#Vendor1").val() == $("#Vendor2").val() ||
+                            $("#Vendor1").val() == $("#Vendor3").val() || $("#Vendor1").val() == $("#Vendor4").val() ||
+                            $("#Vendor1").val() == $("#Vendor5").val()) {
+                            swal("", $("#Vendor1").find(":selected").text() + ", Vendor selected multiple times.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#PaymentTerm1").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select First Vendor Payterm", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#DeliveryTerm1").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select First Vendor DeliveryTerm", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#SaleTax1").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select First Vendor SaleTax", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#Freight1').val()=="") {
+                            swal("", "Please Enter Freight for First Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#POType1').find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select POType for First Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else {
+                            next = true;
+                            hasVendor1Value = true;
+                        }
+                    }
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($('#V2Table').find('td').length != 0) {
+                $('#V2Table > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find('td:eq(0) input').val();
+                    var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g,"");
+                    var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                    if (check == "true" || qty != 0 || rate != 0) {
+                        isVendor = true;
+                        if (qty == 0) {
+                            swal("", "Please Enter Quantity for second Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if (rate == 0) {
+                            swal("", "Please Enter Item Rate for second Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor2").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select Second Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor2").val() == "" || $("#Vendor2").val() == $("#Vendor1").val() ||
+                            $("#Vendor2").val() == $("#Vendor3").val() || $("#Vendor2").val() == $("#Vendor4").val() ||
+                            $("#Vendor2").val() == $("#Vendor5").val()) {
+                            swal("", $("#Vendor2").find(":selected").text() + ", Vendor selected multiple times.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#PaymentTerm2").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select second Vendor Payterm", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#DeliveryTerm2").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select Second Vendor DeliveryTerm", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#SaleTax2").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select second Vendor SaleTax", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#POType2').find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select POType for second Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#Freight2').val() == "") {
+                            swal("", "Please Enter Freight for second Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else
+                            hasVendor2Value = true;
+                    }
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($('#V3Table').find('td').length != 0) {
+                $('#V3Table > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find('td:eq(0) input').val();
+                    var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                    var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                    if (check == "true" || qty != 0 || rate != 0) {
+                        isVendor = true;
+                        if (qty == 0) {
+                            swal("", "Please Enter Quantity for third Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if (rate == 0) {
+                            swal("", "Please Enter Item Rate for third Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor3").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select Third Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor3").val() == "" || $("#Vendor3").val() == $("#Vendor1").val() ||
+                            $("#Vendor3").val() == $("#Vendor2").val() || $("#Vendor3").val() == $("#Vendor4").val() ||
+                            $("#Vendor3").val() == $("#Vendor5").val()) {
+                            swal("", $("#Vendor3").find(":selected").text() + ", Vendor selected multiple times.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#PaymentTerm3").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select third Vendor Payterm", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#DeliveryTerm3").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select third Vendor DeliveryTerm", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#SaleTax3").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select third Vendor SaleTax", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#POType3').find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select POType for third Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#Freight3').val() == "") {
+                            swal("", "Please Enter Freight for third Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else
+                            hasVendor3Value = true;
+                    }
+
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($('#V4Table').find('td').length != 0) {
+                $('#V4Table > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find('td:eq(0) input').val();
+                    var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                    var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                    if (check == "true" || qty != 0 || rate != 0) {
+                        isVendor = true;
+                        if (qty == 0) {
+                            swal("", "Please Enter Quantity for fourth Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if (rate == 0) {
+                            swal("", "Please Enter Item Rate for fourth Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor4").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select Fourth Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor4").val() == "" || $("#Vendor4").val() == $("#Vendor1").val() ||
+                            $("#Vendor4").val() == $("#Vendor2").val() || $("#Vendor4").val() == $("#Vendor3").val() ||
+                            $("#Vendor4").val() == $("#Vendor5").val()) {
+                            swal("", $("#Vendor4").find(":selected").text() + ", Vendor selected multiple times.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#PaymentTerm4").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select fourth Vendor Payterm", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#DeliveryTerm4").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select fourth Vendor DeliveryTerm", "warning");
+                            return false;
+                        }
+                        else if ($("#SaleTax4").find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select fourth Vendor SaleTax", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#POType4').find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select POType for fourth Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($('#Freight4').val() == "") {
+                            swal("", "Please Enter Freight for fourth Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else
+                            hasVendor4Value = true;
+                    }
+                });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($('#V5Table').find('td').length != 0) {
+                $('#V5Table > tbody > tr').each(function () {
+                    var check = $(this).closest("tr").find('td:eq(0) input').val();
+                    var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                    var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                    if (check == "true" || qty != 0 || rate != 0) {
+                        isVendor = true;
+                        if (qty == 0 ) {
+                            swal("", "Please Enter Quantity for fifth Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if (rate == 0) {
+                            swal("", "Please Enter Item Rate for fifth Vendor.", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor5").find(":selected").text() == "Select Please.." ) {
+                            swal("", "Please Select Fifth Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                        else if ($("#Vendor5").val() == "" || $("#Vendor5").val() == $("#Vendor1").val() ||
+                            $("#Vendor5").val() == $("#Vendor2").val() || $("#Vendor5").val() == $("#Vendor3").val() ||
+                            $("#Vendor5").val() == $("#Vendor4").val())
+                         {
+                            swal("", $("#Vendor5").find(":selected").text() + ", Vendor selected multiple times.", "warning");
+                            breakOut = true;
+                            return false;
+                         }
+                         else if ($("#PaymentTerm5").find(":selected").text() == "Select Please..") {
+                             swal("", "Please Select fifth Vendor Payterm", "warning");
+                             breakOut = true;
+                             return false;
+                         }
+                         else if ($("#DeliveryTerm5").find(":selected").text() == "Select Please..") {
+                             swal("", "Please Select fifth Vendor DeliveryTerm", "warning");
+                             breakOut = true;
+                             return false;
+                         }
+                         else if ($("#SaleTax5").find(":selected").text() == "Select Please..") {
+                             swal("", "Please Select fifth Vendor SaleTax", "warning");
+                             breakOut = true;
+                             return false;
+                        }
+                        else if ($('#POType5').find(":selected").text() == "Select Please..") {
+                            swal("", "Please Select POType for fifth Vendor", "warning");
+                            breakOut = true;
+                            return false;
+                        }
+                         else if ($('#Freight5').val() == "") {
+                             swal("", "Please Enter Freight for fifth Vendor", "warning");
+                             breakOut = true;
+                             return false;
+                         }
+                         else
+                             hasVendor5Value = true;
+                     }
+                 });
+                if (breakOut) {
+                    breakOut = false;
+                    return false;
+                }
+            }
+            if ($("#Vendor1").find(":selected").text() != "Select Please..") {
+                if ($('#V1Table').find('td').length != 0) {
+                    $('#V1Table > tbody > tr').each(function () {
+                        var check = $(this).closest("tr").find('td:eq(0) input').val();
+                        var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                        var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                        if (check == "false" && qty == 0 && rate == 0 && hasVendor1Value==false) {
+                            swal("", "Please Enter Quantity for first Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                    });
+                    if (breakOut) {
+                        breakOut = false;
+                        return false;
+                    }
+                }
+                else {
+                    swal("", "Please Enter Quantity for first Vendor.", "warning")
+                    return false;
+                }
+            }
+            if ($("#Vendor2").find(":selected").text() != "Select Please..") {
+                if ($('#V2Table').find('td').length != 0) {
+                    $('#V2Table > tbody > tr').each(function () {
+                        var check = $(this).closest("tr").find('td:eq(0) input').val();
+                        var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                        var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                        if (check == "false" && qty == 0 && rate == 0 && hasVendor2Value == false) {
+                            swal("", "Please Enter Quantity for second Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                    });
+                    if (breakOut) {
+                        breakOut = false;
+                        return false;
+                    }
+                }
+                else {
+                    swal("", "Please Enter Quantity for second Vendor.", "warning")
+                    return false;
+                }
+            }
+            if ($("#Vendor3").find(":selected").text() != "Select Please..") {
+                if ($('#V3Table').find('td').length != 0) {
+                    $('#V3Table > tbody > tr').each(function () {
+                        var check = $(this).closest("tr").find('td:eq(0) input').val();
+                        var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                        var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                        if (check == "false" && qty == 0 && rate == 0 && hasVendor3Value == false) {
+                            swal("", "Please Enter Quantity for third Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                    });
+                    if (breakOut) {
+                        breakOut = false;
+                        return false;
+                    }
+                }
+                else {
+                    swal("", "Please Enter Quantity for third Vendor.", "warning")
+                    return false;
+                }
+            }
+            if ($("#Vendor4").find(":selected").text() != "Select Please..") {
+                if ($('#V4Table').find('td').length != 0) {
+                    $('#V4Table > tbody > tr').each(function () {
+                        var check = $(this).closest("tr").find('td:eq(0) input').val();
+                        var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                        var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                        if (check == "false" && qty == 0 && rate == 0 && hasVendor4Value == false) {
+                            swal("", "Please Enter Quantity for fourth Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                    });
+                    if (breakOut) {
+                        breakOut = false;
+                        return false;
+                    }
+                }
+                else {
+                    swal("", "Please Enter Quantity for fourth Vendor.", "warning")
+                    return false;
+                }
+            }
+            if ($("#Vendor5").find(":selected").text() != "Select Please..") {
+                if ($('#V5Table').find('td').length != 0) {
+                    $('#V5Table > tbody > tr').each(function () {
+                        var check = $(this).closest("tr").find('td:eq(0) input').val();
+                        var qty = $(this).closest("tr").find('td:eq(2) input').val().replace(/,/g, "");
+                        var rate = $(this).closest("tr").find('td:eq(3) input').val().replace(/,/g, "");
+                        if (check == "false" && qty == 0 && rate == 0 && hasVendor5Value == false) {
+                            swal("", "Please Enter Quantity for fifth Vendor.", "warning")
+                            breakOut = true;
+                            return false;
+                        }
+                    });
+                    if (breakOut) {
+                        breakOut = false;
+                        return false;
+                    }
+                }
+                else {
+                    swal("", "Please Enter Quantity for fifth Vendor.", "warning")
+                    return false;
+                }
+            }
+            if (isVendor == false) {
+                 swal("", "Please select atleast one Vendor.", "warning")
+                 return false;
+            }
+            else {
+                 return true;
+            }
+        }
+
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        $("#CSform").on("submit", function () {
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+        });
+
+        $("#searchPopUp").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#CSTableBody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    </script>
+}

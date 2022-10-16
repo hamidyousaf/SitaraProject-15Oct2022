@@ -1,0 +1,658 @@
+﻿@model SaleReturnViewModel
+@{ ViewData["Title"] = "Create Sale Return Items";
+    ViewData["CurrentPage"] = "Sale Return Items";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+    </style>
+
+}
+<div class="col-lg-12 ibox ibox-content">
+    <form id="FormId" method="post" asp-action="Create" asp-controller="SaleReturn" enctype="multipart/form-data" onsubmit="return submitdetails();">
+        <input asp-for="Id" type="hidden" />
+
+        <input type="hidden" id="counter" value="0" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="TransactionNo"></label>
+                            <div class="input-group">
+                                @if (Model.TransactionNo != 0)
+                                {
+                                    <input tabindex="-1" asp-for="TransactionNo" readonly class="form-control" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" value="" readonly class="form-control" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="SRDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input tabindex="-1" asp-for="SRDate" class="form-control" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.SRDate.ToString(CommonHelper.DateFormat))" readonly />
+                            </div>
+                            <p id="rDate"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            <Select autofocus asp-for="CustomerId" id="CustomerId" asp-items="Model.CustomerLOV" class="form-control">
+                                <option selected disabled value="0">Select...</option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-sm-6">
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input id="address" value="@Model.Address" readonly type="text" tabindex="-1" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="IGPId"></label>
+                            <Select id="IGPId" asp-for="IGPId" asp-items="ViewBag.IGPNo" class="form-control">
+                                <option selected value="0">Select...</option>
+                            </Select>
+                            <p id="sigp"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="BuiltyNo"></label>
+                            <div class="input-group">
+                                @if (Model.BuiltyNo != null)
+                                {
+                                    <input readonly tabindex="-1" asp-for="BuiltyNo" class="form-control" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" readonly id="builtyNo" name="builtyNo" class="form-control" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="Bails"></label>
+                            <div class="input-group">
+                                @if (Model.Bails != 0)
+                                {
+                                    <input readonly tabindex="-1"  type="text" asp-for="Bails" min="0" step="1" class="add-comma form-control text-right" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1"type="text" readonly value="" name="bails" id="bails" min="0" step="1" class="add-comma form-control text-right" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Bale Balance</label>
+                            <div class="input-group">
+                                @if (Model.BalanceQuantity != 0)
+                                {
+                                    <input readonly tabindex="-1" type="text" id="balancebails" asp-for="BalanceQuantity" min="0" step="1" class="add-comma form-control text-right" />
+                                    <input tabindex="-1" type="hidden" asp-for="BalanceQuantity" id="CheckBalance" />
+                                }
+                                else
+                                {
+                                    <input tabindex="-1" readonly value="0" type="text" name="balancebails" id="balancebails" min="0" step="1" class="add-comma form-control text-right" />
+                                    <input tabindex="-1" type="hidden" id="CheckBalance" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="col-lg-2 col-sm-3">
+                    <div class="form-group">
+                        <label>2nd Category</label>
+                        <select id="ItemcategorySecondL" asp-items="@ViewBag.SecondLevelCategory" class="form-control">
+                            <option selected="selected" value="0" disabled>Select...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-3">
+                    <div class="form-group">
+                        <label>3rd Category</label>
+                        <select id="ItemcategorythirdL" class="form-control">
+                            <option selected="selected" value="0" disabled>Select...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="form-group">
+                        <label>4th Category</label>
+                        <select id="ItemcategoryfourthL" class="chosen-select form-control">
+                            <option value="0" selected="selected" disabled>Select...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="col-lg-6 col-sm-3">
+                        <div class="form-group">
+                            <label>Meters</label>
+                            <div class="input-group">
+                                <input id="meters" type="text" value=" " min="0" step="1" class="add-comma form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-3">
+                        <div class="form-group">
+                            <label>Bales</label>
+                            <div class="input-group">
+                                <input id="bales" type="text" value=" " min="0" step="1" class="add-comma form-control text-right" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-lg-1">
+                    <label class="control-label">  </label>
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="addItem();" style="margin-top:4px">Add</button>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+
+
+                    <div class="container-fluid table-responsive">
+                        <table id="tblItem" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>2nd Category</th>
+                                    <th>3rd Category</th>
+                                    <th>4th Category</th>
+                                    <th>Meters</th>
+                                    <th>Bales</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.SaleReturnItemsList != null)
+                                {
+                                    @foreach (var item in Model.SaleReturnItemsList)
+                                    {
+                                        <tr class="removed">
+                                            <td class="Id" hidden>@Html.DisplayFor(modelItem => item.Id)</td>
+                                            <td class="SecondCategoryId" hidden>@Html.DisplayFor(modelItem => item.SecondItemCategory)</td>
+                                            <td class="SecondCategoryName">@item.SecondLevel.Code - @item.SecondLevel.Name</td>
+                                            <td class="ThirdCategoryId" hidden>@Html.DisplayFor(modelItem => item.ThirdItemCategory)</td>
+                                            <td class="ThirdCategoryName">@item.ThirdLevel.Code - @item.ThirdLevel.Name</td>
+                                            <td class="FourthCategoryId" hidden>@Html.DisplayFor(modelItem => item.FourthItemCategory)</td>
+                                            <td class="FourthCategoryName">@item.FourthLevel.Code - @item.FourthLevel.Name</td>
+                                            <td class="Meters text-right">@Html.DisplayFor(modelItem => item.Meters)</td>
+                                            <td class="Bales text-right">@Html.DisplayFor(modelItem => item.Bales)</td>
+                                            <td>
+                                                <a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+
+                            </tbody>
+                            <tfoot>
+                                <tr style='font-weight: bold'>
+                                    <td></td>
+                                    <td></td>
+                                    <td class='text-right'>Total:</td>
+                                    <td class='text-right'>0</td>
+                                    <td class='text-right'>0</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left mb-3">
+                <a asp-controller="SaleReturn" asp-action="Index" class="btn btn-white">List</a>
+                <button id="SaveBtn" type="submit" class="btn btn-primary">@ViewBag.EntityState</button>
+                <input type="hidden" id="SaveBtnFocus" value="OFF" />
+            </div>
+        </div>
+        <input hidden id="itemDetail" name="ItemDetail" />
+        <input hidden id="tMeters" name="tMeters" />
+        <input hidden id="tBales" name="tBales" />
+    </form>
+</div>
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $('input.add-comma').commaTextbox();
+            $("#ItemcategorySecondL").select2();
+            $("#ItemcategoryfourthL").select2();
+            $("#ItemcategorythirdL").select2();
+            $('#ItemcategorySecondL').change();
+            $("#IGPId").select2();
+            $("#CustomerId").select2();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+            //On change Customer
+            $('#CustomerId').on('change', function () {
+                debugger
+                var customerId = $('#CustomerId').val();
+                $('#IGPId').find('option').not(':first').remove();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/SaleReturnInwardGatePass/GetCustomerAddress",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#address').val(data);
+                        $('#builtyNo').val("");
+                        $('#bails').val("");
+                        return false;
+                    }
+                });
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/SaleReturn/GetIGPNo",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#IGPId').append($('<option>', {
+                                value: item.id,
+                                text: item.igpNo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+            })
+            //Loading 3rd Level Category
+            $('#ItemcategorySecondL').on('change', function () {
+                debugger
+                $('.removedItem').remove();
+                $('#ItemcategorythirdL').find('option').not(':first').remove();
+                $('#ItemcategoryfourthL').find('option').not(':first').remove();
+                var item = $('#ItemcategorySecondL').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/Inventory/ItemPricing/GetItem",
+                    data: { Id: item, level: 3 }
+                }).done(function (data) {
+                    $.each(data, function (i, item) {
+                        $('#ItemcategorythirdL').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                });
+
+            })
+            //Loading 4th Level Category
+            $('#ItemcategorythirdL').on('change', function () {
+                debugger
+                $('.removedItem').remove();
+                $('#ItemcategoryfourthL').find('option').not(':first').remove();
+
+                var item = $('#ItemcategorythirdL').val();
+                $.ajax({
+                    method: "GET",
+                    url: "/Inventory/ItemPricing/GetItem",
+                    data: { Id: item, level: 4 }
+                })
+                    .done(function (data) {
+                        $.each(data, function (i, item) {
+                            $('#ItemcategoryfourthL').append($('<option>', {
+                                value: item.id,
+                                text: item.text
+                            }));
+                        });
+                        debugger
+                        $('#ItemcategoryfourthL option[value="0"]').prop('selected', 'selected').change();
+                    });
+            })
+            //On change IGP
+            $('#IGPId').on('change', function () {
+                debugger
+                var igpId = $('#IGPId').find(":selected").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/SaleReturn/GetBuiltyAndBale",
+                    data: { Id: igpId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#builtyNo').val(data.builtyNo);
+                        $('#bails').val(data.bails);
+                        $('#balancebails').val(data.baleBalance);
+                        $('#CheckBalance').val(data.baleBalance);
+                        $('input.add-comma').commaTextbox();
+                        return false;
+                    }
+                });
+            })
+            // Calculate tfoot
+            GetRowFooter();
+        });
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function addItem() {
+            debugger;
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            var igpId = $("#IGPId").find(":selected").val();
+            var secondItemCategoryId = $("#ItemcategorySecondL").find(":selected").val();
+            var secondItemCategoryName = $("#ItemcategorySecondL").find(":selected").text();
+            var thirdItemCategoryId = $("#ItemcategorythirdL").find(":selected").val();
+            var thirdItemCategoryName = $("#ItemcategorythirdL").find(":selected").text();
+            var fourthItemCategoryId = $("#ItemcategoryfourthL").find(":selected").val();
+            var fourthItemCategoryName = $("#ItemcategoryfourthL").find(":selected").text();
+            var balanceQuantity =Number( $("#BalanceQuantity").val());
+            var meters = $("#meters").val();
+            var bales = Number($("#bales").val());
+            var balanceBails = Number($("#balancebails").val());
+
+            var check = false;
+            if (bales > balanceQuantity) {
+                swal({
+                    icon: 'warning',
+                    text: "Bale must be less than Bale Balance!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#bales').focus();
+                });
+                return false;
+            }
+
+            $("#tblItem > tbody > tr").each(function () {
+
+                debugger;
+                var fourthCategory = $(this).find(".FourthCategoryId").text();
+                if (fourthCategory == fourthItemCategoryId) {
+                    swal({
+                        icon: 'warning',
+                        text: "This category already selected!",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $('#ItemcategoryfourthL').focus();
+                    });
+                    check = true;
+                    return false;
+                }
+            });
+            if (check == true) {
+                return false;
+            }
+            if (igpId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select IGP No.!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#IGPId').focus();
+                });
+                return false;
+            }
+            if (secondItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Second Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategorySecondL').focus();
+                });
+                return false;
+            }
+            if (thirdItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Third Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategorythirdL').focus();
+                });
+                return false;
+            }
+            if (fourthItemCategoryId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please select Fourth Category!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ItemcategoryfourthL').focus();
+                });
+                return false;
+            }
+            if (meters == 0 || meters == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter the Meters",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#meters').focus();
+                });
+                return false;
+            }
+            if (bales == 0 || bales == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter the Bales",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#bales').focus();
+                });
+                return false;
+            }
+            if (balanceBails < bales) {
+                swal({
+                    icon: 'warning',
+                    text: "Quantity is greater than balance!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#bales').focus();
+                    $('input.add-comma').commaTextbox();
+                });
+                return false;
+            }
+            $("#balancebails").val(balanceBails - bales);
+            item_data = '';
+
+            item_data = '';
+            item_data += '<tr>';
+            item_data += '<td class ="Id" hidden>0</td>';
+            item_data += '<td class ="SecondCategoryId" hidden>' + secondItemCategoryId + '</td>';
+            item_data += '<td class ="SecondCategoryName">' + secondItemCategoryName + '</td>';
+            item_data += '<td class ="ThirdCategoryId" hidden>' + thirdItemCategoryId + '</td>';
+            item_data += '<td class ="ThirdCategoryName">' + thirdItemCategoryName + '</td>';
+            item_data += '<td class ="FourthCategoryId" hidden>' + fourthItemCategoryId + '</td>';
+            item_data += '<td class ="FourthCategoryName">' + fourthItemCategoryName + '</td>';
+            item_data += '<td class ="Meters text-right add-comma" >' + meters + '</td>';
+            item_data += '<td class ="Bales text-right add-comma">' + bales + '</td>';
+            item_data += '<td>';
+            item_data += '<a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+            item_data += '</tr>';
+
+            $('#tblItem tbody').append(item_data);
+            $('#ItemcategorySecondL').focus();
+            $('input.add-comma').commaTextbox();
+            GetRowFooter();
+        }
+        function ClearTextBox() {
+            $('#ItemcategorySecondL').val(0).trigger('change.select2');
+            $('#ItemcategorythirdL').val(0).trigger('change.select2');
+            $('#ItemcategoryfourthL').val(0).trigger('change.select2');
+            $("#meters").val("");
+            $("#bales").val("");
+        }
+        function deleterow(row) {
+            debugger
+            var bales = Number(row.closest("tr").find(".Bales").text());
+            var balanceBails = Number($("#balancebails").val());
+
+            $("#balancebails").val(balanceBails + bales);
+
+            row.closest("tr").remove();
+            $('input.add-comma').commaTextbox();
+            GetRowFooter();
+        };
+        function submitdetails(form) {
+            debugger;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+            var itemDetails = [];
+            $.each($("#tblItem tbody tr"), function () {
+                itemDetails.push({
+                    Id: $(this).find('.Id').html(),
+                    SecondItemCategory: $(this).find('.SecondCategoryId').html(),
+                    ThirdItemCategory: $(this).find('.ThirdCategoryId').html(),
+                    FourthItemCategory: $(this).find('.FourthCategoryId').html(),
+                    Meters: $(this).find('.Meters').html(),
+                    Bales: $(this).find('.Bales').html(),
+                });
+
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#itemDetail").val(model);
+            if ($("#CustomerId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the Customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustomerId').focus();
+                });
+                return false;
+            }
+            if ($("#IGPId").find(":selected").val() == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select the IGP #!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#IGPId').focus();
+                });
+                return false;
+            }
+            if (itemDetails.length <= 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Enter At Least One Item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#SecondCategoryId').focus();
+                });
+                return false;
+            }
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+        function GetRowFooter() {
+            debugger
+            var TotalMeters = 0;
+            var TotalBales = 0;
+            var check = false;
+            var balanceBale = $("#balancebails").val();
+            var checkBalance = Number( $("#CheckBalance").val());
+
+            $.each($("#tblItem tbody tr"), function () {
+                var meter = Number($(this).find('.Meters').text());
+                var bales = Number($(this).find('.Bales').text());
+                TotalMeters = TotalMeters + meter;
+                TotalBales = TotalBales + bales;
+
+                
+            });
+            if (check == true) {
+                return false;
+            }
+
+            $("#tMeters").val(TotalMeters);
+            $("#tBales").val(TotalBales);
+            //$("#balancebails").val(checkBalance - TotalBales);
+
+            $.each($("#tblItem tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td class='text-right'>Total:</td> " +
+                    "<td class='text-right'>" + Number(TotalMeters).toFixed(2) + "</td> " +
+                    "<td class='text-right'>" + Number(TotalBales).toFixed(2) + "</td> " +
+                    "<td ></td> "
+                "</tr>"
+
+                $("#tblItem tfoot").append(row);
+            });
+            ClearTextBox();
+        }
+    </script>
+}

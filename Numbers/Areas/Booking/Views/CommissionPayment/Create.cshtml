@@ -1,0 +1,277 @@
+﻿@model Numbers.Entity.Models.BkgCommissionPayment
+
+@{
+    ViewData["Title"] = "Commission Receivable";
+    ViewData["CurrentPage"] = "Commission Payment";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="col-lg-9">
+                <div class="ibox-title">
+                    @*<h5>@ViewBag.EntityState Commission</h5>*@
+                    <h5>Commission Receivable</h5>
+
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        @*<div class="alert alert-info">
+                                Status <strong>Pending</strong>
+                            </div>*@
+                        <div>
+                            <input type="hidden" asp-for="Id" />
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="form-group" id="data_1">
+                                    <label asp-for="PaymentDate" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+
+                                        <div class="input-group date">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                            <input type="text" class="form-control" asp-for="PaymentDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.PaymentDate.ToString(CommonHelper.DateFormat))>
+                                            <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="BankCashAccountId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select class="chosen-select" asp-for="BankCashAccountId">
+                                            <option selected="selected" value="">Select...</option>
+                                        </select>
+                                        <span asp-validation-for="BankCashAccountId" class="text-danger"></span>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="CommissionId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select asp-for="CommissionId" asp-items="@ViewBag.CommissionType" class="form-control">
+                                            <option selected="selected">Select...</option>
+                                        </select>
+                                        <span asp-validation-for="CommissionId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Commission" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="Commission" class="form-control" />
+                                        <span asp-validation-for="Commission" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="VehicleId" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select class="chosen-select" asp-for="VehicleId" onchange="loadValue($(this).val())"><option selected="selected" value="">Select...</option></select>
+                                        <span asp-validation-for="VehicleId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">GL Account</label>
+                                    <div class="col-lg-8">
+                                        <select class="chosen-select" asp-for="AccountId" data-validation-error-msg="GL Account is required">
+                                            <option selected="selected" value="">Select...</option>
+                                        </select>
+                                        <span asp-validation-for="AccountId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="Description" class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-10">
+                                        <textarea asp-for="Description" class="form-control"></textarea>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-lg-offset-2">
+                                        <input type="submit" value="Cancel" class="btn btn-white" asp-action="Index" />
+                                        @if (Model.Status != "Approved")
+                                        {
+                                            <input type="submit" value=@ViewBag.EntityState class="btn btn-primary" />
+                                        }
+                                        else
+                                        { 
+                                            <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3" id="details">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+
+@section customJS{
+<script>
+        function loadValue(val) {
+            var receivedAmount = $('#receivedAmount');
+            var customerName = $('#customerName');
+                        $.ajax({
+                type: 'GET',
+                            url: '/Booking/DetailInfo/GetReceivedAmount?id=' + val
+            }).then(function (data) {
+                customerName.text(data.id);
+                receivedAmount.text( "Receivable: "+data.text);
+                $.ajax({
+                    type: 'GET',
+                    url: '/Booking/Api/PartialDetail?id=' + val
+                }).then(function (data) {
+                    $('#details').html(data);
+                });
+                });
+        }
+        $(function () {
+
+
+        $('#VehicleId').select2({
+            ajax: {
+                url: '/Booking/Api/GetVehicles',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a Booking Vehicle',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.VehicleId;
+            var accountSelect = $('#VehicleId');
+        $.ajax({
+            type: 'GET',
+            url: '/Booking/Api/GetVehicle?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+         $(function () {
+             $('#BankCashAccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetCashBankAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a GL Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.BankCashAccountId;
+             var GLAccountIdSelect = $('#BankCashAccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetCashBankAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            GLAccountIdSelect.append(option).trigger('change');
+            GLAccountIdSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        });
+
+        $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+    });
+
+    $(function () {
+        $('#AccountId').select2({
+            ajax: {
+                url: '/GL/Api/GetAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: 'Search for a GL Account',
+                processResults: function (data,params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache:true
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        var id = @Model.AccountId;
+        var accountSelect = $('#AccountId');
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    });
+        $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+        });
+    </script>
+}

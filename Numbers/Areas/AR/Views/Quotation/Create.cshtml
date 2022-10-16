@@ -1,0 +1,696 @@
+﻿@model ARQuotation
+@{
+    ViewData["Title"] = "Create Quotation";
+    ViewData["CurrentPage"] = "Quotation";
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form id="QuotationForm" class=" ibox-content form-horizontal" asp-action="Create" enctype="multipart/form-data" onsubmit="submitdetails">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div>
+                    <input type="hidden" asp-for="Id" />
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="QuotationNo" class="col-lg-4 control-label">Quotation #</label>
+                            <div class="col-lg-8">
+                                <input asp-for="QuotationNo" value="@TempData["No"]" autofocus class="form-control on-focus-change-color" readonly />
+                                <p id="name"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="QuotationDate" class="col-lg-4 control-label">Quotation Date</label>
+                            <div class="col-lg-8">
+                                <input readonly asp-for="QuotationDate" class="form-control custom-date-picker on-focus-change-color" type="text" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="DeliveryMode" class="col-lg-4 control-label">Delivery Mode</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.DeliveryMode" asp-for="DeliveryMode" name="DeliveryMode" class="on-focus-change-color form-control city select-country-city" data-validation="required" data-validation-error-msg="City is required" data-validation-error-msg-container="#city">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="Currency" class="col-lg-4 control-label">Currency</label>
+
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.Currency" asp-for="Currency" name="Currency" class="form-control  select-country-city" data-validation="required" data-validation-error-msg="Currency is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
+
+                            @*<div class="col-lg-8">
+                        <select asp-items="@(new SelectList(Model.Currencies, "Id","Symbol"))" class="form-control" name="Currency" data-validation="required" data-validation-error-msg="Currency is required" data-validation-error-msg-container="#currency">  </select>
+                        <p id="currency"></p>
+                    </div>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerQuotationNo" class="col-lg-4 control-label">Customer Qut #</label>
+
+                            <div class="col-lg-8">
+                                <input asp-for="CustomerQuotationNo" class="form-control" data-validation="required" data-validation-error-msg="Customer Qut ID is required" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerQuotationDate" class="col-lg-4 control-label">Customer Qut Date</label>
+
+                            <div class="col-lg-8">
+                                <input readonly asp-for="CustomerQuotationDate" class="form-control custom-date-picker" type="text" data-validation="required" data-validation-error-msg="Customer Qut Date is required" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="PaymentMode" class="col-lg-4 control-label">Payment Mode</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.PaymentMode" asp-for="PaymentMode" class="form-control" data-validation="required" data-validation-error-msg="Payment Mode is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="ExchRate" class="col-lg-4 control-label">Exch. Rate</label>
+                            <div class="col-lg-8">
+                                <input asp-for="ExchRate" id="exchRates" placeholder="1.0" class="form-control" data-validation="required" data-validation-error-msg="Exch. Rate is required" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId" class="col-lg-4 control-label">Customer</label>
+                            <div class="col-lg-8">
+                                <select asp-for="CustomerId" asp-items="@ViewBag.Customer" class="form-control select-customer on-focus-change-color" data-validation="required" data-validation-error-msg="Customer is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <p id="customer"></p>
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="ExchDate" class="col-lg-4 control-label">Exch. Date</label>
+
+                            <div class="col-lg-8">
+                                <input readonly asp-for="ExchDate" class="form-control custom-date-picker" type="text" data-validation="required" data-validation-error-msg="Exch. Date is required" />
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="DeliveryDays" class="col-lg-4 control-label">Delivery Days</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.DeliveryDays" asp-for="DeliveryDays" class="form-control" data-validation="required" data-validation-error-msg="Delivery days is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label asp-for="SalePerson" class="col-lg-4 control-label">Sale Person</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.SalesPersons" asp-for="SalePerson" class="form-control" data-validation="required" data-validation-error-msg="Sale Person is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label asp-for="RateDays" class="col-lg-3 control-label">Rate Days</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.RateDays" asp-for="RateDays" class="form-control" data-validation="required" data-validation-error-msg="Rate Days is required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label asp-for="ShipTo" class="col-lg-4 control-label">Ship To</label>
+                            <div class="col-lg-8">
+                                <select asp-items="@ViewBag.Shipto" asp-for="ShipTo" class="form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label asp-for="Warranty" class="col-lg-4 control-label">Warranty</label>
+                            <div class="col-lg-8">
+                                <select asp-for="Warranty" class="form-control" asp-items="@ViewBag.CustomerWarranty">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                                <span class="text-danger"></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label asp-for="Remarks" class="col-lg-2 control-label">Remarks</label>
+                            <div class="col-lg-9">
+                                <textarea asp-for="Remarks" class="form-control"></textarea>
+                                <span class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            @*<div class="col-lg-3">  </div>*@
+                            <div class="col-lg-5">
+
+                                @if (Model.Photo != null)
+                                {
+                                    <img src=@Html.DisplayFor(modelItem => Model.Photo) class="img-thumbnail" style=" width: 20%; height : 20%;" /> }
+                                else
+                                {
+                                    <img src="~/img/userphotos/favicon.png" class="img-thumbnail" style=" width: 25%; height : 25%;" />}
+                            </div>
+                            <div class="col-lg-7">
+                                <input accept="image/jpg, image/png, image/gif" asp-for="Photo" type="hidden" />
+                                <input name="img" type="file" class="form-control" />
+                            </div>
+                        </div>
+
+                        @*<div class="col-lg-7">
+                    <div class="col-lg-2"></div>
+                    <div class="form-group">
+                        <div class="col-lg-7">
+                            <input accept="image/jpg, image/png, image/gif" asp-for="Photo" type="hidden" />
+                            <input name="img" type="file" class="form-control" />
+                        </div>
+                    </div>
+                </div>*@
+                    </div>
+                </div>
+
+                <!--Modal For Purchase Order Items to be loaded for selection-->
+                <div class="container">
+                    <!-- Trigger the modal with a button -->
+                    <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Select Sale Orders</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-12">
+                                            <div class="ibox ">
+                                                <p id="itemTable"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                @*@* <div class="col-lg-2 col-sm-3"> <label>Total:</label> <input asp-for="Total" name="Total" id="Total" class="form-control text-right" readonly placeholder="0.0" /></div>*@
+                                @*<div class="col-lg-2 col-sm-3"><label>Total Discount:</label><input name="totalDiscountAmount" id="discountAmount" class="form-control text-right" readonly placeholder="0.0" /></div>
+                                <div class="col-lg-2 col-sm-3"><label>Total Sales Tax:</label> <input name="totalSalesTaxAmount" id="salesTaxAmount" class="form-control text-right" readonly placeholder="0.0" /></div>
+                                <div hidden class="col-lg-2 col-sm-3"><label hidden>Total Excise Tax:</label><input hidden name="totalExciseTaxAmount" id="exciseTaxAmount" class="form-control text-right" readonly placeholder="0.0" /></div>*@
+                                @*<div class="col-lg-2 col-sm-3"><label>Grand Total:</label> <input asp-for="GrandTotal" name="GrandTotal" id="GrandTotal" class="form-control text-right" readonly placeholder="0.0" /></div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Item</label>
+                            <div class="col-lg-10">
+                                <select class="form-control select-customer" id="itemsearch" asp-items="@ViewBag.ItemsSearch">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wrapper wrapper-content animated fadeIn">
+                    <div class="table-info">
+                        <div class="tab-content ">
+                            <div id="quot" class="tab-pane fade in active">
+                                <div class="container-fluid">
+                                    <table id="tblQuotation" style="table-layout:fixed" class="table table-bordered">
+                                        <thead>
+                                            @*<th>Model Id</th>*@
+                                        <th style="width:100px;">Item Desc</th>
+                                        @*<th>Part No</th>*@
+                                        <th>UOM</th>
+                                        <th>Qty</th>
+                                        <th>Rate</th>
+                                        <th>Discount %</th>
+                                        <th>Disc Rate</th>
+                                        <th>Value</th>
+                                        <th>PKR Val</th>
+                                        <th>ST %</th>
+                                        <th>ST Amt</th>
+                                        <th>Total Val</th>
+                                        <th style="width:100px;">Delivery Date</th>
+                                        <th></th>
+                                        </thead>
+                                        <tbody>
+
+                                            @if (Model.ARQuotationsDetailList != null)
+                                            {
+                                                @foreach (var data in Model.ARQuotationsDetailList)
+                                                {
+                                            <tr>
+                                                
+                                                <td class="Id" hidden>0</td> 
+                                                 
+                                                <td hidden> 
+                                                    <input  name="ItemId" class="ItemId" hidden style="width:80px;" value="@data.ItemId" />
+                                                    </td> 
+                                               
+                                            
+                                                 
+                                                <td> <input name="ItemDescription" class="ItemDescription" style="width:80px;" value="@data.ItemDescription" /></td> 
+                                      
+                                                 
+                                                <td> <input name="UOM" class="uom" value="@data.UOM"  style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="Qty" id="qty" class="qty" value="@data.Qty" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="Rate" id="rate" class="rate" value="@data.Rate" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="Discount" class="discount" id="discountPer" value="@data.Discount" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="DiscuontedRate" class="discountRate" id="discountRate" value="@data.DiscuontedRate" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="Value" id="value" class="value" value="@data.Value" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="PkrValue" id="pkrValue" class="pkrvalue" value="@data.PkrValue" style="width:60px"  /></td> 
+                                                 
+                                                <td><input name="stPercentage" id="stpercen" class="SaleTax" value="@data.Percentage" style="width:60px" />
+                                              </td> 
+                                                 
+                                                <td> <input name="stAmount" id="stamount" class="stamount" value="@data.Amount" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="TotalVAlue" id="totalvalue" class="totalValue" value="@data.TotalVAlue" style="width:60px" /></td> 
+                                                 
+                                                <td> <input name="DeliveryDate" type="text" class="deliveryDate custom-date-picker" value="@data.DeliveryDate" style="width:90px" /></td> 
+                                                 
+                                                <td>
+                                                    
+                                                     <a class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a>
+                                                </td>
+                                            </tr>
+                                                }}
+                                        </tbody>
+                                    </table>
+
+                                    <input hidden name="rowcounter" id="rowcounter" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div>
+                    if (Model.Status != "Approved")
+                    {
+                        <div class="text-right mb-3">
+                            <a id="add-SaleOrders-popUp" class="btn btn-success" onclick="getSaleOrders();">Get items from Sale Order</a>-->
+                            @*  <a id="add-invoice-item" class="btn btn-success add-purchaseReturn-item"><i class="fa fa-plus"></i></a>*@
+                        <!--</div>
+                    }
+                </div>-->
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-lg-4 col-lg-offset-4">
+                                <a class="btn btn-white" asp-action="Index">List</a>
+                                <input onchange="" type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+
+
+    <script>
+        $(document).ready(function () {
+            //change selectboxes to selectize mode to be searchable
+            var rowCount = $('#tblQuotation tbody tr').length;
+            $('#rowcounter').val(rowCount);
+          
+            $(".select-customer").select2();
+            getSaleTax();
+            function getSaleTax() {
+                $.ajax({
+                    type: 'GET',
+                    //async: false,
+                    url: '/AR/Quotation/GetSaleTaxPer/' + id,
+                    /*       contentType: 'JSON'*/
+                }).done(function (data) {
+                    debugger;
+
+                    var SaleTax = "";
+                    SaleTax = '<option value="0">Select...</option>';
+                    $.each(data, function (key, value) {
+
+                        SaleTax = SaleTax + '<option value="' + value.salesTaxPercentage + '">' + value.salesTaxPercentage + '</option>'
+                    });
+
+                    $('#tblQuotation tbody').append(Itemrow);
+                    var SaleTaxPList = $(".SaleTax");
+                    SaleTaxPList.empty();
+                    SaleTaxPList.append(SaleTax);
+
+                });
+
+            }
+
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            //var add_button = $(".add_field_button");
+          
+            $("#itemsearch").change(function () {
+                 var id = $("#itemsearch").val();
+                //alert(id);
+                $.ajax({
+                    url: '/AR/Quotation/getItems/' + id,
+                    type: 'GET',
+                }).done(function (data) {
+
+                    var Itemrow = '';
+
+                    Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td  class ="Id" hidden>0</td>';
+                    Itemrow += '<td  hidden><input  name="ItemId" class ="ItemId" style="width:80px;" value=' + data.id + ' style="width:70px" /></td>';
+                    //Itemrow += '<td  > <input class ="name" value=' + data.name + ' style="width:60px" /> </td>';
+                    Itemrow += '<td  > <input name="ItemDescription" class ="ItemDescription" style="width:80px;" value=' + data.name + ' style="width:70px" /></td>';
+                    //Itemrow += '<td  > <input name="PartNO" class ="partno" value="0"  style="width:60px"  /></td>';
+                    //Itemrow += '<td hidden>' + data.unit + '</td>';
+                    Itemrow += '<td  > <input name="UOM" class ="uom" value=' + data.unitName + '  style="width:60px"/></td>';
+                    Itemrow += '<td  > <input name="Qty" id="qty" class ="qty" value="0" style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="Rate" id="rate" class ="rate"  value=' + data.salesRate + '  style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="Discount" class ="discount" id="discountPer" value="0" style="width:60px"  /></td>';
+                    Itemrow += '<td  > <input name="DiscuontedRate" class ="discountRate" id="discountRate" value="0" style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="Value" id="value" class ="value" value="0" style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="PkrValue" id="pkrValue" class ="pkrvalue" value="0" style="width:60px"style="width:60px" /></td>';
+                    Itemrow += '<td  > <select name="stPercentage" class ="SaleTax" id="stpercen">  <option selected="selected" disabled>Select...</option>     </select></td>';
+                    Itemrow += '<td  > <input name="stAmount" id="stamount" class ="stamount" value="0" style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="TotalVAlue" id="totalvalue" class ="totalValue" value="0" style="width:60px" /></td>';
+                    Itemrow += '<td  > <input name="DeliveryDate" type="date"   class ="deliveryDate" style="width:90px"  /></td>';
+                    Itemrow += '<td  >';
+                    Itemrow += '<a  class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+                    Itemrow += '</tr>';
+                    //$('#tblQuotation tbody').append(Itemrow);
+                    debugger;
+                    var counter = $('#tblQuotation tbody tr').length;
+                    counter = Number(counter) + 1;
+                    //alert(counter);
+                    $('#rowcounter').val(counter);
+                    //var id = $("#stpercen").val();
+                    //var id = $(this).closest("tr").find("#stpercen").val();
+
+                    $.ajax({
+                        type: 'GET',
+                        //async: false,
+                        url: '/AR/Quotation/GetSaleTaxPer/' + id,
+                 /*       contentType: 'JSON'*/
+                    }).done(function (data) {
+                        debugger;
+
+                        var SaleTax = "";
+                        SaleTax = '<option value="0">Select...</option>';
+                        $.each(data, function (key, value) {
+                          
+                            SaleTax = SaleTax + '<option value="' + value.salesTaxPercentage + '">' + value.salesTaxPercentage + '</option>'
+                        });
+
+                        $('#tblQuotation tbody').append(Itemrow);
+                        var SaleTaxPList = $(".SaleTax");
+                        SaleTaxPList.empty();
+                        SaleTaxPList.append(SaleTax);
+
+                    });
+                });
+            });
+        });
+
+
+
+        function deleterow() {
+            var counter = $('#rowcounter').val();
+            $("#delrow").closest("tr").remove();
+            counter = Number(counter) - 1;
+            $('#rowcounter').val(counter);
+        }
+        $('#tblQuotation tbody').on("change", "#discountPer", function () {
+            var qty = $(this).closest("tr").find("#qty").val();
+            var rate = $(this).closest("tr").find("#rate").val();
+            var per = $(this).closest("tr").find("#discountPer").val();
+            var result = (qty * rate) * per / 100;
+            $(this).closest("tr").find("#discountRate").val(result);
+            $(this).closest("tr").find("#value").val((qty * rate) - result);
+        });
+
+        $('#tblQuotation tbody').on("change", "#qty", function () {
+            var qty = $(this).closest("tr").find("#qty").val();
+            var rate = $(this).closest("tr").find("#rate").val();
+            var per = $(this).closest("tr").find("#discountPer").val();
+            var result = (qty * rate) * per / 100;
+            $(this).closest("tr").find("#discountRate").val(result);
+            $(this).closest("tr").find("#value").val((qty * rate) - result);
+            var exchRates = $("#exchRates").val();
+            var value = $(this).closest("tr").find("#value").val();
+            var pkrValue = Number(value) * Number(exchRates);
+            $(this).closest("tr").find("#pkrValue").val(pkrValue);
+        });
+        $('#tblQuotation tbody').on("change", "#rate", function () {
+            var qty = $(this).closest("tr").find("#qty").val();
+            var rate = $(this).closest("tr").find("#rate").val();
+            var per = $(this).closest("tr").find("#discountPer").val();
+            var result = (qty * rate) * per / 100;
+            $(this).closest("tr").find("#discountRate").val(result);
+            $(this).closest("tr").find("#value").val((qty * rate) - result);
+            var exchRates = $("#exchRates").val();
+            var value = $(this).closest("tr").find("#value").val();
+            var pkrValue = Number(value) * Number(exchRates);
+            $(this).closest("tr").find("#pkrValue").val(pkrValue);
+        });
+        $('#tblQuotation tbody').on("change", "#value", function () {
+            debugger;
+           
+        });
+
+
+        $('#tblQuotation tbody').on("change", "#stpercen", function () {
+            debugger;
+            var stperson = Number($("#stpercen").val());
+           // alert(stperson);
+            if (stperson == 0) {
+                stperson = 0;
+            }
+            var pkrvalue = $(this).closest("tr").find("#pkrValue").val();
+            var stAmount = Number(pkrvalue) * Number(stperson) /100;
+            $(this).closest("tr").find("#stamount").val(stAmount);
+            var TotalValue = Number(stAmount) + Number(pkrvalue);
+            $(this).closest("tr").find("#totalvalue").val(TotalValue);
+        });
+        //$('#tblQuotation tbody').on("change", "#stamount", function () {
+        //    debugger;
+        //    var saleamt = $("#stamount").val();
+        //    var pkrvalue = $(this).closest("tr").find("#pkrValue").val();
+        //    var TotalValue = Number(saleamt) - Number(pkrvalue);
+        //    $(this).closest("tr").find("#totalvalue").val(TotalValue);
+        //});
+
+
+
+        $('#tblQuotation tbody').on("change", "#stpercen", function () {
+            $(stpercen).append($('<option>', {
+                value: 1,
+                text: 'op'
+            }))
+        });
+
+    </script>
+
+    <script>
+        function getSaleOrders() {
+            var supplierId = $('#CustomerId').val();
+            var counter = 1;
+             // AJAX request
+            $.ajax({
+                url: '/AR/Quotation/GetSaleOrdersByCustomerId',
+                type: 'POST',
+                method: 'POST',
+                data: { id: supplierId, skipIds: 0 },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#saleModal').modal('show');
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+            counter++;
+        }
+        var counter = 50;
+
+
+
+
+        $('#button').click(function () {
+            debugger;
+            
+        var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+        debugger;
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        console.log(arrayOfValues);
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (i = 0; i < arrLength; i++) {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            debugger;
+           
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Quotation/GetSaleOrderItems',
+                data: { saleOrderItemId: parseInt(values[i]), counter: counter },
+                beforeSend: function () {
+                 //   skipIds.push(values[i]);
+                    $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    $('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                var Itemrow = '';
+
+                Itemrow = '';
+                Itemrow += '<tr>';
+                Itemrow += '<td  class ="Id" hidden>0</td>';
+                Itemrow += '<td  hidden><input  name="ItemId" class ="ItemId" style="width:80px;" value=' + data.id + ' style="width:70px" /></td>';
+                //Itemrow += '<td  > <input class ="name" value=' + data.name + ' style="width:60px" /> </td>';
+                Itemrow += '<td  > <input name="ItemDescription" class ="ItemDescription" style="width:80px;" value=' + data.name + ' style="width:70px" /></td>';
+                //Itemrow += '<td  > <input name="PartNO" class ="partno" value="0"  style="width:60px"  /></td>';
+                //Itemrow += '<td hidden>' + data.unit + '</td>';
+                Itemrow += '<td  > <input name="UOM" class ="uom" value=' + data.unitName + '  style="width:60px"/></td>';
+                Itemrow += '<td  > <input name="Qty" id="qty" class ="qty" value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="Rate" id="rate" class ="rate"  value=' + data.salesRate + '  style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="Discount" class ="discount" id="discountPer" value="0" style="width:60px"  /></td>';
+                Itemrow += '<td  > <input name="DiscuontedRate" class ="discountRate" id="discountRate" value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="Value" id="value" class ="value" value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="PkrValue" id="pkrValue" class ="pkrvalue" value="0" style="width:60px"style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="stPercentage"   class ="stpercentage" id="stpercen"  value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="Amount" class ="amount" value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="TotalVAlue" class ="totalValue" value="0" style="width:60px" /></td>';
+                Itemrow += '<td  > <input name="DeliveryDate" type="date"   class ="deliveryDate" style="width:90px"  /></td>';
+                Itemrow += '<td  >';
+                Itemrow += '<a  class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+                Itemrow += '</tr>';
+                $('#tblQuotation tbody').append(Itemrow);
+
+                counter = Number(counter) + 1;
+                $('#rowcounter').val(counter);
+                $('#button').prop('disabled', false);
+                $('#saleModal').modal("hide");
+                counter++;
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+    });
+    </script>
+
+
+
+    <script>
+        function submitdetails() {
+             var quotations = [];
+            $.each($("tblQuotation tbody tr"), function () {
+                quotations.push({
+
+                });
+            });
+
+
+        }
+    </script>
+
+
+}

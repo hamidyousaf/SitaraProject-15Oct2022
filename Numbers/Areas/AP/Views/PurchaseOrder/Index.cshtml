@@ -1,0 +1,530 @@
+﻿@model IEnumerable<APPurchaseOrder>
+@{ ViewData["Title"] = "List of Purchase Orders";
+    ViewData["CurrentPage"] = "Purchase Order";
+
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+    var reporturl = "";
+}
+<style>
+    .table > thead {
+        background-color: #4857a5;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <div class="text-center hide">
+                    <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="PurchaseOrder" asp-action="Create"> <strong> Create New </strong> </a>
+                </div>
+                <br />
+                <br />
+                <table id="POtbl" class="table table-bordered table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th  style="width:7%" class="searchHeader">PO No</th>
+                            <th  style="width:7%" class="searchHeader">CS No</th>
+                            <th  style="width:9%" class="searchHeader">PO Date</th>
+                            <th  style="width:20%" class="searchHeader">Supplier Name</th>
+                            <th  style="width:8%" class="searchHeader">Qty</th>
+                            <th  style="width:8%" class="searchHeader">Total</th>
+                            <th  style="width:8%" class="searchHeader">Total Tax</th>
+                            <th  style="width:8%" class="searchHeader">Grand Total</th>
+                            <th  style="width:8%" class="searchHeader">Status</th>
+                            <th  style="width:17%">Action</th>
+                        </tr>
+                    </thead>
+
+                    @*<td>
+                                @if (item.Status != "Approved")
+                                {
+                            <a asp-action="Create" asp-controller="PurchaseOrder" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                                <a class="btn btn-sm btn-success m-t-n-xs" asp-controller="PurchaseOrder" asp-action="Approve" asp-route-id="@item.Id" onclick="return confirm('Are you sure you want to Approve Purchase Order?')"><i class="fa fa-thumbs-up" title="Approve"></i></a> }
+                                            else
+                                            {
+                            <a asp-action="Details" asp-controller="PurchaseOrder" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-search" title="View"></i></a>}
+                                <a onclick="generateApArReport(@item.Id,'PurchaseOrder','@companyName','@companyId');" class="btn btn-sm btn-primary btn-lg m-t-n-xs"><i class="fas fa-print" title="Print Report"></i></a>
+                                @if (item.Status == "Approved")
+                                {
+                            <a onclick="GetId(@item.Id,@item.POTypeId);" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModal">
+                                <i class="fas fa-list" title="Performa"></i>
+                            </a>}
+                                            </td>
+                        </tr>*@
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Large modal -->
+<!-- Button trigger modal -->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h3 class="modal-title" id="exampleModalLabel">Performa</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <input hidden id="performaId" />
+                        <div class="form-group">
+                            <label>Performa #</label>
+                            <input readonly id="PerformaNo" class="form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="form-group">
+                            <label>Performa Date</label>
+                            <input id="PerformaDate" readonly class="form-control on-focus-change-color custom-date-picker" />
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div id="LC" style="display:none">
+                    <h3 class="modal-title" id="exampleModalLabel">LC info</h3>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>LC#</label>
+                                <input readonly id="LCNo" class=" clear form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>LC Opening Date</label>
+                                <input id="LCOpeningDate" readonly class=" clear form-control on-focus-change-color custom-date-picker" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>LC Expiriy Date</label>
+                                <input id="LCExpiryDate" readonly class=" clear form-control on-focus-change-color custom-date-picker" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>LC Bank</label>
+                                <input id="LCBank" class=" clear form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Customer Bank</label>
+                                <input id="customerBank" class=" clear form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Swift Code</label>
+                                <input id="LCSwiftCode" class=" clear form-control on-focus-change-color" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="SaveLC()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="viewModal" role="dialog">
+    <div class="modal-dialog" style="width:70%;margin-top:5%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="form-group row">
+                    <div class="col-lg-3 col-md-3">
+                        <label class="row-form-label">PO # : </label>
+                        <label style="font-weight:normal !important;" id="poNo"></label>
+                        <input hidden readonly type="text" id="poId" />
+                    </div>
+                    <button type="button" onclick="closePO();" class="btn btn-danger">Close PO</button>
+                  
+                </div>
+                </div>
+
+            <div class="PopupHeight">
+                <div class="modal-body" style="padding: 15px 20px 0px 20px">
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table id="ViewTable" class="table table-bordered table-striped t">
+                                <thead>
+                                    <tr>
+                                        <th style="width:15%">Vendor</th>
+                                        <th style="width:10%">PO #</th>
+                                        <th style="width:20%">Item Name</th>
+                                        <th style="width:10%">UOM</th>
+                                        <th hidden>Brand</th>
+                                        <th style="width:15%">PO Qty</th>
+                                        <th style="width:15%">Rate</th>
+                                        <th style="width:15%">Received Qty</th>
+                                        <th style="width:10%">Action</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style=" padding: 5px 20px 5px 20px;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section CustomJs{
+
+    <script src="https://sweetalert.js.org/guides/"></script>
+
+    <script>
+        $(document).ready(function () {
+            debugger
+            var table1 = $("#POtbl").dataTable({
+                lengthMenu: [
+                    [50, 100, 150, -1],
+                    [50, 100, 150, 'All'],
+                ],
+                processing: true,
+                serverSide: true,
+                filter: true,
+                order: [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "ajax": {
+                    "url": "/AP/PurchaseOrder/GetPO",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+                    "target": [0],
+                    "visible": false,
+                    "searchable": false
+                }, { "orderable": false, "targets": [9] },
+                    {
+                        targets: [ 4, 5, 6, 7],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }],
+
+                "columns": [
+                    { "data": "poNo", "name": "PoNo", className: "text-center" },
+                    { "data": "csNo", "name": "CSNo", className: "text-center" },
+                    { "data": "date", "name": "PODate", className: "text-center" },
+                    { "data": "vendorName", "name": "SupplierId", className: "text-left" },
+                    { "data": "qty", "name": "Qty", className: "text-right" },
+                    { "data": "total", "name": "Total", className: "text-right" },
+                    { "data": "totalTaxAmount", "name": "Total", className: "text-right" },
+                    { "data": "grandTotal", "name": "GrandTotal", className: "text-right" },
+                    { "data": "status", "name": "Status", className: "text-center" },
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data, type, row) {
+
+                            if (row.status != "Approved" && row.status != "Closed") {
+                                if (row.approve == true) {
+                                    return "<a href='/AP/PurchaseOrder/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>     <a  href='/AP/PurchaseOrder/Approve?id=" + data + "'class='btn btn-sm btn-success m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>    <a href='@ViewBag.ReportUrl/Viewer?Report=PurchaseOrder&cId=1&id=" + data + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a>  <a href='/AP/PurchaseOrder/Delete?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                                } else {
+                                    return "<a href='/AP/PurchaseOrder/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>     <a href='@ViewBag.ReportUrl/Viewer?Report=PurchaseOrder&cId=1&id=" + data + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a>  <a href='/AP/PurchaseOrder/Delete?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-trash' title='Delete'></i></a>";
+                                }
+                            }
+                            //else if (row.status == "Approved") {
+                            //    return "<a onclick='GetId(" + data + "," + row.pOTypeId + ");' class='btn btn-sm btn-primary' data-toggle='modal' data-target='#exampleModal'><i class='fas fa-list' title='Performa'></i></a>"
+                            //}
+                            else if (row.status == "Closed")  {
+                                //   reporturl = generateApArReport(data, 'PurchaseOrder', '@companyName',  + row.companyId + );
+                                // reporturl = '/ReportEngine/ReportViewer/Viewer?Report=PurchaseOrder&cId=1&showRate=True&id=1';
+                                return "<a href='/AP/PurchaseOrder/Details?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a> <a href='@ViewBag.ReportUrl/Viewer?Report=PurchaseOrder&cId=1&id=" + data + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a>  "
+                            }
+                            else {
+                                //   reporturl = generateApArReport(data, 'PurchaseOrder', '@companyName',  + row.companyId + );
+                                // reporturl = '/ReportEngine/ReportViewer/Viewer?Report=PurchaseOrder&cId=1&showRate=True&id=1';
+                                return "<a href='/AP/PurchaseOrder/Details?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-search' title='View'></i></a> <a href='@ViewBag.ReportUrl/Viewer?Report=PurchaseOrder&cId=1&id=" + data + "' target='_blank' class='btn btn-sm btn-primary btn-lg m-t-n-xs'><i class='fas fa-print' title='Print Report'></i></a> <a onclick=View(" + data + ") class='btn btn-sm btn-danger m-t-n-xs'>Close PO</a>  "
+                            }
+                        }
+                    }
+                ],
+
+            });
+
+
+
+            $('#POtbl thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<span hidden>' + title + '</span><input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this; debugger
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    that.search(this.value).draw()
+                })
+                searchBox.on('click', function (e) {
+                    debugger
+                    e.stopPropagation();
+                });
+            });
+
+
+
+
+
+        });
+    function SaveLC(id) {
+        debugger;
+        var formdetails  ={
+            Id: $("#performaId").val(),
+            PerformaNo: $("#PerformaNo").val(),
+            PerformaDate: $("#PerformaDate").val(),
+            LCNo: $("#LCNo").val(),
+            LCOpeningDate: $("#LCOpeningDate").val(),
+            LCExpiryDate: $("#LCExpiryDate").val(),
+            LCBank: $("#LCBank").val(),
+            SwiftCode: $("#LCSwiftCode").val(),
+            CustomerBank: $("#customerBank").val()
+
+        };
+        $.ajax({
+            url: '/AP/PurchaseOrder/SaveLC',
+            type: 'POST',
+            method: 'POST',
+            data: { model: formdetails},
+            success: function (response) {
+                swal("", "Saved Successfully", "success");
+                $('#exampleModal').modal('hide');
+            },
+            fail: function (response) {
+                alert("Error");
+            }
+        });
+    }
+    function GetId(id,type) {
+        debugger;
+        $("#performaId").val(id);
+        $("#PerformaDate").val(" ");
+        $("#LCNo").val(" ");
+        $("#LCOpeningDate").val(" ");
+        $("#LCExpiryDate").val(" ");
+        $("#LCBank").val(" ");
+        $("#customerBank").val(" ");
+        $("#LCSwiftCode").val(" ");
+        $("#PerformaNo").val(" ");
+
+        $.ajax({
+            url: '/AP/PurchaseOrder/GetPOType',
+            type: 'POST',
+            method: 'POST',
+            data: { type: type },
+            success: function (response) {
+
+                if (response == "Import") {
+                    $("#LC").css("display", "block")
+                }
+            },
+            fail: function (response) {
+                alert("Error");
+            }
+        });
+
+        $.ajax({
+            url: '/AP/PurchaseOrder/GetMaxPerFormeNo',
+            type: 'POST',
+            method: 'POST',
+            data: { type: type },
+            success: function (response) {
+
+                $("#PerformaNo").val(response);
+
+            },
+            fail: function (response) {
+                alert("Error");
+            }
+        });
+        $.ajax({
+            url: '/AP/PurchaseOrder/GetMaxLCNo',
+            type: 'POST',
+            method: 'POST',
+            data: { type: type },
+            success: function (response) {
+
+                $("#LCNo").val(response);
+
+            },
+            fail: function (response) {
+                alert("Error");
+            }
+        });
+
+
+    }
+    function reportCall() {
+            generateApArReport(" + data + ", 'PurchaseOrder', '@companyName', " + row.companyId + ");
+    }
+
+    function closePO() {
+            debugger;
+        var poId = $("#poId").val();
+        var url = "/AP/PurchaseOrder/ClosePO?id=" + poId ;
+
+        //$.ajax({
+        //    type: "GET",
+        //    url: url,
+        //    dataType: "jsonp",
+        //    success: function (response) {
+        //        debugger;
+        //        //if request if made successfully then the response represent the data
+        //        $('#Table').DataTable().draw();
+        //    }
+        //});
+
+            $.ajax({
+                url: '/AP/PurchaseOrder/ClosePO',
+                type: 'POST',
+                method: 'POST',
+                data: { id: poId },
+                success: function (response) {
+                    debugger;
+                    $('#viewModal').modal('hide');
+                    $('#POtbl').DataTable().draw();
+                },
+                fail: function (response) {
+                    debugger;
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+
+    }
+
+    function closePOItems(row) {
+        debugger;
+        var poId = $("#poId").val();
+        var poItemId = row.closest("tr").find('.invoiceItemId').val();
+        var status = row.closest("tr").find('.btnclose').text();
+        if (status != "Closed") {
+            $.ajax({
+                url: '/AP/PurchaseOrder/ClosePOItems',
+                type: 'POST',
+                method: 'POST',
+                data: { id: poItemId },
+                success: function (response) {
+                    debugger;
+                    if (response.message == "successed")
+                        // row
+                        //$('#viewModal').modal('hide');
+                        //$('#POtbl').DataTable().draw();
+                        row.closest("tr").find('.btnclose').text("Closed");
+                    // View(poId);
+                },
+                fail: function (response) {
+                    debugger;
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+        } else {
+            swal("", "Already Closed", "success");
+        }
+
+    }
+    function View(id) {
+            debugger
+            //var b = row.closest("tr").index();
+            //var c = b + 1;
+            //var rowItemTable = $("#tblItem > tbody").find("tr").eq(b);
+            //var itemID = rowItemTable.closest("tr").find(".ItemId").val();
+            // var customerId = $('#CustomerId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AP/PurchaseOrder/GetPOClose",
+                data: { poId: id }
+            }).done(function (data) {
+                debugger;
+                $.each($("#ViewTable tbody tr"), function () {
+                    debugger;
+                    $(this).remove();
+                });
+                $.each(data, function (i, item) {
+                    debugger
+                    if (item.poDate != null) {
+                        debugger;
+
+                        var row = "<tr>" +
+                            "<td hidden > <input name='invoiceId' id='invoiceId' class='form-control text-right invoiceId' value=" + item.invoiceId + " readonly/></td>" +
+                            "<td hidden > <input name='invoiceItemId' id='invoiceItemId' class='form-control text-right invoiceItemId' value=" + item.invoiceItemId + " readonly/></td>" +
+                            "<td class='text-left' > " + item.vendor + "</td>" +
+                            "<td class='text-center' > " + item.poNo + "</td>" +
+                            "<td class='text-left' >" + item.itemDescription + "</td>" +
+                            "<td class='text-center' >" + item.uom + " </td>" +
+                            "<td hidden > <input name='poQty' id='poQty' class='form-control text-right add-comma qty' value=" + item.Brand + " readonly/></td>" +
+                            "<td class='text-right' >" + item.poQty + " </td>" +
+                            "<td class='text-right' > " + item.grnRate + "</td>" +
+                            "<td class='text-right' > " + item.poQty + " </td>" +
+                            "<td class='text-center' ><a onclick='closePOItems($(this));' class='btn btn-sm btn-danger btn-lg m-t-n-xs btnclose' >Close</a></td>" +
+
+                            "</tr>"
+
+                        debugger
+                        $('#poId').val(item.invoiceId);
+                        $('#poNo').text(item.poNo);
+                        $("#ViewTable tbody").append(row);
+
+                    } else {
+                        debugger
+
+                    }
+                });
+                $("#viewModal").modal("show");
+            });
+        }
+
+    </script>
+}

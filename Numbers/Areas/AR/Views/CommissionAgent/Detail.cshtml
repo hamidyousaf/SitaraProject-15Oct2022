@@ -1,0 +1,347 @@
+﻿@model ARCommissionAgent
+@{ ViewData["Title"] = "Detail Commission Agent";
+    ViewData["CurrentPage"] = "CommissionAgent";
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form id="CustomerForm" asp-action="Create" enctype="multipart/form-data" onsubmit="return submitdetails();">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row" style="margin-top:10px">
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="Name"></label>
+                                        <input readonly asp-for="Name" autofocus data-validation="required" class="form-control" data-validation-error-msg-container="#name" autocomplete="off" />
+                                        <p id="name"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-9 col-sm-8 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="Address"></label>
+                                        <input readonly asp-for="Address" class="form-control" autocomplete="off" />
+                                        <span asp-validation-for="Address" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="CNIC"></label>
+                                        <input readonly asp-for="CNIC" placeholder="00000-0000000-0" class="form-control" data-mask="99999-9999999-9" autocomplete="off" />
+                                        <span asp-validation-for="CNIC" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="Phone1" name="Phone1"></label>
+                                        <input readonly asp-for="Phone1" class="form-control" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="CountryId"></label>
+                                        <select readonly disabled name="CountryId" class="form-control chosen-select" asp-for="CountryId" asp-items="@ViewBag.AppCountries" required onchange="getCities();" data-validation="required" data-validation-error-msg="Country is required" data-validation-error-msg-container="#country">
+                                            @*<option selected="selected">Select...</option>*@
+                                        </select>
+                                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                                        <span id="country"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="CityId"></label>
+                                        <select readonly disabled id="CityId" name="CityId" value="@ViewBag.CityId" class="form-control city chosen-select" asp-for="CityId" asp-items="@ViewBag.AppCities" data-validation="required" data-validation-error-msg="City is required" data-validation-error-msg-container="#city">
+                                            <option value="0">Select...</option>
+                                        </select>
+                                        <span asp-validation-for="CityId" class="text-danger"></span>
+                                        <span id="city"></span>
+                                    </div>
+                                </div>
+                                <div class=" col-lg-3">
+                                    <label class="control-label">Item Category</label>
+                                    <div>
+                                        <select readonly disabled id="ListofCategory" asp-for="ItemCategoryId" asp-items="@ViewBag.SecondLevelCategoryLOV" style="width:240px" class="form-control select-country-city">
+                                            <option selected="selected" disabled>Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-8 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="CommissionPer" name="CommissionPer"></label>
+                                        <input readonly asp-for="CommissionPer" class="form-control" value="0.5"  />
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="StartDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="StartDate" class="form-control custom-date-picker on-focus-change-color" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.StartDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="Start Date is required" data-validation-error-msg-container="#stDate" />
+                                        </div>
+                                        <p id="stDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="EndDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input readonly asp-for="EndDate" class="form-control custom-date-picker on-focus-change-color" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.EndDate.ToString(CommonHelper.DateFormat))" data-validation="required" data-validation-error-msg="End Date is required" data-validation-error-msg-container="#enDate" />
+                                        </div>
+                                        <p id="enDate"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-1 col-sm-4">
+                                    <div class="form-group">
+                                        <label></label>
+                                        <div class="col-lg-4"></div>
+                                        <div class="col-lg-8">
+                                            <div class="checkbox checkbox-success">
+                                                <input readonly disabled id="isActive" asp-for="IsActive" type="checkbox">
+                                                <label for="isActive">Active</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-1" style="margin-left:5px">
+                                    <label class="control-label">  </label>
+                                    <div>
+                                        <a readonly class="btn btn-primary" @*onclick="AddCustomer();"*@ style="margin-top:4px">Add</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="customer">
+                                <div class="row" style="margin-left:10px">
+                                    @*<div class="form-group col-lg-3" style="margin-left:5px">
+                                            <label class="control-label">Customer</label>
+                                            <div>
+                                                <select id="listOfCustomer" asp-items="@ViewBag.CustomerList" style="width:240px" class="form-control select-country-city">
+                                                    <option selected="selected" disabled>Select...</option>
+                                                </select>
+                                            </div>
+                                        </div>*@
+
+
+
+
+                                </div>
+                                <div class="container-fluid table-responsive">
+                                    <table id="CustomerTable" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer</th>
+                                                <th>Sales Person</th>
+                                                <th>Item Category</th>
+                                                <th>City</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if ((IEnumerable<AgentCustomerDTO>)ViewBag.Customers != null)
+                                            {
+                                                int i = 0;
+                                                @foreach (var item in (IEnumerable<AgentCustomerDTO>)ViewBag.Customers)
+                                                {
+                                                    string name = "";
+                                                    <tr class="removedCust">
+
+                                                        <td class="Id hidden">
+                                                            <input type="hidden" class="form-control customer" name="customerId" id="customerId2" value="@item.CustomerId" />
+                                                        </td>
+                                                        <td class="Id hidden">
+                                                            <input type="hidden" class="form-control " name="categoryId" id="categoryId2" value="@item.ItemCategoryId" />
+                                                        </td>
+                                                        <td>
+                                                            <input  type="text" class="form-control" name="CustomerName" readonly value="@item.CustomerName" />
+                                                        </td>
+
+                                                        <td><input  class="form-control salesPerson" name="salesPerson" value="@item.SalesPerson" readonly />   </td>
+                                                        @if (item.ItemCategoryNames != null)
+                                                        {
+                                                            foreach (var names in item.ItemCategoryNames)
+                                                            {
+
+                                                                name += names + "," + name;
+                                                            }
+                                                            name = name.TrimEnd(',');
+                                                        }
+                                                        <td><input class="form-control itemCategory" name="itemCategory" value="@name" readonly />  </td>
+                                                        <td><input class="form-control itemCity" name="itemCity" value="@item.City" readonly />  </td>
+
+                                                        <td>
+                                                            <a readonly class="btn btn-sm btn-danger m-t-n-xs " @*onclick="deleterowCust($(this));"*@> <i class="fa fa-trash" title="Delete"></i></a>
+                                                        </td>
+
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="btn btn-white" asp-action="Index">List</a>
+                       @* <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />*@
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+
+    <script src="~/lib/moment.js"></script>
+    <script>
+         //call when edit-form will open
+        var bankCashId =@Model.Id;
+        if (bankCashId != 0) {
+            $("#AccountId").removeAttr('disabled');
+        }
+    </script>
+    <script>
+        $.validate();
+        $(function () {
+            var accountId = $('#AccountId');
+             bindSelect2(accountId, '/GL/Api/GetAccounts', '/GL/Api/GetAccount?id=', "@ViewBag.AccountId");
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#ListofCategory").select2();
+            $("#listOfItem").select2();
+            $(".chosen-select").select2();
+            $(".CLToDate").each(function (index) {
+                var CLId = $(".CLId").eq(index).text();
+                const ToDate = moment(new Date($(this).text())).format('MM/DD/YYYY');
+                const CurrentDate = moment(new Date()).format('MM/DD/YYYY');
+                if (CurrentDate > ToDate) {
+                    $.ajax({
+                        method: "POST",
+                        url: "/AR/Customer/ExpireCreditLimit/" + CLId,
+                    }).done(function (msg) {
+                    });
+                }
+            });
+            $.each($("#CustomerTable tbody tr"), function () {
+                var customer = ($(this).find('.customer').val());
+                $("#ListofCategory option[value='" + customer + "']").remove();
+            });
+            debugger
+            if (@Model.CityId == 0 || @Model.CityId == null) {
+                getCities();
+
+            }
+        });
+
+        function getCities() {
+            var countryId = $('#CountryId').val();
+            $.ajax({
+                type: 'GET',
+                url: '/Api/GetCities?id=' + countryId
+            }).then(function (data) {
+                var city = $("#CityId");
+                city.empty();
+                for (var i = 0; i < data.length; i++) {
+                    city.append($("<option />").val(data[i].id).text(data[i].name));
+                }
+            });
+        }
+
+        function AddCustomer() {
+            debugger;
+            var ItemCategory = $("#ListofCategory").find(":selected").text();
+            var CustomerNameId = $("#customerId2").text();
+
+            if (ItemCategory == "Select...") {
+                swal("", "Please Select Item Category.", "warning");
+                return false;
+            } else if (ItemCategory == "") {
+                swal("", "All Item Categories are selected!", "warning");
+                return false;
+
+            }
+            else if ($('#CustomerTable tbody tr').length > 0) {
+                swal("", "All Customer with Categories are selected!", "warning");
+                return false;
+            } else {
+                var Category = $("#ListofCategory").find(":selected").text();
+                var CategoryId = $("#ListofCategory").find(":selected").val();
+                var City = $("#CityId").find(":selected").text();
+                var CityId = $("#CityId").find(":selected").val();
+                $.ajax({
+                    method: "GET",
+                    url: "/AR/CommissionAgent/GetCustomerDetails/",
+                    data: { categoryId: CategoryId, cityId: CityId}
+                }).done(function (data) {
+                    if (data == null) {
+                        swal('', 'This Category has no data', 'warning');
+                        return null
+                    }
+                    $.each(data, function (i, item) {
+
+
+
+                        //if (item.customerId == $("#customerId").text() && item.categoryId == $("#categoryId").val()) {
+                        //            swal({
+                        //                icon: 'warning',
+                        //                text: "This category or customer already exist!",
+                        //                closeModal: false
+                        //            })
+                        //            check = true;
+                        //            return false;
+                        //}
+
+
+                          var row = "<tr class='removedCust'>" +
+                              "<td > <input type='text' value='" + item.customer + "' name='customerName'  class='form-control text-left customerName '  readonly /></td>" +
+                              "<td hidden> <input value='" + item.customerId + "' name='customerId' id='customerId' readonly /></td>" +
+                              "<td hidden> <input value='" + item.categoryId + "' name='categoryId' id='categoryId' readonly /></td>" +
+                              "<td > <input value='" + item.salesPerson + "' name='salesPerson' class='form-control text-left ' readonly /></td>" +
+                              "<td > <input value='" + item.itemCategory + "' name='itemCategory'  class='form-control text-left itemCategory' readonly /></td>" +
+                              "<td > <input value='" + item.city + "' name='itemCity' class='form-control text-left ' readonly /></td>" +
+                              '<td> <a id="del" onclick="deleterowCust($(this));" class="btn btn-sm btn-danger"> <i class="fa fa-trash" title="Delete"></i> </a> </td>'
+                          "</tr>"
+                         $('#CustomerTable tbody').append(row);
+
+                         $("#ItemCategory").find(":selected").remove();
+
+
+
+
+                       // });
+                    });
+                    //
+
+                    //
+                });
+
+            }
+        }
+        function deleterowCust(row) {
+            debugger
+            var b = row.closest("tr").index();
+            $('.removedCust').eq(b).remove();
+        }
+
+        $("#CustomerForm").on("submit", function () {
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+
+        });
+    </script>
+
+}

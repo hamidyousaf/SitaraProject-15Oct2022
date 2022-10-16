@@ -1,0 +1,929 @@
+﻿@model HREmployee
+@{
+    ViewData["Title"] = ViewBag.EntityState;
+    ViewData["CurrentPage"] = "Employee";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+        .hide {
+            display: none;
+        }
+    </style>
+}
+<div class="ibox">
+    <div class="ibox-title">
+        <h2>@ViewBag.EntityState Employee</h2>
+    </div>
+    <div class="ibox-content">
+        <form method="post" enctype="multipart/form-data" id="employeForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <input type="hidden" asp-for="Id" />
+            </div>
+            <div class="row">
+                <div class="col-lg-10 col-md-10 col-sm-6 col-xs-6">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="No" class=" control-label"></label>
+                                <input asp-for="No" class="form-control" data-validation="required" data-validation-error-msg="Employee No. is required" data-validation-error-msg-container="#no"/>
+                                <span asp-validation-for="No"></span>
+                                <p id="no"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Name" class=" control-label"></label>
+                                <input asp-for="Name" class="form-control" data-validation="required" data-validation-error-msg="Employee Name is required" data-validation-error-msg-container="#Ename"/>
+                                <span asp-validation-for="Name"></span>
+                                <p id="Ename"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="FatherName" class=" control-label"></label>
+                                <input asp-for="FatherName" class="form-control" data-validation="required" data-validation-error-msg="Father Name is required" data-validation-error-msg-container="#Fname"/>
+                                <span asp-validation-for="FatherName"></span>
+                                <p id="Fname"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label class=" control-label">Supervisor#</label>
+                                <select asp-for="SupervisorId" class="form-control">
+                                    <option value="1">0001-Atif Nadeem</option>
+                                </select>
+                                <span asp-validation-for="SupervisorId"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-2 col-sm-6 col-xs-6">
+                    <!-- Below is the Div for picture of product -->
+                    <div class="col-md-12">
+                        @if (Model.Photo != null)
+                        {
+                            <img src="@Html.DisplayFor(modelItem => Model.Photo)" alt="Upload Image" class="img-thumbnail" height="300" width="300" />
+                        }
+
+                        else if (Model.Photo == null)
+                        {
+                            <img src="~/img/a1.jpg" class="img-thumbnail" alt="Upload Image" height="250" width="250"/>
+                        }
+                        <div class="form-group">
+                            <div class="text-left">
+                                <input asp-for="Photo" name="Photo" type="file" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wrapper wrapper-content animated fadeIn">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-link active"><a data-toggle="tab" href="#personal">Personal</a></li>
+                        <li><a data-toggle="tab" href="#joining">Joining Info</a></li>
+                        <li><a data-toggle="tab" href="#company">Company</a></li>
+                        <li><a data-toggle="tab" href="#family">Family</a></li>
+                        <li><a data-toggle="tab" href="#deduction">Deduction</a></li>
+                        <li><a data-toggle="tab" href="#salary">Salary BRK</a></li>
+                        <li><a data-toggle="tab" href="#degree">Qualification</a></li>
+                        <li><a data-toggle="tab" href="#experience">Experience</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="personal" class="tab-pane in active">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="Dob" class=" control-label"></label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control custom-date-picker" asp-for="Dob" data-validation="required" data-validation-error-msg="Date of Birth is required" data-validation-error-msg-container="#dob" value="@CommonHelper.CurrentDate" >
+                                                    <span asp-validation-for="Dob" class="text-danger"></span>
+                                                    <p id="dob"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+                                            <div class="form-group">
+                                                <label asp-for="BloodGroup" class=" control-label"></label>
+                                                <select name="BloodGroup" asp-for="BloodGroup" class="form-control">
+                                                    <option selected disabled>None</option>
+                                                    <option value="1">A+</option>
+                                                    <option value="2">B+</option>
+                                                    <option value="3">O+</option>
+                                                    <option value="4">A-</option>
+                                                    <option value="5">B-</option>
+                                                    <option value="6">AB-</option>
+                                                    <option value="7">O-</option>
+                                                </select>
+                                                <span asp-validation-for="BloodGroup"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+                                            <div class="form-group">
+                                                <label asp-for="Sex" class=" control-label"></label>
+                                                <select asp-for="Sex" class="form-control">
+                                                    <option value="1">Male</option>
+                                                    <option value="2">Female</option>
+                                                    <option value="3">Other</option>
+                                                </select>
+                                                <span asp-validation-for="Sex"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label class="control-label">C.N.I.C</label>
+                                                <input asp-for="Nic" autofocus class="form-control" data-mask="99999-9999999-9" data-validation="required" data-validation-error-msg="Employee CNIC is required" data-validation-error-msg-container="#Ecnic" />
+                                                <p id="Status" />
+                                                <span asp-validation-for="Nic" class="text-danger"></span>
+                                                <p id="Ecnic"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label class="control-label">Father C.N.I.C</label>
+                                                <input asp-for="FatherCnic" autofocus class="form-control" data-mask="99999-9999999-9" data-validation="required" />
+                                                <p id="" />
+                                                <span asp-validation-for="FatherCnic" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-2 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="NextToKin" class=" control-label"></label>
+                                                <input asp-for="NextToKin" class="form-control" />
+                                                <span asp-validation-for="NextToKin"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Relation" class=" control-label"></label>
+                                                <input asp-for="Relation" class="form-control" />
+                                                <span asp-validation-for="Relation"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="MobilePhone" class=" control-label"></label>
+                                                <input asp-for="MobilePhone" class="form-control" data-validation="required" data-validation-error-msg="Employee Cell No. is required" data-validation-error-msg-container="#mobile"/>
+                                                <span asp-validation-for="MobilePhone"></span>
+                                                <p id="mobile"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="HomePhone" class=" control-label"></label>
+                                                <input asp-for="HomePhone" class="form-control" />
+                                                <span asp-validation-for="HomePhone"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="EmailAddress" class=" control-label"></label>
+                                                <input asp-for="EmailAddress" type="email" class="form-control" data-validation="required" data-validation-error-msg="Email is required" data-validation-error-msg-container="#email"/>
+                                                <span asp-validation-for="EmailAddress"></span>
+                                                <p id="email"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="City" class=" control-label"></label>
+                                                <select name="City" asp-for="City" class="form-control" data-validation="required" data-validation-error-msg="City is required" data-validation-error-msg-container="#city">
+                                                    <option value="1">Lahore</option>
+                                                    <option value="2">Karachi</option>
+                                                    <option value="3">Haiderabad</option>
+                                                </select>
+                                                <span asp-validation-for="City"></span>
+                                                <p id="city"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-12 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="PermanentAddress" class=" control-label"></label>
+                                                <textarea asp-for="PermanentAddress" class="form-control"></textarea>
+                                                <span asp-validation-for="PermanentAddress"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-12 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="TemporaryAddress" class=" control-label"></label>
+                                                <textarea asp-for="TemporaryAddress" class="form-control"></textarea>
+                                                <span asp-validation-for="TemporaryAddress"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="joining" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="Doj" class=" control-label"></label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control custom-date-picker" asp-for="Doj" data-validation="required" data-validation-error-msg="Date of Joining is required" data-validation-error-msg-container="#doj">
+                                                    <span asp-validation-for="Doj" class="text-danger"></span>
+                                                    <p id="doj"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="ResignDate" class=" control-label"></label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control custom-date-picker" asp-for="ResignDate" data-validation="required" data-validation-error-msg="Resign Date is required" data-validation-error-msg-container="#resign">
+                                                    <span asp-validation-for="ResignDate" class="text-danger"></span>
+                                                    <p id="resign"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="FirstPay" class=" control-label"></label>
+                                                <input asp-for="FirstPay" class="form-control" />
+                                                <span asp-validation-for="FirstPay"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="ReplaceEmployeeId" class=" control-label"></label>
+                                                <select asp-for="ReplaceEmployeeId" class="form-control">
+                                                    <option value="1">0001 - Atif Nadeem</option>
+                                                    <option value="2">0002 - Zubair</option>
+                                                    <option value="3">0003 - Usman</option>
+                                                </select>
+                                                <span asp-validation-for="Sex"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="MedicalCardNo" class=" control-label"></label>
+                                                <input asp-for="MedicalCardNo" class="form-control" />
+                                                <span asp-validation-for="MedicalCardNo"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Reference" class=" control-label"></label>
+                                                <input asp-for="Reference" class="form-control" />
+                                                <span asp-validation-for="Reference"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="StopName" class=" control-label"></label>
+                                                <input asp-for="StopName" class="form-control" />
+                                                <span asp-validation-for="StopName"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="CardId" class=" control-label"></label>
+                                                <input asp-for="CardId" class="form-control" data-validation="required" data-validation-error-msg="Attendance card No. is required" data-validation-error-msg-container="#attendance"/>
+                                                <span asp-validation-for="CardId"></span>
+                                                <p id="attendance"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Ntn" class=" control-label"></label>
+                                                <input asp-for="Ntn" class="form-control" data-validation="required" data-validation-error-msg="NTN No. is required" data-validation-error-msg-container="#ntn"/>
+                                                <span asp-validation-for="Ntn"></span>
+                                                <p id="ntn"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="SocialSecurityNo" class=" control-label"></label>
+                                                <input asp-for="SocialSecurityNo" class="form-control" />
+                                                <span asp-validation-for="SocialSecurityNo"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="InsuranceDate" class=" control-label"></label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control custom-date-picker" asp-for="InsuranceDate">
+                                                    <span asp-validation-for="InsuranceDate" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1" style="margin-top:18px">
+                                        <div class="checkbox checkbox-success form-check form-check-inline">
+                                            <input id="isActive" asp-for="IsProbition" type="checkbox" class="form-check-input" checked>
+                                            <label for="isActive">Probation</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-2 col-sm-2 col-xs-12" style="margin-left:15px">
+                                        <div class="form-group">
+                                            <label asp-for="ProbationPeriod" class=" control-label"></label>
+                                            <select asp-for="ProbationPeriod" class="form-control">
+                                                <option value="1" disabled>Select probation period...</option>
+                                                <option value="2">1 Month</option>
+                                                <option value="3">2 Months</option>
+                                                <option value="4" selected>3 Months</option>
+                                                <option value="5">6 Months</option>
+                                                <option value="6">1 Year</option>
+                                            </select>
+                                            <span asp-validation-for="ProbationPeriod"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1" style="margin-top:18px">
+                                        <div class="checkbox checkbox-success form-check form-check-inline">
+                                            <input id="isActive" asp-for="IsBlocked" type="checkbox" class="form-check-input">
+                                            <label for="isActive">Blocked</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                                        <div class="form-group" id="data_1">
+                                            <label asp-for="BlockedFrom" class=" control-label"></label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                <input type="text" class="form-control custom-date-picker" asp-for="BlockedFrom" placeholder="From">
+                                                <span asp-validation-for="BlockedFrom" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                                        <div class="form-group" id="data_1">
+                                            <label asp-for="BlockedTo" class=" control-label"></label>
+                                            <div class="input-group date">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                <input type="text" class="form-control custom-date-picker" asp-for="BlockedTo" placeholder="To">
+                                                <span asp-validation-for="BlockedTo" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="company" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Department" class=" control-label"></label>
+                                                <select asp-for="Department" class="form-control" data-validation="required" data-validation-error-msg="Department is required" data-validation-error-msg-container="#depart">
+                                                    <option value="1">Quality Control</option>
+                                                    <option value="2">Accounts</option>
+                                                    <option value="3">Purchasing</option>
+                                                    <option value="4">Production</option>
+                                                    <option value="5">Human Resource</option>
+                                                    <option value="6">Marketing</option>
+                                                    <option value="7">Sales</option>
+                                                </select>
+                                                <span asp-validation-for="Department"></span>
+                                                <p id="depart"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Designation" class=" control-label"></label>
+                                                <select asp-for="Designation" class="form-control" data-validation="required" data-validation-error-msg="Designation is required" data-validation-error-msg-container="#desig">
+                                                    <option value="1">Quality Inspector</option>
+                                                    <option value="2">Helper</option>
+                                                    <option value="3">Manager</option>
+                                                </select>
+                                                <span asp-validation-for="Designation"></span>
+                                                <p id="desig"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="CompanyId" class=" control-label"></label>
+                                                <select asp-for="CompanyId" class="form-control">
+                                                    <option value="1">Ramzan sugar mills ltd</option>
+                                                    <option value="2">Hudaibiya paper mills</option>
+                                                    <option value="3">Chaudhry sugar mills</option>
+                                                </select>
+                                                <span asp-validation-for="CompanyId"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="BranchId" class=" control-label"></label>
+                                                <select asp-for="BranchId" class="form-control">
+                                                    <option value="1">Lahore</option>
+                                                    <option value="2">Islamabad</option>
+                                                    <option value="3">Sheikhupura</option>
+                                                    <option value="4">Faisalabad</option>
+                                                </select>
+                                                <span asp-validation-for="BranchId"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Grade" class=" control-label"></label>
+                                                <select asp-for="Grade" class="form-control">
+                                                    <option value="1">Managerial</option>
+                                                    <option value="2">Non-Managerial</option>
+                                                </select>
+                                                <span asp-validation-for="Grade"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="TypeId" class=" control-label"></label>
+                                                <select asp-for="TypeId" class="form-control">
+                                                    <option value="1">Staff</option>
+                                                    <option value="2">Labour - L1</option>
+                                                    <option value="3">Labour - L2</option>
+                                                    <option value="4">Security Staff</option>
+                                                </select>
+                                                <span asp-validation-for="TypeId"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="Group" class=" control-label"></label>
+                                                <select asp-for="Group" class="form-control">
+                                                    <option value="1">General Group Staff</option>
+                                                    <option value="2">General Group Worker</option>
+                                                    <option value="3">Security Guard Day</option>
+                                                    <option value="4">Security Guard Night</option>
+                                                </select>
+                                                <span asp-validation-for="Group"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="BankId" class=" control-label"></label>
+                                                <select asp-for="BankId" class="form-control">
+                                                    <option value="1">Habib Bank Limited HBL</option>
+                                                    <option value="2">Muslim Commercial Bank</option>
+                                                    <option value="3">Meezan Banks</option>
+                                                    <option value="4">Faisal Bank</option>
+                                                </select>
+                                                <span asp-validation-for="BankId"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="BankAccountNo" class=" control-label"></label>
+                                                <input asp-for="BankAccountNo" class="form-control" />
+                                                <span asp-validation-for="BankAccountNo"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="OtRate" class=" control-label"></label>
+                                                <select asp-for="OtRate" class="form-control">
+                                                    <option value="1">Half</option>
+                                                    <option value="2">Single</option>
+                                                    <option value="3">Double</option>
+                                                </select>
+                                                <span asp-validation-for="OtRate"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-2 col-sm-1 col-xs-6" style="margin-top:18px">
+                                            <div class="checkbox checkbox-success form-check form-check-inline">
+                                                <input id="isActive" asp-for="OtCheck" type="checkbox" class="form-check-input">
+                                                <label for="isActive">OT</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-2 col-md-2 col-sm-1 col-xs-6" style="margin-top:18px">
+                                            <div class="checkbox checkbox-success form-check form-check-inline">
+                                                <input id="isActive" asp-for="Gratuity" type="checkbox" class="form-check-input">
+                                                <label for="isActive">Gratuity</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-1 col-xs-6" style="margin-top:18px">
+                                            <div class="checkbox checkbox-success form-check form-check-inline">
+                                                <input id="isActive" asp-for="Pf" type="checkbox" class="form-check-input">
+                                                <label for="isActive">Provident Fund</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group" id="data_1">
+                                                <label asp-for="PfStartDate" class=" control-label"></label>
+                                                <div class="input-group date">
+                                                    <span class="input-group-addon">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control custom-date-picker" asp-for="PfStartDate" value=@DateTime.Now.ToString("dd-MMM-yyyy")>
+                                                    <span asp-validation-for="PfStartDate" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="RestDay1" class=" control-label"></label>
+                                                <select asp-for="RestDay1" class="form-control">
+                                                    <option value="Mon">Monday</option>
+                                                    <option value="Tue">Tuesday</option>
+                                                    <option value="Wed">Wednesday</option>
+                                                    <option value="Thu">Thursday</option>
+                                                    <option value="Fri">Friday</option>
+                                                    <option value="Sat">Saturday</option>
+                                                    <option value="Sun">Sunday</option>
+                                                </select>
+                                                <span asp-validation-for="RestDay1"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label asp-for="RestDay2" class=" control-label"></label>
+                                                <select asp-for="RestDay2" class="form-control">
+                                                    <option value="Mon">Monday</option>
+                                                    <option value="Tue">Tuesday</option>
+                                                    <option value="Wed">Wednesday</option>
+                                                    <option value="Thu">Thursday</option>
+                                                    <option value="Fri">Friday</option>
+                                                    <option value="Sat">Saturday</option>
+                                                    <option value="Sun">Sunday</option>
+                                                </select>
+                                                <span asp-validation-for="RestDay2"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id="family" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" name="familyDetail" value="@ViewBag.FamilyDetail" />
+                                        <input type="hidden" name="deletedFamily" value="" />
+                                        <div id="familyGrid" class="m-b-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="experience" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" name="experienceDetail" value="@ViewBag.ExperienceDetail" />
+                                        <input type="hidden" name="deletedExperience" value="" />
+                                        <div id="experienceGrid" class="m-b-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="deduction" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" name="deductionDetail" value="@ViewBag.DeductionDetail" />
+                                        <input type="hidden" name="deletedDeduction" value="" />
+                                        <div id="deductionGrid" class="m-b-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="salary" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" name="salaryDetail" value="@ViewBag.SalaryDetail" />
+                                        <input type="hidden" name="deletedSalary" value="" />
+                                        <div id="salaryBRKGrid" class="m-b-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="degree" class="tab-pane">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" name="degreeDetail" value="@ViewBag.DegreeDetail" />
+                                        <input type="hidden" name="deletedDegree" value="" />
+                                        <div id="degreeGrid" class="m-b-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a value="Back" class="btn btn-white" asp-action="Index" asp-controller="Employee">Back</a>
+                    <button type="button" class="btn btn-primary" asp-action="Create" asp-controller="Employee" onclick="setGridValues();">@ViewBag.EntityState</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--JsGrid-->
+
+@section customJS{
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+         $.validate();
+        function setGridValues() {
+            setFamilyGrid();
+            setExperienceGrid();
+            setDeuctionGrid();
+            setSalaryBRKGrid();
+            setQualificationKGrid();
+            $("#employeForm").submit();
+        }
+        function setFamilyGrid() {
+            var items = $("#familyGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=familyDetail]").val(json); //set JS tree data to hidden field
+        }
+        function setExperienceGrid() {
+            var items = $("#experienceGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=experienceDetail]").val(json); //set JS tree data to hidden field
+        }
+        function setDeuctionGrid() {
+            var items = $("#deductionGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=deductionDetail]").val(json); //set JS tree data to hidden field
+        }
+        function setSalaryBRKGrid() {
+            var items = $("#salaryBRKGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=salaryDetail]").val(json); //set JS tree data to hidden field
+        }
+        function setQualificationKGrid() {
+            var items = $("#degreeGrid").jsGrid("option", "data");
+            var json = JSON.stringify(items);
+            $("input[name=degreeDetail]").val(json); //set JS tree data to hidden field
+  return true;
+        }
+        //Family grid
+        var relatives = [
+            { Name: "please select--", Id: 0 },
+            { Name: "Brother", Id: 1 },
+            { Name: "Daughter", Id: 2 },
+            { Name: "Father", Id: 3 },
+            { Name: "Mother", Id: 4 },
+            { Name: "Sister", Id: 4 },
+            { Name: "Son", Id: 4 },
+            { Name: "Wife", Id: 4 }
+        ];
+        //var empFamilyMembers[] = [
+        //    { "Id": 1, "RelativeName": "Umar", "Relation": "Brother", "dob": 2/13/20 },
+        //    { "Id": 1, "RelativeName": "Umar", "Relation": "Brother", "dob": 2/13/20 },
+        //    { "Id": 1, "RelativeName": "Umar", "Relation": "Brother", "dob": 2/13/20 },
+        //    { "Id": 1, "RelativeName": "Umar", "Relation": "Brother", "dob": 2/13/20 }
+        //];
+        var empFamilyMembers = JSON.parse($("input[name=familyDetail").val());
+        var empExperiences = JSON.parse($("input[name=experienceDetail").val());
+        var empDeductions = JSON.parse($("input[name=deductionDetail").val());
+        var empSalaries = JSON.parse($("input[name=salaryDetail").val());
+        var empDegrees = JSON.parse($("input[name=degreeDetail").val());
+        $("#familyGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            filtering: false,
+            sorting: false,
+            editing: true,
+            paging: false,
+            autoload: true,
+            inserting: true,
+
+            deleteConfirm: "Do you really want to delete?",
+            pageSize: 15,
+            pageButtonCount: 10,
+            data: empFamilyMembers,
+
+            fields: [
+                { name: "Id", type: "number", width: 0, visible: false },
+                { name: "RelativeName", type: "text", title: "Relative Name", width: 70, validate: "required" },
+                { name: "Relation", type: "select", items: relatives, width: 70, valueField: "Name", textField: "Name" },
+                {
+                    name: "Dob", type: "date", title: "Date of Borth", width: 50, validate: "required", insertTemplate: function () {
+                        return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+
+                    },
+                    insertValue: function () {
+                        return this._insertPicker.datepicker("getDate").toDateString("MMM-dd-yyyy");
+                    },
+                },
+                { type: "control" }
+            ],
+            onItemDeleted: function (arg) {
+                var deletedId = $("input[name=deletedFamily]").val();
+                if (deletedId == "")
+                    $("input[name=deletedFamily]").val(arg.item.Id);
+                else {
+                    $("input[name=deletedFamily]").val(deletedId.concat(",", arg.item.Id));
+                }
+            },
+        });
+
+        //jsGrid For Employee Experience
+        $("#experienceGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            filtering: false,
+            sorting: false,
+            editing: true,
+            paging: false,
+            autoload: true,
+            inserting: true,
+            data: empExperiences,
+            deleteConfirm: "Do you really want to delete?",
+            pageSize: 15,
+            pageButtonCount: 10,
+
+            fields: [
+                { name: "Id", type: "text", width: 0, visible: false },
+                { name: "Company", type: "text", title: "Company", width: 70, validate: "required" },
+                { name: "Position", type: "text", title: "Position", width: 70, validate: "required" },
+                { name: "Pay", title: "Last Pay", type: "number", width: 70, validate: "required" },
+                {
+                    name: "JoiningDate", type: "date", title: "Joining Date", width: 50, validate: "required", insertTemplate: function () {
+                        return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+                    },
+                    insertValue: function () {
+                        return this._insertPicker.datepicker("getDate").toDateString("MMM-dd-yyyy");
+                    },
+                },
+                {
+                    name: "ResigningDate", type: "date", title: "Resign Date", width: 50, validate: "required", insertTemplate: function () {
+                        return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+                    },
+                    insertValue: function () {
+                        return this._insertPicker.datepicker("getDate").toDateString("MMM-dd-yyyy");
+                    },
+                },
+                { name: "Duration", type: "number", title: "Experience", width: 70, validate: "required" },
+                { type: "control" }
+            ],
+            onItemDeleted: function (arg) {
+                var deletedId = $("input[name=deletedExperience]").val();
+                if (deletedId == "")
+                    $("input[name=deletedExperience]").val(arg.item.Id);
+                else {
+                    $("input[name=deletedExperience]").val(deletedId.concat(",", arg.item.Id));
+                }
+            },
+        });
+
+    //jsGrid For Employee Deduction
+        var deductions = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DeductionTypes));  
+        $("#deductionGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            filtering: false,
+            sorting: false,
+            editing: true,
+            paging: false,
+            autoload: true,
+            inserting: true,
+            data: empDeductions,
+            deleteConfirm: "Do you really want to delete?",
+            pageSize: 15,
+            pageButtonCount: 10,
+
+            fields: [
+                { name: "Id", type: "text", width: 0, visible: false },
+                { name: "DeductionId", type: "select", title: "Deduction", items: deductions, width: 70, valueField: "Value", textField: "Text" },
+                { name: "Amount", type: "number", title: "Amount", width: 70, validate: "required" },
+                { type: "control" }
+            ],
+            onItemDeleted: function (arg) {
+                var deletedId = $("input[name=deletedDeduction]").val();
+                if (deletedId == "")
+                    $("input[name=deletedDeduction]").val(arg.item.Id);
+                else {
+                    $("input[name=deletedDeduction]").val(deletedId.concat(",", arg.item.Id));
+                }
+            },
+        });
+
+
+
+    //jsGrid For Employee Degree
+        var degrees = [
+            { Name: "Please select--", Id: 0 },
+            { Name: "Matric", Id: 1 },
+            { Name: "Inter", Id: 2 },
+            { Name: "Graduation", Id: 3 }
+        ];
+        $("#degreeGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            filtering: false,
+            sorting: false,
+            editing: true,
+            paging: true,
+            autoload: true,
+            inserting: true,
+            data: empDegrees,
+            deleteConfirm: "Do you really want to delete?",
+            pageSize: 15,
+            pageButtonCount: 10,
+
+            fields: [
+                { name: "Id", type: "text", width: 0, visible: false },
+                { name: "Qualification", type: "select", title: "Qualification", items: degrees, width: 70, valueField: "Id", textField: "Name"},
+                { name: "PassingYear", type: "number", title: "Passing Year", width: 70, validate: "required" },
+                { name: "Institute", type: "text", title: "Institute Name", width: 70, validate: "required" },
+                { type: "control" }
+            ],
+            onItemDeleted: function (arg) {
+                var deletedId = $("input[name=deletedDegree]").val();
+                if (deletedId == "")
+                    $("input[name=deletedDegree]").val(arg.item.Id);
+                else {
+                    $("input[name=deletedDegree]").val(deletedId.concat(",", arg.item.Id));
+                }
+            },
+        });
+    </script>
+}

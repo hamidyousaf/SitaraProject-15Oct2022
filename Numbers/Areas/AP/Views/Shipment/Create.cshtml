@@ -1,0 +1,1018 @@
+﻿@model APShipmentViewModel
+@{
+    ViewData["Title"] = "Create Shipping Details";
+    ViewData["CurrentPage"] = "Shipping Details";
+}
+
+@section customCSS{
+    <style>
+
+        .table-responsive {
+            max-height: 300px;
+        }
+
+        .t td {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table td {
+            position: relative;
+        }
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+            table td input {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form method="post" id="myform" asp-action="Create" asp-controller="Shipment" enctype="multipart/form-data">
+                    <input asp-for="APShipment.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="row">
+                                @if (Model.APShipment == null)
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="APShipment.ShipmentNo">Ship. #</label>
+                                            <div class="input-group">
+                                                <input asp-for="APShipment.ShipmentNo" class="form-control text-right" value="@ViewBag.Id" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-2">
+                                        <div class="form-group">
+                                            <label asp-for="APShipment.ShipmentNo">Ship. #</label>
+                                            <div class="input-group">
+                                                <input asp-for="APShipment.ShipmentNo" class="form-control text-right" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.BOLNo">BOL #</label>
+                                        <input autofocus asp-for="APShipment.BOLNo" id="BolNo" type="text" class="form-control" placeholder="Enter BOL No.." data-validation="required" data-validation-error-msg="BOL No is required" required />
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.BOLType">BOL Type</label>
+                                        <select asp-for="APShipment.BOLType" id="BolType" class="form-control" asp-items="@ViewBag.BOLType" data-validation="required" data-validation-error-msg="BOL type is required" required>
+                                            <option value="" selected>Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.BOLDate">BOL Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="APShipment.BOLDate" id="BOLDate" value=@(Model.APShipment == null ? CommonHelper.CurrentDate : Model.APShipment.BOLDate.ToString(CommonHelper.DateFormat)) data-validation="required" data-validation-error-msg="BOL Date is required" class="form-control custom-date-picker date" type="text" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.ShipmentDate">Ship. Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="APShipment.ShipmentDate" id="shipmentdate" value=@(Model.APShipment == null ? CommonHelper.CurrentDate : Model.APShipment.ShipmentDate.ToString(CommonHelper.DateFormat)) data-validation="required" data-validation-error-msg="Shipment Date is required" class="form-control custom-date-picker date" type="text" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="PaymentModeId"></label>
+                            <Select asp-for="PaymentModeId" asp-items="@ViewBag.PaymentMode" data-validation="required" data-validation-error-msg="Payment Mode is required" data-validation-error-msg-container="#pMode" class="form-control">
+                                <option selected disabled>Please select</option>
+                            </Select>
+                            <p id="pMode"></p>
+                        </div>
+                    </div>*@
+                                @*<div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Operating Unit</label>
+                            <select asp-for="OperationId" class="chosen-select form-control" asp-items="ViewBag.OperatingUnit">
+                                <option value="0" selected>Please select</option>
+                            </select>
+                        </div>
+                    </div>*@
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.LCNo">LC #</label>
+                                        @if (Model.APShipment != null)
+                                        {
+                                            <Select disabled asp-for="APShipment.LCNo" class="form-control chosen-select" asp-items="@ViewBag.LCNumber" id="LCNo" required>
+                                                <option value="" selected>Select...</option>
+                                            </Select>
+                                        }
+                                        else
+                                        {
+                                            <Select asp-for="APShipment.LCNo" class="form-control chosen-select" asp-items="@ViewBag.LCNumber" id="LCNo" required>
+                                                <option value="" selected>Select...</option>
+                                            </Select>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.DischargePort">Discharge Port</label>
+                                        <Select asp-for="APShipment.DischargePort" id="DisPort" asp-items="@ViewBag.DischargePort" class="form-control" data-validation="required" data-validation-error-msg="Discharge port is required" required>
+                                            <option value="" selected>Select...</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="VendorID" asp-for="APShipment.Vendor" />
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.Vendor"></label>
+                                        <Select id="Vendor" class="form-control" asp-items="@ViewBag.Vendor" data-validation="required" data-validation-error-msg="Vendor is required" required disabled>
+                                            <option value="" selected>Select...</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label asp-for="APShipment.ContainerNo">Cont. #</label>
+                                                <input asp-for="APShipment.ContainerNo" id="ContainerNo" class="form-control" placeholder="Enter Cont. No..." data-validation="required" data-validation-error-msg="Container No is required" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label asp-for="APShipment.Weight"></label>
+                                                <input asp-for="APShipment.Weight" id="Weight" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control" placeholder="Enter Weight..." data-validation="required" data-validation-error-msg="Weight is required" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.CBM"></label>
+                                        <input asp-for="APShipment.CBM" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" id="CBM" class="form-control" placeholder="Enter CBM..." />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.Terminal"></label>
+                                        <Select asp-for="APShipment.Terminal" id="Terminal" asp-items="@ViewBag.Terminal" class="form-control" data-validation="required" data-validation-error-msg="Terminal is required" required>
+                                            <option selected value="">Select...</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.ShipmentAgent">Ship. Agent</label>
+                                        <Select asp-for="APShipment.ShipmentAgent" id="ShipAgt" asp-items="@ViewBag.ShipmentAgent" class="form-control" data-validation="required" data-validation-error-msg="Shipment Agent is required" required>
+                                            <option selected value="">Select...</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.BuiltyNo">Builty #</label>
+                                        <input asp-for="APShipment.BuiltyNo" class="form-control" id="BuiltyNo" type="text" placeholder="Enter Builty No..." data-validation="required" data-validation-error-msg="Builty No is required" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.BuiltyDate">Builty Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="APShipment.BuiltyDate" id="BuiltyDate" value=@(Model.APShipment == null ? CommonHelper.CurrentDate : Model.APShipment.BuiltyDate.ToString(CommonHelper.DateFormat)) data-validation="required" data-validation-error-msg="Builty Date is required" class="form-control custom-date-picker date" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.TransporterName">Transporter Name</label>
+                                        <input asp-for="APShipment.TransporterName" id="TransporterName" class="form-control" placeholder="Enter Transporter Name..." data-validation="required" data-validation-error-msg="Transporter Name is required" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.Attachment">Attachment</label>
+                                        <div class="custom-file">
+                                            <input asp-for="APShipment.Attachment" type="file" name="File" multiple class="form-control custom-file-input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-2">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.Acceptance"></label>
+                                        <Select asp-for="APShipment.Acceptance" id="accept" asp-items="@ViewBag.Acceptance" class="form-control" data-validation="required" data-validation-error-msg="Shipment Agent is required">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.DocRealDate">Doc. Real Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="APShipment.DocRealDate" value=@(Model.APShipment == null ? CommonHelper.CurrentDate : Model.APShipment.DocRealDate.ToString(CommonHelper.DateFormat)) data-validation="required" data-validation-error-msg="Doc. Real Date is required" class="form-control custom-date-picker date" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="APShipment.MaturityDate">Maturity Date</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="APShipment.MaturityDate" value=@(Model.APShipment == null ? CommonHelper.CurrentDate : Model.APShipment.MaturityDate.ToString(CommonHelper.DateFormat)) data-validation="required" data-validation-error-msg="Maturity Date is required" class="form-control custom-date-picker date" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spinner-border text-danger"></div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Currency Exchange
+                                </div>
+                                <div class="panel-body">
+                                    <label asp-for="APShipment.Currency"></label>
+                                    <select @*asp-items="@(new SelectList(Model.Currency,"Id","Symbol"))"*@ class="form-control" id="Currency" name="Currency" data-validation="required" data-validation-error-msg="Currency is required">
+                                        <option value="PKR">PKR</option>
+                                        <option value="USD">USD</option>
+                                        <option value="GBP">GBP</option>
+                                    </select>
+                                    <label asp-for="APShipment.ExchangeRate">Currency Exchange Rate</label>
+                                    <input asp-for="APShipment.ExchangeRate" value="1.00" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" id="Exchangerate" onchange="CalculatePKRValue()" placeholder="1.0" class="form-control on-focus-change-color" data-validation="required" data-validation-error-msg="Exchange rate is required" />
+                                </div>
+                            </div>
+                            @*<div class="text-left mb-3">
+                    <button onclick="" type="button" id="submit-invoice-btn" class="btn btn-primary">Get Performa Invoice</button>
+
+                </div>*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        @*<div class="col-md-12 col-lg-12">*@
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar table-responsive">
+                            <table id="tblDetail" class="table table-bordered table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width:5%">Code</th>
+                                        <th style="width:8%">Desc</th>
+                                        <th style="width:5%">UOM</th>
+                                        <th style="width:9%">Category</th>
+                                        <th style="width:8%">Origin</th>
+                                        <th style="width:8%">HS Code</th>
+                                        <th style="width:5%">POQty</th>
+                                        <th style="width:7%">Balance</th>
+                                        <th style="width:6%">ShipQty</th>
+                                        <th style="width:5%">Rate</th>
+                                        <th style="width:8%">FC Value</th>
+                                        <th style="width:8%">PKR Value</th>
+                                        <th style="width:8%">Remarks</th>
+                                        <th style="width:8%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.APShipmentDetails != null)
+                                    {
+                                        foreach (var detail in Model.APShipmentDetails)
+                                        {
+                                            <tr>
+                                                <td> <input name="itemCode" id="ItemCode" class="text-right" tabindex="-1" value="@detail.ItemCode" readonly /></td>
+                                                <td> <input name="description" id="Description" class="text-left" tabindex="-1" value="@detail.Description" readonly /></td>
+                                                @foreach (var uom in ViewBag.UOM)
+                                                {
+                                                    if (uom.Id == Convert.ToInt32(detail.UOM))
+                                                    {
+                                                        <td> <input name="uOM" id="UOM" tabindex="-1" class="text-left" value="@uom.ConfigValue" readonly /></td>
+                                                    }
+                                                }
+
+                                                <td hidden> <input name="uOMId" id="UOMId" value="@detail.UOM" readonly /></td>
+                                                @foreach (var cat in ViewBag.InvItemCategories)
+                                                {
+                                                    if (cat.Id == detail.Category)
+                                                    {
+                                                        <td> <input name="category" id="Category" tabindex="-1" class="text-left" value="@cat.Name" readonly /></td>
+                                                    }
+                                                }
+                                                <td hidden> <input name="categoryId" id="CategoryId" value="@detail.Category" readonly /></td>
+                                                @foreach (var org in ViewBag.AppCountries)
+                                                {
+                                                    if (org.Id == detail.Origin)
+                                                    {
+                                                        <td> <input name="origin" id="Origin" class="text-left" tabindex="-1" value="@org.Name" readonly /></td>
+                                                    }
+                                                }
+                                                <td hidden> <input name="originId" id="OriginId" value="@detail.Origin" readonly /></td>
+                                                <td> <input name="hSCode" id="HSCode" class="text-right" tabindex="-1" value="@detail.HSCode" readonly /></td>
+                                                <td> <input name="pOQty" id="POQty" class="text-right Qty" tabindex="-1" value="@detail.POQty" readonly /></td>
+                                                <td> <input name="balance" id="Balance" class="text-right" tabindex="-1" value="" readonly /></td>
+                                                <td> <input name="shipedQty" id="ShipedQty" onchange="Calculation($(this))" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="text-right" value="@detail.ShippedQty" required /></td>
+                                                <td> <input name="rate" id="Rate" class="text-right " tabindex="-1" value="@detail.Rate" readonly /></td>
+                                                <td> <input name="fCValue" id="FCValue" class="text-right FCTotal" tabindex="-1" value="@detail.FCValue" readonly /></td>
+                                                <td> <input name="value" id="Value" class="text-right PKRTotal" tabindex="-1" value="@detail.PkrValue" readonly /></td>
+                                                <td> <input name="remarks" class="text-left" id="Remarks" value="@detail.Remarks" /></td>
+                                                <td hidden> <input name="id" class="text-left" value="@detail.Id" /></td>
+                                                <td hidden> <input name="itemId" class="text-left" value="@detail.ItemId" /></td>
+                                                <td align="center"><button type="button" class="btn btn-sm btn-danger" id="del" onclick="deleterow($(this));"><i class="fa fa-trash"></i></button></td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td style="text-align: right;">Total:</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            @*</div>*@
+                        </div>
+                    </div>
+                    <div class="text-left mb-3">
+                        <a asp-controller="Shipment" asp-action="List" class="btn btn-white">List</a>
+                        <button type="submit" onclick="Validaion()" class="btn btn-primary">Create</button>
+                        <button id="CI" type="button" onclick="CustomInfo()" class="btn btn-primary">Custom Info</button>
+                        <button type="button" onclick="Expense()" class="btn btn-primary">Add Expense</button>
+                    </div>
+                    <input id="customDetails" name="customDetails" hidden />
+                    @{
+                        await Html.RenderPartialAsync("_partialCustomInfo");
+                    }
+                    <input id="expenseDetails" name="expenseDetails" hidden />
+                </form>
+                <div class="modal fade" id="ExpenseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header ">
+                                <h3 class="modal-title" id="exampleModalLabel">Expense</h3>
+                                <h3 class="modal-title" id="exampleModalLabel"></h3>
+                                <div class="row">
+                                    <div class="col-sm-4 Pad-rht">
+                                        <input type="number" id="searchExpense" onkeypress="return isNumberKey(event)" onpaste="return true;" ondrop="return true;" autocomplete="off" class="form-control" />
+                                    </div>
+                                    <div class="col-sm-4 Pad-rht">
+                                        <button type="button" onclick="SearchExpense()" class="btn btn-primary btn-sm">Search</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="close closemodel" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Expense Date</label>
+                                            <div class="input-group">
+                                                <input id="ExpDate" value=" @(CommonHelper.CurrentDate)" type="text" class=" form-control custom-date-picker date" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Expense Favour</label>
+                                            <div class="input-group">
+                                                <input id="ExpFavour" type="text" class=" form-control" required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 Pad-rht">
+                                        <div class="form-group">
+                                            <label>GL Code</label>
+                                            <Select id="GLCode" onchange="GetAccountName();" class="form-control on-focus-change-color" asp-items="@ViewBag.GLCode" data-validation="required">
+                                                <option selected disabled>
+                                                    Select...
+                                                </option>
+                                            </Select>
+                                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Account Name</label>
+                                            <input tabindex="-1" id="AccName" readonly class="form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            <input id="ExpAmt" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" class="form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 Pad-rht">
+                                        <div class="form-group">
+                                            <label>Remarks</label>
+                                            <textarea style="resize:none;" id="LCRemarks" class="form-control" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 Pad-rht">
+                                        <div class="form-group">
+                                            <button id="addExpense" onclick="addExpense()" class="btn btn-success" style="margin-top:23px"><i class="fa fa-plus"></i> </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table id="tblExpense" style="table-layout:fixed" class="table table-bordered t">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Favour</th>
+                                            <th>GL Code</th>
+                                            <th>Account Name</th>
+                                            <th>Expense Amount</th>
+                                            <th>Remarks</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (ViewBag.Expense != null)
+                                        {
+                                            foreach (var item in ViewBag.Expense)
+                                            {
+                                                <tr>
+                                                    @{
+                                                        var dateAndTime = item.ExpenseDate;
+                                                        var date = dateAndTime.ToString("dd/MM/yyyy");
+                                                    }
+                                                    <td hidden><input value="@item.Id" class="Id" /></td>
+                                                    <td><input value="@date" name="" class="ExpenseDate" readonly /></td>
+                                                    <td><input value="@item.ExpenseFavour" class="ExpenseFavour" readonly /></td>
+                                                    <td hidden><input name="GLCode" class="GLCode" value="@item.GLCode" readonly /></td>
+                                                    @foreach (var acount in ViewBag.Accounts)
+                                                    {
+                                                        if (acount.Id == Convert.ToInt32(item.GLCode))
+                                                        {
+                                                            <td><input value="@acount.Code-@acount.Name" readonly /></td>
+                                                        }
+
+
+                                                    }
+                                                    <td><input name="AccountName" class="AccountName" value="@item.AccountName" readonly /></td>
+                                                    <td><input name="ExpenseAmount" class="ExpenseAmount text-right" value="@item.ExpenseAmount" readonly /></td>
+                                                    <td><input value="@item.Remarks" class="Remarks" /></td>
+                                                    <td><a class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleteExpenseRow($(this));" title="Delete"></i></a></td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                @*<input hidden name="rowcounter" id="rowcounter" />*@
+                            </div>
+                            <br />
+                            <div id="EA">
+                                <hr />
+                                <div class="row">
+                                    <div class="col-lg-4" style="margin-left: 50%;">
+                                        <div class="form-group">
+                                            <label>Total Amount</label>
+                                            <input tabindex="-1" name="TotalAmount" readonly id="TotalAmt" class=" clear form-control on-focus-change-color" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section customJS{
+    <script>
+    function addCustomInfoRow() {
+        debugger;
+        if ($("#CIPDCNo").val() == "") {
+            swal("", "Please Enter PDC No.", "warning");
+            return false;
+        }
+        if ($("#CIPDCDate").val() == "") {
+            swal("", "Please Enter PDC Date.", "warning");
+            return false;
+        }
+        if ($("#CIPDCAmount").val() == "") {
+            swal("", "Please Enter PDC Amount.", "warning");
+            return false;
+        }
+        if ($("#CIPDCBank").find(":selected").val() == "0") {
+            swal("", "Please Enter Bank.", "warning");
+            return false;
+        }
+        if ($("#CIStatus").find(":selected").val() == "0") {
+            swal("", "Please Select Status.", "warning");
+            return false;
+        }
+        if ($("#CIRemarkss").val() == "") {
+            swal("", "Please Enter Remarks.", "warning");
+            return false;
+        }
+        var PDCNo = $("#CIPDCNo").val();
+        var PDCDate = $("#CIPDCDate").val();
+        var PDCAmount = $("#CIPDCAmount").val();
+        var PDCBank = $("#CIPDCBank").val();
+        var Status = $("#CIStatus").val();
+        var CIRemarks = $("#CIRemarkss").val();
+
+        employee_data = '';
+        employee_data = '';
+        employee_data += '<tr class="removed">';
+        employee_data += '<td hidden><input class="id" value="0" /></td>';
+        employee_data += '<td><input class="text-right No" value="' + PDCNo + '" readonly /></td>';
+        employee_data += '<td><input  class="Date" value="' + PDCDate + '" readonly /></td>';
+        employee_data += '<td><input  class="text-right Amount" value="' + PDCAmount + '" readonly /></td>';
+        employee_data += '<td><input  class="Bank" value="' + PDCBank + '" readonly /></td>';
+        employee_data += '<td><input  class="Status" value="' + Status + '" readonly /></td>';
+        employee_data += '<td><input  class="Remarks" value="' + CIRemarks + '" readonly /></td>';
+        employee_data += '<td>';
+        employee_data += '<a onclick="editrow($(this));" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-edit" title="Edit"></i></a> <a class="btn btn-sm btn-danger m-t-n-xs" onclick="deleterow($(this));"> <i class="fa fa-trash" title="Delete"></i></a></td>';
+        employee_data += '</tr>';
+        $('#tblCustomInfo tbody').append(employee_data);
+        $("#CIPDCNo").val("");
+        $("#CIPDCAmount").val("");
+        $("#CIPDCBank").val("");
+        $("#CIStatus").val("");
+        $("#CIRemarkss").val("");
+    }
+    $(document).ready(function () {
+            GetRowFooter();
+        });
+        $(".date").datepicker({
+        })
+        $('#LCNo').select2();
+        $('#BolType').select2();
+        $('#DisPort').select2();
+        $('#Terminal').select2();
+        $('#Vendor').select2();
+    $('#ShipAgt').select2();
+    debugger
+    //var itemId = $('#Vendor');
+    //var vendor = $('#VendorID').val();
+    //bindSelect2(itemId, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', vendor);
+    //debugger
+    //$('#VendorID').val(vendor)
+    $('#accept').select2();
+    var id = $('#VendorID').val() || 0;
+    var itemId = $('#Vendor');
+    if (id != 0) {
+        bindSelect2(itemId, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', id);
+        $('#VendorID').val(id)
+    }
+        function deleterow(row) {
+            row.closest("tr").remove();
+            GetRowFooter();
+    }
+    function editrow(row) {
+        var i = row.closest('tr').index();
+        $('#CIPDCNo').val($('.No').eq(i).val());
+        $('#CIPDCDate').val($('.Date').eq(i).val());
+        $('#CIPDCAmount').val($('.Amount').eq(i).val());
+        $('#CIPDCBank').val($('.Bank').eq(i).val());
+        $('#CIStatus').val($('.Status').eq(i).val());
+        $('#CIRemarkss').val($('.Remarks').eq(i).val());
+        row.closest("tr").remove();
+    }
+    function CustomInfo() {
+        $('#CustomInfoModal').modal('show')
+    }
+        $(document).on("change","#LCNo", function () {
+            debugger
+            $("#tblDetail tbody tr").remove();
+            $.ajax({
+                url:'@Url.Action("GetPO", "Shipment")',
+                dataType: "json",
+                data: { "id": $('#LCNo').val() },
+                method: 'GET',
+                success: function (data) {
+                    debugger;
+                    for (var i = 0; i < data.length; i++) {
+                        var curncy = data[i].currency;
+                        var vendor = data[i].vendor;
+                        var ExcahngeRate = data[i].currencyExchangeRate;
+
+                        var row = "<tr>" +
+                          "<td > <input tabindex='-1' name='ItemCde' id='ItemCode' class='text-right' value=" + data[i].itemCode + " readonly/></td>"+
+                          "<td > <input tabindex='-1' name='Description' id='Description' class='text-left' value=" + data[i].description + " readonly/></td>" +
+                          "<td > <input tabindex='-1' name='UOM' id='UOM' class='text-left' value=" + data[i].uom +" readonly/></td>" +
+                          "<td hidden> <input name='UOMId' id='UOMId' value=" + data[i].uomId + " readonly/></td>" +
+                          "<td > <input tabindex='-1' name='Category' id='Category' class='text-left' value=" + data[i].category + " readonly/></td>" +
+                          "<td hidden> <input name='CategoryId' id='CategoryId'  value=" + data[i].categoryId + " readonly/></td>" +
+                          "<td > <input tabindex='-1' name='Origin' id='Origin' class='text-left' value=" + data[i].origin + " readonly /></td>" +
+                          "<td hidden > <input  name='OriginId' id='OriginId'  value=" + data[i].originId + " readonly /></td>" +
+                          "<td  > <input  tabindex='-1' name='HSCode' id='HSCode' class='text-right' value=" + data[i].hsCode +" readonly /></td>" +
+                          "<td  > <input tabindex='-1' name='POQty' id='POQty' class='text-right Qty' value=" + data[i].poQty + " readonly /></td>" +
+                          "<td  > <input tabindex='-1'  name='Balance' id='Balance' class='text-right' value=" + data[i].balance + " readonly /></td>" +
+                          "<td  > <input  name='ShipedQty' onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;' id='ShipedQty' onchange='Calculation($(this))' class='text-right ShipedQty' value=''  required/></td>" +
+                          "<td  > <input tabindex='-1'  name='Rate' id='Rate' class='text-right Rate ' value=" + data[i].rate + " readonly /></td>" +
+                          "<td  > <input tabindex='-1'  name='FCValue' id='FCValue' class='text-right FCTotal' value=" + data[i].fcValue + " readonly /></td>" +
+                          "<td  > <input tabindex='-1'  name='Value' id='Value' class='text-right PKRTotal' value=" + data[i].value + " readonly /></td>" +
+                          "<td  > <input  name='Remarks' class='text-left' id='Remarks'  value=''  /></td>" +
+                          "<td  hidden> <input  name='PoDetailId' class='text-left' id='PoDetailId'  value=" + data[i].poDetailId + "  /></td>" +
+                          "<td  hidden> <input  name='PrDetailId' class='text-left' id='PrDetailId'  value=" + data[i].prDetailId + "  /></td>" +
+                          "<td  hidden> <input  name='ItemId' class='text-left' id='ItemId'  value=" + data[i].itemId + "  /></td>" +
+                          '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+
+                        "</tr>";
+
+                        $("#tblDetail tbody").append(row);
+                        var itemId = $('#Vendor');
+                        bindSelect2(itemId, '/AP/Api/GetSuppliers', '/AP/Api/GetSupplier?id=', vendor);
+                        $('#VendorID').val(vendor)
+                        $("#Currency").val(curncy);
+                        $("#Exchangerate").val(ExcahngeRate);
+                        GetRowFooter();
+                    }
+
+                   // $("#AttributeName").html(s);
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert(err);
+                }
+            });
+        });
+        $('#Exchangerate').on("change", function () {
+            debugger;
+            var curencyRate = $("#Exchangerate").val();
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var Qty = Number($(this).find('.Qty').val());
+                var FCValue = Number($(this).find('.Rate').val());
+                var value = curencyRate * FCValue * Qty;
+                $(this).find('.PKRTotal').val(value);
+                //$(this).find('.Total').val(total);
+
+            });
+
+            GetRowFooter();
+        });
+        function Calculation(row) {
+            debugger;
+            var POQty = Number(row.closest("tr").find('td:eq(9) input').val());
+            var balance = Number(row.closest("tr").find('td:eq(10) input').val());
+            var shipedQty = Number(row.closest("tr").find('td:eq(11) input').val());
+            var Rate = Number(row.closest("tr").find('td:eq(12) input').val());
+            var FCValue = Number(row.closest("tr").find('td:eq(13) input').val());
+            var exchangeRate = Number($("#Exchangerate").val());
+            if (shipedQty > balance) {
+                var nmbr = 0;
+                row.closest("tr").find('td:eq(11) input').val("");
+                //row.closest("tr").find('.ShipedQty').val(value);
+                /*row.closest("tr").find('td:eq(11) input').val(nmbr);*/
+                //row.closest("tr").find('td:eq(13) input').val(nmbr);
+                //row.closest("tr").find('td:eq(14) input').val(nmbr);
+                swal("", "Shipped Quantity must be less or Equal to Balance", "warning");
+            }
+            if (exchangeRate == 0) {
+                swal("", "Please enter exchange rate.", "warning");
+                row.closest("tr").find('td:eq(11) input').val(0);
+                /*row.closest("tr").find('td:eq(11) input').val(0);*/
+            }
+            if (balance >= shipedQty )  {
+                //var balnc = balance - shipedQty;
+                //row.closest("tr").find('td:eq(10) input').val(balnc);
+                var fcValue = shipedQty * Rate;
+                var pkrValue = fcValue * exchangeRate;
+                row.closest("tr").find('td:eq(13) input').val(fcValue);
+                row.closest("tr").find('td:eq(14) input').val(pkrValue);
+            }
+            GetRowFooter()
+        }
+        function CalculatePKRValue() {
+            var exchangeRate = Number($("#Exchangerate").val());
+            if (exchangeRate == 0) {
+                swal("", "Exchange Rate must be greater than 0.", "warning");
+                $.each($("#tblDetail tbody tr"), function () {
+                    var rowFCTotal = Number($(this).find('.FCTotal').val());
+                    var pkrValue = rowFCTotal * exchangeRate;
+                    $(this).find('.FCTotal').val(pkrValue);
+                });
+            }
+
+        }
+        function GetRowFooter() {
+            debugger;
+            var FCTotal = 0;
+            var PKRTotal = 0;
+            var Qty = 0;
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var rowFCTotal = Number($(this).find('.FCTotal').val());
+                var rowQtyTotal = Number($(this).find('.Qty').val());
+                var rowPKRTotal = Number($(this).find('.PKRTotal').val());
+                FCTotal = FCTotal + rowFCTotal;
+                PKRTotal = PKRTotal + rowPKRTotal;
+                Qty = Qty + rowQtyTotal;
+            });
+@*
+            $('#NetPayable').val(Total);
+            $('#Total1').val(Total);*@
+
+            $.each($("#tblDetail tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row = "<tr style='font-weight: bold'>" +
+                    "<td style'text-aligin: right;'>Total:</td>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td ></td>" +
+                    "<td ></td> " +
+                    "<td ></td> " +
+                    "<td ></td> " +
+                    "<td ></td> " +
+                    "<td ></td> " +
+                    "<td ></td> " +
+                    "<td class='text-right'>" + FCTotal + "</td> " +
+                    "<td class='text-right'>" + PKRTotal + "</td> " +
+                    "<td ></td> " +
+                    " <td ></td> "
+                "</tr>"
+                $("#tblDetail tfoot ").append(row);
+            });
+        }
+    function Validaion() {
+        var formdetails = [];
+        $.each($("#tblCustomInfo tbody tr"), function () {
+            formdetails.push({
+                Id: $(this).find('.id').val(),
+                PDCNo: $(this).find('.No').val(),
+                PDCDate: $(this).find('.Date').val(),
+                PDCAmount: $(this).find('.Amount').val(),
+                Status: $(this).find('.Status').val(),
+                Remarks: $(this).find('.Remarks').val(),
+                PDCBank_Id: $(this).find('.Bank').val(),
+            });
+        });
+        var formdtails = [];
+        $.each($("#tblExpense tbody tr"), function () {
+            debugger;
+            formdtails.push({
+                Id: $(this).find('.Id').val(),
+                ExpenseFavour: $(this).find('.ExpenseFavour').val(),
+                GLCode: $(this).find('.GLCode').val(),
+                AccountName: $(this).find('.AccountName').val(),
+                ExpenseAmount: $(this).find('.ExpenseAmount').val(),
+                Remarks: $(this).find('.Remarks').val(),
+                ExpenseDate: $(this).find('.ExpenseDate').val(),
+            });
+
+        });
+        var model = JSON.stringify(formdtails);
+        $("#expenseDetails").val(model);
+        $('#total').val($('#TotalAmt').val());
+        debugger
+        var model = JSON.stringify(formdetails);
+        $("#customDetails").val(model);
+            $("#myform").validate({
+
+            });
+            @*if ($("#BolNo").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#BolType").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            if ($("#BOLDate").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            if ($("#shipmentdate").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#LCNo").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#DisPort").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#Vendor").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#ContainerNo").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#Weight").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#CBM").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#Terminal").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+
+            else if ($("#ShipAgt").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#Terminal").find(":selected").text() == "Select...") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#BuiltyNo").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }
+            else if ($("#BuiltyDate").val() == " ") {
+                swal("", "Please select Operation Unit", "warning");
+                return false;
+            }*@
+    }
+    function isNumberKey(evt) {
+        //evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode == 8 || charCode == 37) {
+            return true;
+        } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+            return false;
+        } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+    $(document).ready(function () {
+        $('.modal').on('shown.bs.modal', function () {
+            $(this).find('[autofocus]').focus();
+        });
+    });
+    function Expense() {
+        $('#ExpenseModal').modal('show')
+    }
+    function SearchExpense() {
+        var value = $("#searchExpense").val();
+        $.ajax({
+            method: "GET",
+            url: "/AP/LetterOfCredit/Search",
+            data: { id: value }
+        }).done(function (data) {
+            $('.removed').remove();
+            debugger
+            if (data.length > 0) {
+                $.each(data, function (i, item) {
+                    var Itemrow = '';
+                    Itemrow += '<tr class="search">';
+                    Itemrow += '<td><input class="ExpenseDate" readonly  value=' + item.expenseDate + '></td>';
+                    Itemrow += '<td><input class="ExpenseFavour" readonly  value=' + item.expenseFavour + '></td>';
+                    Itemrow += '<td><input class="text-left" readonly  value="' + item.glCode + '" ></td>';
+                    Itemrow += '<td><input class="text-left AccountName" readonly  value=' + item.accountName + '></td>';
+                    Itemrow += '<td><input class="text-right ExpenseAmount" readonly  value=' + item.expenseAmount + '></td>';
+                    Itemrow += '<td><input  class="Remarks" readonly value=' + item.remarks + '></td>';
+                    Itemrow += '<td ><a onclick="deleteExpenseRow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+                    Itemrow += '</tr>';
+                    $('#tblExpense tbody').append(Itemrow);
+                    ClearExpense();
+                    ExpenseCalculaion();
+                });
+
+            }
+            else {
+                var Itemrow = '';
+                Itemrow += '<tr class="search">No Result Found.</tr>';
+                $('#tblExpense tbody').append(Itemrow);
+                ClearExpense();
+            }
+        });
+
+    }
+    $(".closemodel").on("click", function () {
+        $("#searchExpense").empty();
+        $('.search').remove();
+    });
+    function ClearExpense() {
+            $("#GLCode").val("");
+            $("#AccName").val("");
+            $("#ExpAmt").val("");
+            $("#ExpDate").val("@CommonHelper.CurrentDate");
+        $('#ExpFavour').val("");
+       // $('#LCRemarks').html("");
+        $('#LCRemarks').val('').change();
+
+        }
+        function addExpense() {
+            debugger
+            $('.search').remove();
+            var glcode = $("#GLCode").val();
+            var glcodeName = $("#GLCode").find(":selected").text();
+            var account = $("#AccName").val();
+            var expense = $("#ExpAmt").val();
+            var date = $("#ExpDate").val();
+            var favour = $('#ExpFavour').val();
+            var remarks = $("#LCRemarks").val();
+            if (glcode == null) {
+                swal("", "Please Select Account", "warning")
+                return false;
+            }
+            else if (expense == "") {
+                swal("", "Please Enter Expense", "warning")
+                return false;
+            }
+
+            var Itemrow = '';
+            Itemrow += '<tr class="removed">';
+            Itemrow += '<td hidden><input name="expId" value="0" class="Id" hidden></td>';
+            Itemrow += '<td><input class="ExpenseDate" readonly name="expDate" value=' + date + '></td>';
+            Itemrow += '<td><input class="ExpenseFavour" readonly name="expDate" value=' + favour + '></td>';
+            Itemrow += '<td hidden><input class="text-right GLCode" readonly name="glCode" value=' + glcode + ' ></td>';
+            Itemrow += '<td><input class="text-left" readonly name="glCode" value="' + glcodeName + '" ></td>';
+            Itemrow += '<td><input class="text-left AccountName" readonly name="accountName" value=' + account + '></td>';
+            Itemrow += '<td><input class="text-right ExpenseAmount" readonly name="expAmount" value=' + expense + '></td>';
+            Itemrow += '<td><input name="expRemarks" id="Remarks" class="Remarks" value=' + remarks + '></td>';
+            Itemrow += '<td><a onclick="deleteExpenseRow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a ></td>';
+            Itemrow += '</tr>';
+            $('#tblExpense tbody').append(Itemrow);
+            ClearExpense();
+            ExpenseCalculaion();
+        };
+        function GetAccountName() {
+            var id = $("#GLCode").val();
+            $.ajax({
+                url: '/AP/GRN/GetAccountName?id=' + id,
+                type: 'GET',
+            }).done(function (data) {
+                $('#AccName').val(data);
+            });
+        }
+        function ExpenseCalculaion() {
+            var sum = 0;
+            $.each($("#tblExpense tbody tr"), function () {
+                var abc = $(this).find(".ExpenseAmount").val();
+                sum = Number(Number(sum) + Number(abc)).toFixed(4);
+                $('#TotalAmt').val(sum);
+            });
+        }
+        function deleteExpenseRow(row) {
+            debugger
+            row.closest("tr").remove();
+            ExpenseCalculaion();
+        }
+    </script>
+            }

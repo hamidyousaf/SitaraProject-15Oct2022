@@ -1,0 +1,96 @@
+﻿@model HRIncrementViewModel
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div id=@string.Format("{0}","increment",ViewBag.Counter) class="border border-danger">
+    <div class="ibox">
+        <div class="ibox-content">
+            <!--Remove button-->
+            <a id=@string.Format("{0}{1}","remove-item",ViewBag.Counter) class="remove-item pull-right"><i class="fa fa-trash-alt fa-1x text-danger"></i></a>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="col-lg-3 col-sm-12">
+                                <div class="form-group">
+                                    <input asp-for="IncrementItemId" type="hidden" name="IncrementItemId" id=@string.Format("{0}{1}","IncrementItemId",ViewBag.Counter) />
+                                    <label asp-for="Employee"></label>
+                                    <Select asp-for="Employee" name="Employee" id='@string.Format("{0}{1}","Employee",ViewBag.Counter)' class="form-control select-item">
+                                        <option selected disabled>
+                                            Select...
+                                        </option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-12">
+                                <div class="form-group">
+                                    <label asp-for="CurrentPay"></label>
+                                    <input asp-for="CurrentPay" name="CurrentPay" class="form-control text-right" type="number" />
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-2">
+                                <label asp-for="IncrementPercentage"></label>
+                                <input asp-for="IncrementPercentage" name="IncrementPercentage" required class="form-control text-right" type="number" />
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-2">
+                                <label asp-for="Amount"></label>
+                                <input asp-for="Amount" name="Amount" required class="form-control text-right" type="number" />
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-2">
+                                <label asp-for="OldGrade"></label>
+                                <input asp-for="OldGrade" name="OldGrade" class="form-control text-right " />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="col-sm-12 col-md-6 col-lg-2 col-lg-offset-6">
+                        <div class="form-group">
+                            <label asp-for="OldDesignation"></label>
+                            <input asp-for="OldDesignation" name="OldDesignation" class="form-control text-right" type="number" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <label asp-for="NewGrade"></label>
+                        <input asp-for="NewGrade" name="NewGrade" class="form-control text-right" />
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-2">
+                        <label asp-for="NewDesignation"></label>
+                        <input asp-for="NewDesignation" name="NewDesignation" class="form-control text-right" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6 col-lg-12">
+                            <label> Remarks</label>
+                            <textarea asp-for="Remarks" name="Remarks" id=@string.Format("{0}{1}", "Remarks", ViewBag.Counter) class="form-control on-focus-change-color"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="~/js/HR/HRIncrementItems.js"></script>
+
+

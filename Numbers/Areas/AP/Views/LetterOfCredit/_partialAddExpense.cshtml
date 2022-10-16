@@ -1,0 +1,111 @@
+﻿<div class="modal fade" id="ExpenseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h3 class="modal-title" id="exampleModalLabel">Expense</h3>
+                <input type="text" id="searchExpense" class="form-control"/>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-2 Pad-rht">
+                        <div class="form-group">
+                            <label>Expense Date</label>
+                            <div class="input-group">
+                                <input id="ExpDate"  value=" @(CommonHelper.CurrentDate)" type="text" class=" form-control custom-date-picker date" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 Pad-rht">
+                        <div class="form-group">
+                            <label>GL Code</label>
+                            <Select  id="GLCode" onchange="GetAccountName();" class="form-control on-focus-change-color" asp-items="@ViewBag.GLCode" data-validation="required">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            @*<input asp-for="GLCode" id="GLCode" class="form-control on-focus-change-color" />*@
+                        </div>
+                    </div>
+                    <div class="col-lg-2 Pad-rht">
+                        <div class="form-group">
+                            <label>Account Name</label>
+                            <input id="AccName" readonly class="form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                    <div class="col-lg-1 Pad-rht">
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input  id="ExpAmt" class="form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2 Pad-rht">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea style="resize:none;" id="LCRemarks" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-1 Pad-rht">
+                        <div class="form-group">
+                            <button id="addExpense" class="btn btn-success" style="margin-top:23px"><i class="fa fa-plus"></i> </button>
+                        </div>
+                    </div>
+                </div>
+                <table id="tblExpense" style="table-layout:fixed" class="table table-bordered t">
+                    <thead>
+                        <tr>
+                            <th style="width:0%"></th>
+                            <th>Date</th>
+                            <th>GL Code</th>
+                            <th>Account Name</th>
+                            <th>Expense Amount</th>
+                            <th style="width:0%"></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        @*@if (ViewBag.Expenses != null)
+            {
+                foreach (var item in ViewBag.Expenses)
+                {
+                    <tr>
+                        <td name="GLCode" class="GLCode" style="width:25%">
+                            @item.GLCode
+                        </td>
+                        <td name="AccountName" class="AccountName" style="width:25%;">
+                            @item.AccountName
+                        </td>
+                        <td name="ExpenseAmount" class="ExpenseAmount" style="width:25%;">
+                            @item.ExpenseAmount
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" class="fa fa-trash" onclick="deleterow();" title="Delete"></i></a>
+                        </td>
+                    </tr>
+                }
+            }*@
+                    </tbody>
+                </table>
+                <input hidden name="rowcounter" id="rowcounter" />
+            </div>
+            <br />
+            <div id="EA">
+                <hr />
+                <div class="row">
+                    <div class="col-lg-4" style="margin-left: 50%;">
+                        <div class="form-group">
+                            <label>Total Amount</label>
+                            <input name="TotalAmount" readonly id="TotalAmt" class=" clear form-control on-focus-change-color" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>

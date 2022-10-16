@@ -1,0 +1,312 @@
+﻿@model HRLoan
+@{
+    ViewData["Title"] =string.Concat(ViewBag.EntityState," Loan");
+    ViewData["CurrentPage"] = "Loan";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <style>
+        .jsgrid-grid-body {
+            height: auto !important;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+}
+<div class="ibox">
+    <div class="ibox-title">
+        <h2>@ViewBag.EntityState Loan</h2>
+    </div>
+    <div class="ibox-content">
+        <form method="post" asp-action="Create" asp-controller="Loan">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <input type="hidden" asp-for="Id" />
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-6 col-xs-6">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="LoanNo" class=" control-label"></label>
+                                <input asp-for="LoanNo" Value="@TempData["LoanNo"]" readonly class="form-control" />
+                                <span asp-validation-for="LoanNo"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="LoanDate" class=" control-label"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control custom-date-picker" asp-for="LoanDate">
+                                    <span asp-validation-for="LoanDate" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="EmployeeId" class=" control-label"></label>
+                                <select name="EmployeeId" asp-for="EmployeeId" class="form-control"></select>
+                                <span asp-validation-for="EmployeeId"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="BankCashAccountId"></label>
+                                <Select asp-for="BankCashAccountId" asp-items="@ViewBag.Accounts" class="form-control" data-validation="required" data-validation-error-msg="Bank is required" data-validation-error-msg-container="#bank">
+                                    <option selected disabled>Please select...</option>
+                                </Select>
+                                <p id="bank"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="ChequeNo" class=" control-label"></label>
+                                <input asp-for="ChequeNo" class="form-control" />
+                                <span asp-validation-for="ChequeNo"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="DeductionType"></label>
+                                <Select asp-for="DeductionType" asp-items="@ViewBag.DeductionTypes" class="form-control" data-validation="required" data-validation-error-msg="Deduction Type is required" data-validation-error-msg-container="#dtype">
+                                    <option selected disabled>Please select...</option>
+                                </Select>
+                                <p id="dtype"></p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="StartDate" class=" control-label"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control custom-date-picker" asp-for="StartDate">
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group" id="data_1">
+                                <label asp-for="AccountingDate" class=" control-label"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control custom-date-picker" asp-for="AccountingDate">
+                                    <span asp-validation-for="AccountingDate" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="LoanAmount" class=" control-label"></label>
+                                <input asp-for="LoanAmount" class="form-control" />
+                                <span asp-validation-for="LoanAmount"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-3">
+                            <div class="form-group">
+                                <label asp-for="PerMonthInstalment" class=" control-label"></label>
+                                <input asp-for="PerMonthInstalment" class="form-control" />
+                                <span asp-validation-for="PerMonthInstalment"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="NoOfInstallment" class=" control-label"></label>
+                                <input asp-for="NoOfInstallment" class="form-control" onchange="setNoOfInstallments(this);" />
+                                <span asp-validation-for="NoOfInstallment"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="MarkUpPercentage" class=" control-label"></label>
+                                <input asp-for="MarkUpPercentage" class="form-control" />
+                                <span asp-validation-for="MarkUpPercentage"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="ExemptionAmount" class=" control-label"></label>
+                                <input asp-for="ExemptionAmount" class="form-control" />
+                                <span asp-validation-for="ExemptionAmount"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-2 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="ExemptionAccount" class=" control-label"></label>
+                                <input asp-for="ExemptionAccount" class="form-control" />
+                                <span asp-validation-for="ExemptionAccount"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-9 col-md-10 col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="Remarks" class="control-label"></label>
+                                <textarea asp-for="Remarks" rows="3" class="form-control"></textarea>
+                                <span asp-validation-for="Remarks" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-9 col-md-10 col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label asp-for="ExemptionRemarks" class="control-label"></label>
+                                <textarea asp-for="ExemptionRemarks" rows="3" class="form-control"></textarea>
+                                <span asp-validation-for="ExemptionRemarks" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrapper wrapper-content animated fadeIn">
+                <div class="tabs-container">
+                    <div class="row">
+                        <div id="jsGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-left">
+                <a class="btn btn-white" asp-controller="Loan" asp-action="Index">Back</a>
+                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Loan">@ViewBag.EntityState</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--JsGrid-->
+
+@section customJS{
+
+    <script src="~/lib/jsGrid/jsgrid.js"></script>
+    <script>
+    $.validate();
+        $('#EmployeeId').select2({
+            placeholder: 'Select an Employee',
+            width: 'resolve',
+            ajax: {
+                url: '/HR/Api/GetEmployees',
+                type: 'GET',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        if (@Model.Id != 0)
+            {
+                var id = "@Model.EmployeeId";
+            }
+        var accountSelect = $('#EmployeeId');
+        $.ajax({
+            type: 'GET',
+            url: '/HR/Api/GetEmployee?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            accountSelect.append(option).trigger('change');
+            accountSelect.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    </script>
+    <script>
+        function setNoOfInstallments(item) {
+            var baseId = item.value;
+            $("input[name=deletedIds]").val('');
+
+
+            $("#jsGrid").jsGrid({
+                width: "100%",
+                height: "auto",
+                filtering: false,
+                sorting: false,
+                editing: true,
+                paging: false,
+                autoload: true,
+                inserting: true,
+                deleteConfirm: "Do you really want to delete?",
+                pageButtonCount: 10,
+                controller: {
+                    loadData: function () {
+                        var d = $.Deferred();
+                        return $.ajax({
+                            url: "/Api/GetConfigValuesById/" + baseId,
+                            dataType: "json"
+                        }).done(function (response) {
+                            d.resolve(response.value);
+                        });
+                        return d.promise();
+                    }
+                },
+                fields: [
+                    { name: "Id", type: "text", width: 0, visible: false },
+                    {
+                        name: "InstallmentDate", type: "date", title: "Installment Date", width: 100, validate: "required", insertTemplate: function () {
+                            return this._insertPicker = $("<input>").datepicker({ defaultDate: new Date() });
+
+                        },
+                        insertValue: function () {
+                            return this._insertPicker.datepicker("getDate").toDateString("dd-MMM-yyyy");
+                        },
+                    },
+                    { name: "InstallmentAmount", type: "text", title: "Installment", validate: "required", width: 100 },
+                    { name: "MarkUpAmount", type: "text", title: "Mark Up", width: 100 },
+                    { name: "Amount", type: "text", title: "Amount", width: 100 },
+                    { name: "Balance", type: "text", title: "Balance", width: 100 },
+                    {
+                        name: "IsActive", type: "checkbox", title: "Active",
+                        insertTemplate: function () { //By default True
+                            var input = this.__proto__.insertTemplate.call(this);
+                            input[0].checked = true;
+                            return input;
+                        }
+                    },
+                    { type: "control" }
+                ],
+                onItemDeleted: function (arg) {
+                    var deletedId = $("input[name=deletedIds]").val();
+                    if (deletedId == "")
+                        $("input[name=deletedIds]").val(arg.item.id);
+                    else {
+                        $("input[name=deletedIds]").val(deletedId.concat(",", arg.item.id));
+                    }
+                },
+            });
+
+        }
+    </script>
+
+}

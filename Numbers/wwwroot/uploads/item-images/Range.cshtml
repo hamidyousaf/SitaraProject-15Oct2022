@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = ViewBag.ReportType;
+    if (ViewBag.ReportType == "Day Activity")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else if (ViewBag.ReportType == "Profit & Loss Detail")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else if (ViewBag.ReportType == "Day Book")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else
+    {
+        ViewData["CurrentPage"] = "Profit/Loss";
+    }
+    //var companyName = Context.Session.GetString("CompanyName");
+    //var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.ReportType</h5>
+                </div>*@
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post" asp-action="Create" asp-controller="Report">
+                    @if (ViewBag.ReportType == "Day Activity")
+                    {
+                        <input type="hidden" name="ReportTitle" value="DayActivity" /> }
+                    else if (ViewBag.ReportType == "Profit & Loss Detail")
+                    {
+                        <input type="hidden" name="ReportTitle" value="Profit/LossDetail" /> }
+                    else if (ViewBag.ReportType == "Day Book")
+                    {
+                        <input type="hidden" name="ReportTitle" value="DayBook" /> }
+                    else
+                    {
+                        <input type="hidden" name="ReportTitle" value="Profit/Loss" />}
+                    @*<input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />*@
+
+                    @*<div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                    @if (ViewBag.ReportType == "Day Book")
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Voucher Type</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="VoucherType" class="chosen-select form-control" asp-items="ViewBag.VoucherTypes"  id="voucherTypes" data-validation="required" data-validation-error-msg="Voucher Type is required" data-validation-error-msg-container="#svoucher">
+                                            <option value="All">All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="VoucherStatus" class="chosen-select form-control" id="voucherStatus" data-validation="required" data-validation-error-msg="Voucher Status is required" data-validation-error-msg-container="#svoucherstatus">
+                                            <option value="All">All</option>
+                                            <option value="Created">Created</option>
+                                            <option value="Approved">Approved</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (ViewBag.ReportType == "Profit & Loss")
+                    {
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Cost Center</label>
+                                    <div class="input-group col-lg-12">
+                                        <select name="costCenter" class="chosen-select form-control" asp-items="ViewBag.Costcenters" id="costCenter" data-validation="required" data-validation-error-msg="Cost Center is required" data-validation-error-msg-container="#costcenter">
+                                            <option value="All">All</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    }
+
+                    <div class="row">
+                        <div class="text-left">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@*@section customJS{
+
+    <script>
+        //Select 2 for account selection
+        $('#voucherType').select2({
+            ajax: {
+                url: '/GL/Api/GetVoucherType',
+                dataType: 'json',
+                delay: 250,
+                
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            debugger
+                            return {
+                                text: item.text,
+                                id: item.text
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+    </script>
+}*@

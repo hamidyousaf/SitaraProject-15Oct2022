@@ -1,0 +1,130 @@
+﻿@model Numbers.Entity.Models.ARAdvance
+
+@{
+    ViewData["Title"] = "List Advances";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <!--<div class="ibox-title">-->
+            @*<h5 class="col-lg-10"> Advances View</h5>*@
+
+
+
+            <!--</div>-->
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return validation();" asp-controller="Advance" asp-action="Create">
+
+                    <div class="row">
+
+                        <input hidden asp-for="Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Trans#</label>
+
+                                <input readonly class="form-control" id="Code" data-validation="required" asp-for="TransactionNo" autocomplete="off" tabindex="-1" />
+
+
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Trans Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="TransactionDate" class="form-control" asp-for="TransactionDate" type="text" readonly value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.TransactionDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <label class="col-form-label">Customer Name</label>
+                                <select readonly asp-for="CustomerId" class="chosen-select form-control" id="CustomerId" asp-items="@Model.dtoCustomer" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Advance Account</label>
+                                <select readonly asp-for="AdvanceAccountId" class="chosen-select form-control" id="AdvanceAccountId" asp-items="@Model.dtoAdvanceAccount" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Bank/Cash Account</label>
+                                <select readonly asp-for="GLBankCashId" class="chosen-select form-control" id="BankCashId" asp-items="@Model.dtoGLBankCash" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Ref. #</label>
+                                <input readonly class="form-control" id="RefrenceNo" data-validation="required" asp-for="RefrenceNo" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Ref. Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input readonly tabindex="-1" id="ReferanceDate" autofocus class="form-control" asp-for="ReferanceDate" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.ReferanceDate.ToString(CommonHelper.DateFormat))" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Amount</label>
+                                <input readonly class="form-control text-right add-comma" id="Amount" data-validation="required" asp-for="Amount" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="col-form-label">Remarks</label>
+                                <input readonly class="form-control" id="Amount" data-validation="required" asp-for="Remarks" autocomplete="off" tabindex="-1" />
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                            <button class="btn btn-white" asp-controller="Advance" asp-action="Index">List</button>
+
+
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+}

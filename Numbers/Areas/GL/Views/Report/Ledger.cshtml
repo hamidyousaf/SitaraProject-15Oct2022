@@ -1,0 +1,411 @@
+﻿@model LedgerViewModel
+@{
+    ViewData["Title"] = "Ledger";
+    ViewData["CurrentPage"] = "Ledger";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.EntityState Ledger</h5>
+                </div>*@
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post" asp-action="Create" asp-controller="Report">
+                    <input type="hidden" name="ReportTitle" value="Ledger" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="radio radio-success">
+                                    <input autofocus class="form-control radio-primary" name="AccountSelection" checked="checked" data-validation="required" type="radio" value="Selection" id="AccountSelection" onclick="selectAccount();" />
+                                    <label>Account Selection</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1" hidden>
+                            <div class="form-group">
+                                <label>Voucher type </label>
+                                <div class="input-group  col-12">
+                                    <select class="form-control chosen-select" id="VType" name="VType" asp-items="@ViewBag.Vouchertypes">
+                                        <option value="0">All</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>3rd Level Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="AccountThird" class="chosen-select form-control" id="AccountThird" data-validation="required" data-validation-error-msg="Account Third is required" data-validation-error-msg-container="#accountthird">
+                                        <option value="All">Please select start account</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select asp-items="@ViewBag.GLAccounts" name="StartCode" class="chosen-select form-control" id="StartCode" data-validation="required" data-validation-error-msg="Start Account is required" data-validation-error-msg-container="#saccount">
+                                        <option value="All">Please select start account</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3" hidden>
+                            <div class="form-group">
+                                <label>Sub Account</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="SubAccount" class="chosen-select form-control" id="subAccount" data-validation="required" data-validation-error-msg="End Account is required" data-validation-error-msg-container="#eaccount">
+                                        <option value="0">Please select end account</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Department</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="Department" class="chosen-select form-control" asp-items="ViewBag.GLDivision" id="glDepart" data-validation="required" data-validation-error-msg="End Account is required" data-validation-error-msg-container="#eaccount">
+                                        <option value="0">Please select a department</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Sub Department</label>
+                                <input hidden id="startCodeDesc" name="startCodeDesc" />
+                                <div class="input-group col-lg-12">
+                                    <select name="SubDepartment" class="chosen-select form-control" id="glSubDepart" data-validation="required" data-validation-error-msg="End Account is required" data-validation-error-msg-container="#eaccount">
+                                        <option value="0">Please select end account</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Cost Center</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="costCenter" class="chosen-select form-control" id="costCenter" data-validation="required" data-validation-error-msg="Cost Center is required" data-validation-error-msg-container="#costcenter">
+                                        <option value="0">All</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row"hidden>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Year</label>
+                                <div class="input-group col-lg-12">
+                                    <select name="Year" class="chosen-select form-control" id="accountYear" data-validation="required" data-validation-error-msg="Year is required" data-validation-error-msg-container="#year">
+                                        <option value="All">All</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="text-left">
+                            <input type="button" id="saveReport" value="Preview" class="btn btn-primary preview" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script>
+        $(document).ready(function () {
+            $("#StartCode").select2();
+            $("#subAccount").select2();
+            $("#glDepart").select2();
+            $("#glSubDepart").select2();
+            $("#costCenter").select2();
+        });
+        //function getCodeDec(){
+        //    debugger;
+        //    var StartCode = $('#StartCode').val();
+        //    var StartDesc = $('#StartCode').children("option: selected").val();
+        //    if (StartCode != 'All') {
+        //        $('#startCodeDesc').val(StartDesc);
+        //    }
+        //}
+
+        $('#accountYear').on('click', function () {
+            debugger
+            $('#accountYear').find('option').not(':first').remove();
+            $.ajax({
+                dataType: 'json',
+                url: "/GL/Api/GetYear",
+            })
+                .done(function (data) {
+                    debugger
+                    data = [...new Set(data.map(item => item.text))];
+                    $.each(data, function (i, item) {
+
+                        $('#accountYear').append($('<option>', {
+                            value: item,
+                            text: item
+                        }));
+                    });
+                });
+        });
+        $('#accountYear').on('change', function () {
+            debugger
+            var Year = $('#accountYear').val();
+            var Start = $('#StartDate').val();
+            var StartDate = Start.split('-');
+            $('#StartDate').val(StartDate[0] + "-" + StartDate[1]+"-"+Year);
+            var End = $('#EndDate').val();
+            var EndDate = End.split('-');
+            $('#EndDate').val(EndDate[0] + "-" + EndDate[1] + "-" + Year);
+        });
+        $('#StartCode').on('change', function () {
+            debugger
+            $('#subAccount').find('option').not(':first').remove();
+          //  var account = $('#StartCode').val();
+            var account = $('#StartCode option:Selected').text();
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetSubAccounts",
+                data: { accountCode: account }
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $('#subAccount').append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+                    });
+                });
+
+            var StartCode = $('#StartCode').val();
+            var StartDesc = $("#StartCode option:selected").text();
+            if (StartCode != 'All') {
+                $('#startCodeDesc').val(StartDesc);
+            }
+            else {
+                $('#startCodeDesc').val('All');
+            }
+        })
+        $('#glDepart').on('change', function () {
+            debugger
+            $('#glSubDepart').find('option').not(':first').remove();
+            var department = $('#glDepart').val();
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetSubDepartment",
+                data: { departmentId: department }
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $('#glSubDepart').append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+                    });
+                });
+        })
+        $('#glSubDepart').on('change', function () {
+            debugger
+            $('#costCenter').find('option').not(':first').remove();
+            var subDepartment = $('#glSubDepart').val();
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetCostCenter",
+                data: { departmentId: subDepartment }
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $('#costCenter').append($('<option>', {
+                            value: item.value,
+                            text: item.text
+                        }));
+                    });
+                });
+        })
+        // Select 2 for account selection
+        //$('#StartCode').select2({
+        //    width: 'resolve',
+        //    ajax: {
+        //        url: '/GL/ChartofAccount/GetAccounts',
+        //        dataType: 'json',
+        //        delay: 250,
+        //        placeholder: {
+        //            id: '-1', // the value of the option
+        //            text: 'Select an option'
+        //        },
+        //        processResults: function (data, params) {
+        //            return {
+        //                results: $.map(data, function (item) {
+        //                    return {
+        //                        text: item.text,
+        //                        id: item.code
+        //                    }
+        //                })
+        //            }
+        //        },
+        //        cache: true
+        //    }
+        //});
+        $('#AccountThird').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/GL/ChartofAccount/GetThirdAccounts',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.text,
+                                id: item.code
+                            }
+                        })
+                    }
+                },
+                cache: true
+            }
+        });
+        $('#AccountThird').on('change', function () {
+            debugger
+            $('#StartCode').find('option').not(':first').remove();
+            var account = $('#AccountThird').val();
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetFourthAccount?q=" + account
+            })
+                .done(function (data) {
+                    debugger
+                    $.each(data, function (i, item) {
+                        $('#StartCode').append($('<option>', {
+                            value: item.code,
+                            text: item.text
+                        }));
+                    });
+                });
+
+            //var StartCode = $('#StartCode').val();
+            //var StartDesc = $("#StartCode option:selected").text();
+            //if (StartCode != 'All') {
+            //    $('#startCodeDesc').val(StartDesc);
+            //}
+            //else {
+            ////    $('#startCodeDesc').val('All');
+            //}
+        })
+
+         ////Toggle data Function
+        function allAccount() {
+
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetAccount",
+                data: { isFirst:true }
+            })
+            .done(function (data) {
+                var option = new Option(data.text, data.code, true, true);
+                $('#StartCode').append(option).trigger('change');
+                $('#StartCode').trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+
+            $.ajax({
+                method: "GET",
+                url: "/GL/Api/GetAccount",
+                data: { isLast: true }
+            })
+            .done(function (data) {
+                var option = new Option(data.text, data.code, true, true);
+                $("#EndCode").append(option).trigger('change');
+                $("#EndCode").trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+
+            //$("#StartCode").prop("disabled", true);
+            //$("#EndCode").prop("disabled", true);
+        }
+        //call selectAccount() to disable both "starCode" and "EndCode"
+        function selectAccount() {
+            //$("#StartCode").prop("disabled", false);
+           // $("#EndCode").prop("disabled", false);
+        }
+
+
+        function generateReport1() {
+                $.post('/GL/Api/Create',
+                $("#report").serialize()).done(function (data) {
+                    var reportURL = "@ViewBag.ReportPath"
+                    reportURL += "?Id=";
+                    reportURL += data;
+                    window.open(reportURL, "_blank");
+                });;
+
+        }
+        //function generateReport() {
+        //    var accountId = $("#AccountId").val();
+        //    var startDate = $("#StartDate").val();
+        //    var endDate = $("#EndDate").val();
+        //    var reportURL = "http://localhost:53525/ReportViewer?Report=Ledger";
+        //    reportURL += "&StartDate=" + startDate;
+        //    reportURL += "&EndDate=" + endDate;
+        //    reportURL += "&Id=" + accountId;
+        //    window.open(reportURL, "_blank");
+        //}
+
+    </script>
+}

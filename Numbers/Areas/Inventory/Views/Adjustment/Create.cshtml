@@ -1,0 +1,855 @@
+﻿@model InvAdjustmentViewModel
+@{
+    ViewData["Title"] = "Create Inventory Adjustment";
+    ViewData["CurrentPage"] = "Store Adjustment";
+}
+<div class="col-lg-12">
+    <form method="post" asp-action="Create" asp-controller="Adjustment" onsubmit=" return submitdetails();" typeof="multiple">
+        <div class="ibox-content">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="Id" type="hidden" />
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-2" autofocus>
+                            <div class="form-group">
+                                <label asp-for="AdjustmentNo"></label>
+                                <input asp-for="AdjustmentNo" value="@ViewBag.Adjustment" class="form-control" readonly />
+                                <span id="Status" asp-validation-for="AdjustmentNo"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-sm-4">
+                            <div class="form-group">
+                                <label>Adjustment Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="1" asp-for="AdjustmentDate" id="AdjustmentDate" class="form-control custom-date-picker" data-validation="required" type="text" value=@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.AdjustmentDate.ToString(CommonHelper.DateFormat)) />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="WareHouseId"></label>
+                                <Select tabindex="2" asp-for="WareHouseId" id="WareHouseId" ty asp-items="@ViewBag.WareHouse" class="form-control" data-validation="required">
+                                    <option selected disabled>
+                                        Select...
+                                    </option>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-group">
+                                <label>Remarks</label>
+                                <textarea tabindex="3" asp-for="Remarks" rows="2" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="ibox-title">
+            <div class="row">
+                <div class="col-lg-4 col-sm-5">
+                    <div class="form-group">
+                        <input id="id" type="hidden" />
+                        <label> Item</label>
+                        <select tabindex="4" asp-for="ItemId" id="ItemId" asp-items="@ViewBag.Items" class="form-control select-item">
+                            <option disabled selected>Select an item...</option>
+                        </select>
+                        <p id="ItemId"></p>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-sm-3">
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input id="Stock" tabindex="-1" readonly class="form-control on-focus-change-color" type="text" />
+                    </div>
+                </div>
+                <input id="UOM" class="hidden" hidden type="text" />
+                <div class="col-lg-2 col-sm-3">
+                    <div class="form-group">
+                        <label>Qty</label>
+                        <input onkeypress='return isNumberKey(event)' onpaste="return false;" ondrop="return false;" tabindex="5" id="SQM1" class="form-control on-focus-change-color add-comma" type="text" />
+                    </div>
+                </div>
+                <div class="col-lg-1 col-sm-3">
+                    <div class="form-group">
+                        <label>Rate</label>
+                        <input id="Rate" tabindex="-1" class="form-control on-focus-change-color add-comma" readonly type="text" />
+                    </div>
+                </div>
+                <div class="col-lg-2 col-sm-3">
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input id="Total" tabindex="-1" readonly class="form-control on-focus-change-color add-comma" type="text" />
+                    </div>
+                </div>
+                <div class="col-lg-1  col-sm-1 m-t-md">
+                    <div class="form-group">
+                        <button tabindex="6" id="btnAdd1" type="button" class="btn btn-primary" onclick="addrows();">ADD</button>
+                        <button tabindex="6" id="btnUpdateMaster" style="display:none;" type="button" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ibox-title">
+            <input id="saledetails" name="Details" style="display:none;" type="text" />
+            <div class="container-fluid table-responsive" style="background-color:white;">
+                <h5 class="font-bold">Add Adjustment Items</h5>
+                <br />
+                <table style="margin-top:10px" id="tblsale" name="tableitems" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th hidden></th>
+                            <th hidden></th>
+                            <th>
+                                Item Name
+                            </th>
+                            <th>
+                                UOM
+                            </th>
+                            <th>
+                                Qty
+                            </th>
+                            <th>
+                                Rate
+                            </th>
+                            <th>
+                                Total
+                            </th>
+
+                            <th class="text-center">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.InvAdjustmentItems != null)
+                        {
+                            @if (Model.InvAdjustmentItems.Count > 0)
+                            {
+                                foreach (var items in Model.InvAdjustmentItems)
+                                {
+                                    <tr>
+                                        <td name="id" hidden class="id">@items.Id</td>
+                                        <td hidden name="ItemId1" id="ItemId" class="ItemId">@items.ItemId</td>
+                                        <td class='itemt'>
+                                            @items.ItemName
+                                        </td>
+                                        <td name="UOM" class="UOM">@items.UnitName</td>
+                                        <td name="Qty" class="text-right Qty"> @items.PhysicalStock</td>
+                                        <td name="Rate1" class="text-right Rate">@items.Rate</td>
+                                        <td name="Total1" class="text-right Total">@items.LineTotal</td>
+                                        <td class="text-right"> <a class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a><a class=""> </a><a class="btn btn-sm btn-danger"><i class="fas fa-trash remove-row"></i></a></td>
+                                    </tr>
+                                }
+                            }
+                        }
+
+                    </tbody>
+                    <tfoot align="right">
+                        <tr style="font-weight: bold">
+                            <td hidden> </td>
+                            <td hidden> </td>
+                            <td></td>
+                            <td style="text-decoration-color:black;">Total </td>
+                            <td class="TotalQty" id="TotalQty">0.00</td>
+                            <td></td>
+                            <td> </td>
+                            <td> </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+        </div>
+        <!--Modal For Purchase Order Items to be loaded for selection-->
+        <div class="container">
+            <!-- Trigger the modal with a button -->
+            <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Select Sale Orders</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    <div class="ibox ">
+                                        <p id="itemTable"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Invoices</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-left mb-3">
+            <a tabindex="6" asp-controller="Adjustment" asp-action="Index" class="btn btn-white">List</a>
+            @if (Model.Id == 0 && Model.Status != "Approved")
+            {
+                <input tabindex="7" id="SaveBtn" type="submit" asp-action="Create" asp-controller="Adjustment" name="submit" value="Submit" class="btn btn-primary" />
+            }
+            else if (Model.Status != "Approved")
+            {
+                <button tabindex="7" id="SaveBtn" type="submit" asp-action="Update" asp-controller="Adjustment" class="btn btn-success add-invoice-item">Update</button>
+            }
+            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+            <input hidden id="sTotalQty" class="add-comma" value="0" />
+            <input  hidden  id="sGrandTotal" class="add-comma" value="0" />
+        </div>
+        <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+
+    </form>
+</div>
+@section customJS {
+    <script src="~/js/INV/adjustmentItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+
+
+
+        $(document).ready(function () {
+            debugger
+            $('input.add-comma').commaTextbox();
+            $("#ItemId").select2();
+            //_applySelect($('#ItemId'));
+           // $('#ItemId').select2();
+            $('#WareHouseId').select2();
+             @*var itemId = $('#ItemId');
+            bindSelect2(itemId, '/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', '@ViewBag.ItemId');*@
+            GetRowFooter();
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+
+});
+    $.validate();
+        var stockInHand = 0.00;
+        $(function () {
+        if ("@Model.Status" == "Approved") {
+            $("form select, form input, form textarea").not(":submit").each(function (e) {
+                $(this).attr("disabled", "disabled");
+            });
+            $('.tax-lock :not(:selected)').attr('disabled','disabled');
+            $('#add-invoice-item').hide();
+        }
+        });
+
+    //for pop-up modal
+    var skipIds = [];//skip from loading table rows
+
+    var counter = 50;
+    $('#button').click(function () {
+        var table = document.getElementById('invoiceTable');
+        var arrayOfValues = [];
+        arrayOfValues = $('input:checkbox:checked', table).map(function () {
+            return $(this).closest('tr').find('td').html();
+        });
+        var arrLength = arrayOfValues.length;
+        var values = [];
+        for (i = 0; i < arrLength; i++) {
+            values.push(parseInt(arrayOfValues[i]));
+        }
+        for (i = 0; i < arrLength; i++) {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+
+
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/AR/Invoice/GetSaleOrderItems',
+                data: { saleOrderItemId: parseInt(values[i]), counter: counter },
+                beforeSend: function () {
+                    skipIds.push(values[i]);
+                    $('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                    $('#button').prop('disabled', true);
+                },
+            }).done(function (data) {
+                $('#p').append(data);
+                $('#button').prop('disabled', false);
+                $('#saleModal').modal("hide");
+                counter++;
+            }).fail(function (error) {
+                //console.log(error.responseText);
+            });
+        }
+    });
+        // AR Sales JS Area
+        function addrows() {
+            debugger;
+            var itemt = $("#ItemId option:selected").text();
+            var itemv = $("#ItemId option:selected").val();
+            var qty = Number($("#SQM1").val().replace(/,/g, "") || 0.0);
+            var total = Number($("#Total").val().replace(/,/g, "") || 0.0);
+            if (itemt == "Select an item..." || itemt == "") {
+                swal("", "Please Select Item", "warning")
+                return false;
+            }
+            else if (qty == 0) {
+                swal("", "Qty Must be greater than 0", "warning")
+                return false;
+            }
+            else if (total == 0) {
+                swal("", "Total Must be greater than 0", "warning")
+                return false;
+            }
+
+            $.ajax({
+                url: '/AP/Purchase/GetItemDetails?id=' + itemv,
+                type: 'GET'
+            }).done(function (data) {
+
+
+            });
+
+            var Id = $("#id").val();
+            var Total = $("#Total").val();
+            var Rate = $("#Rate").val();
+            var Qty = $('#SQM1').val(); /*$("#Qty").val();*/
+            var UOM = $("#UOM").val();
+
+            var value = false;
+            $('#tblsale > tbody > tr').each(function () {
+                debugger;
+                var check = $(this).closest("tr").find("#ItemId").html();
+                debugger;
+                if (itemv == check) {
+                    value = true;
+
+                } else {
+
+                }
+            });
+
+            if (value == false) {
+
+            var row = "<tr>" +
+                "<td hidden name='id' class='id'>" + Id +"</td>" +
+                "<td hidden name='ItemId1' id='ItemId' class='ItemId'>" + itemv + "</td>" +
+                "<td class='itemt'>" +
+                itemt +
+                "</td> " +
+                "<td name='UOM' class='UOM'>" + UOM + "</td> " +
+                "<td name='Qty' class='text-right add-comma Qty'>" + Qty + "</td> " +
+                " <td name='Rate1' class='text-right add-comma Rate'>" + Rate + "</td> " +
+                " <td name='Total1' class='text-right add-comma Total'>" + Total + "</td> " +
+                '<td class="text-right "> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-sm btn-danger"><i class="fas fa-trash remove-row"></a></td>'+
+            "</tr>"
+
+            $("#tblsale tbody ").append(row);
+
+                //CalculateGrandTotal();
+                debugger
+            calculatetotal();
+                debugger
+            GetRowFooter();
+                debugger
+                clearTexbox();
+                $('input.add-comma').commaTextbox();
+            }
+           
+            else if (value == true) {
+                swal("", "Item already exists..", "warning")
+            }
+            $('#ItemId').focus();
+        }
+
+
+
+        //$("#tblsale tbody").on("click", ".fa-edit", function () {
+        //    //    var check = "";
+        //    debugger;
+        //    if ($('#Total').val() == "") {
+        //        debugger;
+        //        var $id = $(this).closest("tr")
+        //            .find(".id").html() == "" ? 0 : $(this).closest("tr")
+        //                .find(".id").html();
+        //        var $item1 = $(this).closest("tr")
+        //            .find(".itemt")
+        //            .html();
+        //        var $itemv = $(this).closest("tr")
+        //            .find(".ItemId")
+        //            .html();
+        //        var $item2 = $(this).closest("tr")
+        //            .find(".UOM")
+        //            .html();
+        //        var $item6 = $(this).closest("tr")
+        //            .find(".Qty")
+        //            .html();
+        //        var $item7 = $(this).closest("tr")
+        //            .find(".Rate")
+        //            .html();
+        //        var $item8 = $(this).closest("tr")
+        //            .find(".Total")
+        //            .html();
+        //        debugger;
+
+        //        var itemId = $('#ItemId');
+        //        bindSelect2(itemId, '/Inventory/Api/GetItems', '/Inventory/Adjustment/GetItem?id=', $itemv);
+
+        //        $('#id').val($id);
+        //        $('#UOM').val($item2);
+        //        $('#SQM1').val($item6);
+        //        $('#Rate').val($item7);
+        //        $('#Total').val($item8);
+        //        //var wareHouseId = $('#WareHouseId');
+        //        //$.ajax({
+        //        //    type: 'GET',
+        //        //    url: '/Inventory/Api/GetwareHouseById?itemId=' + itemId + '&id=' + wareId
+        //        //}).then(function (data) {
+        //        //    debugger;
+        //        //    $('#WareHouseId').empty();
+        //        //    var option = new Option(data.configValue, data.id, true, true);
+        //        //    $('#WareHouseId').append(option);
+        //        //});
+        //        $(this).closest("tr").remove();
+        //    }
+        //    else {
+
+        //        swal("", "Please Finish Updating Current Part.", "warning")
+        //        return false;
+        //    }
+
+        //});
+
+        function clearTexbox() {
+            debugger;
+            $('#ItemId').val(null).trigger('change.select2');
+            $('#UOM').val("");
+            $('#Rate').val("");
+            $('#Total').val("");
+            $('#SQM1').val("");
+            $('#Stock').val("");
+           // $('#Chkbox').prop('checked', false);
+        }
+        $('#ItemId').change(function () {
+            debugger;
+            var itemId = $('#ItemId').val();
+            var wareHouseId = $('#WareHouseId').val();
+            var adjustmentDate = $('#AdjustmentDate').val();
+            //  var SupplierId = $('#SupplierId').val();
+            var SupplierId = 1;
+            $.ajax({
+                type: 'POST',
+                async: false,
+                url: '/Inventory/Adjustment/GetItemById?id=' + itemId,
+
+            }).done(function (data) {
+                if (data != null) {
+                    debugger;
+                    $('#UOM').val(data.code);
+                    $('#Rate').val(data.avgRate);
+                    $('#Stock').val(0);
+                }
+                else {
+
+                }
+                // debugger;
+                if (wareHouseId != "") {
+                    debugger;
+                    var stock = getStock($('#ItemId').val(), wareHouseId, adjustmentDate);
+                    stock.done(function (data) {
+                        $('#Stock').val(data.toFixed(2));
+                        stockInHand = Number(data.toFixed(2));
+                    });
+                }
+                //$('#WareHouseId').empty();
+                //var itemId = $('#ItemId').val();
+                //_applySelectWH($('#WareHouseId'), itemId);
+            });
+
+            //calculate total
+            var BoxInSQM = $('#SQM1').val();
+            var PcsInBox = $('#Rate').val();
+            var Total = $('#Total').val();
+            var TileInSQM = 0;
+            if (BoxInSQM != "") {
+                // TileInSQM = (Number(BoxInSQM) / Number(PcsInBox));
+                $('#Total').val(Number(Number(BoxInSQM) * Number(PcsInBox)).toFixed(2));
+
+                $('#NetTotal').val(Number(Number(BoxInSQM) * Number(PcsInBox)).toFixed(2));;
+            }
+        });
+
+        //$('#WareHouseId').change(function () {
+
+        //    var itemId = $('#ItemId').val();
+        //    var wareHouseId = $('#WareHouseId').val();
+        //    var adjustmentDate = $('#AdjustmentDate').val();
+        //    var SupplierId = 1;
+
+        //    if (wareHouseId != "" && itemId != "") {
+        //        var stock = getStock(itemId, wareHouseId, adjustmentDate);
+        //        stock.done(function (data) {
+        //            $('#Stock').val(data.toFixed(2));
+        //            stockInHand = Number(data.toFixed(2));
+        //        });
+
+        //        $.ajax({
+        //            type: 'GET',
+        //            url: '/Inventory/Api/GetwareHouseById?itemId=' + itemId + '&id=' + wareHouseId
+        //        }).then(function (data) {
+        //            debugger;
+        //            $('#WareHouseId').empty();
+        //            var option = new Option(data.configValue, data.id, true, true);
+        //            $('#WareHouseId').append(option);
+        //        });
+        //    }
+        //});
+
+        $('#SQM1').change(function () {
+            debugger;
+            var BoxInSQM = $('#SQM1').val().replace(/,/g, "") || 0.0;
+            var PcsInBox = $('#Rate').val().replace(/,/g, "") || 0.0;
+            var Total = $('#Total').val();
+            var TileInSQM = 0;
+            if (BoxInSQM != "") {
+                // TileInSQM = (Number(BoxInSQM) / Number(PcsInBox));
+
+                $('#Total').val(Number(Number(BoxInSQM) * Number(PcsInBox)).toFixed(2));
+
+                $('#NetTotal').val(Number(Number(BoxInSQM) * Number(PcsInBox)).toFixed(2));;
+            }
+            $('input.add-comma').commaTextbox();
+
+        });
+    </script>
+
+    <script>
+
+        $("#tblsale tbody").on("click", ".fa-edit", function () {
+            //    var check = "";
+
+            debugger;
+            if ($('#btnUpdateMaster').css('display') == 'none') {
+
+                debugger;
+                var $id = $(this).closest("tr").find(".id").html();
+                var $item1 = $(this).closest("tr").find(".itemt").html();
+                var $itemv = $(this).closest("tr").find(".ItemId").html();
+                var $item2 = $(this).closest("tr").find(".UOM").html();
+                var $item3 = $(this).closest("tr").find(".stock") .html();
+
+
+                var $item6 = $(this).closest("tr").find(".Qty").html();
+                var $item7 = $(this).closest("tr").find(".Rate").html();
+                var $item8 = $(this).closest("tr").find(".Total").html();
+                var $item9 = $(this).closest("tr").find(".Discount").html();
+                var $item10 = $(this).closest("tr").find(".NetTotal").html();
+                debugger;
+
+
+                //var itemId = $('#ItemId');
+                //bindSelect2(itemId, '/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', $itemv);
+
+                $('#ItemId').val($itemv).trigger('change.select2');
+
+                $('#id').val($id);
+                $('#UOM').val($item2);
+                $('#Stock').val($item3);
+                $('#SQM1').val($item6);
+                $('#Rate').val($item7);
+                $('#Total').val($item8);
+                $('#NetTotal').val($item10);
+
+                $(this).closest("tr").remove();
+                $('#btnUpdateMaster').css('display', 'block');
+                $('#btnAdd1').css('display', 'none');
+
+                calculatetotal();
+                $('input.add-comma').commaTextbox();
+
+
+            }
+            else if ($('#btnUpdateMaster').css('display') == 'block') {
+
+                swal("", "Please Finish Updating Current Part.", "warning");
+            }
+        });
+
+        function calculatetotal() {
+            $('#ItemId').focus();
+            var GrandTotal = 0;
+            $.each($("#tblsale tbody tr"), function () {
+                debugger;
+                var rowtotal = Number($(this).find('.Total').html().replace(/,/g, "") || 0.0);
+                GrandTotal = GrandTotal + rowtotal;
+            });
+            $("#Total1").val(GrandTotal);
+            $("#GrandTotal").val(Number(GrandTotal));
+
+            $('input.add-comma').commaTextbox();
+            GetRowFooter();
+        }
+
+        $('#btnUpdateMaster').click(function () {
+
+            var itemt = $("#ItemId option:selected").text();
+            var itemv = $("#ItemId option:selected").val();
+
+            $.ajax({
+                url: '/AP/Purchase/GetItemDetails?id=' + itemv,
+                type: 'GET'
+            }).done(function (data) {
+
+                debugger;
+
+            });
+            var id = $("#id").val();
+            var stock = Number($("#Stock").val()).toFixed(2);
+            var Qty = $("#SQM1").val();
+            var Total = $("#Total").val();
+            var Rate = $("#Rate").val();
+            var NetTotal = parseFloat($("#NetTotal").val()).toFixed(2);
+            var UOM = $("#UOM").val();
+
+            if (itemv != "" && itemv != "Select an item..." && Qty != "" && Rate != "") {
+
+            } else {
+
+                swal("", "Please Enter Required Field..!", "info");
+                return false;
+            }
+            var value = false;
+            $('#tblsale > tbody > tr').each(function () {
+                debugger;
+                var check = $(this).closest("tr").find("#ItemId").html();
+                debugger;
+                if (itemv == check) {
+                    value = true;
+                } 
+            });
+            if (value == false) {
+            var row = "<tr>" +
+                "<td name='id' hidden class='id'>" + id + "</td>" +
+                "<td hidden name='ItemId1' id='ItemId' class='ItemId'>" + itemv + "</td>" +
+                "<td class='itemt'>" +
+                itemt +
+                "</td> " +
+                "<td name='UOM' class='UOM'>" + UOM + "</td> " +
+                "<td name='Qty' class='text-right add-comma Qty'>" + Qty + "</td> " +
+                " <td name='Rate1' class='text-right add-comma Rate'>" + Rate + "</td> " +
+                " <td name='Total1' class='text-right add-comma Total'>" + Total + "</td> " +
+                "<td name='NetTotal1' style='display: none;' class='text-right NetTotal add-comma'>" + NetTotal + "</td> " +
+                '<td class="text-right"> <a  class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a ><a class=""> </a ><a class="btn btn-sm btn-danger"><i class="fas fa-trash remove-row"></a></td>' +
+            "</tr>"
+
+            $("#tblsale tbody ").append(row);
+
+            $('#ItemId').val(null).trigger('change.select2');
+            $('#UOM').val("");
+            $('#Stock').val("");
+            $('#SQM1').val("");
+            $('#Rate').val("");
+            $('#Total').val("");
+            $('#NetTotal').val("");
+            $('#btnUpdateMaster').css('display', 'none');
+            $('#btnAdd1').css('display', 'block');
+            calculatetotal();
+                clearTexbox();
+
+                $('input.add-comma').commaTextbox();
+
+            }
+            else if (value == true) {
+                swal("", "Item already exists..", "warning")
+            }
+        });
+
+    </script>
+
+    <script>
+        $("#tblsale tbody").on('click', '.remove-row', function () {
+            debugger;
+            $(this).closest('tr').remove();
+            var itemId = $(this).closest("tr").find(".id").html();
+            if (itemId != null) {
+                ids.push(itemId);
+                $('#IdsDeleted').text(ids);
+            }
+            counter--;
+        });
+    </script>
+    <script>
+        function submitdetails() {
+            debugger;
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var formdetails = [];
+            $.each($("#tblsale tbody tr"), function () {
+                formdetails.push({
+                    ItemId: $(this).find('.ItemId').html(),
+                    PhysicalStock: $(this).find('.Qty').html(),
+                    Rate: $(this).find('.Rate').html(),
+                    Total: $(this).find('.Total').html(),
+                    UOM: $(this).find('.UOM').html(),
+                    Id: $(this).find('.id').html() == "" ? 0 : $(this).find('.id').html(),
+                    LineTotal: $(this).find('.Total').html(),
+                    NetTotal: $(this).find('.NetTotal').html(),
+
+                });
+
+            });
+
+            var model = JSON.stringify(formdetails);
+            $("#saledetails").val(model);
+            if (formdetails.length <= 0) {
+                swal("", "Enter At Least One Record!", "info");
+                return false;
+            }
+
+
+            $.each($('.add-comma'), function () {
+                $(this).val(parseFloat($(this).val().replace(/,/g, "")));
+            });
+
+
+        }
+
+        function checkFormData() {
+            debugger;
+            var formdetails = [];
+            if ("@TempData["Mode"]" == "False") {
+
+                $.each($("#tblsale tbody tr"), function () {
+                    formdetails.push({
+                        ItemId: $(this).find('.ItemId').html(),
+                        SQM: $(this).find('.SQM').html(),
+                        Rate: $(this).find('.Rate').html(),
+                        Total: $(this).find('.Total').html(),
+                        UOM: $(this).find('.UOM').html(),
+                        Stock: $(this).find('.stock').html(),
+                        Boxes: $(this).find('.Boxes').html(),
+                        Tiles: $(this).find('.Tiles').html(),
+                        DiscountPercentage: $(this).find('.Discount').html(),
+                        DiscountAmount: $(this).find('.discountAmount').html(),
+                        Id: $(this).find('.id').html(),
+                        LineTotal: $(this).find('.NetTotal').html(),
+                        NetTotal: $(this).find('.NetTotal').html(),
+                        WarehouseIds: $(this).find('.WarehouseIds').html(),
+                    });
+
+                });
+
+                var model = JSON.stringify(formdetails);
+                $("#saledetails").val(model);
+                if (formdetails.length >=1) {
+                    swal("", "Please Save Record!", "info");
+                    return false;
+                } else {
+                    window.open("/Inventory/Adjustment/Index", '_blank');
+                }
+            } else {
+                window.open("/Inventory/Adjustment/Index", '_blank');
+            }
+        }
+        function GetRowFooter() {
+            debugger;
+            var TotalQty = 0;
+            var GrandTotal = 0;
+
+            $.each($("#tblsale tbody tr"), function () {
+                debugger;
+
+                var rowQty = Number($(this).find('.Qty').html().replace(/,/g, "") || 0.0);
+                var grandTotal = Number($(this).find('.Total').html().replace(/,/g, "") || 0.0);
+                // Total Qty
+                TotalQty = parseFloat(parseFloat(TotalQty) + parseFloat(rowQty)).toFixed(2);
+                // Total Box
+                GrandTotal = parseFloat(parseFloat(GrandTotal) + parseFloat(grandTotal)).toFixed(2);
+                // Total Tiles
+            });
+            debugger
+            $("#sTotalQty").val(TotalQty);
+            $("#sGrandTotal").val(GrandTotal);
+            $('input.add-comma').commaTextbox();
+
+            var sTotalQty = $("#sTotalQty").val();
+            var sGrandTotal = $("#sGrandTotal").val();
+
+            $.each($("#tblsale tfoot tr"), function () {
+                debugger;
+
+                $(this).closest("tr").remove();
+                var row = "<tr style='font-weight: bold'>" +
+                    "<td hidden></td>" +
+                    "<td hidden ></td>" +
+                    "<td ></td>" +
+                    "<td style'text-aligin: right;'>Total :</td> " +
+                    "<td class='text-right add-comma '>" + sTotalQty + "</td> " +
+                    "<td ></td> " +
+                    //"<td ></td> " +
+                    "<td class='text-right add-comma '>" + sGrandTotal +"</td> " +
+                    " <td ></td> "
+                "</tr>"
+                $("#tblsale tfoot ").append(row);
+              
+            });
+           
+        }
+        function isNumberKey(evt) {
+            debugger;
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37 || charCode == 45) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+           function checkdesc(form) {
+            var name = $("#name").val();
+            var chk = 0;
+             var model = @Model.Id;
+            if (model == 0) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/GL/Division/Checkdesc?name=' + name,
+                    async: false,
+                }).done(function (data) {
+                    debugger;
+
+                    if (data == true) {
+                        chk = 1;
+
+                    }
+
+                });
+            }
+            debugger;
+            if (chk == 1) {
+                $.notify("Department Name already Exist", "error");
+
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+}

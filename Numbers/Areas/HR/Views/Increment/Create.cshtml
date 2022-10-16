@@ -1,0 +1,159 @@
+﻿@model HRIncrementViewModel
+@{
+    ViewData["Title"] = ViewBag.EntityState;
+    ViewData["CurrentPage"] = "Increment";
+}
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Increment</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <form method="post" asp-action="Create" asp-controller="Increment" enctype="multipart/form-data">
+        <input asp-for="Id" type="hidden" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="IncrementNo"></label>
+                            <div class="input-group">
+                                <input asp-for="IncrementNo" Value="@TempData["IncrementNo"]" readonly class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="IncrementDate"></label>
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="IncrementDate" data-validation="required" data-validation-error-msg="Increment Date is required" data-validation-error-msg-container="#incDate" class="form-control custom-date-picker" type="text" value="@(Model.Id == 0 ? CommonHelper.CurrentDate : Model.IncrementDate.ToString(CommonHelper.DateFormat))" />
+                            </div>
+                            <p id="incDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="IncrementType"></label>
+                            <Select asp-for="IncrementType" data-validation="required" data-validation-error-msg="Increment Type is required" data-validation-error-msg-container="#incType" class="form-control">
+                                <option selected disabled>Select...</option>
+                                <option value="1">type-1</option>
+                                <option value="2">type-2</option>
+                                <option value="3">type-3</option>
+                            </Select>
+                            <p id="incType"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="Designation"></label>
+                            <div class="input-group">
+                                <input asp-for="Designation" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="EmployeeType"></label>
+                            <Select asp-for="EmployeeType" name="EmployeeType" asp-items="@(new SelectList(Model.EmployeeTypes,"Id","Name"))" class="form-control" data-validation="required" data-validation-error-msg="Employee Type is required" data-validation-error-msg-container="#empType">
+                                <option selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="empType"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="Department"></label>
+                            <Select asp-for="Department" name="Department" class="form-control" data-validation="required" data-validation-error-msg="Department is required" data-validation-error-msg-container="#department">
+                                <option selected disabled>Select...</option>
+                                <option value="1">Department-1</option>
+                                <option value="2">Department-2</option>
+                                <option value="3">Department-3</option>
+                            </Select>
+                            <p id="department"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="IncrementPercentage"></label>
+                            <div class="input-group">
+                                <input asp-for="IncrementPercentage" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea asp-for="Remarks" rows="2" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="spinner-border text-danger"></div>
+            </div>
+        </div>
+        @await Html.PartialAsync("_IncrementItems")
+        <p id="p"></p>
+
+        <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+
+        <div class="row">
+            <div class="col-lg-4 col-sm-4">
+                <div class="form-group">
+                    <label asp-for="Attachment"></label>
+                    <div class="input-group">
+                        <input asp-for="Attachment" type="file" name="Attachment" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-left mb-3">
+            <a asp-controller="Increment" asp-action="Index" class="btn btn-white">Back</a>
+            @if (Model.Status != "Approved")
+            {
+                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Increment">@ViewBag.EntityState</button>
+            }
+        </div>
+    </form>
+</div>
+@section customJS{
+    <script src="~/js/HR/HRIncrementItems.js"></script>
+    <script>
+        $(document).ready(function () {
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            if (items != null) {
+                for (i = 0; i < items.length; i++) {
+                    $.ajax({
+                        type: 'GET',
+                        async:false,
+                        url: '/HR/Increment/GetEmployeeIncrements',
+                        data: { id: items[i].Id, itemId: items[i].ItemId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        toggleLoader(false);
+                        $('#p').append(data);
+                    });
+                }
+            }
+        });
+    </script>
+}

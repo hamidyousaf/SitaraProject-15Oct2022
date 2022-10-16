@@ -1,0 +1,185 @@
+﻿@model Numbers.Entity.Models.AppCompany
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                    <h3>Create Company</h3>
+                </div>
+            <div class="ibox-content ibox-content-">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="Id" class="form-control hidden" />
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Name" autofocus class="form-control" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Email" autofocus class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="City" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="City" autofocus class="form-control" />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Country" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Country" autofocus class="form-control" />
+                                    <span asp-validation-for="Country" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AddressLine1" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="AddressLine1" autofocus class="form-control" />
+                                    <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AddressLine2" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="AddressLine2" autofocus class="form-control" />
+                                    <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        @*<div class="col-md-6 col-lg-6">
+                            <div style="height:205px; width:200px;">
+                                @if (Model.Logo != null)
+                                {
+                                    <img src="@Html.DisplayFor(modelItem => Model.Logo)" id="preview-img" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+                                }
+                                else if (Model.Logo == null)
+                                {
+                                    <img src="~/img/userphotos/favicon.png" id="preview-img" class="img-thumbnail" style=" width: 200px; height : 200px;" />
+                                }
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6">
+                                    <input type="hidden" data-val="true" data-val-maxlength="The field Photo must be a string or array type with a maximum length of '350'." data-val-maxlength-max="350" id="Photo" name="Photo" value="">
+                                    <input name="img" type="file" id="upldImage">
+                                </div>
+                            </div>
+                        </div>*@
+
+                        <div class="col-md-6">
+                            <div class="col-lg-6 col-md-2 col-sm-6 col-xs-6">
+                                <h3><label>Company Picture</label></h3>
+                                <div class="col-md-12" style="margin-left: -22px;">
+                                    <img src="" name="img[]" id="file" class="img-thumbnail " title="Upload Image" style=" width: 172px; height: 110px;">
+                                    <div class="form-group" style="margin-left: 5px;margin-top: 12px;">
+                                        <div class="text-left">
+                                            <input type="hidden" data-val="true" data-val-maxlength="The field Photo must be a string or array type with a maximum length of '350'." data-val-maxlength-max="350" id="logo" name="logo" value="">
+                                            <input name="img" type="file" id="upldImage">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-6">
+
+
+                            <div class="form-group">
+                                <label asp-for="Phone1" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Phone1" autofocus class="form-control" />
+                                    <span asp-validation-for="Phone1" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Phone2" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Phone2" autofocus class="form-control" />
+                                    <span asp-validation-for="Phone2" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Fax" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Fax" autofocus class="form-control" />
+                                    <span asp-validation-for="Fax" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SalesTaxNumber" class="col-lg-4 control-label">Sales Tax Number</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="SalesTaxNumber" autofocus class="form-control" />
+                                    <span asp-validation-for="SalesTaxNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NationalTaxNumber" class="col-lg-4 control-label">National Tax Number</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="NationalTaxNumber" autofocus class="form-control" />
+                                    <span asp-validation-for="NationalTaxNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4"></div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked">
+                                        <label for="isActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4"></div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="IsBlock" asp-for="IsBlock" type="checkbox" checked="checked">
+                                        <label for="IsBlock">Is Block</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="BlockReason" class="col-lg-4 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="BlockReason" autofocus class="form-control" />
+                                    <span asp-validation-for="BlockReason" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-2">
+                                    <input type="submit" value="Create" class="btn btn-primary" />
+                                    <a asp-action="Index" class="btn btn-white">Back to List</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

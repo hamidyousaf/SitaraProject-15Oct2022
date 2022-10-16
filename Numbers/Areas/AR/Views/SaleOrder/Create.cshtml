@@ -1,0 +1,1586 @@
+﻿@model ARSaleOrderViewModel
+@{
+    ViewData["Title"] = "Create Sale Order";
+    ViewData["CurrentPage"] = "Sale Order";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+    .removed .select2-container {
+        width: 195px !important;
+    }
+
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+
+    table td input[type=number], table td input[type=text], table td select, table td select2 {
+        position: absolute;
+        bottom: 0;
+        display: block;
+        top: 0;
+        left: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        border: none;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+
+    #DivId {
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 200px;
+        max-height: 450px;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="col-lg-12">
+    <form method="post" asp-action="Create" asp-controller="SaleOrder" onsubmit="return checkvalidation();">
+        <input asp-for="Id" id="CheckMode" type="hidden" />
+        <input type="hidden" id="counter" value="0" />
+        <input hidden id="NoTax" value="@ViewBag.NoTax" />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>SO #</label>
+                            <div class="input-group">
+                                @if (Model.SaleOrderNo == 0)
+                                {
+                                    <input autofocus value="" readonly class="form-control" tabIndex="-1" />
+                                }
+                                else
+                                {
+                                    <input autofocus asp-for="SaleOrderNo" readonly class="form-control" tabIndex="-1" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="SaleOrderDate"></label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input asp-for="SaleOrderDate" readonly id="SaleOrderDate" value="@(Model.SaleOrderDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control" required />
+                            </div>
+                            <p id="soDate"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="Validity"></label>
+                            <div class="input-group">
+                                <input asp-for="Validity" value="9" id="Validity" onkeypress="RestrictFirstZero(event); return isNumberKey(event)" onpaste="return false;" ondrop="return false;" type="text" maxlength="1" class="form-control" autocomplete="off" required />
+                            </div>
+                            <p id="soValidity"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Product Type</label>
+                            <Select asp-for="ProductTypeId" id="Prod_Id" asp-items="@ViewBag.ProductTypeLOV" onchange="GetCustomer()" class="form-control" data-validation="required" data-validation-error-msg="Product Type is required" data-validation-error-msg-container="#PType">
+                                @*<option value="0" selected disabled>
+                                        Select...
+                                    </option>*@
+                            </Select>
+                            <p id="PType"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-12">
+                        <div class="form-group">
+                            <label>Item Category</label>
+                            <Select asp-for="ItemCategoryId" asp-items="@ViewBag.SecondLevelCategoryLOV" onchange="GetThirdLevel(); GetCustomer()" id="Cat_Id" class="form-control" data-validation="required" data-validation-error-msg="Category is required" data-validation-error-msg-container="#dCat">
+                                <option value="0" selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="dCat"></p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="CustomerId"></label>
+                            @if (Model.Id == 0)
+                            {
+                                <Select asp-for="CustomerId" required id="CustId" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer">
+                                    <option value="0" selected disabled>
+                                        Select...
+                                    </option>
+                                </Select>
+                            }
+                            else
+                            {
+                                <Select asp-for="CustomerId" asp-items="@ViewBag.CustomersLOV" required id="CustId" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#customer">
+                                    <option value="0" selected disabled>
+                                        Select...
+                                    </option>
+                                </Select>
+                            }
+
+                            @*<p id="customer"></p>*@
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-6">
+                        <div class="form-group">
+                            <label asp-for="WareHouseId"> Ware House </label>
+                            <Select asp-for="WareHouseId" asp-items="@ViewBag.WareHouseLOV" class="form-control" data-validation="required" data-validation-error-msg="Ware House is required" data-validation-error-msg-container="#wHouse">
+                                @*<option selected disabled>
+                                        Select...
+                                    </option>*@
+                            </Select>
+                            <p id="wHouse"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label>4th Level Category</label>
+                            <Select asp-for="FourthCategoryId" asp-items="@ViewBag.FourthLevelCategoryLOV" id="FourthCat" class="form-control" data-validation="required" data-validation-error-msg="Category is required" data-validation-error-msg-container="#dCat">
+                                <option value="0" selected disabled>
+                                    Select...
+                                </option>
+                            </Select>
+                            <p id="dCat"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="ReferenceNo"></label>
+                            <input asp-for="ReferenceNo" class="form-control" />
+                        </div>
+                    </div>
+                    <div hidden class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="DeliveryTermId"></label>
+                            <Select asp-for="DeliveryTermId" asp-items="@ViewBag.DeliveryTermLOV" class="form-control" data-validation="required" data-validation-error-msg="Delivery Term is required" data-validation-error-msg-container="#dTerm">
+                                @*<option selected disabled>
+                                        Select...
+                                    </option>*@
+                            </Select>
+                            <p id="dTerm"></p>
+                        </div>
+                    </div>
+                    <div hidden class="col-lg-3 col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="PaymentTermId"></label>
+                            <Select asp-for="PaymentTermId" asp-items="@ViewBag.PaymentTermLOV" class="form-control" data-validation="required" data-validation-error-msg="Payment Term is required" data-validation-error-msg-container="#pTerm">
+                                @*<option selected disabled>
+                                        Select...
+                                    </option>*@
+                            </Select>
+                            <p id="pTerm"></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-sm-3">
+                        <div class="form-group">
+                            <label>Customer Balance</label>
+                            <div class="input-group">
+                                <input tabindex="-1" class="form-control text-right" id="CustomerBalance" value="0.00" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea asp-for="Remarks" rows="1" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-3" hidden>
+                        <div class="form-group">
+                            <label asp-for="CostCenter">Cost Center</label>
+                            <select asp-for="CostCenter" class="form-control" asp-items="ViewBag.CostCenter"></select>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                    @*<div class="col-lg-3 col-sm-3">
+                            <div class="form-group">
+                                <label>Item Category 3</label>
+                                <Select id="ItemCategoryThird" tabindex="9" onchange="GetFourthLevelCategories();" asp-items="Model.ItemCategoryThird" class="form-control" data-validation="required" data-validation-error-msg="Payment Term is required" data-validation-error-msg-container="#pTerm">
+                                    <option selected disabled>
+                                        Select...
+                                    </option>
+                                </Select>
+                                <p id="pTerm"></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-3">
+                            <div class="form-group">
+                                <label>Item Category 4</label>
+                                <Select id="ItemCategoryFouth" tabindex="9" class="form-control" data-validation="required" data-validation-error-msg="Payment Term is required" data-validation-error-msg-container="#pTerm">
+                                    <option selected>
+                                        Select...
+                                    </option>
+                                </Select>
+                                <p id="pTerm"></p>
+                            </div>
+                        </div>*@
+
+
+
+
+
+
+                    @*<div class="col-lg-5">
+                            <input id="SId" type="hidden" />
+                            <div class="form-group">
+                                <label>Item</label>
+                                <select tabindex="10" class="chosen-select form-control" id="Item">
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label>Qty</label>
+                                <input tabindex="11" class="form-control" id="SQty" onkeypress="return isNumberKey(event)" onpaste="return false;" ondrop="return false;" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label>Bale No</label>
+                                <input tabindex="12" class="form-control" id="LotNumber" onpaste="return false;" ondrop="return false;" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label>Rate</label>
+                                <input tabindex="13" class="form-control" readonly id="SRate" onkeypress='return isNumberKey(event)' onpaste='return false;' ondrop='return false;' />
+                            </div>
+                        </div>*@
+
+                    @*<div class="col-lg-2 col-sm-6">
+                            <div class="form-group">
+                                <label>Tax</label>
+                                <select tabindex="14" class="chosen-select form-control" disabled id="STax" asp-items="@ViewBag.TaxList">
+                                    <option value="0">Select</option>
+                                </select>
+                            </div>
+                        </div>*@
+                    @*<div class="col-lg-1  col-sm-1 m-t-md">
+                            <div class="form-group">
+                                <a href="#" tabindex="15" onclick="AddSaleOrder()" class="btn btn-primary">Add</a>
+                            </div>
+                        </div>*@
+                </div>
+                <div class="text-right mb-3">
+                    <label></label>
+                    <input type="button" id="add-SaleOrders-popUp" class="btn btn-success" style="width: 200px;" onclick="getItems();" value="Get items from Inventory" />
+                    @*  <a id="add-invoice-item" class="btn btn-success add-purchaseReturn-item"><i class="fa fa-plus"></i></a>*@
+                </div>
+                <div class="spinner-border text-danger"></div>
+            </div>
+        </div>
+        <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+        <div class="row">
+
+        </div>
+        @*<div class="row withscroll">*@
+        <div class="table-responsive">
+            <table id="tblDetail" class="table table-bordered table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th hidden>SOItemId</th>
+                        <th hidden>ItemId</th>
+                        <th hidden>BaleId</th>
+                        <th style="width:12%" hidden>Code</th>
+                        <th style="width:22%">Description</th>
+                        <th style="width:6%">Bale Type</th>
+                        <th style="width:5%">Avail. Stock</th>
+                        <th style="width:5%" hidden>Book. Stock</th>
+                        <th style="width:6%">Balance Stock</th>
+                        <th style="width:7%">Mtr/Bale</th>
+                        <th style="width:5%">Sale Qty</th>
+                        <th hidden>PricingRate</th>
+                        <th style="width:5%">Rate</th>
+                        <th style="width:7%">Cnvrtn</th>
+                        <th style="width:5%">Price</th>
+                        <th style="width:6%">UOM Qty</th>
+                        <th style="width:7%" hidden>Total Amount</th>
+                        <th style="width:6%">Total Meter</th>
+                        <th style="width:6%">Total Amount</th>
+                        <th style="width:5%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ARSaleOrderDetails != null)
+                    {
+                        @for (int i = 0; i < Model.ARSaleOrderDetails.Count; i++)
+                        {
+                            <tr class="removed">
+                                <td hidden><input asp-for="ARSaleOrderDetails[i].Id" name="SOItemId" value="@Model.ARSaleOrderDetails[i].Id" id="username" class="id" tabindex="-1" type="hidden" /></td>
+                                <td hidden><input asp-for="ARSaleOrderDetails[i].ItemId" name="ItemId" value="@Model.ARSaleOrderDetails[i].ItemId" class="itemid" tabindex="-1" type="hidden" /></td>
+                                <td hidden><input asp-for="ARSaleOrderDetails[i].BaleId" name="BaleId" value="@Model.ARSaleOrderDetails[i].BaleId" class="baleId" tabindex="-1" type="hidden" /></td>
+                                <td hidden><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].Item.Code" type="text" value="@Model.ARSaleOrderDetails[i].Item.Code" class="text-left" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].Item.Name" type="text" value="@Model.ARSaleOrderDetails[i].Item.Name" readonly tabindex="-1" /></td>
+                                @*<td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].PackUnit" value="@Model.ARSaleOrderDetails[i].PackUnit" type="text" readonly /></td>*@
+                                @*<td><input asp-for="ARSaleOrderDetails[i].BaleNumber" name="LotNumber" value="@Model.ARSaleOrderDetails[i].BaleNumber" class="LotNumber" type="text" readonly /></td>*@
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].BaleType" name="BaleType" value="@Model.ARSaleOrderDetails[i].BaleType" type="text" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].AvailableStock" name="AvailableStock" type="text" value="@Model.ARSaleOrderDetails[i].AvailableStock" class=" text-right availableStock" readonly tabindex="-1" /></td>
+                                <td hidden><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].BookedStock" name="BookedStock" type="text" value="@Model.ARSaleOrderDetails[i].BookedStock" class=" text-right bookedStock" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].BalanceStock" name="BalanceStock" type="text" value="@Model.ARSaleOrderDetails[i].BalanceStock" class=" text-right balanceStock" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].Meters" name="Meters" type="text" value="@Model.ARSaleOrderDetails[i].Meters" class=" text-right Qty meters" readonly tabindex="-1" /></td>
+                                <td><input onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;' asp-for="ARSaleOrderDetails[i].Qty" name="SaleQty" type="number" value="@Model.ARSaleOrderDetails[i].Qty" onchange='Calculations($(this));' class=" text-right saleQty " min="0" step="1" autocomplete="off" /></td>
+
+                                <td hidden><input name='PricingRate' type='hidden' asp-for="ARSaleOrderDetails[i].PricingRate" value="@Model.ARSaleOrderDetails[i].PricingRate" class=" text-right pricingRate" readonly tabindex="-1"></td>
+                                <td><input onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;' onchange='RateCalculation($(this)); ConversionCalculation($(this));' asp-for="ARSaleOrderDetails[i].Rate" name="Rate" value="@Model.ARSaleOrderDetails[i].Rate" type="number" min="1.00" step="0.01" class=" text-right rate add-comma" autocomplete="off"></td>
+
+                                <td><input onkeypress='return isNumberKey(event)' onpaste='return false; ' ondrop='return false;' onchange='ConversionCalculation($(this));' asp-for="ARSaleOrderDetails[i].Conversion" name="Conversion" value="@Model.ARSaleOrderDetails[i].Conversion" type="number" min="1.00" step="0.01" class=" text-right conversion" autocomplete="off"></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].Price" name="Price" value="@Model.ARSaleOrderDetails[i].Price" type="text" class=" text-right price" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].UOMQty" name="UOMQty" value="@Model.ARSaleOrderDetails[i].UOMQty" type="text" class=" text-right uOMQty add-comma" readonly tabindex="-1" /></td>
+
+                                <td hidden><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].Total" name="TotalAmount" value="@Model.ARSaleOrderDetails[i].Total" type="text" class=" text-right totalAmount add-comma" autocomplete="off" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].TotalMeter" name="TotalMeter" value="@Model.ARSaleOrderDetails[i].TotalMeter" type="text" class=" text-right totalMeter" autocomplete="off" readonly tabindex="-1" /></td>
+                                <td><input style="background-color: #eee;" asp-for="ARSaleOrderDetails[i].TotalMeterAmount" name="TotalMeterAmount" value="@Model.ARSaleOrderDetails[i].TotalMeterAmount" type="text" class=" text-right totalMeterAmount add-comma" autocomplete="off" readonly tabindex="-1" /></td>
+                                @*<td><input name="TaxId" value="@Model.ARSaleOrderDetails[i].TaxId" class="Tax_Id" type='hidden' /></td>*@
+                                @*<td><input style='background-color: #eee;' value="@Model.ARSaleOrderDetails[i].TaxName" readonly type="text" /></td>*@
+                                <!--<td>--> @*<input asp-for="ARSaleOrderDetails[i].TaxAmount" name="TaxAmount" value="@Model.ARSaleOrderDetails[i].TaxAmount" type="text" class=" text-right TaxAmount" readonly />*@<!--</td>-->
+                                <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot id="myfoot">
+                    <tr style='font-weight: bold'>
+                        <td hidden></td>
+                        <td hidden></td>
+                        <td hidden></td>
+                        <td hidden></td>
+                        <td style="text-align: right;">Total:</td>
+                        <td class='text-right'>0.00</td>
+                        <td class='text-right'>0.00</td>
+                        <td hidden></td>
+                        <td hidden></td>
+                        <td hidden></td>
+                        <td></td>
+                        @*<td></td>
+                            <td></td>*@
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @*</div>*@
+        <div class="ibox">
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-4"> <label asp-for="Total"></label> <input asp-for="Total" name="formTotal" id="formTotal" class="form-control text-right add-comma" readonly placeholder="0.0" tabIndex="-1" /></div>
+                    @*<div class="col-lg-2 col-sm-4"><label asp-for="TotalTaxAmount"></label> <input asp-for="TotalTaxAmount" name="TotalTaxAmount" id="formTotalTaxAmount" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>*@
+                    <div hidden class="col-lg-2 col-sm-4"><label asp-for="Freight"></label><input asp-for="Freight" name="Freight" id="formFreight" class="form-control text-right" placeholder="Freight" /></div>
+                    <div class="col-lg-2 col-sm-4"><label asp-for="GrandTotal"></label> <input asp-for="GrandTotal" name="GrandTotal" id="formGrandTotal" class="form-control text-right add-comma" readonly placeholder="0.0" tabIndex="-1" /></div>
+                    <div class="col-lg-2 col-sm-4"><label -for="TotalTaxAmount">Assigned Limit</label>  <input -for="TotalTaxAmount" id="PartyLimit" class="form-control text-right" readonly placeholder="0.0" tabIndex="-1" /></div>
+                    <div class="col-lg-2 col-sm-4"><label for="GrandTotal">Available Limit </label> <input -for="GrandTotal" id="AvailableLimit" class="form-control text-right" readonly tabIndex="-1" /></div>
+                    <div class="col-lg-2 col-sm-4"><label>Recovery %</label> <input id="recoveryPercentage" class="form-control text-right" readonly tabIndex="-1" /></div>
+                    <div class="col-lg-2 col-sm-4"><label>Recovery % Type</label> <input id="recoveryPercentageType" class="form-control text-right" readonly tabIndex="-1" /></div>
+                </div>
+            </div>
+        </div>
+        <div class="text-left mb-3">
+            <a asp-controller="SaleOrder" asp-action="Index" class="btn btn-white" style="">List</a>
+            @if (Model.Status != "Approved")
+            {
+                <button onclick="return validate();" type="submit" id="submit-invoice-btn" class="btn btn-primary add-saleOrder-item">@ViewBag.EntityState</button>
+            }
+            <input type="hidden" id="saveButton" value="0" />
+        </div>
+        <div class="container">
+            <!-- Trigger the modal with a button -->
+            <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                <div class="modal-dialog modal-lg" style="width: 85%;">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <div class="form-group">
+                                <div class="col-lg-3 col-md-3">
+                                    <input class="form-control " autofocus id="myInput" placeholder="Search here..." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    <div class="ibox ">
+                                        <p id="itemTable"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <W type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Item</W>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section customJS{
+    <script src="~/js/AR/salesOrderItems.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="\Numbers\wwwroot\lib\sweetalert"></script>
+    <script src="/lib/validate/jquery.validate.min.js"></script>
+    <script src="/js/notify.js"></script>
+    <script>
+        function validate() {
+            //debugger
+            var length = $('#tblDetail > tbody').find('tr').length;
+            var saveButton = $("#saveButton").val();
+            var check = false;
+            if (saveButton == 0) {
+                //debugger
+                return false;
+            }
+            if (length == 0) {
+                swal("", "Sale Order Detail must be contain one record.", "warning");
+                return false;
+            }
+                $('#tblDetail > tbody tr').each(function (index, tr) {
+                    var saleQty = $(tr).find('.saleQty').val();
+                    if (saleQty == 0) {
+                        //debugger
+                        check = true;
+                        swal({
+                            icon: "warning",
+                            text: "Please enter sale order quantity!",
+                            closeModal: false
+                        }).then(function () {
+                            swal.close();
+                            $(tr).find('.saleQty').focus();
+                        });
+                        return false;
+                    }
+                });
+            if (check == true) {
+                //debugger;
+                return false;
+            }
+
+            checkvalidation();
+
+        }
+        function RestrictFirstZero(e) {
+            if (e.srcElement.value.length == 0 && e.which == 48) {
+                e.preventDefault();
+                return false;
+            }
+        };
+        var LineTotal = 0;
+        $.validate();
+        $(document).ready(function () {
+            //debugger
+
+            if ($("#Id").val() != 0) {
+                $.each($("#tblDetail tbody tr"), function () {
+                    var rowLineTotal = Number($(this).find('.LineTotal').val());
+                    LineTotal = LineTotal + rowLineTotal;
+
+                });
+            }
+            $('#STax').val($('#NoTax').val()).attr("selected", "selected");
+            $.validate();
+         //   $('#CustId').select2();
+            $('#ItemCategoryThird').select2();
+            $('#ItemCategoryFouth').select2();
+            $('#Prod_Id').select2();
+            $('#Cat_Id').select2();
+            $('#WareHouseId').select2();
+            $('#DeliveryTermId').select2();
+            $('#PaymentTermId').select2();
+            $('#Item').select2();
+            $('#STax').select2();
+            $('#CustId').select2();
+            $(".date").datepicker({
+            })
+           // $('#STax').val($('#NoTax').val());
+
+            var items = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Items));
+            //var itemlists = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Itemlist));
+            if (items != null) {
+                for (i = 0; i < items.length; i++) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/AR/SaleOrder/GetOrderItems',
+                        async:false,
+                        data: { id: items[i].Id, itemId: items[i].ItemId },
+                        beforeSend: function () {
+                            toggleLoader(true);
+                        }
+                    }).done(function (data) {
+                        //debugger
+                    toggleLoader(false);
+                    $('#p').append(data);
+                });
+            }
+            }
+            ////debugger
+            //$.each(itemlists, function (i, item) {
+            //    $('#Item').append($('<option>', {
+            //        value: item.id,
+            //        text: item.text
+            //    }));
+            //});
+
+            $('.custom-file-input').on("change", function () {
+                var fileLabel = $(this).next('.custom-file-label');
+                var files = $(this)[0].files;
+                if (files.length > 1) {
+                    fileLabel.html(files.length + ' files selected');
+                }
+                else if (files.length == 1) {
+                    fileLabel.html(files[0].name);
+                }
+            });
+
+            GetRowFooter();
+
+            if ($("#Cust_Id").find(":selected").val() != "0")
+                GetCreditLimit();
+            //debugger
+            var mode = $("#CheckMode").val();
+            if (mode != 0) {
+                GetRecoveryPercentage();
+            }
+
+        });
+
+        function GetCustomer() {
+            //debugger
+
+            $('#CustId').find('option').not(':first').remove();
+            $('#Item').find('option').not(':first').remove();
+            //  $('#CustomerId').remove();
+            // $('#CustomerId').val(0).trigger('change.select2');
+            var CategoryId = $("#Cat_Id").find(":selected").val();
+            var ProductId = $("#Prod_Id").find(":selected").val();
+            //if (ProductId == "0") {
+            //    swal("", "Please Select Product Type!", "warning")
+            //    return false;
+            //}
+            //else if (CategoryId == "0") {
+            //    swal("", "Please Select Category!", "warning")
+            //    return false;
+            //}
+
+            $.ajax({
+                method: "GET",
+                url: '/AR/SaleOrder/GetCustomers',
+                data: { ProductId, CategoryId }
+            }).done(function (data) {
+                $.each(data.customers, function (i, item) {
+
+                    $('#CustId').append($('<option>', {
+                        value: item.id,
+                        text: item.id + " - " + item.name + " - " + ((item.address != null) ? item.address : "Address Not Avaiable")
+                    }));
+                });
+
+                $.each(data.categories, function (i, item) {
+                    $('#Item').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            });
+
+        }
+        function GetCost() {
+          //  $('#cos').remove();
+            $('#cos').select2({
+                width: 'resolve',
+                ajax: {
+                    url: '/AP/Api/GetCostCenter',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: {
+                        id: '-1', // the value of the option
+                        text: 'Select an option'
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    text: item.text,
+                                    id: item.value
+                                }
+                            })
+                        }
+                    },
+                    cache: true
+                }
+            });
+            //$('#cos').find('option').remove();
+            //$.ajax({
+            //    method: "GET",
+            //    url: '/AP/Api/GetCostCenter',
+            //})
+            //    .done(function (data) {
+            //        //debugger
+            //        $.each(data, function (i, item) {
+            //            $('.cosId').append($('<option>', {
+            //                value: item.value,
+            //                text: item.text
+            //            }));
+            //        });
+            //    });
+        }
+        var i = 1;
+        function AddSaleOrder() {
+            var ItemId = $('#Item').val();
+            var Tax_Id = $("#STax").find(":selected").val();
+            var CustId = $("#CustId").find(":selected").val();
+            var Tax_Name = $("#STax").find(":selected").text();
+            var Qty = $('#SQty').val();
+            var LotNumber = $('#LotNumber').val();
+            var Rate = removeComma($('#SRate').val());
+            if (ItemId == "0") {
+                swal("", "Please Select Item", "warning")
+                return false;
+            }
+            else if (CustId == "0") {
+                swal("", "Please Select Customer", "warning")
+                return false;
+            }
+            else if (Qty == "") {
+                swal("", "Please Enter Quantity", "warning")
+                return false;
+            }
+            else if (Rate == "") {
+                swal("", "Please Enter Rate", "warning")
+                return false;
+            }
+            else if (Tax_Id == "0") {
+                swal("", "Please Select Tax", "warning")
+                return false;
+            }
+            var curencyRate = $("#CurrencyExchangeRate").val();
+            var TotalValue = Number(Qty) * Number(Rate);
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Api/GetTaxValues?id=' + Tax_Id
+            }).done(function (data) {
+                if (data != "NotFound") {
+                    slabVal = data.salesTaxPercentage.toFixed(2);
+                }
+                else {
+                    slabVal = 0.00;
+                }
+            });
+            var taxAmount = ((slabVal / 100) * TotalValue).toFixed(2);
+            var lineAfter = (Number(TotalValue) + Number(taxAmount)).toFixed(2);
+            var value = false;
+            //debugger;
+            $('#tblDetail > tbody > tr').each(function () {
+                var item = $(this).closest("tr").find('td:eq(1) input').val();
+                //debugger;
+                if (ItemId == item) {
+                    value = true;
+                }
+            });
+            if (value == false) {
+                @*var TaxList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.TaxList));
+                var CostCenter =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CostCenter));*@
+                $.ajax({
+                    method: "GET",
+                    url: "/AP/PurchaseRequisition/GetItemList",
+                    data: { itemId: ItemId }
+                }).done(function (data) {
+                    $.each(data, function (i, item) {
+                        //debugger
+                        var i = Number($("#counter").val());
+                        $("#counter").val(i + 1);
+                        Rate = addCommas(Rate);
+                        taxAmount = addCommas(taxAmount);
+                        var row = "<tr class='removed'>" +
+                            "<td><input name='SOItemId'  id='username' class='id' type='hidden'  />0</td>" +
+                            "<td><input name='ItemId' value=" + item.invItems.id + "  id='username' class='itemid' type='hidden'  /></td>" +
+                            "<td><input style='background-color: #eee;' name='code' class='text-right' type='text' value=" + item.invItems.code + " readonly /></td>" +
+                            "<td><input style='background-color: #eee;' name='description'  type='text' value='" + item.invItems.name + "' readonly /></td> " +
+                            "<td><input style='background-color: #eee;'  type='text' name='uOM' value='" + item.uom + "' readonly/></td>" +
+                            "<td><input style='background-color: #eee;'  type='text' value='" + item.packUnit + "' readonly/></td>" +
+                            " <td><select type='hidden' name='DetailCostCenter' class='chosen-select cosId' id='cos' required><option value = '0' selected >Select</option></select ></td>" +
+                            " <td><input  name='LotNumber' id='LotNumber' value='" + LotNumber + "' type='text' class='text-right LotNumber'  readonly/></td>" +
+                            " <td><input  name='Qty' id='Qty' value='" + Qty + "' type='text' class='text-right Qty'  readonly/></td>" +
+                            " <td><input  name='Rate' id ='Rate'  value='" + Rate + "' type='text' class='text-right Rate'  readonly/></td>" +
+                            " <td><input  name='Total' id='Total' type='text' value='" + TotalValue + "' class='text-right Total ' readonly /></td>" +
+                            " <td><input  name='TaxId' value='" + Tax_Id + "'class='Tax_Id' type='hidden' /></td>" +
+                            " <td><input style='background-color: #eee;'  type='text' value='" + Tax_Name + "' readonly /></td>" +
+                            " <td><input name='TaxAmount'  value='" + taxAmount + "' class='text-right TaxAmount'  type='text' readonly  ></td>" +
+                            " <td><input name='LineTotal'  type='text' value='" + addCommas(lineAfter)+"' class='text-right LineTotal' readonly  ></td>" +
+                            '<td ><a style=" margin-top:0px" onclick="editrow($(this));" class="btn btn-sm btn-info m-t-n-xs  "> <i class="fa fa-edit" title="Edit"></i></a > <a id="delrow" onclick="deleterow($(this));"  style=" margin-top:0px"class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i></a> </td>'
+                        "</tr>";
+                        $("#tblDetail tbody").append(row);
+                    });s
+                    GetRowFooter();
+                    Clear();
+                    $('#Item').focus();
+                    //$(".date").datepicker(
+                    //)
+                    ////debugger
+                    //var a = Number($("#counter").val());
+                    //var id = "#" + a;
+                    //$.each(CostCenter, function (i, item) {
+                    //    $('.cosId').append($('<option>', {
+                    //        value: item.Value,
+                    //        text: item.Text
+                    //    }));
+                    //});
+                    //$.each(TaxList, function (i, item) {
+                    //    $(id).find('option').remove();
+                    //});
+                    //$(id).append($('<option>', {
+                    //    value: "",
+                    //    text: "Please Select"
+                    //}));
+                    //$.each(TaxList, function (i, item) {
+                    //    $(id).append($('<option>', {
+                    //        value: item.Value,
+                    //        text: item.Text
+                    //    }));
+                    //});
+                });
+            }
+        }
+        function Clear() {
+            $('#SRate').val('');
+            $('#SQty').val('');
+            $('#LotNumber').val('');
+            $('#Item').val(0).trigger('change.select2');
+            $('#STax').val($('#NoTax').val()).attr("selected", "selected");
+        }
+        function editrow (row) {
+            //debugger
+            var $id = row.closest("tr")
+                .find(".id").val();
+            var $item1 = row.closest("tr")
+                .find(".Tax_Id")
+                .val();
+            var $item2 = row.closest("tr")
+                .find(".Rate")
+                .val();
+            var $item3 = row.closest("tr")
+                .find(".LotNumber")
+                .val();
+            var $item4 = row.closest("tr")
+                .find(".Qty")
+                .val();
+            var $item5 = row.closest("tr")
+                .find(".itemid")
+                .val();
+            if ($("#Item").find(":selected").val() == "0") {
+                $('#id').val($id);
+                $('#SRate').val($item2);
+                $('#LotNumber').val($item3);
+                $('#SQty').val($item4);
+                $('#Item').val($item5).trigger('change.select2');
+                $('#STax').val($item1).trigger('change.select2');
+                row.closest("tr").remove();
+            }
+        };
+        function deleterow(row) {
+            row.closest("tr").remove();
+            //var i = row.closest("tr").index();
+            //$('.removed').eq(i).remove();
+            GetRowFooter("edit");
+        }
+        function hiderow(row) {
+            row.closest("tr").hiderow();
+        }
+        function Validation() {
+            $("#form").validate({
+                rules: {
+                    quantity: {
+                        required: true,
+                        number: true,
+                    },
+                    requiredDate: {
+                        required: true
+                    }
+                },
+                messages: {
+                    quantity: "",
+                    requiredDate:""
+                }
+            });
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            //else if ($("#TypeId").find(":selected").val() == "0") {
+            //    swal("", "Please Select Requisition Type", "warning")
+            //    return false;
+            //}
+            else if ($("#OpId").find(":selected").val() == "0") {
+                swal("", "Please Select Operating Unit", "warning")
+                return false;
+            }
+            else if ($("#DepId").find(":selected").val() == "0") {
+                swal("", "Please Select Departemnt", "warning")
+                return false;
+            }
+            else
+                return true;
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('.') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        //On change Item
+        $('#Item').on('change', function () {
+            //debugger
+            var item = $('#Item').val();
+            $.ajax({
+                type: "GET",
+                url: "/AR/SaleOrder/GetItemPrice",
+                data: { Id: item }
+            }).done(function (data) {
+                //debugger
+                if (data != null) {
+                    if (data.status == false) {
+                        swal('', data.message, 'warning');
+                        $('#SRate').val('');
+                        return false;
+                    }
+                    $('#SRate').val(data);
+                } else {
+                    $('#SRate').val('');
+                    swal('', 'This item has no price', 'warning');
+                    return false;
+                }
+            });
+        })
+        //On change Qty
+        $("#tblDetail tbody").on("change", ".Qty", function () {
+            var indentQty = Number($(this).closest("tr")
+                .find(".Qty").val());
+            var curencyRate = $("#CurrencyExchangeRate").val();
+            var rate = Number($(this).closest("tr")
+                .find(".Rate").val());
+
+            var fcRate = Number($(this).closest("tr")
+                .find(".FCValue").val());
+            var value;
+           /* if ($("#typeimport").find(":selected").text() == "Import") {*/
+                if (curencyRate > 0) {
+                    value = indentQty * rate;
+                    $(this).closest("tr").find(".Total").val(value)
+                    value = value * curencyRate;
+                }
+                else
+                    swal("", "Currency Exchange Rate cannot be 0", "error");
+            //}
+            //else
+            //    value = indentQty * rate;
+            $(this).closest("tr")
+                .find(".Total").val(value);
+
+            var taxId = $(this).closest("tr")
+                .find(".TaxId").val();
+
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Api/GetTaxValues?id=' + taxId
+            }).done(function (data) {
+                if (data != "NotFound") {
+                    slabVal = data.salesTaxPercentage.toFixed(2);
+                }
+                else {
+                    slabVal = 0.00;
+                }
+            });
+            var totalvalue = $(this).closest("tr")
+                .find(".Total").val();
+            var fedPercentage = $(this).closest("tr")
+                .find(".TaxId").val();
+            var taxAmount = ((slabVal / 100) * totalvalue).toFixed(2);
+            var lineAfter = (Number(totalvalue) + Number(taxAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".TaxAmount").val(taxAmount);
+
+            //Calculate fed %
+            //var fedPercentage = ((fedPercentage / 100) * lineAfter).toFixed(2);
+            //var fedAmount = (Number(lineAfter) + Number(fedPercentage)).toFixed(2)
+
+
+            //$(this).closest("tr")
+            //    .find(".TaxAmount").val(fedPercentage);
+            var lineTotal = (Number(lineAfter) + Number(taxAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".LineTotal").val(lineAfter);
+
+            GetRowFooter();
+        });
+        //On change Rate
+        $("#tblDetail tbody").on("change", ".Rate", function () {
+            var indentQty = Number($(this).closest("tr")
+                .find(".Qty").val());
+            var curencyRate = $("#CurrencyExchangeRate").val();
+            var rate = Number($(this).closest("tr")
+                .find(".Rate").val());
+
+            var fcRate = Number($(this).closest("tr")
+                .find(".FCValue").val());
+            var value;
+       /*     if ($("#typeimport").find(":selected").text() == "Import") {*/
+                if (curencyRate > 0) {
+                    value = indentQty * rate;
+                    $(this).closest("tr").find(".Total").val(value)
+                    value = value * curencyRate;
+                }
+                else
+                    swal("", "Currency Exchange Rate cannot be 0", "error");
+            //}
+            //else
+            //    value = indentQty * rate;
+            $(this).closest("tr")
+                .find(".Total").val(value);
+
+            var taxId = $(this).closest("tr")
+                .find(".TaxId").val();
+
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Api/GetTaxValues?id=' + taxId
+            }).done(function (data) {
+                if (data != "NotFound") {
+                    slabVal = data.salesTaxPercentage.toFixed(2);
+                }
+                else {
+                    slabVal = 0.00;
+                }
+            });
+            var totalvalue = $(this).closest("tr")
+                .find(".Total").val();
+            var fedPercentage = $(this).closest("tr")
+                .find(".TaxId").val();
+            var taxAmount = ((slabVal / 100) * totalvalue).toFixed(2);
+            var lineAfter = (Number(totalvalue) + Number(taxAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".TaxAmount").val(taxAmount);
+
+            //Calculate fed %
+            //var fedPercentage = ((fedPercentage / 100) * lineAfter).toFixed(2);
+            //var fedAmount = (Number(lineAfter) + Number(fedPercentage)).toFixed(2)
+
+
+            //$(this).closest("tr")
+            //    .find(".TaxAmount").val(fedPercentage);
+            var lineTotal = (Number(lineAfter) + Number(taxAmount)).toFixed(2)
+            $(this).closest("tr")
+                .find(".LineTotal").val(lineAfter);
+
+            GetRowFooter();
+        });
+        //$('#CurrencyExchangeRate').on("change", function () {
+        //    var curencyRate = $("#CurrencyExchangeRate").val();
+        //    $.each($("#tblDetail tbody tr"), function () {
+        //        var FCValue = Number($(this).find('.Total').val());
+        //        var value = curencyRate * FCValue;
+        //        var taxAmount = Number($(this).find('.TaxAmount').val());
+        //        var total = taxAmount + value;
+        //        $(this).find('.Total').val(value);
+        //        $(this).find('.LineTotal').val(total);
+
+        //    });
+
+        //    GetRowFooter();
+        //});
+        //On Change Tax
+        //$("#tblDetail tbody").on("change", ".TaxId", function () {
+        //    var indentQty = Number($(this).closest("tr")
+        //        .find(".Qty").val());
+        //    var curencyRate = $("#CurrencyExchangeRate").val();
+        //    var rate = Number($(this).closest("tr")
+        //        .find(".Rate").val());
+
+        //    var fcRate = Number($(this).closest("tr")
+        //        .find(".FCValue").val());
+        //    var value;
+            //if ($("#typeimport").find(":selected").text() == "Import") {
+            //    if (curencyRate > 0) {
+            //        value = indentQty * rate;
+            //        $(this).closest("tr").find(".Total").val(value)
+            //        value = value * curencyRate;
+            //    }
+            //    else
+            //        swal("", "Currency Exchange Rate cannot be 0", "error");
+            //}
+            //else
+            //    value = indentQty * rate;
+            //$(this).closest("tr")
+            //    .find(".Total").val(value);
+
+            //var taxId = $(this).closest("tr")
+            //    .find(".TaxId").val();
+
+            //$.ajax({
+            //    type: 'GET',
+            //    async: false,
+            //    url: '/AR/Api/GetTaxValues?id=' + taxId
+            //}).done(function (data) {
+            //    if (data != "NotFound") {
+            //        slabVal = data.salesTaxPercentage.toFixed(2);
+            //    }
+            //    else {
+            //        slabVal = 0.00;
+            //    }
+            //});
+            //var totalvalue = $(this).closest("tr")
+            //    .find(".Total").val();
+            //var fedPercentage = $(this).closest("tr")
+            //    .find(".TaxId").val();
+            //var taxAmount = ((slabVal / 100) * totalvalue).toFixed(2);
+            //var lineAfter = (Number(totalvalue) + Number(taxAmount)).toFixed(2)
+            //$(this).closest("tr")
+            //    .find(".TaxAmount").val(taxAmount);
+
+            //Calculate fed %
+            //var fedPercentage = ((fedPercentage / 100) * lineAfter).toFixed(2);
+            //var fedAmount = (Number(lineAfter) + Number(fedPercentage)).toFixed(2)
+
+
+            //$(this).closest("tr")
+            //    .find(".TaxAmount").val(fedPercentage);
+        //    var lineTotal = (Number(lineAfter) + Number(taxAmount)).toFixed(2)
+        //    $(this).closest("tr")
+        //        .find(".LineTotal").val(lineAfter);
+
+        //    GetRowFooter();
+        //});
+        //On Change Fed %
+
+        function GetRowFooter(mode) {
+            //  GetCreditLimit();
+            debugger
+            var TotalAmt = 0;
+            var TotalSaleQty = 0;
+            $.each($("#tblDetail tbody tr"), function () {
+                var saleQty = Number($(this).find('.saleQty').val());
+                var totalAmount = Number($(this).find('.totalMeterAmount').val());
+                TotalSaleQty = TotalSaleQty + saleQty;
+                TotalAmt = TotalAmt + totalAmount;
+            });
+
+            $('#formTotal').val(TotalAmt);
+            //debugger
+            var availableLimit = Number($('#AvailableLimit').val());
+            var partyLimit = Number($('#PartyLimit').val());
+            var freight = Number($('#formFreight').val());
+            //var formGrandTotal = Number(TotalAmt + TaxAmount + freight).toFixed(2);
+            var formGrandTotal = Number(TotalAmt + freight).toFixed(2);
+            if (mode == "edit") {
+                availableLimit = availableLimit + TotalAmt
+            }
+            else {
+                availableLimit = partyLimit - TotalAmt
+            }
+            //debugger
+            /*availableLimit = availableLimit - TotalAmt*/
+            $('#formGrandTotal').val(formGrandTotal);
+            $('#AvailableLimit').val(availableLimit );
+
+            $.each($("#tblDetail tfoot tr"), function () {
+                //debugger;
+                $(this).closest("tr").remove();
+                var row;
+
+                    row = "<tr style='font-weight: bold'>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td style'text-aligin: right;'>Total:</td> " +
+                        "<td class='text-right'>" + Number(TotalSaleQty).toFixed(2) + "</td> " +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td ></td>" +
+                        "<td class='text-right'>" + Number(TotalAmt).toFixed(2) + "</td> " +
+                        " <td ></td> "
+                    "</tr>"
+
+                $("#tblDetail tfoot").append(row);
+            });
+
+        }
+
+        $('#formFreight').on('change', function () {
+            //debugger;
+         var formtotal = Number(  $('#formTotal').val());
+           var formTaxAmount = Number( $('#formTotalTaxAmount').val());
+            var freight = Number($('#formFreight').val());
+            var formGrandTotal = Number(formtotal + formTaxAmount + freight).toFixed(2);
+            $('#formGrandTotal').val(formGrandTotal);
+        });
+
+        $('#CustId').on('change', function () {
+            //debugger;
+            GetRecoveryPercentage()
+            GetCreditLimit();
+            GetCustomerBalance();
+
+        });
+
+        $('#CustId').on('select2:select', function (e) {
+            CheckAssignedLimit();
+        });
+        function CheckAssignedLimit() {
+            var customeId = $('#CustId').find(":selected").val();
+            if (customeId == 0) {
+                return false;
+            }
+            if ($("#PartyLimit").val() == 0) {
+                swal({
+                    icon: "warning",
+                    text: "This customer has zero Assigned Limit!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustId').focus();
+                    $('#CustId').val(0).trigger('change.select2');
+                    $('#recoveryPercentage').val('');
+                    $('#recoveryPercentageType').val('');
+                    $('#CustomerBalance').val(0.00.toFixed(2));
+                });
+                return false;
+            }
+        };
+        function GetCustomerBalance() {
+
+            //debugger
+            // $('#iGP').find('option').not(':first').remove();
+            var cusid = $('#CustId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetCustomerBalance",
+                data: { customerId: cusid }
+            }).done(function (data) {
+                //debugger
+                $('#CustomerBalance').val(data);
+            });
+        }
+
+        function checkvalidation() {
+            debugger;
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Enter Item", "warning")
+                return false;
+            }
+            var creditLimit = Number($('#PartyLimit').val());
+            var grandTotal = Number($('#formGrandTotal').val());
+            var availableBalance = Number($('#AvailableLimit').val());
+            var balnce =  availableBalance;
+            if (creditLimit > 0) {
+                if ($("Id").val() == 0) {
+                    if (grandTotal > availableBalance) {
+                        swal("", "Grand Total Must be <= Avaialble balance.", "warning")
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                else
+                {
+                   // if (grandTotal > balnce) {
+                    if (grandTotal > balnce) {
+                        swal("", "Grand Total Must be <= Avaialble balance.", "warning")
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+
+                }
+            }
+            else {
+                return true;
+            }
+        }
+        $(document).keypress(function (e) {
+            if ((e.metaKey || e.ctrlKey) && e.keyCode == 83) { /*ctrl+s or command+s*/
+                checkvalidation();
+                e.preventDefault();
+                return false;
+            }
+        });
+        function GetRecoveryPercentage() {
+            //debugger;
+            var customerId = $('#CustId').val();
+            var SaleOrderDate = $('#SaleOrderDate').val();
+            var itemCategoryId = $("#Cat_Id").find(":selected").val();
+            $.ajax({
+                type: 'GET',
+                url: '/AR/Api/GetRecoveryPercentageByCustomer',
+                data: { customerId: customerId, itemCategoryId: itemCategoryId, SaleOrderDate: SaleOrderDate}
+            }).done(function (data) {
+                //debugger;
+                if (data.categoryType != "C" && data.categoryType != "NotFound") {
+                    $('#recoveryPercentage').val(data.recoveryPercentage);
+                    $('#recoveryPercentageType').val(data.categoryType);
+                }
+                else if (data.categoryType == "C") {
+                    $('#recoveryPercentage').val('');
+                    $('#recoveryPercentageType').val('');
+                    $('#CustId').val(0).trigger('change.select2');
+                    swal('', 'Recovery percentage fall in C category.', 'warning');
+                } else {
+                    $('#recoveryPercentage').val('');
+                    $('#recoveryPercentageType').val('');
+                    $('#CustId').val(0).trigger('change.select2');
+                    $("#PartyLimit").val(0);
+                    $("#AvailableLimit").val(0);
+                    //swal('', 'Customer has no recovery percentage.', 'warning');
+                    swal({
+                        icon: 'warning',
+                        text: "Customer has no recovery percentage.",
+                        closeModal: false
+                    }).then(function () {
+                        swal.close();
+                        $('#CustId').focus();
+                        $('#CustomerBalance').val(0.00.toFixed(2));
+                    });
+
+                }
+            });
+        }
+        function GetCreditLimit() {
+            //debugger;
+            var customerId = $('#CustId').val();
+            $.ajax({
+                type: 'GET',
+                async: false,
+                url: '/AR/Api/GetCreditLimitByCustomer?id=' + customerId
+            }).done(function (data) {
+                //debugger;
+                if (data != "NotFound") {
+                    //debugger
+                    $('#PartyLimit').val(data.creditLimitList);
+                    if (data.ledgerbalance > 0) {
+                        $('#AvailableLimit').val(data.ledgerbalance);
+                    }
+                    else {
+                        $('#AvailableLimit').val(data.creditLimitList);
+                    }
+                }
+                else {
+                    slabVal = 0.00;
+                }
+            });
+        }
+
+        function addCommas(nStr) {
+            //debugger
+            nStr = removeComma(nStr);
+            nStr += '';
+            var x = nStr.split('.');
+            var x1 = x[0];
+            var x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
+        function removeComma(num) {
+            //debugger;
+            var isNumeric = Number.isInteger(num);
+            if (!isNumeric) {
+                if (num != "") {
+                    var temp1 = num;
+                    for (i = 1; i < 5; i++) {
+                        // pick limit high enough to find all possible commas
+                        temp1 = temp1.replace(",", "");
+                    }
+                    return temp1;
+                } else {
+                    return 0;
+                }
+            }
+            return num;
+        }
+        //function GetFourthLevelCategories() {
+        //    //debugger
+        //    $('#ItemCategoryFouth').find('option').not(':first').remove();
+        //    var itemCategoryThird = $("#ItemCategoryThird").val();
+
+        //    $.ajax({
+        //        method: "GET",
+        //        url: '/AR/SaleOrder/GetFourthLevelCategories?id=' + itemCategoryThird
+        //    }).done(function (data) {
+        //        //debugger
+        //        $.each(data, function (i, item) {
+        //            //debugger
+        //            $('#ItemCategoryFouth').append($('<option>', {
+        //                value: item.id,
+        //                text: item.name
+        //            }));
+        //        });
+        //    });
+
+        //}
+        function getItems() {
+            //debugger
+            var customerId = $("#CustId").find(":selected").val();
+            var categoryId = $("#Cat_Id").find(":selected").val();
+            var fourthCat = $("#FourthCat").find(":selected").val();
+            var warehouseId = $("#WareHouseId").find(":selected").val();
+
+            if (categoryId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select item category",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#Cat_Id').focus();
+                });
+                return false;
+            }
+            if (customerId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select customer!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#CustId').focus();
+                });
+                return false;
+            }
+
+            var skipIds = [];
+            $('.itemid').each(function () { skipIds.push($(this).val()); });
+
+            // AJAX request
+            $.ajax({
+                url: '/AR/SaleOrder/GetItems',
+                type: 'POST',
+                method: 'POST',
+                data: { CategoryId: categoryId, SkipIds: skipIds, FourthCat: fourthCat, WarehouseId: warehouseId },
+                success: function (response) {
+                    $('#itemTable').html(response);
+                    // Display Modal
+                    $('#saleModal').modal('show');
+                },
+                fail: function (response) {
+                    // console.log('message from fail...', response.responseText);
+                }
+            });
+        }
+    </script>
+
+    @* Script to Get Customer Balance on edit mode *@
+    <script>
+        //debugger
+        // if (@ViewBag.Id !=null) {
+        if (@Model.CustomerId != null && @Model.CustomerId!= 0) {
+           // var cusid = @ViewBag.Id;
+            var cusid = @Model.CustomerId;
+            $.ajax({
+                method: "GET",
+                url: "/AR/Api/GetCustomerBalance",
+                data: { customerId: cusid }
+            }).done(function (data) {
+                //debugger
+                $('#CustomerBalance').val(data);
+            });
+        }
+        function Calculations(row) {
+            //debugger
+            debugger
+            var saleQty = Number(row.val());
+            var availableStock = Number(row.closest("tr").find(".availableStock").val());
+            var rate = Number(row.closest("tr").find(".rate").val());
+            var meters = Number(row.closest("tr").find(".meters").val());
+            var totalMeter = Number(row.closest("tr").find(".totalMeter").val());
+            var totalMeterAmount = Number(row.closest("tr").find(".totalMeterAmount").val());
+            if (saleQty > availableStock) {
+                swal({
+                    icon: "warning",
+                    text: "Quantity must be less than Available Stock",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    row.val(0);
+                    row.closest("tr").find(".uOMQty").val(0);
+                    row.closest("tr").find(".totalMeter").val(0);
+                    row.closest("tr").find(".totalMeterAmount").val(0);
+                    row.focus();
+                    GetRowFooter();
+                });
+                return false;
+            }
+            row.closest("tr").find(".balanceStock").val(availableStock - saleQty);
+            row.closest("tr").find(".bookedStock").val(saleQty);
+            row.closest("tr").find(".totalAmount").val(rate * saleQty);
+            row.closest("tr").find(".totalMeter").val(meters * saleQty);
+            //row.closest("tr").find(".totalMeterAmount").val(meters * saleQty * rate);
+            //row.closest("tr").find(".totalMeterAmount").val(totalMeter * rate);
+
+            CalculateUOMQty(row);
+            GetRowFooter();
+
+        }
+        function RateCalculation(row) {
+            //debugger
+            var rate = parseFloat(row.val());
+            var pricingRate = parseFloat(row.closest("tr").find(".pricingRate").val());
+            var saleQty = Number(row.closest("tr").find(".saleQty").val());
+            var meters = Number(row.closest("tr").find(".meters").val());
+            var totalMeter = parseFloat(row.closest("tr").find(".totalMeter").val());
+            var conversion = parseFloat(row.closest("tr").find(".conversion").val());
+
+            if (rate < pricingRate) {
+                swal({
+                    icon: "warning",
+                    text: "Rate must be greater or equal than pricing rate.",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    row.val(pricingRate);
+                    row.closest("tr").find(".price").val(pricingRate * conversion);
+                    row.closest("tr").find(".totalAmount").val(pricingRate * saleQty);
+                    row.closest("tr").find(".totalMeterAmount").val(totalMeter * pricingRate);
+                    row.focus();
+                });
+                return false;
+            }
+
+            var totalAmount = rate * saleQty;
+            var totalMeter = saleQty * meters;
+            var totalMeterAmount = totalMeter * rate;
+            row.closest("tr").find(".totalAmount").val(totalAmount);
+            row.closest("tr").find(".totalMeter").val(totalMeter);
+            row.closest("tr").find(".totalMeterAmount").val(parseFloat(totalMeterAmount).toFixed(2));
+            GetRowFooter();
+        }
+        $(document).ready(function () {
+            $("#FourthCat").select2();
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#invoiceTable > tbody > tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            $("#Cat_Id").change(function () {
+                $("#tblDetail > tbody").find("tr").remove();
+            });
+
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('[autofocus]').focus();
+            });
+
+            $('.modal').on('hidden.bs.modal', function () {
+                var index = $("#tblDetail > tbody > tr").index;
+                if (index != 0) {
+                    $("#tblDetail > tbody > tr").find(".saleQty").first().focus();
+                } else {
+                    $("#add-SaleOrders-popUp").focus();
+                }
+
+            })
+            //$("#FourthCat").change(function () {
+            //    $("#tblDetail > tbody").find("tr").remove();
+            //});
+
+            $("#submit-invoice-btn").focus(function () {
+                $("#saveButton").val(1);
+            });
+            $("#submit-invoice-btn").blur(function () {
+                $("#saveButton").val(0);
+            });
+        });
+        function GetThirdLevel() {
+            var secondLevel = $('#Cat_Id').val();
+            $.ajax({
+                type: 'GET',
+                url: '/AR/SaleOrder/GetFourthLevel?id=' + secondLevel
+            }).then(function (data) {
+                var thirdCat = $("#FourthCat");
+                thirdCat.empty();
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    thirdCat.append($("<option />").val(data[i].value).text(data[i].text));
+                }
+            });
+        }
+        function ConversionCalculation(row) {
+            debugger
+            var rate = Number(row.closest("tr").find(".rate").val());
+            var conversion = Number(row.closest("tr").find(".conversion").val());
+            var price = rate * conversion;
+
+            row.closest("tr").find(".price").val(price);
+            CalculateUOMQty(row);
+            GetRowFooter();
+        }
+
+        function CalculateUOMQty(row) {
+            //debugger;
+            debugger
+            var rate = Number(row.closest("tr").find(".rate").val());
+            var saleQty = Number(row.closest("tr").find(".saleQty").val());
+            var meters = Number(row.closest("tr").find(".meters").val());
+            var conversion = Number(row.closest("tr").find(".conversion").val());
+
+            var uOMQty = Number((meters * saleQty) / conversion).toFixed(2);
+            if (uOMQty == 'Infinity') {
+                row.closest("tr").find(".uOMQty").val(0);
+            } else {
+                row.closest("tr").find(".uOMQty").val(uOMQty);
+                row.closest("tr").find(".totalMeterAmount").val(parseFloat(uOMQty) * rate);
+
+            }
+        }
+
+    </script>
+}
+
+
+
+

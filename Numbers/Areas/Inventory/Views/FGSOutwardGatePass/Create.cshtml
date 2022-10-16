@@ -1,0 +1,466 @@
+﻿@model FGSOutwardGatePassViewModel
+@{
+    ViewData["Title"] = "Create FGS Outward Gate Pass";
+    ViewData["CurrentPage"] = "FGSOutwardGatePass";
+}
+
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .form-group > .select2-container {
+            width: 100% !important;
+        }
+
+        select[readonly] option, select[readonly] optgroup {
+            display: none;
+        }
+
+        .table-responsive {
+            max-height: 300px;
+        }
+
+        .t td {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input[type=text], table td input[type=number] {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <!--<div class="ibox-title">-->
+                @*<h5>@ViewData["Title"]</h5>*@
+                <!--<span class="label label-success pull-right status"></span>
+            </div>-->
+            <div class="ibox-content ibox-content-1">
+                <form id="formId" method="post" asp-action="Create" asp-controller="FGSOutwardGatePass" enctype="multipart/form-data" onsubmit="return OnSubmit()">
+                    <input asp-for="FGSOutwardGatePass.Id" type="hidden" />
+                    <div class="row">
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <label asp-for="FGSOutwardGatePass.OGPNo"></label>
+                                    @if (Model.FGSOutwardGatePass.Id != 0)
+                                    {
+                                        <input asp-for="FGSOutwardGatePass.OGPNo" readonly class="form-control" />
+                                    }
+                                    else
+                                    {
+                                        <input readonly class="form-control" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.OGPDate"></label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input  autofocus readonly tabindex="-1" id="OGPDate" class="form-control " asp-for="FGSOutwardGatePass.OGPDate" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-2 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.WarehouseId"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSOutwardGatePass.WarehouseId" class="chosen-select form-control" id="WarehouseId" asp-items="ViewBag.WareHouseLOV" required>
+                                    <option value="0" selected disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.CustomerId"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSOutwardGatePass.CustomerId" class="chosen-select form-control" id="CustomerId" asp-items="ViewBag.Customer" required>
+                                    <option  value="0" selected disabled>Please select</option>
+                                    s
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.SecondItemCategoryId"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSOutwardGatePass.SecondItemCategoryId" class="chosen-select form-control" id="secondcategoryId" asp-items="ViewBag.SecondLevelCategoryLOV" onchange="GetFourthLevel();" required>
+                                    <option  value="0" selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-sm-3 Pad-rht">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.FourthItemCategoryId"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSOutwardGatePass.FourthItemCategoryId" class="chosen-select form-control" asp-items="ViewBag.FourthCategoryLOV" id="fourthCategoryId" required>
+                                    <option value="0" selected disabled>Please select</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="form-group">
+                                <label asp-for="FGSOutwardGatePass.Remarks"></label>
+                                <textarea asp-for="FGSOutwardGatePass.Remarks" style="resize:none;" rows="1" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="form-group">
+                                <label -for="Attachment">File Attachment</label>
+                                <div class="custom-file">
+                                    <input type="file" name="File" multiple class="form-control custom-file-input" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right col-lg-offset-3 mb-3">
+                            <div class="form-group">
+                                <label class="col-form-label"></label>
+                                <input style=" margin-top: 25px; " type="button" class="btn btn-success" onclick="getBales();" value="Get Item from Inventory" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                            <table id="DetailTable" class="table table-bordered table-striped withscroll">
+                                <thead>
+                                    <tr>
+                                        <th hidden>Id</th>
+                                        <th style="width: 14%">Production Order #</th>
+                                        <th style="width: 16%">Item Code</th>
+                                        <th style="width: 18%">Item Description</th>
+                                        <th style="width: 12%">Bale Type</th>
+                                        <th style="width: 10%">Mtr/Bale</th>
+                                        <th style="width: 10%">Bale #</th>
+                                        <th style="width: 10%">Lot #</th>
+                                        <th style="width: 10%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.FGSOutwardGatePassDetails != null)
+                                    {
+                                        @if (Model.FGSOutwardGatePassDetails.Count() > 0)
+                                        {
+                                            @foreach (var item in Model.FGSOutwardGatePassDetails)
+                                            {
+
+                                                <tr>
+                                                    <td hidden class="id">@item.Id</td>
+                                                    <td hidden class="baleId">@item.BaleId</td>
+                                                    <td hidden class="ProductionOrderId">@item.PONoId</td>
+                                                    <td class="ProductionOrderDesc">0001/22</td>
+                                                    <td hidden class="ItemId">@item.ItemId</td>
+                                                    <td class="ItemCode text-left">@item.Item.Code</td>
+                                                    <td class="ItemName text-left">@item.Item.Name</td>
+                                                    <td class="BaleType">@item.BaleType</td>
+                                                    <td class="Meters">@item.MeterBale</td>
+                                                    <td class="BaleNumber">@item.BaleNo</td>
+                                                    <td class="LotNo">0</td>
+                                                    <td class="text-center">
+                                                        <a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>
+                                                    </td>
+                                                </tr>
+                                             }
+                                         }
+                                     }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="container">
+                        <!-- Trigger the modal with a button -->
+                        <div class="modal fade" id="saleModal" role="dialog" style="margin-left:0px">
+                            <div class="modal-dialog modal-lg" style="width: 80%;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <div class="form-group">
+                                            <div class="col-lg-3 col-md-3">
+                                                <input class="form-control" autocomplete="off" id="myInput" placeholder="Search here..." />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-body PopupHeight">
+                                        <div class="row text-center">
+                                            <div class="col-md-12">
+                                                <div class="ibox ">
+                                                    <div class="table-responsive">
+                                                        <table id="ItemTable" class="table table-striped table-bordered table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th hidden>Id</th>
+                                                                    <th width="12%">Production Order#</th>
+                                                                    <th width="20%">Item Code</th>
+                                                                    <th width="26%">Item Description</th>
+                                                                    <th width="10%">Bale Type</th>
+                                                                    <th width="10%">Mtr/Bale</th>
+                                                                    <th width="8%">Bale#</th>
+                                                                    <th width="8%">Lot#</th>
+                                                                    <th width="6%">
+                                                                        <input type="checkbox" class="checkbox-success" id="select_all" />
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <W type="button" id="button" class="btn btn-primary" data-dismiss="modal">Add Item</W>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-lg-12">
+                            <a asp-controller="FGSOutwardGatePass" asp-action="Index" class="btn btn-white">List</a>
+                            <input id="SaveBtn" type="submit" name="submit" value="Save" class="btn btn-primary" />
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                            <input hidden id="detail" name="Detail" />
+                        </div>
+                    </div>
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+    $(document).ready(function () {
+        $("#WarehouseId").select2();
+        $("#CustomerId").select2();
+        $("#secondcategoryId").select2();
+        $("#fourthCategoryId").select2();
+
+        $('#button').click(function () {
+            debugger
+
+            var fouthLevelId = $('#fourthCategoryId').find(":selected").val();
+
+            var table = document.getElementById('ItemTable');
+            var arrayOfValues = [];
+            arrayOfValues = $('input:checkbox:checked', table).map(function () {
+                return $(this).closest('tr').find('.baleId').html();
+            });
+            console.log(arrayOfValues);
+            var arrLength = arrayOfValues.length;
+            var values = [];
+            for (i = 0; i < arrLength; i++) {
+                values.push(parseInt(arrayOfValues[i]));
+            }
+            for (j = 0; j < arrLength; j++) {
+                debugger;
+                $.ajax({
+                    type: 'GET',
+                    async: false,
+                    url: '/Inventory/FGSOutwardGatePass/GetBalesById',
+                    data: { baleId: parseInt(values[j]), fouthLevelId: fouthLevelId },
+                    beforeSend: function () {
+                        //   skipIds.push(values[i]);
+                        //$('#button i').replaceWith('<i class="fa fa-circle-o-notch fa-spin"></i>');
+                        //$('#button').prop('disabled', true);
+                    },
+                }).done(function (data) {
+                    debugger;
+                    var Itemrow = '';
+                    Itemrow += '<tr>';
+                    Itemrow += '<td hidden class="id">0</td>';
+                    Itemrow += '<td hidden class="baleId">' + data.id + '</td>';
+                    Itemrow += '<td hidden class="ProductionOrderId">' + 0 + '</td>';
+                    Itemrow += '<td class="ProductionOrderDesc">0001/22</td>';
+                    Itemrow += '<td hidden class="ItemId">' + data.itemId + '</td>';
+                    Itemrow += '<td class="ItemCode text-left">' + data.item.code + '</td>';
+                    Itemrow += '<td class="ItemName text-left">' + data.item.name + '</td>';
+                    Itemrow += '<td class="BaleType">' + data.baleType + '</td>';
+                    Itemrow += '<td class="Meters">' + data.meters + '</td>';
+                    Itemrow += '<td class="BaleNumber">' + data.baleNumber + '</td>';
+                    Itemrow += '<td class="LotNo">' + 0 + '</td>';
+                    Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                    $('#DetailTable tbody').append(Itemrow);
+                }).fail(function (error) {
+                    //console.log(error.responseText);
+                });
+            }
+        });
+    })
+        function GetFourthLevel() {
+            
+            var secondLevel = $('#secondcategoryId').find(":selected").val();
+            $.ajax({
+                type: 'GET',
+                url: '/AR/SaleOrder/GetFourthLevel?id=' + secondLevel
+            }).then(function (data) {
+                var thirdCat = $("#fourthCategoryId");
+                thirdCat.empty();
+                for (var i = 0; i < data.length; i++) {
+                    //console.log(data[i].name);
+                    thirdCat.append($("<option />").val(data[i].value).text(data[i].text));
+                }
+            });
+        }
+        function getBales() {
+            debugger
+            $("#ItemTable > tbody > tr").remove();
+            var fourthCategoryId = $('#fourthCategoryId').find(":selected").val();
+            
+            if (fourthCategoryId != 0) {
+                var skipIds = [];
+
+                $("#DetailTable > tbody > tr").each(function () {
+                    skipIds.push(Number($(this).find(".baleId").html()));
+                })
+                // AJAX request
+                $.ajax({
+                    url: '/Inventory/FGSOutwardGatePass/GetBales',
+                    type: 'POST',
+                    async: false,
+                    method: 'POST',
+                    data: { skipIds: skipIds, fourthCategoryId : fourthCategoryId },
+                    success: function (response) {
+                        $.each(response, function (i, item) {
+                            debugger
+                            var Itemrow = '';
+                            Itemrow += '<tr>';
+                            Itemrow += '<td hidden class="id">0</td>';
+                            Itemrow += '<td hidden class="baleId">' + item.id + '</td>';
+                            Itemrow += '<td hidden class="ProductionOrderId">' + 0 + '</td>';
+                            Itemrow += '<td class="ProductionOrderDesc">0001/22</td>';
+                            Itemrow += '<td hidden class="ItemId">' + item.itemId + '</td>';
+                            Itemrow += '<td class="ItemCode text-left">' + item.item.code + '</td>';
+                            Itemrow += '<td class="ItemName text-left">' + item.item.name + '</td>';
+                            Itemrow += '<td class="BaleType">' + item.baleType + '</td>';
+                            Itemrow += '<td class="Meters">' + item.meters + '</td>';
+                            Itemrow += '<td class="BaleNumber">' + item.baleNumber + '</td>';
+                            Itemrow += '<td class="LotNo">' + 0 + '</td>';
+                            Itemrow += '<td class="text-center"><input id="check" class="check-box checkbox-success text-center" type="checkbox"></td>';
+
+                            $('#ItemTable tbody').append(Itemrow);
+
+                        });
+                        $('#saleModal').modal('show');
+                        // Display Modal
+                    },
+                    fail: function (response) {
+                        // console.log('message from fail...', response.responseText);
+                    }
+                });
+                return true;
+            }
+            swal({
+                icon: 'warning',
+                text: "Please select the Fourth Category!",
+                closeModal: false
+            }).then(function () {
+                swal.close();
+                $('#SeasonId').focus();
+            });
+            return false;
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+        function OnSubmit() {
+            debugger
+            var warehouseId = Number($("#WarehouseId").find(":selected").val());
+            var customerId = Number($("#CustomerId").find(":selected").val());
+            if (warehouseId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select Warehouse!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WarehouseId").focus();
+                });
+                return false;
+            }
+            if (customerId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select Vendor!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#CustomerId").focus();
+                });
+                return false;
+            }
+            var length = $("#DetailTable tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please enter one item!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#WarehouseId').focus();
+                });
+                return false;
+            }
+                var itemDetails = [];
+                $.each($("#DetailTable tbody tr"), function () {
+                    debugger
+                    itemDetails.push({
+                        Id: $(this).find('.id').html(),
+                        PONoId: $(this).find('.ProductionOrderId').html(),
+                        BaleId: $(this).find('.baleId').html(),
+                        ItemId: $(this).find('.ItemId').html(),
+                        BaleType: $(this).find('.BaleType').html(),
+                        MeterBale: $(this).find('.Meters').html(),
+                        BaleNo: $(this).find('.BaleNumber').html(),
+                        LotNo: $(this).find('.LotNo').html(),
+                    });
+                });
+                var model = JSON.stringify(itemDetails);
+                $("#itemDetail").val(model);
+
+                $("#SaveBtn").attr("disabled", true);
+                $("#SaveBtn").val("Saving...");
+                return true;
+        }
+   </script>
+}

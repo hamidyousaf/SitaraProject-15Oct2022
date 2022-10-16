@@ -1,0 +1,411 @@
+﻿
+
+@{ ViewData["Title"] = " Bank Reconcilation";
+    ViewData["CurrentPage"] = " Bank Reconcilation"; }
+
+
+<link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+<link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+<div class="ibox-title">
+    <h5>Bank Reconcilation</h5>
+</div>
+<div class="ibox-content">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-3 ">Account</label>
+
+            </div>
+            <div class="col-lg-8">
+                <select autofocus name="AccountId" class="form-control" id="AccountId" data-validation-error-msg="Account is required" data-validation-error-msg-container="#account">
+                    <option value="" selected disabled>Select...</option>
+                </select>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-3 ">Account No</label>
+
+            </div>
+            <div class="col-lg-8">
+                <input id="AccountNo" readonly class="form-control" />
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-3 ">Cheque No</label>
+
+            </div>
+            <div class="col-lg-8">
+                <input id="cheque" class="form-control" />
+
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <div class=" ">
+                <label class="  col-3">Realized</label>
+            </div>
+            <div>
+                <input id="check" type="checkbox" class="" />
+
+            </div>
+        </div>
+        <div class="col-md-1">
+
+            <button id="refresh" class="btn btn-dim btn-primary">Refresh</button>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <br />
+        <table class="table table-hover table-sm pl-2 m-md-2" style="margin:10px;" id="vouchertable">
+
+            <thead class=" thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Narration</th>
+                    <th>Cheque #</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Realization</th>
+                    <th>Add Days To Date</th>
+
+                </tr>
+            </thead>
+            <tbody class="small">
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <button id="Save" onclick="submitdetails()" class="btn btn-lg btn-primary" style="margin:10px">Save</button>
+        </div>
+    </div>
+   </div>
+    @section customJS{
+        <script>
+            $.validate();
+            $(function () {
+                var accountId = $('#AccountId');
+                bindSelect2(accountId, '/GL/Api/GetCashBankAccounts', '/GL/Api/GetCashBankAccounts?id=', 0);
+            });
+        </script>
+        <script>
+
+
+            $(document).ready(function () {
+                $('#refresh').click(function (e) {
+                    var url = "";
+
+                    if ($('#check').is(':checked')) {
+                        url = '/GL/Api/GetGLVouchersbychequeReal?id=';
+                    }
+                    else {
+                        url = '/GL/Api/GetGLVouchersbycheque?id=';
+                    }
+                    var id = $("#AccountId").val();
+                    $.ajax({
+                        type: 'GET',
+                        url: '/GL/Api/GetCashBank?id=' + id
+                    }).then(function (data) {
+                        $("#AccountNo").val(data.accountNumber);
+                        var check = $("#cheque").val();
+
+                        $.ajax({
+                            type: 'GET',
+                            url: url + data.accountId + '&cheque=' + check
+                        }).then(function (vouchers) {
+                            debugger;
+                            $('#vouchertable tbody tr').remove();
+                            var row = "";
+                            for (var i = 0; i < vouchers.length; i++) {
+
+                                var daa = new Date(vouchers[i].voucherDate);
+
+                                var datev = addDays(daa, 1);
+                                var d = new Date(vouchers[i].realization);
+
+                                var datea = addDays(d, 1);
+                                if (datea == '1970-01-02') {
+                                    datea = '';
+
+                                }
+                                row = '<tr>' +
+                                    '<td class="id" style="display:none;">' + vouchers[i].id + '</td>' +
+                                    '<td class="voucherNo">' + vouchers[i].voucherNo + '</td>' +
+                                    ' <td class="type">' + vouchers[i].voucherType + '</td>' +
+                                    ' <td class="date" >' + datev + '</td> ' +
+                                    ' <td class="description" >' + vouchers[i].description + ' </td > ' +
+                                    ' <td class="reference" >' + vouchers[i].reference + '</td > ' +
+                                    ' <td class="debit" >' + vouchers[i].debit + '</td> ' +
+                                    ' <td class="credit">' + vouchers[i].credit + '</td>' +
+                                    ' <td class="realization" >  <input  class="form-control  " name="realdate" data-validation="required" type="date" value=' + datea + '  /> </td> ' +
+                                    ' <td class="adddays" > <a class="btn btn-sm 0">0</a>' +
+                                    '<a class="btn btn-sm 1">1</a>' +
+                                    '<a class="btn btn-sm 2" >2</a> ' +
+                                    '<a class="btn btn-sm 3" >3</a> ' +
+                                    '<a class="btn btn-sm 4" >4</a> ' +
+                                    '<a class="btn btn-sm 5" >5</a> ' +
+                                    '<a class="btn btn-sm 6" >6</a></td > ' +
+
+                                    '  </tr>';
+
+                                $('#vouchertable tbody').append(row);
+                                row = '';
+                            }
+
+
+                        });
+                    });
+
+                });
+
+
+                $('#AccountId').click(function (e) {
+                    var url = "";
+
+                    if ($('#check').is(':checked')) {
+                        url = '/GL/Api/GetGLVouchersReal?id=';
+                    }
+                    else {
+                        url = '/GL/Api/GetGLVouchers?id=';
+                    }
+                    var id = $("#AccountId").val();
+                    $.ajax({
+                        type: 'GET',
+                        url: '/GL/Api/GetCashBank?id=' + id
+                    }).then(function (data) {
+                        $("#AccountNo").val(data.accountNumber);
+                        $.ajax({
+                            type: 'GET',
+                            url: url + data.accountId
+                        }).then(function (vouchers) {
+                            debugger;
+                            $('#vouchertable tbody tr').remove();
+
+                            var row = "";
+                            for (var i = 0; i < vouchers.length; i++) {
+                                debugger
+                                if (vouchers[i].realization == null) {
+                                    vouchers[i].realization = vouchers[i].voucherDate;
+                                }
+                                var daa = new Date(vouchers[i].voucherDate);
+
+                                var datev = addDays(daa, 1);
+                                var d = new Date(vouchers[i].realization);
+
+                                var datea = addDays(d, 1);
+
+                                row = '<tr>' +
+                                    '<td class="id" style="display:none;">' + vouchers[i].id + '</td>' +
+                                    '<td class="voucherNo">' + vouchers[i].voucherNo + '</td>' +
+                                    ' <td class="type">' + vouchers[i].voucherType + '</td>' +
+                                    ' <td class="date" >' + datev + '</td> ' +
+                                    ' <td class="description" >' + vouchers[i].description + ' </td > ' +
+                                    ' <td class="reference" >' + vouchers[i].reference + '</td > ' +
+                                    ' <td class="debit" >' + vouchers[i].debit + '</td> ' +
+                                    ' <td class="credit">' + vouchers[i].credit + '</td>' +
+                                    ' <td class="realization" >  <input   autofocus class="form-control custom-date-picker "  type="date" value=' + datea + '  /> </td> ' +
+                                    ' <td class="adddays" > <a class="btn btn-sm 0">0</a>' +
+                                    '<a class="btn btn-sm 1">1</a>' +
+                                    '<a class="btn btn-sm 2" >2</a> ' +
+                                    '<a class="btn btn-sm 3" >3</a> ' +
+                                    '<a class="btn btn-sm 4" >4</a> ' +
+                                    '<a class="btn btn-sm 5" >5</a> ' +
+                                    '<a class="btn btn-sm 6" >6</a></td > ' +
+
+                                    '  </tr>';
+
+                                $('#vouchertable tbody').append(row);
+                                row = '';
+                            }
+
+
+                        });
+                    });
+
+                });
+
+            });
+        </script>
+        @*click Events*@
+        <script>
+            function addDays(date, days) {
+                var result = new Date(date);
+                result.setDate(result.getDate() + days);
+                var d = new Date(result);
+                var datea = d.toISOString().slice(0, 10);
+                return datea;
+            }
+            $("#vouchertable tbody").on("click", ".0", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 0);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".1", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 1);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".2", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 2);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".3", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 3);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".4", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 4);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".5", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 5);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+            $("#vouchertable tbody").on("click", ".6", function () {
+
+                debugger;
+                var $item1 = $(this).closest("tr")
+                    .find(".date")
+                    .html();
+                var $item2 = $(this).closest("tr")
+                    .find("input")
+                    .val();
+                var dateup = addDays($item1, 6);
+
+                debugger;
+                $(this).closest("tr").find("input").val(dateup);
+            });
+
+
+        </script>
+        <script>
+            function submitdetails() {
+                debugger;
+                var vouchers = [];
+                $.each($("#vouchertable tbody tr"), function () {
+
+                    var id = $(this).find(".id")
+                        .html();
+                    var date = $(this).find(".date")
+                        .html();
+                    var real = $(this).find("input")
+                        .val();
+                    var voucherNo = $(this).find(".voucherNo").html();
+                    debugger;
+                    if (real != '') {
+
+                        vouchers.push({
+                            Id: id,
+                            Date: date,
+                            Real: real,
+                            VoucherNo: voucherNo
+                        });
+                    }
+
+                });
+                debugger;
+                /**/
+                var model = {
+                    vouchers: vouchers
+                }
+
+
+                var url = "/GL/Api/PostVouchersRealization";
+
+                $.post(url, model, function (res) {
+
+
+                    if (res == "Success") {
+                        location.reload();
+                        //  swal("", "Dispatched Has been Saved.", "success");
+                        //location.reload();
+                        //  window.location.href = "/Laundry/HospitalDispatch/ListView";
+                    }
+                    else if (res == "Error") {
+                        alert("Dispatched  Not Save.");
+                    }
+                });
+                //$.ajax({
+                //    method: 'post',
+                //    url: "/GL/Api/PostVouchersRealization",
+                //    data: {
+                //        voucherRealization: vouchers
+                //    },
+                //    contentType: "application/json; charset=utf-8",
+                //    dataType: "json",
+                //    success: function (data) {
+                //        console.log(data);
+                //    }
+                //});
+
+            }
+
+        </script>
+    }

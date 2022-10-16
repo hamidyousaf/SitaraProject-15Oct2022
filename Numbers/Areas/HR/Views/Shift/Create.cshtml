@@ -1,0 +1,170 @@
+﻿@model  HRShift
+@{
+    ViewData["Title"] = "Create Shift";
+    ViewData["CurrentPage"] = "Shift";
+}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>@ViewBag.EntityState Create Shift</h5>
+                    <span class="label label-success pull-right status"></span>
+                </div>
+                <div class="ibox-content ibox-content-1">
+                    <form class="form-horizontal" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="row">
+                                    @*<input type="hidden" asp-for="Id" />*@
+
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <label asp-for="Name" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="Name" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="Type" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <select asp-for="Type" class="form-control" data-validation="required">
+                                                        <option selected disabled>select the type --</option>
+                                                        <option value="Morning">Morning</option>
+                                                        <option value="Evening">Evening</option>
+                                                        <option value="Night">Night</option>
+                                                    </select>
+                                                    <span asp-validation-for="Type" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="StartTime" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="StartTime" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="StartTime" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="BreakStartTime" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="BreakStartTime" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="BreakStartTime" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="MarkAbsentBefore" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="MarkAbsentBefore" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="MarkAbsentBefore" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="MarkHalfDayShort" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="MarkHalfDayShort" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="MarkHalfDayShort" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="MarkLateAfter" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="MarkLateAfter" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="MarkLateAfter" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <label asp-for="ShortName" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="ShortName" type="text" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="ShortName" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="WorkingHours" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="WorkingHours" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="WorkingHours" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="EndTime" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="EndTime" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="BreakEndTime" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="BreakEndTime" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="BreakEndTime" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="MarkShortLeave" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="MarkShortLeave" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="MarkShortLeave" class="text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label asp-for="MarkHalfDayBefore" class="col-lg-4 control-label"></label>
+                                                <div class="col-lg-8">
+                                                    <input asp-for="MarkHalfDayBefore" type="time" class="form-control" data-validation="required" />
+                                                    <span asp-validation-for="MarkHalfDayBefore" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label asp-for="IsActive" class="col-md-2 control-label"></label>
+                                        <div class="col-md-4">
+                                            <div class="checkbox checkbox-success">
+                                                <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked" />
+                                                <label for="IsActive"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top:10px;">
+                                    <div class="form-group">
+                                        <div class="col-lg-4 col-lg-offset-2">
+                                            <a value="Back" class="btn btn-white" asp-controller="Shift" asp-action="Index">Back</a>
+                                            <input type="submit" value="Submit" class="btn btn-primary" asp-action="Create" asp-controller="Shift" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>       
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+

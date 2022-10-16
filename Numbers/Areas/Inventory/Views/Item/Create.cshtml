@@ -1,0 +1,754 @@
+﻿@model InvItem
+
+@{
+    ViewData["Title"] = "Create Item";
+    ViewData["CurrentPage"] = "Items";
+}
+@section customCSS{
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins container-fluid">
+            <form class=" ibox-content form-horizontal" asp-action="Create" asp-controller="Item" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="ibox-title">
+                        <h2>Basic Values</h2>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Category<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-9">
+                                <select asp-for="CategoryId" asp-items="@ViewBag.listOfItemCategories" id="ItemCategory" onchange="GetCode()" class="form-control" data-validation="required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">Item Account<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-9">
+                                <select asp-for="InvItemAccountId" asp-items="@ViewBag.listOfItemAccounts" id="ItemAccount" class="form-control" data-validation="required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="ibox-title">
+                        <h2>General</h2>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Item Code<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-8">
+                                <input asp-for="Code" id="ItemCode" value="@ViewBag.Code" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="control-label col-lg-4">Barcode<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-8">
+                                <input asp-for="Barcode" id="ItemBarcode" value="@ViewBag.BarCode" class="form-control" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <input type="hidden" id="InvItemId" asp-for="Id" />
+                        <div class="form-group">
+                            <label class="control-label col-lg-4" style="padding-left:0px">Name<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-8">
+                                <input asp-for="Name" name="Name" id="ItemName" class="form-control" data-validation="required" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">UOM<i style="color: #a94442;">*</i></label>
+                            <div class="col-lg-8">
+                                <select asp-for="Unit" name="Unit" asp-items="@ViewBag.UOMs" class="form-control" data-validation="required">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Pack unit</label>
+                            <div class="col-lg-8">
+                                <select asp-for="PackUnit" asp-items="@ViewBag.UOMs" class="form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-lg-4">Pack Qty</label>
+                            <div class="col-lg-8">
+                                <input asp-for="PackQty" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Season</label>
+                            <div class="col-lg-8">
+                                <select asp-for="Season" asp-items="@ViewBag.Season" class="form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="col-lg-4 control-label">Fabric Construction</label>
+                            <div class="col-lg-8">
+                                <select asp-for="FabricConstruction" asp-items="@ViewBag.FabricConstruction" class="form-control">
+                                    <option selected="selected" disabled>Select...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2>Make/Model</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Make<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Make" name="Make" class="form-control" data-validation="required" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="Model" class="control-label col-lg-4">Model</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Model" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Brand</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Brand" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Color</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Color" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Material</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Material" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Menu Code</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ManufacturedCode" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="SerialNo" class="control-label col-lg-4">Serial No</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="SerialNo" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Lot No</label>
+                                <div class="col-lg-8">
+                                    <input asp-for="LotNo" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2>Size Specs</h2>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Size</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMSize" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Size" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">length</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMLength" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Length" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Width</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMWeight" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Width" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Height</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMHeight" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Height" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Weight</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMWeight" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Weight" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label col-lg-4">Radius</label>
+                                <div class="col-lg-4">
+                                    <select asp-for="UOMRadius" name="UOMRadius" asp-items="@ViewBag.UOMs" class="form-control">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input asp-for="Radius" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="ibox-title">
+                            <h2>Other</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Purchaseable<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="IsPurchaseable" class="form-control" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Saleable<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="IsSaleable" class="form-control" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Location<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="IsLocation" id="location" class="form-control" onchange="ChangeLocation()" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="No">No</option>
+                                        <option value="Fixed">Fixed</option>
+                                        <option value="Multiple">Multiple</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label">Location True<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="LocationIfTrue" id="locTrue" asp-items="@ViewBag.listOfLocation" class="form-control" data-validation="required">
+                                        <option selected="selected" value="" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Expired<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="IsExpired" class="form-control" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Lab Test<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="IsLabTest" class="form-control" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Ware House<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="WareHouse" id="Ware" asp-items="@ViewBag.listOfWareHouse" class="form-control" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" style="padding-left:0px">Order Type<i style="color: #a94442;">*</i></label>
+                                <div class="col-lg-8">
+                                    <select asp-for="OrderType" id="ordtyp" class="form-control" onchange="ChangeOrder();" data-validation="required">
+                                        <option selected="selected" disabled>Select...</option>
+                                        <option value="Level Item">Level Item</option>
+                                        <option value="Indent Item">Indent Item</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 showStock" hidden>
+                            <div class="form-group">
+                                <label class="control-label col-lg-4" style="padding-left:0px">Min Stock<i style="color: #a94442;">**</i></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="MinStockLevel" class="form-control" data-validation="required" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 showStock" hidden>
+                            <div class="form-group">
+                                <label class="control-label col-lg-4" style="padding-left:0px">ReOrder Stock<i style="color: #a94442;">**</i></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="ReorderStockLevel" class="form-control" data-validation="required" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 showStock" hidden>
+                            <div class="form-group">
+                                <label class="control-label col-lg-4" style="padding-left:0px">Max Stock<i style="color: #a94442;">**</i></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="MaxStockLevel" class="form-control" data-validation="required" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <a value="Back" class="btn btn-white" asp-controller="Item" asp-action="Index">List</a>
+                        <button id="SaveBtn" onclick="return Validation();" type="submit" value="Submit" class="btn btn-primary submit" asp-action="Create" asp-controller="Item">@ViewBag.EntityState</button>
+                        <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            if ($("#location").find(":selected").val() == "No" || $("#location").find(":selected").val() == "Multiple") {
+                $('#locTrue').prop('disabled', 'disabled');
+            }
+            else {
+                $('#locTrue').prop('disabled', false);;
+            }
+
+            $("#SaveBtn").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#SaveBtn").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+        })
+        if ($("#ordtyp").find(":selected").val() == "Level Item") {
+            $('.showStock').show();
+        }
+        else {
+            $('.showStock').hide();
+        }
+        $.validate();
+        $('#ItemCategory').select2();
+        $('#ItemAccount').select2();
+               function checkCode() {
+           $("#Status").html("Checking...");
+        $.post("@Url.Action("checkProductCodeAlreadyExists", "Item", "Inventory")",
+            {
+                code: $("#Code").val()
+            },
+        function (data) {
+            if (data == 0) {
+                $("#Status").html('<font color="Green"></font>');
+                $("#Code").css("border-color", "Green");
+                $(".submit").removeAttr("disabled");
+            }
+            else {
+                $("#Status").html('<font color="Red">Product with same Code already exists.</font>');
+                $("#Code").css("border-color", "Red");
+                $(".submit").attr("disabled", "disabled");
+            }
+        });
+        }
+        function ChangeLocation() {
+            debugger
+            if ($("#location").find(":selected").val() == "Fixed") {
+                $('#locTrue').prop('disabled', false);;
+            }
+            else {
+                $('#locTrue').change().val('');
+                $('#locTrue').prop('disabled', 'disabled');
+            }
+        }
+        function ChangeOrder() {
+            debugger
+            if ($("#ordtyp").find(":selected").val() == "Level Item") {
+                $('.showStock').show();
+            }
+            else {
+                $('.showStock').hide();
+                }
+        }
+        $(function () {
+            $('#StockAccountId').select2({
+                placeholder: "Select an account",
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a an item',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            var StockAccountId = $('#StockAccountId');
+            var id =@Model.StockAccountId;
+            $.ajax({
+                type: 'GET',
+                url: '/GL/Api/GetAccount?id=' + id
+            }).then(function (data) {
+                var option = new Option(data.text, data.id, true, true);
+                StockAccountId.append(option).trigger('change');
+                StockAccountId.trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+        });
+
+         @*$(function () {
+            $('#InvItemAccountId').select2({
+                placeholder: "Select an account",
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a an item',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            var InvItemAccountId = $('#InvItemAccountId');
+            var id =@Model.InvItemAccountId;
+            $.ajax({
+                type: 'GET',
+                url: '/GL/Api/GetAccount?id=' + id
+            }).then(function (data) {
+                var option = new Option(data.text, data.id, true, true);
+                InvItemAccountId.append(option).trigger('change');
+                InvItemAccountId.trigger({
+                    type: 'select2:select',
+                    params: {
+                        data: data
+                    }
+                });
+            });
+        });*@
+
+        $(function () {
+            $('#SaleAccountId').select2({
+                placeholder: "Select an account",
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a an item',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            })
+        })
+        var SaleAccountId = $('#SaleAccountId');
+        var id=@Model.SaleAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            SaleAccountId.append(option).trigger('change');
+            SaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+        $(function () {
+            $('#CostofSaleAccountId').select2({
+                placeholder: "Select an account",
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a an item',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            })
+        })
+        var CostofSaleAccountId = $('#CostofSaleAccountId');
+        var id=@Model.CostofSaleAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+            var option = new Option(data.text, data.id, true, true);
+            CostofSaleAccountId.append(option).trigger('change');
+            CostofSaleAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+
+         $(function () {
+            $('#ConsumptionAccountId').select2({
+                placeholder: "Select an account",
+                ajax: {
+                    url: '/GL/Api/GetAccounts',
+                    dataType: 'json',
+                    delay: 250,
+                    placeholder: 'Search for a an item',
+                    processResults: function (data, params) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                }
+            })
+        })
+        var GLConsumptionAccountId = $('#GLConsumptionAccountId');
+        var id=@Model.GLConsumptionAccountId;
+        $.ajax({
+            type: 'GET',
+            url: '/GL/Api/GetAccount?id=' + id
+        }).then(function (data) {
+           // console.log(data);
+            var option = new Option(data.text, data.id, true, true);
+            GLConsumptionAccountId.append(option).trigger('change');
+            GLConsumptionAccountId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+
+           //On Edit Item Number will not allow editing
+        $(document).ready(function () {
+            if ("@Model.Code" != "") {
+                $("#Code").prop('readonly', true);
+            }
+            else {
+                $("#Code").prop('disabled', false);
+            }
+        });
+        function GetCode() {
+            debugger
+            //var b = $("#ItemCategory").find(":selected").text().lastIndexOf('-');
+
+            var ItemCategoryId = $("#ItemCategory").find(":selected").val();
+            var InvItemId = Number($("#InvItemId").val());
+            if (ItemCategoryId == 0) {
+                return false;
+            }
+
+                            debugger
+                $.ajax({
+                    type: "get",
+                    url: '@Url.Action("GetCode", "Item")',
+                    contentType: "application/json; charset=utf-8",
+                    data: {
+                        ItemCategoryId: ItemCategoryId,
+                        InvItemId: InvItemId
+                    },
+                    async: false,
+                    dataType: "json",
+                    success: function (data) {
+                        debugger
+                        $("#ItemBarcode").val(data.barcode);
+                        $("#ItemCode").val(data.code);
+                    },
+                });
+            //var b = $("#ItemCategory").find(":selected").text().indexOf('-');
+            //var f = $("#ItemCategory").find(":selected").text().substring(0,5);
+            //var c = $("#ItemCategory").find(":selected").text().substring(0, b);
+            //if ($("#ItemCode").val().includes('-')) {
+            //    debugger
+            //    var d = $("#ItemCode").val().lastIndexOf('-');
+            //    var g = $("#ItemBarcode").val().lastIndexOf('-');
+            //}
+            //var ItemBarcode = $("#ItemBarcode").val();
+            //var ItemCode = $("#ItemCode").val();
+            //var a = c.concat("-", $("#ItemCode").val().substring(d + 1, 15));
+            //var Barcode = f.concat("-", ItemBarcode.substring(g+1, 15));
+            //$("#ItemBarcode").val(Barcode);
+            //$("#ItemCode").val(a);
+        }
+        function Validation() {
+            debugger
+            $("#form").validate({
+                rules: {
+                    Name: {
+                        required: true,
+                    },
+                    Unit: {
+                        required: true
+                    },
+                     Make: {
+                        required: true
+                    },
+                    Max: {
+                        required: true
+                    },
+                    Min: {
+                        required: true
+                    },
+                    ReOrder: {
+                        required: true
+                    },
+                    //Ware: {
+                    //    required: true
+                    //},
+                    //Purchase: {
+                    //    required: true
+                    //},
+                    //Sale: {
+                    //    required: true
+                    //},
+                    //Exp: {
+                    //    required: true
+                    //},
+                    Order: {
+                        required: true
+                    },
+                    //Loc: {
+
+                    //    required: true
+                    //},
+                   LocTrue: {
+                    required: true
+                   },
+                //   LbTst: {
+                //    required: true
+                //},
+                },
+                //messages: {
+                //    quantity: "",
+                //    requiredDate: ""
+                //}
+            });
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            if ($("#ordtyp").find(":selected").val() == "") {
+                swal("", "Please Select OrderType", "warning")
+                return false;
+            }
+            if ($("#Ware").find(":selected").val() == "") {
+                swal("", "Please Select Ware House", "warning")
+                return false;
+            }
+            else
+                return true;
+        }
+    </script>
+}

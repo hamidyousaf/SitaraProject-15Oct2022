@@ -1,0 +1,155 @@
+﻿@model GLVoucherViewModel
+@{
+    ViewData["Title"] = "Voucher Detail";
+}
+@using System.Globalization;
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="Voucher" asp-action="Index" asp-route-type="@Model.GLVouchers.VoucherType" class="btn btn-white">List</a>
+                    @*<a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>*@
+                    @*<a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Voucher No: <strong class="text-navy">@Model.GLVouchers.VoucherNo</strong></span></h4>
+                        <span><strong>Voucher Date: </strong>@Model.GLVouchers.VoucherDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>Voucher Type: </strong>@Model.GLVouchers.VoucherType</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        @*<h4><span>Bank: <strong class="text-navy">@Model.GLVouchers.BankCashAccount.AccountName - @Model.GLVouchers.BankCashAccount.AccountNumber</strong></span></h4>*@
+                        <p>
+                            <span><strong>Debit: </strong>@Model.Debit.ToString("N", new CultureInfo("en-US"))</span><br />
+                            <span><strong>Credit: </strong>@Model.Credit.ToString("N", new CultureInfo("en-US"))</span><br />
+                            <span><strong>Difference: </strong>@Model.Difference</span><br />
+                        </p>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Seq</th>
+                                <th>Account Name</th>
+                                <th>Sub Account</th>
+                                <th>Department</th>
+                                <th>Sub Department</th>
+                                <th>Cost Center</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.GLVoucherDetails)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        @item.Sequence
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Account.Code) -
+                                        @Html.DisplayFor(modelItem => item.Account.Name)
+                                    </td>
+                                    <td>
+                                        @{
+                                            var SubAccount = item.SubAccount != null ? item.SubAccount.Description : "";
+                                        }
+                                        @SubAccount
+                                    </td>
+                                    <td>
+                                        @{
+                                            var Department = item.Department != null ? item.Department.Name : "";
+                                        }
+                                        @Department
+                                    </td>
+                                    <td>
+                                        @{
+                                            var SubDepartment = item.SubDepartment != null ? item.SubDepartment.Name : "";
+                                        }
+                                        @SubDepartment
+                                    </td>
+                                    <td>
+                                        @{
+                                            var CostCenter = item.CostCenter != null ? item.CostCenter.Description : "";
+                                        }
+                                        @SubDepartment
+                                    </td>
+                                    <td class="text-center">  
+                                        @{var d = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(d, "{0:N}", item.Debit)}
+                                    </td>
+                                    <td class="text-center">
+                                        @{var c = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(c, "{0:N}", item.Credit)}
+                                    </td>
+                                    <td class="text-left">
+                                        @item.Description
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+                @*<table class="table invoice-total">
+                        <tbody>
+                            <tr>
+                                <td><strong>Sub Total :</strong></td>
+                                <td>
+                                    @{
+                                        var usSubTotal = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usSubTotal, "{0:N}", Model.GrandTotal)
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sales Tax :</strong></td>
+                                <td>
+                                    @{
+                                        var usSTAmount = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usSTAmount, "{0:N}", ViewBag.TaxAmount)
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grand Total :</strong></td>
+                                <td>
+                                    <b>
+                                        @{
+                                            var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usGrandTotal, "{0:N}", Model.GrandTotal + ViewBag.TaxAmount)
+                                        }
+                                    </b>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>*@
+                <div class="well-remarks m-t">
+                    <strong>Description: </strong>
+                    @Model.GLVouchers.Description
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

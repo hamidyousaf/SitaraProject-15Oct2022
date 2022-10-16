@@ -1,0 +1,50 @@
+﻿@model IEnumerable<PlanSpecification>
+<link href="~/css/plugins/select2/select2.min.css" rel="stylesheet" />
+<style>
+    .fa.fa-trash-alt:hover {
+        color: red;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="table-responsive">
+    <table id="SeasonTable" class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th hidden>@Html.DisplayNameFor(modelItem => modelItem.Id)</th>
+                <th>@Html.DisplayNameFor(modelItem => modelItem.ItemCategoryLevel4Id)</th>
+                <th>@Html.DisplayNameFor(modelItem => modelItem.GRQualityId)</th>
+                <th><input type="checkbox" class="checkbox-success" id="select_all" /></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td hidden class="SpecificationId">@Html.DisplayFor(modelItem => item.Id)</td>
+                <td class="text-left">@Html.DisplayFor(modelItem => item.ItemCategoryLevel4.Name)</td>
+                <td class="text-left">@Html.DisplayFor(modelItem => item.GRQuality.Description)</td>
+                <td class="text-center"><input id="check" class="check-box checkbox-success text-center" type="checkbox"></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $("#select_all").change(function () {
+        debugger
+        //"select all" change
+        var status = this.checked; // "select all" checked status
+        $('.check-box').each(function () { //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+        });
+    });
+</script>

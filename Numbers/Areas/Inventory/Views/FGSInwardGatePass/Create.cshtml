@@ -1,0 +1,344 @@
+﻿@model Numbers.Entity.ViewModels.FGSInwardGatePassViewModel
+
+@{
+    ViewData["Title"] = "Create FGS Inward Gate Pass";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+}
+@section customCSS{
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        table td {
+            position: relative;
+        }
+
+            table td input:not([type='checkbox']) {
+                position: absolute;
+                display: block;
+                top: 0;
+                left: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form asp-controller="FGSInwardGatePass" asp-action="Create" method="post" onsubmit="return OnSubmit($(this)); ">
+                    <input asp-for="FGSInwardGatePass.Id" hidden />
+                    <div class="row">
+                        <input hidden />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label" asp-for="FGSInwardGatePass.IGPNo"></label><span><i style="color: #a94442;">*</i></span>
+                                @if (Model.FGSInwardGatePass.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" asp-for="FGSInwardGatePass.IGPNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="TransactionNo" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.IGPDate"></label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="FGSInwardGatePass.IGPDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label  asp-for="FGSInwardGatePass.WarehouseId" class="col-form-label"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSInwardGatePass.WarehouseId" class="chosen-select form-control" id="WarehouseId" asp-items="@ViewBag.WareHouseLOV">
+                                    <option value="0" disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label  asp-for="FGSInwardGatePass.VendorId" class="col-form-label"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSInwardGatePass.VendorId" class="chosen-select form-control" id="VendorId" asp-items="@Model.VendorLOV">
+                                    <option value="0" disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.OGPId" class="col-form-label"></label><span><i style="color: #a94442;">*</i></span>
+                                <select asp-for="FGSInwardGatePass.OGPId" onchange="OnOGPChange() " class="chosen-select form-control" id="OGPId" asp-items="@Model.FGSOutwardGatePassesLOV">
+                                    <option value="0" disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.DriverName" class="col-form-label"></label>
+                                <input type="text" id="DriverName" asp-for="FGSInwardGatePass.DriverName" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.VehicleTypeId" class="col-form-label"></label>
+                                <select asp-for="FGSInwardGatePass.VehicleTypeId" class="chosen-select form-control" id="VehicleTypeId" asp-items="@ViewBag.VehicleType">
+                                    <option value="0" disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.VehicleNo" class="col-form-label"></label>
+                                <input type="text" id="DriverName" asp-for="FGSInwardGatePass.VehicleNo" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-lg-4 ">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.Remarks"></label>
+                                <input asp-for="FGSInwardGatePass.Remarks" class="form-control" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="FGSInwardGatePass.FileAttachment"></label>
+                                <div class="custom-file">
+                                    <input type="file" asp-for="FGSInwardGatePass.FileAttachment" multiple class="form-control custom-file-input" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-sm-12">
+                            <div class="container-fluid table-responsive">
+                                <table id="Table" width="100%" class="table table-bordered table-striped dataTables-example">
+                                    <thead>
+                                        <tr>
+                                            <th hidden>Id</th>
+                                            <th style="width: 14%">Production Order #</th>
+                                            <th style="width: 16%">Item Code</th>
+                                            <th style="width: 18%">Item Description</th>
+                                            <th style="width: 12%">Bale Type</th>
+                                            <th style="width: 10%">Mtr/Bale</th>
+                                            <th style="width: 10%">Bale #</th>
+                                            <th style="width: 10%">Lot #</th>
+                                            <th style="width: 10%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.FGSInwardGatePassDetails != null)
+                                        {
+                                            @if (Model.FGSInwardGatePassDetails.Count() > 0)
+                                            {
+                                                @foreach (var item in Model.FGSInwardGatePassDetails)
+                                                {
+
+                                                    <tr>
+                                                        <td hidden class="id">@item.Id</td>
+                                                        <td hidden class="baleId">@item.BaleId</td>
+                                                        <td hidden class="ProductionOrderId">@item.ProductionOrderId</td>
+                                                        <td hidden class="FGSOutwardGatePassId">@item.FGSInwardGatePassId</td>
+                                                        <td hidden class="FGSOutwardGatePassDetailId">@item.FGSOutwardGatePassDetailId</td>
+                                                        <td class="ProductionOrderDesc">0001/22</td>
+                                                        <td hidden class="ItemId">@item.ItemId</td>
+                                                        <td class="ItemCode text-left">@item.Item.Code</td>
+                                                        <td class="ItemName text-left">@item.Item.Name</td>
+                                                        <td class="BaleType">@item.BaleType</td>
+                                                        <td class="Meters">@item.MeterPerBales</td>
+                                                        <td class="BaleNumber">@item.BaleNo</td>
+                                                        <td class="LotNo">@item.LotNo</td>
+                                                        <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>
+                                                    </tr>
+
+                                                 }
+                                             }
+                                         }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <br>
+                    <a asp-controller="FGSInwardGatePass" asp-action="Index" class="btn btn-white">List</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <input hidden id="itemDetail" name="ItemDetail" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#WarehouseId").select2();
+            $("#VendorId").select2();
+            $("#OGPId").select2();
+            $("#VehicleTypeId").select2();
+        });
+
+        function OnSubmit() {
+            var warehouseId = Number($("#WarehouseId").find(":selected").val());
+            var vendorId = Number($("#VendorId").find(":selected").val());
+            var ogpId = Number($("#OGPId").find(":selected").val());
+            var vehicleTypeId = Number($("#VehicleTypeId").find(":selected").val());
+            if (warehouseId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select Warehouse!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#WarehouseId").focus();
+                });
+                return false;
+            }
+            if (vendorId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select Vendor!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#VendorId").focus();
+                });
+                return false;
+            }
+            if (ogpId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select OGP!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#OGPId").focus();
+                });
+                return false;
+            }
+            if (vehicleTypeId == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Please select OGP!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#VehicleTypeId").focus();
+                });
+                return false;
+            }
+
+            var length = $("#Table tbody tr").length;
+            if (length == 0) {
+                swal({
+                    icon: "warning",
+                    text: "Item must be enter atleast one!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $("#IGPId").focus();
+                });
+                return false;
+            }
+
+            var itemDetails = [];
+            $.each($("#Table tbody tr"), function () {
+                debugger
+                itemDetails.push({
+                    Id: $(this).find('.id').html(),
+                    ProductionOrderId: $(this).find('.ProductionOrderId').html(),
+                    BaleId: $(this).find('.baleId').html(),
+                    FGSOutwardGatePassId: $(this).find('.FGSOutwardGatePassId').html(),
+                    FGSOutwardGatePassDetailId: $(this).find('.FGSOutwardGatePassDetailId').html(),
+                    ItemId: $(this).find('.ItemId').html(),
+                    BaleType: $(this).find('.BaleType').html(),
+                    MeterPerBales: $(this).find('.Meters').html(),
+                    BaleNo: $(this).find('.BaleNumber').html(),
+                    LotNo: $(this).find('.LotNo').html(),
+
+                });
+            });
+            var model = JSON.stringify(itemDetails);
+            $("#itemDetail").val(model);
+
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").text("Saving...");
+            return true;
+        }
+
+        function check(row) {
+            debugger
+            var rejectedQuantity = Number(row.closest("tr").find(".RejectedQuantity").val());
+            var DamageTypeId = Number(row.closest("tr").find(":selected").val());
+            if (rejectedQuantity == 0 && DamageTypeId != 0) {
+                row.closest("tr").find(".DamageTypeId").val(0).trigger('change.select2');
+            }
+        };
+
+        function OnOGPChange() {
+            debugger
+            var OGPId = $("#OGPId").find(":selected").val();
+            if (OGPId == 0) {
+                return false;
+            }
+            // AJAX request
+            $.ajax({
+                url: '/Inventory/FGSInwardGatePass/GetOGP',
+                type: 'POST',
+                method: 'POST',
+                data: { OGPId: OGPId},
+                success: function (response) {
+                    $.each(response, function (i, item) {
+                        debugger
+                        var Itemrow = '';
+                        Itemrow += '<tr>';
+                        Itemrow += '<td hidden class="id">0</td>';
+                        Itemrow += '<td hidden class="baleId">' + item.baleId + '</td>';
+                        Itemrow += '<td hidden class="ProductionOrderId">' + item.poNoId + '</td>';
+                        Itemrow += '<td hidden class="FGSOutwardGatePassId">' + item.fgsOutwardGatePassId + '</td>';
+                        Itemrow += '<td hidden class="FGSOutwardGatePassDetailId">' + item.id + '</td>';
+                        Itemrow += '<td class="ProductionOrderDesc">0001/22</td>';
+                        Itemrow += '<td hidden class="ItemId">' + item.itemId + '</td>';
+                        Itemrow += '<td class="ItemCode text-left">' + item.item.code + '</td>';
+                        Itemrow += '<td class="ItemName text-left">' + item.item.name + '</td>';
+                        Itemrow += '<td class="BaleType">' + item.baleType + '</td>';
+                        Itemrow += '<td class="Meters">' + item.meterBale + '</td>';
+                        Itemrow += '<td class="BaleNumber">' + item.baleNo + '</td>';
+                        Itemrow += '<td class="LotNo">' + 0 + '</td>';
+                        Itemrow += '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>';
+                        $('#Table tbody').append(Itemrow);
+                    });
+                },
+                fail: function (response) {
+                }
+            });
+            return true;
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+    </script>
+}

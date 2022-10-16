@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = ViewBag.ReportType;
+    if (ViewBag.ReportType == "Sales Summary Customer Wise")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else if(ViewBag.ReportType=="Customer Outstanding")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else if (ViewBag.ReportType == "Sales Journal")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    else if (ViewBag.ReportType == "Sales Ledger Invoice Wise")
+    {
+        ViewData["CurrentPage"] = ViewBag.ReportType;
+    }
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.ReportType</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    @if (ViewBag.ReportType == "Sales Summary Customer Wise")
+                    {
+                        <input type="hidden" name="ReportTitle" value="SalesSummaryCustomerWise" />
+                    }
+                    else if (ViewBag.ReportType == "Customer Outstanding")
+                    {
+                        <input type="hidden" name="ReportTitle" value="CustomerOutstanding" />
+                    }
+                    else if (ViewBag.ReportType == "Sales Journal")
+                    {
+                        <input type="hidden" name="ReportTitle" value="SalesJournal" />
+                    }
+                    else if (ViewBag.ReportType == "Sales Ledger Invoice Wise")
+                    {
+                        <input type="hidden" name="ReportTitle" value="SalesLedgerInvoiceWise" />
+                    }
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-lg-offset-1">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

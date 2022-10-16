@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgVehicle>
+
+@{
+    ViewData["Title"] = "Cash/Bank Receipt Confirmation";
+    ViewData["CurrentPage"] = "Cash / Bank Receipt Confirmation";
+}
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>List of Booked Vehicles </h5>
+
+
+
+        <div class="ibox-content">
+            <div class="text-center">
+                <a class="btn btn-primary pull-left m-t-n-xs" asp-action="VehicleCreate"><strong>Create New Booking</strong></a>
+            </div>
+            <table class="table table-bordered table-striped dataTables-example">
+                <thead>
+                    <tr>
+                        <th>
+                            Vehicle
+                        </th>
+                        <th>
+                            CNIC
+                        </th>
+                        <th>
+                            Booked By
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Price)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ReceivedAmount)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.CNIC)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReceivedAmount)
+                        </td>
+                        <td>
+                            <a asp-action="CashOrBankReceiptConfirmation" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-check"></i></a>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

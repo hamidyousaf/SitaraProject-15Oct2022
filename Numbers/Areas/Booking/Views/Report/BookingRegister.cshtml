@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Booking Register";
+    ViewData["CurrentPage"] = "Register";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Booking Register</h5>
+            </div>
+            <div class="ibox-content">
+                <form id="report" class="form-horizontal" method="post">
+                    <input type="hidden" name="ReportTitle" value="BookingRegister" />
+                    <input type="hidden" name="CompanyName" value="@companyName" />
+                    <input type="hidden" name="CompanyId" value="@companyId" />
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Customer CNIC</label>
+                                <div class="input-group col-lg-12">
+                                    <select class="form-control" id="CustomerId" data-validation="required" name="CustomerId">
+                                        <option disabled="disabled" selected="selected">Please enter Customer's CNIC...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Select Booking Status</label>
+                                <div class="input-group col-lg-12">
+                                    <input id="Status" type="hidden" name="Status" />
+                                    <select id="SelectStatus" multiple="multiple" onchange="change();" placeholder="Select a State" class="multiple form-control" data-validation="required">
+                                        <option disabled="disabled">Select...</option>
+                                        <option value="Booking">Booking</option>
+                                        <option value="Pending Booking">Pending Booking</option>
+                                        <option value="Booked">Booked</option>
+                                        <option value="Delivered">Delivered</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Select Items</label>
+                                <div class="input-group col-lg-12">
+                                    <input type="hidden" id="Items" name="Items" />
+                                    <select id="SelectItems" multiple="multiple" asp-items="@ViewBag.Items" onchange="change();" class="multiple form-control" data-validation="required">
+                                        <option disabled>Select...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="StartDate" name="StartDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input class="form-control custom-date-picker" data-validation="required" type="text" id="EndDate" name="EndDate" value=@CommonHelper.CurrentDate />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <input type="button" value="Preview" class="btn btn-primary" onclick="return generateReport();" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script>
+        $('#CustomerId').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/Booking/Api/GetCustomers',
+                dataType: 'json',
+                delay: 250,
+                placeholder: {
+                    id: '-1', // the value of the option
+                    text: 'Select an option'
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+        $('#SelectItems').select2({
+            width: 'resolve',
+            ajax: {
+                url: '/Booking/Api/GetItems'
+            },
+            success:function(data) {
+            }
+        });
+        $('.multiple').select2({
+            tags: true,
+            //minimumSelectionLength: 1,
+            //maximumSelectionLength: 1,
+            tokenSeparators: [',', ' ']
+        });
+        function change() {
+            var statusData = $("#SelectStatus").select2('data');
+            var itemsData = $("#SelectItems").val();
+            if (statusData != null && itemsData != null) {
+                var statusText = "";
+                for (var i = 0; i < statusData.length; i++) {
+                    if (statusText != "")
+                        statusText += ",";
+                    statusText += "'" + statusData[i].text + "'";
+                }
+                $('#Status').val(statusText);
+            }
+            if (itemsData != null) {
+                $('#Items').val(itemsData);
+            }
+        }
+    </script>
+}

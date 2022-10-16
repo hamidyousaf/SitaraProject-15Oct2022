@@ -1,0 +1,617 @@
+﻿@model Numbers.Entity.ViewModels.ARCustomerDiscountAdjViewModel
+@{ ViewData["Title"] = "Create Customer Discount Adjustment";
+}
+<style>
+    table td {
+        position: relative;
+    }
+
+        table td input {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            border: none;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5>@ViewData["Title"]</h5>
+            </div>*@
+                <span class="label label-success pull-right status"></span>
+            
+            <div class="ibox-content ibox-content-1">
+                <form id="form" method="post" enctype="multipart/form-data">
+                    <input hidden asp-for="ARDiscountAdjustment.Id" class="text-right" readonly>
+                    <input hidden asp-for="Status" id="hdnStatus">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row" style="margin-top:10px">
+                                @if (Model.ARDiscountAdjustment == null)
+                                {
+                                    <div class="col-lg-1 col-sm-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="ARDiscountAdjustment.TransactionNo"></label>
+                                            <input asp-for="ARDiscountAdjustment.TransactionNo" class="chosen-select form-control text-right" readonly>
+                                        </div>
+                                    </div> }
+                                else
+                                {
+                                    <div class="col-lg-1 col-sm-2 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="ARDiscountAdjustment.TransactionNo"></label>
+                                            <input asp-for="ARDiscountAdjustment.TransactionNo" class="chosen-select form-control text-right" readonly>
+                                        </div>
+                                    </div>}
+                                <div class="col-lg-2 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.ProductType_Id"></label>
+                                        <select autofocus asp-for="ARDiscountAdjustment.ProductType_Id" tabindex="1" class="chosen-select form-control" onchange="GetCustomer()" asp-items="ViewBag.ProductType" id="ProductTypeId" required>
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.ItemCategory_Id"></label>
+                                        <select asp-for="ARDiscountAdjustment.ItemCategory_Id" tabindex="2" class="chosen-select form-control" onchange="GetCustomer()" asp-items="ViewBag.listOfItemCategories" id="ItemCategoryId" required>
+                                            <option value="0">Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.CityId">City</label>
+                                        <Select asp-for="ARDiscountAdjustment.CityId" name="CityId" asp-items="@ViewBag.AppCities" onchange="GetCustomer()"  tabindex="4" id="CityId" class="form-control" data-validation="required" data-validation-error-msg="Customer is required" data-validation-error-msg-container="#City">
+                                            <option selected disabled>Select...</option>
+                                        </Select>
+                                        <p id="City"></p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.Customer_Id"></label>
+                                        @if (Model.ARDiscountAdjustment == null)
+                                        {
+                                            <select asp-for="ARDiscountAdjustment.Customer_Id" tabindex="3" onchange="getDiscountAdjustment();"  class="chosen-select form-control" id="CustomerId" required>
+                                                <option value="0">Please select</option>
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <select asp-for="ARDiscountAdjustment.Customer_Id" tabindex="3" onchange="getDiscountAdjustment();" class="chosen-select form-control" asp-items="ViewBag.Customers" id="CustomerId" required>
+                                                <option value="0">Please select</option>
+                                            </select>
+                                        }
+                                    </div>
+                                </div>
+
+
+                                <input type="hidden" asp-for="ARDiscountAdjustment.SalesPerson_Id" id="SalesPersonId" class="form-control" />
+                                <div class="col-lg-3 col-sm-3 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.SalesPerson_Id" class=" control-label"></label>
+                                        <input readonly id="SalesPersonName" class="form-control" value="@ViewBag.SalePerson" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <input type="hidden" asp-for="ARDiscountAdjustment.Agent_Id" id="AgentId" class="form-control" />
+                                <div class="col-lg-3 col-sm-3 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.Agent_Id" class=" control-label"></label>
+                                        <input readonly id="AgentName" class="form-control" value="@ViewBag.CommisionAgent" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.StartDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="ARDiscountAdjustment.StartDate" tabindex="6" id="startDate" value="@(Model.ARDiscountAdjustment == null ? CommonHelper.CurrentDate : Model.ARDiscountAdjustment.StartDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6 Pad-rht" hidden>
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.EndDate"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <input asp-for="ARDiscountAdjustment.EndDate" tabindex="7" id="endDate" value="@(Model.ARDiscountAdjustment == null ? CommonHelper.CurrentDate : Model.ARDiscountAdjustment.EndDate.ToString(CommonHelper.DateFormat))" type="text" class=" form-control custom-date-picker date" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="ARDiscountAdjustment.CustomerDiscountId">CDG #</label>
+                                        <Select id="CustomerDiscountId" asp-for="ARDiscountAdjustment.CustomerDiscountId" asp-items="ViewBag.CustomerDiscounts" class="form-control">
+                                            <option selected value="0">Select...</option>
+                                        </Select>
+                                        <p id="customerDiscountid"></p>
+                                    </div>
+                                </div>
+                                @*<div class="form-group col-lg-1" style="margin-left:5px">
+                                    <label class="control-label">  </label>
+                                    <div>
+                                        <input type="button" class="btn btn-primary" id="AddBtn" value="Add" tabindex="8" onclick="GetCategory();" style="margin-top:4px">
+
+                                    </div>
+                                </div>*@
+                            </div>
+                            <div class="row withscroll">
+                                <div class="col-md-12 col-lg-12 table-responsive">
+                                    <table id="tblDetail" class="table table-bordered table-striped" style=" width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th hidden style="width:0%"></th>
+                                                @*<th style="width:0%"></th>*@
+                                                <th hidden></th>
+                                                <th style="width:20%">Category</th>
+                                                <th style="width:15%">Qty</th>
+                                                <th style="width:15%">Amount</th>
+                                                <th style="width:15%">Discount Rate</th>
+                                                <th style="width:16%">Discount Amount</th>
+                                                <th style="width:17%">Actual Dis Rate</th>
+                                                <th style="width:17%">Payment Amount</th>
+                                                <th style="width:17%">Reserve Rate</th>
+                                                <th style="width:17%">Reserve Amount</th>
+                                                <th style="width:10%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.ARDiscountAdjustment?.DiscountItems != null)
+                                            {
+                                                @for (int i = 0; i < Model.ARDiscountAdjustment.DiscountItems.Count; i++)
+                                                {
+                                                    <tr class="removed">
+                                                        <td hidden><input tabindex='-1' value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].Id" name='ChildId' id='username' class='id' type='hidden' /></td>
+                                                        <td hidden><input tabindex='-1' value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].ItemCategory" name='CategoryId' id='CategoryId' /></td>
+
+                                                        <td><input tabindex='-1' asp-for="Category[i]" value="@Model.Category[i]" style='background-color: #eee;' name='category' type='text' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].Quantity" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].Quantity" name="qty" style='background-color: #eee;' type='text' class='text-right qty' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].Amount" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].Amount" style='background-color: #eee;' name='amount' type='text' class='text-right amount' readonly /></td>
+                                                        <td><input onkeypress='return isNumberKey(event)' onpaste="return false;" ondrop="return false;" asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].DiscountPercentage" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].DiscountPercentage" name='percentage' onchange='Calculation($(this))' type='text' class='text-right per' /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].DiscountAmount" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].DiscountAmount" name='disAmt' style='background-color: #eee;' type='text' class='text-right disAmt' readonly /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].ActualDiscountRate" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].ActualDiscountRate" name='actualDiscountRate' style='background-color: #eee;' readonly type='text' class='text-right actualDiscountRate' /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].PaymentAmount" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].PaymentAmount" name='PayAmt' style='background-color: #eee;' type='text' readonly class='text-right payAmt' /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].ReserveRate" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].ReserveRate" name='ResRate' style='background-color: #eee;' type='text' readonly class='text-right resRate' /></td>
+                                                        <td><input tabindex='-1' asp-for="ARDiscountAdjustment.DiscountItems.ToList()[i].ReserveAmount" value="@Model.ARDiscountAdjustment.DiscountItems.ToList()[i].ReserveAmount" name='ResAmt' style='background-color: #eee;' type='text' class='text-right resAmt' readonly /></td>
+                                                        <td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash " title="Delete"></i></a></td>
+                                                    </tr>
+                                                }}
+                                        </tbody>
+                                        <tfoot id="myfoot">
+                                            <tr style='font-weight: bold'>
+                                               
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <div class="col-lg-2 col-sm-2 Pad-rht" style="float:right" hidden>
+                                        <div class="form-group">
+                                            <label>Grand Total</label>
+                                            <input tabindex='-1' asp-for="ARDiscountAdjustment.GrandTotal" id="Grand" class="chosen-select form-control text-right" type="text" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <a asp-controller="CustomerDiscountAdjustment" asp-action="Index" class="btn btn-white">List</a>
+                                    <input id="SaveBtn" type="submit" name="submit" onclick="return Validation()" asp-action="Submit" asp-controller="CustomerDiscountAdjustment" value="Save" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+
+    <script src="~/lib/validate/jquery.validate.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#startDate').change();
+            $('#CustomerId').select2();
+            $('#ProductTypeId').select2();
+            $('#ItemCategoryId').select2();
+            $('#CustomerDiscountId').select2();
+            $('#CityId').select2();
+            if ($('#hdnStatus').val() == 'Updated') {
+                $("#ProductTypeId").prop("disabled", true);
+                $("#ItemCategoryId").prop("disabled", true);
+                $("#CustomerId").prop("disabled", true);
+                $("#SalesPersonId").prop("disabled", true);
+                $("#AgentId").prop("disabled", true);
+                $("#startDate").prop("disabled", true);
+                $("#endDate").prop("disabled", true);
+            }
+            GetRowFooter();
+            $.validate();
+        });
+
+        
+        function GetCustomer() {
+            $('#CustomerId').find('option').not(':first').remove();
+            $('#CustomerDiscountId').find('option').not(':first').remove();
+            $('#SalesPersonId').val(0);
+            $('#AgentId').val(0);
+            $('#SalesPersonName').val("");
+            $('#AgentName').val("");
+            var CategoryId = $("#ItemCategoryId").find(":selected").val();
+            var ProductId = $("#ProductTypeId").find(":selected").val();
+            var CityId = $("#CityId").find(":selected").val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CustomerDiscountAdjustment/GetCustomers',
+                data: { ProductId, CategoryId,CityId }
+            }).then(function (data) {
+                var customer = $("#CustomerId");
+                for (var i = 0; i < data.length; i++) {
+                    customer.append($("<option />").val(data[i].id).text(data[i].name));
+                }
+            });
+        }
+        $('#startDate').change(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/AR/CustomerDiscount/GetFormatedDate',
+                data: { date: $('#startDate').val() }
+            }).then(function (data) {
+                $('#endDate').datepicker('setDate', data);
+            });
+        })
+        function GetCategory() {
+            if ($('#tblDetail').find('td').length != 0) {
+                debugger;
+                swal("", "Data Already Exist", "warning")
+                return false;
+            }
+            $("#AddBtn").attr("disabled", true);
+            $("#AddBtn").val("Adding...");
+            var CustomerId = $("#CustomerId").val();
+            var StartDate = $("#startDate").val();
+            var EndDate = $("#endDate").val();
+            var Category = $('#ItemCategoryId').val();
+            $.ajax({
+                method: "GET",
+                url: '/AR/CustomerDiscount/GetCategory',
+                data: { CustomerId: CustomerId, startDate: StartDate, endDate: EndDate, category: Category }
+            }).done(function (data) {
+                if (data.length == 0) {
+                    swal("", "Data Not Found", "warning")
+                    $("#AddBtn").attr("disabled", false);
+                    $("#AddBtn").val("Add")
+                }
+                else {
+                    $.each(data, function (i, item) {
+                        debugger
+                        var discountAmount = Number(item.totalQty) * Number(item.rate);
+                        var row = "<tr class='removed'>" +
+                            "<td hidden><input tabindex='-1' name='id'  id='username' class='id' type='hidden'  /></td>" +
+                            "<td hidden><input tabindex='-1' value= '" + item.categoryIdLevel4 +"' name='CategoryId' id='CategoryId' /></td>"+
+                            "<td hidden><input tabindex='-1' value= '" + item.dcIds +"' name='DcIds' id='DcIds' /></td>"+
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Category' value='" + item.categoryNameLevel4 + "' type='text'  readonly /></td>" +
+                            " <td><input tabindex='-1' style='background-color: #eee;' name='Qty' value=" + item.totalQty + " type='text' class='text-right qty' readonly/></td> " +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Amount' type='text' class='text-right amount' value=" + item.totalAmount + " readonly/></td>" +
+                            "<td><input onkeypress='return isNumberKey(event)'  onpaste='return false;' ondrop='return false;' name='Percentage' onchange='Calculation($(this))' type='text' class='text-right per' value=" + item.rate + " /></td>" +
+                            "<td><input  tabindex='-1'name='DisAmt' style='background-color: #eee;' type='text'class='text-right amt' value=" + discountAmount +" readonly/></td>" +
+                            "<td><input  tabindex='-1'name='actualDiscountRate' style='background-color: #eee;' type='text'class='text-right actualDiscountRate' value='0' readonly/></td>" +
+                            "<td><input  tabindex='-1'name='PayAmt' style='background-color: #eee;' type='text'class='text-right payAmt' value=" + 0 +" readonly/></td>" +
+                            "<td><input  tabindex='-1'name='ResRate' style='background-color: #eee;' type='text'class='text-right resRate' value=" + 0 +" readonly/></td>" +
+                            "<td><input  tabindex='-1'name='ResAmt' style='background-color: #eee;' type='text'class='text-right resAmt' value=" + 0 +" readonly/></td>" +
+                            '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                        "</tr>";
+                        $("#tblDetail tbody").append(row)
+                        calculatetotal();
+                    });
+
+                    $("#AddBtn").attr("disabled", false);
+                    $("#AddBtn").val("Add")
+                }
+            });
+        }
+        function deleterow(row) {
+            row.closest("tr").remove();
+            calculatetotal();
+        }
+        function CalculateTotal(row) {
+            debugger
+            var Amount = parseFloat(row.closest("tr").find('.amount').val()) || 0.0;
+            var Discount = parseFloat(row.closest("tr").find('.per').val()) || 0.0;
+            
+            var AmountDiscount = parseFloat((Amount * Discount) / 100).toFixed(4);
+            parseFloat(row.closest("tr").find('.amt').val(AmountDiscount))
+            calculatetotal();
+        }
+        function Calculation(row) {
+            debugger
+            var Amount = parseFloat(row.closest("tr").find('.amount').val()) || 0.0;
+            var Discount = parseFloat(row.closest("tr").find('.per').val()) || 0.0;
+            var AmountDiscount = parseFloat((Amount * Discount) / 100).toFixed(4);
+            parseFloat(row.closest("tr").find('.amt').val(AmountDiscount))
+            calculatetotal();
+        }
+        function CalculateActualRate(row) {
+            debugger
+            var rate = parseFloat(row.closest("tr").find('.per').val()) || 0.0;
+            var qty = parseFloat(row.closest("tr").find('.qty').val()) || 0.0;
+            var actualDiscountRate = parseFloat(row.closest("tr").find('.actualDiscountRate').val()) || 0.0;
+            if (rate > actualDiscountRate) {
+
+                var paymentAmount = Number((actualDiscountRate * qty));
+                var resRate = Number((rate - actualDiscountRate));
+                var resAmount = Number((qty * resRate));
+                parseFloat(row.closest("tr").find('.payAmt').val(paymentAmount))
+                parseFloat(row.closest("tr").find('.resRate').val(resRate))
+                parseFloat(row.closest("tr").find('.resAmt').val(resAmount))
+                
+            }
+            else
+            {
+                parseFloat(row.closest("tr").find('.actualDiscountRate').val(0))
+                swal("", "Actual rate must less than Rate!", "warning");
+
+            }
+
+            GetRowFooter();
+        }
+        function getSalePerson() {
+            var customerId = $('#CustomerId').val();
+            $('#CustomerDiscountId').find('option').not(':first').remove();
+            if (customerId != 0) {
+
+                //get Sales Person
+                $.ajax({
+                    type: 'GET',
+                    url: '/AR/CustomerDiscount/GetSalePerson?id=' + customerId
+                }).then(function (data) {
+                    debugger
+                    $("#SalesPersonName").val(data.salePersonText);
+                    $("#SalesPersonId").val(data.salePersonId);
+                    $("#AgentName").val(data.commissionAgentText);
+                    $("#AgentId").val(data.commissionAgentId);
+                });
+
+                //get Customer Discount List
+
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/CustomerDiscountAdjustment/GetDiscount",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#CustomerDiscountId').append($('<option>', {
+                                value: item.id,
+                                text: item.transactionMo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+
+
+            } else {
+                $('#SalesPersonId').val(0);
+                $('#SalesPersonName').val("");
+                $('#AgentId').val(0);
+                $('#AgentName').val("");
+            }
+        }
+        function getDiscountAdjustment() {
+            debugger;
+            var customerId = $('#CustomerId').val();
+            $('#CustomerDiscountId').find('option').not(':first').remove();
+            if (customerId != 0) {
+                //get Customer Discount List
+                $.ajax({
+                    type: "GET",
+                    url: "/AR/CustomerDiscountAdjustment/GetDiscount",
+                    data: { Id: customerId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $.each(data, function (i, item) {
+                            debugger
+                            $('#CustomerDiscountId').append($('<option>', {
+                                value: item.id,
+                                text: item.transactionNo
+                            }));
+                        });
+
+                        return false;
+                    }
+                });
+
+
+            } else {
+                $('#SalesPersonId').val(0);
+                $('#SalesPersonName').val("");
+                $('#AgentId').val(0);
+                $('#AgentName').val("");
+            }
+        }
+        // load Customer City Wise
+        //$('#CityId').on('change', function () {
+        //    // $('#iGP').find('option').not(':first').remove();
+        //    var CityId = $('#CityId').val();
+        //    var CategoryId = $('#ItemCategoryId').val();
+        //    $.ajax({
+        //        method: "GET",
+        //        url: "/AR/Api/GetCustomersCityAndCategoryWise",
+        //        data: { CityId: CityId, CategoryId: CategoryId }
+        //    }).done(function (data) {
+        //        $('#Customerid').find('option').remove();
+        //        $('#Customerid').append($('<option>', {
+        //            value: "",
+        //            text: "Select..."
+        //        }));
+        //        $.each(data, function (i, item) {
+
+        //            $('#Customerid').append($('<option>', {
+        //                value: item.id,
+        //                text: item.text
+        //            }));
+        //        });
+        //    });
+        //})
+
+        $('#CustomerDiscountId').on('change', function () {
+            debugger
+          /*  $('#WareHouseId').val(0);*/
+            $('.removed').remove();
+            var IGPId = $('#CustomerDiscountId').val();
+            $.ajax({
+                method: "GET",
+                url: "/AR/CustomerDiscountAdjustment/GetDiscountList",
+                data: { id: IGPId }
+            }).done(function (data) {
+                debugger;
+
+                  $.each(data, function (i, item) {
+                        debugger
+                        var discountAmount = Number(item.totalQty) * Number(item.rate);
+                        var row = "<tr class='removed'>" +
+                            "<td hidden><input tabindex='-1' name='id'  id='username' class='id' type='hidden'  /></td>" +
+                            "<td hidden><input tabindex='-1' value= '" + item.itemCategoryId + "' name='CategoryId' id='CategoryId' /></td>" +
+                            "<td hidden><input tabindex='-1' value= '" + item.discountItemId + "' name='DiscountItemId' id='DiscountItemId' /></td>" +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Category' value='" + item.categoryName + "' type='text'  readonly /></td>" +
+                            " <td><input tabindex='-1' style='background-color: #eee;' name='Qty' value=" + item.qty + " type='text' class='text-right qty' readonly/></td> " +
+                            "<td><input tabindex='-1' style='background-color: #eee;' name='Amount' type='text' class='text-right amount' value=" + item.amount + " readonly/></td>" +
+                            "<td><input onkeypress='return isNumberKey(event)'  style='background-color: #eee;'  onpaste='return false;' ondrop='return false;' name='Percentage' type='text' class='text-right per' readonly value=" + item.discountRate + " /></td>" +
+                            "<td><input  tabindex='-1'name='DisAmt' style='background-color: #eee;' type='text'class='text-right disAmt' value=" + item.discountAmount + " readonly/></td>" +
+                            "<td><input  tabindex='-1'name='actualDiscountRate' type='text' onchange='CalculateActualRate($(this))' class='text-right actualDiscountRate' value='0' /></td>" +
+                            "<td><input  tabindex='-1'name='PayAmt' style='background-color: #eee;' type='text'class='text-right payAmt' value=" + 0 + " /></td>" +
+                            "<td><input  tabindex='-1'name='ResRate' style='background-color: #eee;' type='text'class='text-right resRate' value=" + 0 + " readonly/></td>" +
+                            "<td><input  tabindex='-1'name='ResAmt' style='background-color: #eee;' type='text'class='text-right resAmt' value=" + 0 + " readonly/></td>" +
+                            '<td class="text-center"><a id="delrow" onclick="deleterow($(this));" style=" margin-top:0px" class="btn btn-xs btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                        "</tr>";
+                        $("#tblDetail tbody").append(row)
+                      GetRowFooter();
+                    });
+
+                   // GetRowFooter();
+                });
+        });
+
+        function Validation() {
+            var productType = $("#ProductTypeId").val();
+            var itemCategory = $("#ItemCategoryId").val();
+            var customer = $('#CustomerId').val();
+            var City = $('#CityId').val();
+            
+            var customerDiscountId = $(".CustomerDiscountId").val();
+            if (productType == 0) {
+                swal("", "Please select Product Type!", "warning");
+                return false;
+            } else if (itemCategory == 0) {
+                swal("", "Please select Item Category!", "warning");
+                return false;
+            }
+            else if (City == 0) {
+                swal("", "Please select City!", "warning");
+                return false;
+            }else if (customer == 0) {
+                swal("", "Please select Customer!", "warning");
+                return false;
+            }
+            else if (customerDiscountId == 0) {
+                swal("", "Please Select Customer Discount Adjustment!", "warning");
+                return false;
+            } else {
+                $("#form").on("submit", function () {
+                    $("#SaveBtn").attr("disabled", true);
+                    $("#SaveBtn").val("Saving...");
+                });
+                return true;
+            }
+        }
+        function isNumberKey(evt) {
+            //evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 8 || charCode == 37) {
+                return true;
+            } else if (charCode == 46 && $(this).val().indexOf('+') != -1) {
+                return false;
+            } else if (charCode > 31 && charCode != 46 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+        function calculatetotal() {
+            var GrandTotal = 0;
+
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var Amount = Number($(this).find('.amt').val());
+                GrandTotal = parseFloat(parseFloat(GrandTotal) + parseFloat(Amount)).toFixed(4);
+            });
+            $("#Grand").val(GrandTotal);
+        }
+
+        function GetRowFooter() {
+            debugger
+            var TotalQty = 0;
+            var TotalAmount = 0;
+            var TotalDiscountAmount = 0;
+            var TotalPaymentAmount = 0;
+            var TotalReservedAmount = 0;
+            $.each($("#tblDetail tbody tr"), function () {
+                debugger;
+                var qty = Number($(this).find('.qty').val());
+                var amount = Number($(this).find('.amount').val());
+                var discountAmount = Number($(this).find('.disAmt').val());
+                var paymrntAmount = Number($(this).find('.payAmt').val());
+                var reservedAmount = Number($(this).find('.resAmt').val());
+                TotalQty = TotalQty + qty;
+                TotalAmount = TotalAmount + amount;
+                TotalDiscountAmount = TotalDiscountAmount + discountAmount;
+                TotalPaymentAmount = TotalPaymentAmount + paymrntAmount;
+                TotalReservedAmount = TotalReservedAmount + reservedAmount;
+            });
+
+            $('#Grand').val(TotalAmount);
+
+            $.each($("#tblDetail tfoot tr"), function () {
+                debugger;
+                $(this).closest("tr").remove();
+                var row;
+
+                row = "<tr style='font-weight: bold'>" +
+                    "<td class='text-right'>Total:</td> " +
+                    "<td class='text-right'>" + Number(TotalQty).toFixed(2) + "</td> " +
+                    "<td class='text-right'>" + Number(TotalAmount).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td class='text-right'>" + Number(TotalDiscountAmount).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td class='text-right'>" + Number(TotalPaymentAmount).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                    "<td class='text-right'>" + Number(TotalReservedAmount).toFixed(2) + "</td> " +
+                    "<td ></td>" +
+                "</tr>"
+
+                $("#tblDetail tfoot").append(row);
+            });
+
+        }
+
+        $("#form").on("submit", function () {
+            $("#SaveBtn").attr("disabled", true);
+            $("#SaveBtn").val("Saving...");
+        });
+    </script>
+}

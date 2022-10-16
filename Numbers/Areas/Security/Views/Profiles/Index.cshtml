@@ -1,0 +1,85 @@
+﻿@model IEnumerable<Numbers.Entity.Models.SysProfileValues>
+
+@{ ViewData["Title"] = "Profile Index";
+    ViewData["CurrentPage"] = "Profile";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="row">
+                <div class="ibox-content">
+                    <div class="text-center">
+                        <h5>List of Profiles</h5>
+
+                        <a class="btn btn-primary pull-left m-t-n-xs" asp-controller="Profiles" asp-action="Create"><strong>Create New</strong> </a>
+                    </div>
+                    <br />
+                    <br />
+                    <table class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Doc_Id)
+                                </th>
+                                @*<th>
+                                        @Html.DisplayNameFor(model => model.SecurityType)
+                                    </th>*@
+
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ProfileOption)
+                                </th>
+
+                                @*<th>
+                                        @Html.DisplayNameFor(model => model.SiteValues)
+                                    </th>*@
+                                @*<th>
+                                    @Html.DisplayNameFor(model => model.ApplicationValues)
+                                </th>*@
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.RespValues)
+                                </th>
+
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Doc_Id)
+                                    </td>
+                                    @*<td>
+                                            @Html.DisplayFor(modelItem => item.SecurityType)
+                                    </td>*@
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ProfileOption)
+                                    </td>
+                                    @*<td>
+                                            @Html.DisplayFor(modelItem => item.SiteValues)
+                                    </td>*@
+
+                                    @*<td>
+                                        @Html.DisplayFor(modelItem => item.ApplicationValues)
+                                    </td>*@
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.RespValues)
+                                    </td>
+
+                                    <td>
+                                        <a asp-action="Create" class="btn btn-sm btn-info m-t-n-xs" asp-route-id="@item.Doc_Id"><i class="fa fa-edit" title="Edit"></i></a>
+                                        <a asp-action="DeleteProfile" class="btn btn-sm btn-danger m-t-n-xs" asp-route-id="@item.Doc_Id"><i class="fa fa-trash" title="Delete"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,383 @@
+﻿@model Numbers.Entity.ViewModels.RulesGroupVm
+@using Numbers.Repository.Helpers;
+@{ ViewData["Title"] = "Rules";
+    ViewData["CurrentPage"] = "Rules"; }
+
+<style>
+    .transparentInput {
+        background-color: #e7eaec;
+        color: black;
+        border: none;
+        outline: none;
+        height: 30px;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Approval Rules </h5>
+                <span class="label label-success pull-right status"></span>
+            </div>
+            <div class="ibox-content ibox-content-1">
+                <form id="form" class="" method="post">
+                    <div class="row">
+                        <input hidden asp-for="@Model.Sys_Rules_Approval.Id" />
+
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Rule Name</label>
+                                <input autofocus class="form-control" asp-for="Sys_Rules_Approval.Rule_Name" data-validation="required" id="Rulename" placeholder="Enter Your Rule Name......." required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Description</label>
+                                <input class="form-control" asp-for="Sys_Rules_Approval.Description" data-validation="required" id="Discription" placeholder="Enter Your Description......" required/>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Type</label>
+                                <select asp-for="Sys_Rules_Approval.Type" name="Type" id='TypeId' onchange="Attributes()" class="form-control" asp-items="@(new SelectList(ViewBag.TypeList, "name"))">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label">Group</label>
+                                <select asp-for="Sys_Rules_Approval.Group" id='Group' name="Group" class="form-control" asp-items="@(new SelectList(ViewBag.GroupList,"id", "name"))" required>
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="ibox-title">
+                                <h5>Rule Approval Detail</h5>
+                                <span class="label label-success pull-right status"></span>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-left: 1.5px; ">
+                            <div class="col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label">Attribute Name</label>
+                                    <select id="AttributeName" name="AttributeName" onchange="GetValue()" class="form-control select-item" >
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Operator</label>
+                                    <select id='Operatorselection' name="Operator" class="form-control" asp-items="@(new SelectList(ViewBag.Operator,"id", "name"))">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Value</label>
+                                    @*<input class="form-control" data-validation="required" id="Valuefield" placeholder="Enter Your Value......." />*@
+                                <select id='Valuefield' name="Valuefield" class="form-control select-item">
+                                    <option disabled selected>Select Please..</option>
+                                </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-form-label">Table Name</label>
+                                    <input class="form-control" data-validation="required" id="TableName" placeholder="Table Name" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="form-group">
+                                    <a id="addbtn" class="btn btn-success" style="margin-top:22px;"><i class="fa fa-plus"></i> </a>
+                                </div>
+                            </div>
+
+                            <div class="container-fluid">
+                                <table id="tblDetail" class="table table-bordered table-striped " style="table-layout:fixed">
+                                    <thead>
+                                        <tr>
+                                            <th width="30%">
+                                                Attribute Name
+                                            </th>
+                                            <th width="30%">
+                                                Operator
+                                            </th>
+                                            <th width="30%">
+                                                Table Name
+                                            </th>
+                                            <th width="30%">
+                                                Value
+                                            </th>
+                                            <th width="30%">
+                                                Action
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if(Model.Sys_Rules_Approval_Details != null) 
+                                         { 
+                                            foreach (var item in Model.Sys_Rules_Approval_Details)
+                                            {
+                                        <tr>
+                                            <td hidden><input type="hidden" value="@item.Value" /></td>
+                                            <td class="td1"> <input value="@item.Attribute_Name" id="Attribute_Name" name="Attribute" class="form-control" readonly /></td>
+                                            <td><input value="@item.Operator" id="Operator" name="Operator_Name" class="form-control" readonly /></td>
+                                            <td> <input type="text" value="@item.Table_Name" id="Table_Name" name="Table" class="form-control" readonly /></td>
+                                            <td>
+                                                @if (item.Table_Name == "AppCompanyConfigs")
+                                                {
+                                                    foreach (var v in ViewBag.AppCompanyConfigs)
+                                                    {
+                                                        if (item.Value == Convert.ToString(v.Id))
+
+                                                        {
+                                                            <input type="text" value="@v.ConfigDescription" id="Value" name="Attribute_Value" class="form-control" readonly />
+                                                        }
+                                                    }
+                                                }
+                                                @if (item.Table_Name == "GLDivision")
+                                                {
+                                                    foreach (var v in ViewBag.GLDivision)
+                                                    {
+                                                        if (item.Value == Convert.ToString(v.Id))
+                                                        {
+                                                            <input value="@v.Name" id="Value" name="Attribute_Value" class="form-control" readonly />
+                                                        }
+                                                    }
+                                                }
+                                            <td>
+                                                <a id="editrow" onclick="editrow($(this));" class="btn btn-sm btn-primary m-t-n-xs"> <i id="editrow" onclick="editrow($(this));" class="fa fa-edit" title="Edit"></i> </a>
+                                                @*<a id="doneEdit" style="display:none;" onclick="doneEdit($(this));" class="btn btn-success m-t-n-xs"> <i id="doneEdit" onclick="doneEdit($(this));" class="fa fa-check" title="doneEdit"></i> </a>*@
+                                                <a id="delrow" onclick="deleterow($(this));" class="btn btn-sm btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a>
+
+                                            </td>
+
+                                        </tr>
+                                            }
+                                         }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row" style="margin-top:10px; margin-left:1.5px;">
+                                <div class="form-group">
+                                    <div class="col-lg-4">
+                                        <a value="List" class="btn btn-white" href="/Approval/RulesApproval/List" >List</a>
+                                        <input type="submit" value="Save" onclick="return Validation()" class="btn btn-primary" asp-action="Create" asp-controller="RulesApproval" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS {
+
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+         $(document).ready(function () {
+            debugger;
+             var Attribute_Name = $('#TypeId').find(":selected").text();
+             if (Attribute_Name !="Select Please..") {
+                 Attributes();
+             }
+        });
+
+       @* $(document).on("change", "#TypeId", function () {
+            var tableName = $('#TypeId').val();
+            $('#TableName').val(tableName);
+            debugger;
+            $.ajax({
+                url:'@Url.Action("GetAttribute", "RulesApproval")',
+                dataType: "json",
+                data: { "tableName": $('#TypeId').val() },
+                method: 'GET',
+                success: function (data) {
+                    var s = '<option value="-1">Select Attribute</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i] +'">' + data[i]+ '</option>';
+                    }
+                    $("#AttributeName").html(s);
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert(err);
+
+                }
+            });
+        });*@
+        $('#addbtn').click(function () {
+            debugger;
+            var Attribute_Name = $('#AttributeName').find(":selected").text();
+            var Operator = $('#Operatorselection').find(":selected").text();
+            var Table_Name = $('#TableName').val();
+            var Value = $('#Valuefield').find(":selected").text();
+            var ValueId = $('#Valuefield').find(":selected").attr('nameid');
+            if (Attribute_Name != "ORG_ID" && Attribute_Name != "DEPT_ID") {
+                swal("", "Value of Selected Attribute cannot be set.", "warning")
+            }
+            else if (Attribute_Name == "" || Operator == "" || Table_Name == "" || Value == "") {
+                swal("", "Please Fill Required fields", "warning")
+            }
+            else {
+                debugger;
+                var Attribute_Name = $('#AttributeName').find(":selected").text();
+                var Operator = $('#Operatorselection').find(":selected").text();
+                var Table_Name = $('#TableName').val();
+                var Value = $('#Valuefield').find(":selected").text();
+                var value = false;
+                $('#tblDetail > tbody > tr').each(function () {
+                    var checkAttribute_Name = $(this).closest("tr").find("#Attribute_Name").text();
+                    var checkOperator = $(this).closest("tr").find("#Operator").text();
+                    var checkTable_Name = $(this).closest("tr").find("#Table_Name").text();
+                    var checkValue = $(this).closest("tr").find("#Value").text();
+                    debugger;
+                    if (Attribute_Name == checkAttribute_Name) {
+                        debugger;
+                        value = true;
+                    }
+                    else if (Operator == checkOperator) {
+                        debugger;
+                        value = true;
+                    }
+                    else if (Table_Name == checkTable_Name) {
+                        debugger;
+                        value = true;
+                    }
+                    else if (Value == checkValue) {
+                        debugger;
+                        value = true;
+                    }
+                    else
+                        value = false;
+                });
+
+                if (value == false) {
+                    var row = "<tr>" +
+                        "<td > <input name='Attribute_Name' id='Attribute_Name' class='form-control' value=" + Attribute_Name + " readonly/></td>" +
+                        "<td > <input name='Operator_Name' id='Operator' class='form-control'  value=" + Operator + " readonly /></td>" +
+                        "<td > <input name='Table_Name' id='Table_Name' class='form-control'  value=" + Table_Name + " readonly /></td>" +
+                        "<td > <input name='Value' id='Value' class='form-control'  value=" + Value + " readonly /></td>" +
+                        "<td hidden > <input type='hidden' name='Valueid' id='Valueid' class='form-control'  value=" + ValueId + " /></td>" +
+                        '<td> <a id="delrow" onclick="deleterow($(this));" class="btn btn-danger m-t-n-xs"> <i id="delrow" onclick="deleterow($(this));" class="fa fa-trash" title="Delete"></i> </a> </td>'
+                    "</tr>"
+                    debugger;
+                    $("#tblDetail tbody").append(row);
+                    $("#UserID").val("");
+                }
+                else {
+                    swal("", "Code already exists..", "warning")
+                }
+            }
+        });
+
+        function deleterow(row) {
+            row.closest("tr").remove();
+        }
+
+        function editrow(row) {
+            debugger;
+            var AttributeName = row.closest("tr").find('td:eq(1) input').val();
+            var Operatorselection = row.closest("tr").find('td:eq(2) input').val();
+            var TableName = row.closest("tr").find('td:eq(3) input').val();
+            var Valuefield = row.closest("tr").find('td:eq(4) input').val();
+            var ValuefieldId = row.closest("tr").find('td:eq(0) input').val();
+            $('#AttributeName').val(AttributeName);
+            $('#Operatorselection').val(Operatorselection);
+            $('#Valuefield').val(Valuefield);
+            $('#TableName').val(TableName);
+            var s = '<option value="' + ValuefieldId + '">' + Valuefield + '</option>';
+            $("#Valuefield").html(s);
+            GetValue();
+            row.closest("tr").remove();
+        }
+
+        function Attributes() {
+            debugger;
+            @*var tableName = $('#TypeId').val();
+            $('#TableName').val(tableName);*@
+            $.ajax({
+                url:'@Url.Action("GetAttribute", "RulesApproval")',
+                dataType: "json",
+                data: { "tableName": $('#TypeId').val() },
+                method: 'GET',
+                success: function (data) {
+                    var s = '<option value="-1">Select Attribute</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i] +'">' + data[i]+ '</option>';
+                    }
+                    $("#AttributeName").html(s);
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert(err);
+                }
+            });
+        }
+
+        function GetValue() {
+            var value = $('#AttributeName').val();
+            var url = " ";
+            if (value == "ORG_ID") {
+                $('#TableName').val("AppCompanyConfigs");
+                url = '/ApplicationModule/Api/GetInvOrganizations';
+            }
+            if (value == "DEPT_ID") {
+                $('#TableName').val("GLDivision");
+                url = '/ApplicationModule/Api/GetAllDivision';
+            }
+            if (url != " ") {
+                debugger;
+                $.ajax({
+                    url: url,
+                dataType: "json",
+                //data: { "tableName": $('#TypeId').val() },
+                method: 'GET',
+                success: function (data) {
+                    var s ;
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option nameid="' + data[i].id + '" value="' + data[i].id+ '">' +data[i].text+ '</option>';
+                    }
+                    $("#Valuefield").html(s);
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert(err);
+                }
+            });
+            }
+            
+        }
+
+        function Validation() {
+            $("#form").validate({
+            });
+            debugger;
+            if ($('#tblDetail').find('td').length == 0) {
+                swal("", "Please Select User", "warning")
+                return false;
+            }
+            else {
+                alert($('#tblDetail').find('td').length);
+                return true;
+            }
+        }
+    </script>
+
+
+    }

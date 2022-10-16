@@ -1,0 +1,133 @@
+﻿@model Numbers.Entity.Models.AppMenu
+@{ ViewData["Title"] = "Create Application Form";
+    ViewData["CurrentPage"] = "Application Form"; }
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>@ViewBag.EntityState Application Form</h5>
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal" asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Name" autofocus data-validation="required" class="form-control" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Url" class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Url" data-validation="required" class="form-control" />
+                                    <span asp-validation-for="Url" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="MenuLevel" class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="MenuLevel" data-validation="required" class="form-control" />
+                                    <span asp-validation-for="MenuLevel" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="ModuleId" class="col-lg-3 control-label">Module</label>
+                                <div class="col-lg-8">
+                                    <select tabindex="6" name="ModuleId" asp-for="ModuleId" value="ModuleId" data-validation="required" id='MODULE_ID' class="form-control select-item">
+                                        <option disabled selected>Select Please..</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="Sequence" class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="Sequence" data-validation="required" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="IconClass" class="col-lg-3 control-label"></label>
+                                <div class="col-lg-8">
+                                    <input asp-for="IconClass" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label asp-for="ParentId" class="col-lg-3 control-label">Parent</label>
+                                <div class="col-lg-8">
+                                    <select asp-for="ParentId" class="chosen-select form-control" asp-items="ViewBag.Parent" id="ParentId">
+                                        <option value="0">Please select</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-3"></div>
+                                <div class="col-lg-8">
+                                    <div class="checkbox checkbox-success">
+                                        <input id="isActive" asp-for="IsActive" type="checkbox" checked="checked">
+                                        <label for="IsActive">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-lg-4 col-lg-offset-4">
+                                    <a class="btn btn-white" asp-action="Index" asp-controller="AppForm">List</a>
+                                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+
+    <script>
+        $(function () {
+            debugger
+            $.validate();
+            // bind GLaccounts select2
+            var functionId = $('#MODULE_ID');
+            bindSelect2(functionId, '/ApplicationModule/Api/GetModules', '/ApplicationModule/Api/GetModule?id=', '@ViewBag.ItemId');
+        });
+        $('#ParentId').on('change', function () {
+            var value = $('#ParentId').val();
+        })
+
+    </script>
+}

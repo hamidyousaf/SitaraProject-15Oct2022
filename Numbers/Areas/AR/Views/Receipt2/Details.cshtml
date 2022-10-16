@@ -1,0 +1,147 @@
+﻿@model ARReceipt
+@{
+    ViewData["Title"] = "Approved Receipt";
+}
+@section customCSS{
+    <link href="~/css/plugins/jsGrid/jsgrid.css" rel="stylesheet" />
+    <link href="~/css/plugins/jsGrid/jsgrid-theme.css" rel="stylesheet" />
+    <link href="~/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row white-bg page-heading">
+            <div class="col-lg-4 pull-right">
+                <div class="title-action">
+                    <a asp-controller="Receipt" asp-action="Index" class="btn btn-white">List</a>
+                    <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                    <a href="@string.Format(ViewBag.ReportPath2, Model.Id)" target="_blank" class="btn btn-primary"><i class="fa fa-print"></i> Print Invoice </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="ibox-content p-xl">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4><span>Customer Name:<strong class="text-navy"> @Model.Customer.Name</strong></span></h4>
+                        <span><strong>Bank Cash:</strong> @Model.BankCashAccount.AccountName</span><br />
+                        <span><strong>Payment Mode:</strong> @Model.PaymentMode.ConfigValue</span><br />
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <h4><span>Receipt No. <strong class="text-navy">@Model.ReceiptNo</strong></span></h4>
+                        <p>
+                            <span><strong>Receipt Date:</strong> @Model.ReceiptDate.ToString(CommonHelper.DateFormat)</span><br />
+                        </p>
+                        <span><strong>Document No:</strong> @Model.DocumentNo</span><br />
+                        <span><strong>Document Date:</strong> @Model.DocumentDate.ToString(CommonHelper.DateFormat)</span><br />
+                        <span><strong>Currency:</strong> @Model.Currency  @Model.CurrencyExchangeRate</span><br />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="invoiceTable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Invoice No</th>
+                                <th>Invoice Date</th>
+                                <th class="text-right">Invoice Amount</th>
+                                @*<th class="text-right">Invoice Balance</th>*@
+                                <th class="text-right">Received</th>
+                                <th class="text-right">Income Tax Amount</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in TempData["Detail"] as IEnumerable<ARReceiptInvoice>)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                    </td>
+                                    <td>
+                                        @item.InvoiceDate.ToString(CommonHelper.DateFormat)
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var usInvoiceAmount = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usInvoiceAmount, "{0:N}", item.InvoiceAmount)
+                                        }
+                                    </td>
+                                    @*<td class="text-right">
+                                        @{
+                                            var usBalance = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usBalance, "{0:N}", item.Balance)
+                                        }
+                                    </td>*@
+                                    <td class="text-right">
+                                        @{
+                                            var usReceiptAmount = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usReceiptAmount, "{0:N}", item.ReceiptAmount)
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var usTaxAmount = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usTaxAmount, "{0:N}", item.TaxAmount)
+                                        }         
+                                    </td>
+                                    <td class="text-right">
+                                        @{
+                                            var usLineTotal = new System.Globalization.CultureInfo("en-US");
+                                            @string.Format(usLineTotal, "{0:N}", item.LineTotal)
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!-- /table-responsive -->
+
+                <table class="table invoice-total">
+                    <tbody>
+                        <tr>
+                            <td><strong>Total Received :</strong></td>
+                            <td>
+                                @{
+                                    var usSubTotal = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSubTotal, "{0:N}", Model.TotalReceivedAmount)
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Income Tax :</strong></td>
+                            <td>
+                                @{
+                                    var usSTAmount = new System.Globalization.CultureInfo("en-US");
+                                    @string.Format(usSTAmount, "{0:N}", Model.TotalTaxAmount)
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grand Total :</strong></td>
+                            <td>
+                                <b>
+                                    @{
+                                        var usGrandTotal = new System.Globalization.CultureInfo("en-US");
+                                        @string.Format(usGrandTotal, "{0:N}", Model.GrandTotal)
+                                    }
+                                </b>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="well-remarks m-t">
+                    <strong>Remarks:</strong>
+                    @Model.Remarks
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

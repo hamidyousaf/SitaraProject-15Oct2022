@@ -1,0 +1,307 @@
+﻿@model Numbers.Entity.Models.BkgVehicleOGP
+@{
+    ViewData["Title"] = "Booking Vehicle OGP";
+    ViewData["CurrentPage"] = "UE OGP";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="col-lg-9">
+                <div class="ibox-title">
+                    <h5>@ViewBag.EntityState Booking Vehicle OGP</h5>
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group" id="data_1">
+                                    <label asp-for="OGPDate" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <div class="input-group date">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                            <input type="text" class="form-control custom-date-picker" asp-for="OGPDate" value=@(Model.Id==0 ? CommonHelper.CurrentDate : Model.OGPDate.ToString(CommonHelper.DateFormat)) />
+                                            <span asp-validation-for="OGPDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="VehicleId" class="col-md-4 control-label"></label>
+                                <div class="col-md-8">
+                                    <select class="form-control" asp-for="VehicleId" onchange="loadValue($(this).val())">
+                                        <option selected="selected">Select...</option>
+                                    </select>
+                                    <span asp-validation-for="VehicleId" class="text-danger"></span>
+                                </div>
+                            </div>
+                         </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="OGPNo" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="OGPNo" class="form-control" />
+                                        <span asp-validation-for="OGPNo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="BiltyNo" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="BiltyNo" class="form-control" />
+                                        <span asp-validation-for="BiltyNo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ReceivedBy" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="ReceivedBy" class="form-control" />
+                                        <span asp-validation-for="ReceivedBy" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="DeliveryStatus" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <select name="DeliveryStatus" class="form-control" asp-for="DeliveryStatus">
+                                            <option selected="selected">Select...</option>
+                                            <option>RTP</option>
+                                            <option>Delivered</option>
+                                            <option>Own Stock</option>
+                                        </select>
+                                        <span asp-validation-for="DeliveryStatus" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="InsuranceReceiptNo" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="InsuranceReceiptNo" class="form-control" />
+                                        <span asp-validation-for="InsuranceReceiptNo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="InsuranceAmount" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="InsuranceAmount" class="form-control" />
+                                        <span asp-validation-for="InsuranceAmount" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="col-lg-4">
+                                        <label asp-for="RTP"  class="col-lg-12 control-label"></label>
+                                    </div>
+                                    <div class="col-lg-8">
+                                        <div class="checkbox checkbox-success">
+                                            <input type="checkbox" asp-for="RTP" onchange="toggleRTP();" />
+                                            <label for="RTP"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="RTPDetails" hidden>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MFIGP" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="MFIGP" class="form-control" />
+                                        <span asp-validation-for="MFIGP" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MFOGP" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="MFOGP" class="form-control" />
+                                        <span asp-validation-for="MFOGP" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="DLNo" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="DLNo" class="form-control" />
+                                        <span asp-validation-for="DLNo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="PANo" class="col-lg-4 control-label"></label>
+                                    <div class="col-lg-8">
+                                        <input asp-for="PANo" class="form-control" />
+                                        <span asp-validation-for="PANo" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>  
+                      </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label asp-for="Description" class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-10">
+                                        <textarea asp-for="Description" class="form-control"></textarea>
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-lg-offset-2">
+                                        @*<input type="submit" value="Cancel" class="btn btn-white" asp-action="Index" />*@
+                                        <a asp-controller="OGP" asp-action="Index" class="btn btn-white">List</a>
+
+                                        @if (Model.Status != "Approved")
+                                        {
+                                            <input type="submit" value=@ViewBag.EntityState class="btn btn-primary" />
+                                        }
+                                        else
+                                        {
+                                            <a href="@string.Format(ViewBag.ReportPath, Model.VoucherId)" target="_blank" class="btn btn-primary "><i class="fa fa-print"></i> Voucher</a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+          <div class="col-lg-3" id="details">
+          </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        function loadValue(val) {
+            var ChassisNo = $('#ChassisNo');
+            var EngineNo = $('#EngineNo');
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/DetailInfo/GetIGPDetail?id=' + val
+            }).then(function (data) {
+                EngineNo.text("Engine No: " + data.id);
+                ChassisNo.text("Chassis No: " + data.text);
+            });
+            $.ajax({
+                type: 'GET',
+                url: '/Booking/Api/PartialDetail?id=' + val
+            }).then(function (data) {
+                $('#details').html(data);
+                });
+            getAmount();
+        }
+        // Select For Vehicle Customer
+        $(function () {
+
+            $('#VehicleId').select2({
+                    ajax: {
+                        url: '/Booking/Api/GetVehicleOGPs',
+                        dataType: 'json',
+                        delay: 250,
+                        placeholder: 'Search for a Booking Vehicle',
+                        processResults: function (data, params) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    }
+                });
+                // Fetch the preselected item, and add to the control
+                var id = @Model.VehicleId;
+            var accountSelect = $('#VehicleId');
+                $.ajax({
+                    type: 'GET',
+                    url: '/Booking/Api/GetVehicle?id=' + id
+                }).then(function (data) {
+                    var option = new Option(data.text, data.id, true, true);
+                    accountSelect.append(option).trigger('change');
+                    accountSelect.trigger({
+                        type: 'select2:select',
+                        params: {
+                            data: data
+                        }
+                    });
+                });
+        });
+
+        $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }            
+        });
+       $(function () {
+            if ("@Model.Status" == "Approved") {
+                $("form select, form input, form textarea").not(":submit").each(function (e) {
+                    $(this).attr("disabled", "disabled");
+                });
+            }
+        });
+        //hide unhide input fields on checkbox click
+        $(document).ready(function () {
+            toggleRTP();
+        });
+        function toggleRTP() {
+            var val = $('input[name=RTP]').is(':checked');
+            if (val)
+                $('#RTPDetails').fadeIn('fast');
+            else
+                $('#RTPDetails').fadeOut('slow');
+        }
+        //Get Insurance amount from IGP based on vehicle id in OGP
+        function getAmount() {
+        $.post("@Url.Action("GetInsuranceAmount", "OGP", "Booking")",
+            {
+                vehicleId: $('select[name=VehicleId]').val()
+                //vehicleId: $('#VehicleId').val()
+            },
+            function (data) {
+                if (data) {
+                    $("#InsuranceAmount").val(data);
+                }
+                else {
+                    $("#InsuranceAmount").val(null);
+                }
+        });
+    }        
+    </script>
+}

@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Numbers.Entity.Models.BkgVehicle>
+
+@{
+    ViewData["Title"] = "Approve Booking";
+    ViewData["CurrentPage"] = "Approve";
+}
+<div class="modal inmodal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+
+</div>
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>List of Booked Vehicles </h5>
+        <div class="ibox-content">
+           
+            <table class="table table-bordered table-striped dataTables-example">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            Vehicle
+                        </th>
+                        <th>
+                            CNIC
+                        </th>
+                        <th>
+                            Booked By
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Price)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ReceivedAmount)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.CNIC)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Customer.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReceivedAmount)
+                        </td>
+                        <td>
+                            <a onclick="BookingConfirmation(@item.Id)" class="btn btn-sm btn-success m-t-n-xs"><i class="fa fa-thumbs-up"></i></a>
+                            @*<a asp-action="CashOrBankReceiptConfirmation" class="btn btn-sm btn-primary m-t-n-xs" asp-route-id="@item.Id"><i class="fa fa-check"></i></a>*@                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+
+        function BookingConfirmation(id) {
+            $.ajax({
+                url: "/Booking/Vehicle/PopUpApproveBooking?id=" + id
+            })
+                .done(function (data) {
+                    $("#modal").html(data);
+                    $("#modal").modal("show");
+                })
+                .fail(function (data) {
+                    swal("Error", data.statusText, "warning");
+                });
+        }
+    </script>
+
+}

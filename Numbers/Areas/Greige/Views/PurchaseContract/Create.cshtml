@@ -1,0 +1,484 @@
+﻿@model Numbers.Entity.ViewModels.GRPurchaseContractViewModel
+
+@{
+    ViewData["Title"] = "Create Greige Purchase Contract";
+    var companyName = Context.Session.GetString("CompanyName");
+    var companyId = Context.Session.GetInt32("CompanyId").Value;
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                <h5> Greige Quality</h5>
+                <span class="label label-success pull-right status"></span>
+            </div>*@
+            <div class="ibox-content ibox-content-1">
+                <form method="post" onsubmit="return validation();" asp-controller="PurchaseContract" asp-action="Create">
+                    <div class="row">
+                        <input hidden asp-for="GRPurchaseContract.Id" />
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label class="col-form-label">Purchase Contract.#</label>
+                                @if (Model.GRPurchaseContract.Id != 0)
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" asp-for="GRPurchaseContract.ContractNo" autocomplete="off" tabindex="-1" />
+                                }
+                                else
+                                {
+                                    <input readonly class="form-control" id="Code" data-validation="required" value="" autocomplete="off" tabindex="-1" />}
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Contract Date</label>
+                                <div class="input-group" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input tabindex="-1" id="ContractDate" autofocus class="form-control" asp-for="GRPurchaseContract.ContractDate" type="text" readonly value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-4">
+                            <div class="form-group">
+                                <label>Delivery Date</label>
+                                <div class="input-group date" readonly>
+                                    <span class="input-group-addon" readonly><i class="fa fa-calendar"></i></span>
+                                    <input id="DeliveryDate"  class="form-control custom-date-picker" asp-for="GRPurchaseContract.DeliveryDate" type="text" value="@CommonHelper.CurrentDate" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Vendor<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRPurchaseContract.VendorId" class="chosen-select form-control" id="VendorId" asp-items="@Model.VendorLOV" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label class="col-form-label">Address</label>
+                                <input type="text" tabindex="-1" id="Address" readonly class="form-control text-left" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label class="col-form-label">Greige Req. #<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRPurchaseContract.GRRequisitionId" class="chosen-select form-control" id="GreigeRequisitionId" asp-items="@ViewBag.GRRequisitionNo" required>
+                                    <option value="0" disabled>Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <label class="col-form-label">Purchase Greige Quality<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRPurchaseContract.PurchaseGRQualityId" class="chosen-select form-control" asp-items="@Model.GRQualityLOV" id="PurchaseGRQualityId" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <label class="col-form-label">Contract Greige Quality<i style="color: #a94442;">*</i></label>
+                                <select asp-for="GRPurchaseContract.ContractGRQualityId" class="chosen-select form-control" asp-items="@Model.ContractQualityLOV" id="ContractGRQualityId" required>
+                                    <option value="0">Please select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Cntrct Qty<i style="color: #a94442;">*</i></label>
+                                        <input oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : 0" min="0"  type="number" id="ContractQuantity" onchange="check(); calculateAmount();" asp-for="GRPurchaseContract.ContractQuantity" class="form-control text-right" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Bal Cntrct Qty</label>
+                                        <input type="number" readonly value="@ViewBag.Quantity" tabindex="-1" min="0" id="BalanceContractQty" class="form-control text-right" />
+                                        <input hidden value="@ViewBag.hQuantity" id="hQuantity" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Rate/Mtr<i style="color: #a94442;">*</i></label>
+                                        <input  asp-for="GRPurchaseContract.RatePerMeter" type="number" onkeyup="getP($(this))" min="0.00" step="0.01" id="RatePerMeter" onchange="calculateAmount();" class="form-control text-right" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="col-form-label">Amount Excl. S.Tax</label>
+                                    <input type="number" min="0.01" step="0.01" readonly id="ExSalesTaxAmount" asp-for="GRPurchaseContract.ExSalesTaxAmount" class="form-control text-right" tabindex="-1" />
+                                </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Sale Tax %</label>
+                                        <select asp-for="GRPurchaseContract.SalesTaxId" onchange="GetTaxCalulation()" class="chosen-select form-control" id="SalesTaxId" asp-items="@Model.SalesTaxLOV" >
+                                            <option value="0" disabled>Please select</option>
+                                        </select>
+                                        <!--<select hidden asp-for="GRPurchaseContract.SalesTaxId" name="SalesTaxId" id="hideselect" class="chosen-select form-control" asp-items="@Model.SalesTaxLOV" tabindex="-1">-->
+                                            @*<option value="0">Please select</option>*@
+                                        <!--</select>-->
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Sales Tax Amt</label>
+                                        <input type="number" min="0.01" step="0.01" id="SalesTax" asp-for="GRPurchaseContract.SalesTaxAmount" class="form-control text-right" readonly tabindex="-1" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label class="col-form-label">Amt Incl. S.Tax</label>
+                                        <input type="number" min="0.01" step="0.01" id="InSalesTaxAmount" asp-for="GRPurchaseContract.InSalesTaxAmount" class="form-control text-right" readonly tabindex="-1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <br />
+                            <a asp-controller="PurchaseContract" asp-action="Index" tabindex="0" class="btn btn-white">List</a>
+                            <button class="btn btn-primary" type="submit" id="btnSave">Save</button>
+                            <input type="hidden" id="SaveBtnFocus" value="OFF" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+    <script>
+        $(document).ready(function () {
+            $("#btnSave").focus(function () {
+                $("#SaveBtnFocus").val("ON");
+            });
+            $("#btnSave").blur(function () {
+                $("#SaveBtnFocus").val('OFF');
+            });
+            $("#hideselect").hide();
+            $("#VendorId").select2();
+            $("#PurchaseGRQualityId").select2();
+            $("#ContractGRQualityId").select2();
+            $("#GreigeRequisitionId").select2();
+            $("#SalesTaxId").select2();
+            //On change Customer
+            $('#VendorId').on('change', function () {
+                debugger
+                var vendorId = $('#VendorId').val();
+                $.ajax({
+                    type: "GET",
+                    url: "/Greige/Api/GetVendorAddress",
+                    data: { Id: vendorId }
+                }).done(function (data) {
+                    debugger
+                    if (data != null) {
+                        $('#Address').val(data);
+                        return false;
+                    }
+                });
+            })
+            if (@Model.GRPurchaseContract.Id != 0 ) {
+                calculateAmount();
+            }
+            
+            ////On change Customer
+            //$('#ContractGRQualityId').on('change', function () {
+            //    debugger
+            //    clearTaxBox();
+            //    var contractQualityId = $('#ContractGRQualityId').val();
+            //    $.ajax({
+            //        type: "GET",
+            //        url: "/Greige/PurchaseContract/GetContractQuality",
+            //        data: { Id: contractQualityId }
+            //    }).done(function (data) {
+            //        debugger
+            //        if (data != null) {
+            //            $('#ContractQuantity').val(data.contractQty);
+            //            return false;
+            //        } else {
+            //            $('#ContractQuantity').val(0);
+            //            $('#ExSalesTaxAmount').val(0);
+            //        }
+            //    });
+            //})
+        });
+        function GetTaxCalulation() {
+            debugger
+            var taxId = $("#SalesTaxId").find(":selected").val();
+            var rate = Number($("#RatePerMeter").val());
+            var quantity = Number($("#ContractQuantity").val());
+            var amount = rate * quantity;
+
+            if (taxId == 0) {
+                return false;
+            }
+            $.ajax({
+                url: '/GL/Api/CalculateTax',
+                data: { taxId, amount},
+                type: 'GET',
+            }).done(function (data) {
+                debugger
+                $('#SalesTax').val(data.salesTaxAmount);
+                $('#ExSalesTaxAmount').val(data.amountWithoutTax);
+                $('#InSalesTaxAmount').val(data.amountWithTax);
+            });
+
+        }
+        function check() {
+            debugger
+            var contractQty = Number($("#ContractQuantity").val());
+            var bContractQty = Number($("#hQuantity").val());
+            if (contractQty > bContractQty) {
+                swal({
+                    icon: 'warning',
+                    text: "Contract Quantity must be less than Balance Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractQuantity').focus();
+                });
+                $("#ContractQuantity").val(0);
+                $("#BalanceContractQty").val(bContractQty)
+                return false;
+            }
+            $("#BalanceContractQty").val(bContractQty - contractQty)
+        }
+        function calculateAmount() {
+            debugger
+            var rate =  Number($("#RatePerMeter").val());
+            var quantity = Number($("#ContractQuantity").val());
+            var amountExTax = rate * quantity;
+            $("#ExSalesTaxAmount").val(parseFloat(amountExTax).toFixed(2));
+            GetTaxCalulation();
+        }
+
+        function clearTaxBox() {
+            $("#RatePerMeter").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#SalesTax").val(0);
+            $("#ExSalesTaxAmount").val(0);
+            $("#InSalesTaxAmount").val(0);
+        }
+        function validation() {
+            debugger
+            var SaveBtnFocus = $("#SaveBtnFocus").val();
+            if (SaveBtnFocus == "OFF") {
+                return false;
+            }
+            var vendorId = $("#VendorId").find(":selected").val();
+            var contractQualityId = $("#ContractGRQualityId").find(":selected").val();
+            var contractQuantity = Number($("#ContractQuantity").val());
+            var ratePerMeter = Number($("#RatePerMeter").val());
+            var pQuantity = Number($("#PurchaseGRQualityId").find(":selected").val());
+            var cQuantity = Number($("#ContractGRQualityId").find(":selected").val());
+
+            if (vendorId == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Vendor!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#VendorId').focus();
+                });
+                return false;
+            }
+            if ($('#GreigeRequisitionId').find(":selected").val() == 0 || $('#GreigeRequisitionId').find(":selected").val() == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Greige Requisition #..!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#GreigeRequisitionId').focus();
+                });
+                return false;
+            }
+            if (pQuantity == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Purchase Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#PurchaseGRQualityId').focus();
+                });
+                return false;
+            }
+            if (cQuantity == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Select Contract Greige Quality!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractGRQualityId').focus();
+                });
+                return false;
+            }
+            if (contractQuantity == 0) {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Contract Quantity!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#ContractQuantity').focus();
+                });
+                return false;
+            }
+            if (ratePerMeter == 0 || ratePerMeter == "") {
+                swal({
+                    icon: 'warning',
+                    text: "Please Enter Rate/Mtr!",
+                    closeModal: false
+                }).then(function () {
+                    swal.close();
+                    $('#RatePerMeter').focus();
+                });
+                return false;
+            }
+            $("#btnSave").attr("disabled", true)
+            $("#btnSave").text("Saving...")
+            return true;
+        }
+
+        $('#GreigeRequisitionId').on('change', function () {
+            debugger
+            var Id = $('#GreigeRequisitionId').val();
+
+
+            $.ajax({
+                method: "GET",
+                url: "/Greige/Contract/GetQuality",
+                data: { Id: Id }
+            })
+                .done(function (data) {
+                    debugger;
+                    $('#PurchaseGRQualityId').find('option').remove();
+                    $('#PurchaseGRQualityId').append($('<option>', {
+                        value: 0,
+                        text: "Please Select..."
+                    }));
+                    //$('#GreigeQualityId').append($('<option>', {
+                    //    value: data.id,
+                    //    text: data.text
+                    //}));
+                    $.each(data, function (i, item) {
+                        debugger;
+                        $('#PurchaseGRQualityId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+
+                    $('#ContractGRQualityId').find('option').remove();
+                    $('#ContractGRQualityId').append($('<option>', {
+                        value: 0,
+                        text: "Please Select..."
+                    }));
+                    //$('#GreigeQualityId').append($('<option>', {
+                    //    value: data.id,
+                    //    text: data.text
+                    //}));
+                    $.each(data, function (i, item) {
+                        debugger;
+                        $('#ContractGRQualityId').append($('<option>', {
+                            value: item.id,
+                            text: item.text
+                        }));
+                    });
+                });
+        })
+
+        $('#PurchaseGRQualityId').on('change', function () {
+            debugger
+            var QualityId = $('#PurchaseGRQualityId').val();
+            var ReqId = $('#GreigeRequisitionId').val();
+            $('#ContractQuantity').val(0);
+
+            $.ajax({
+                method: "GET",
+                url: "/Greige/Contract/GetQty",
+                data: { QId: QualityId, ReqId: ReqId }
+            })
+                .done(function (data) {
+                    debugger;
+                    if (data != null) {
+                        $('#BalanceContractQty').val(data.qty);
+                        $("#hQuantity").val(data.qty)
+                        calculateAmount();
+                    } else {
+                        $('#BalanceContractQty').val(0);
+                        $("#hQuantity").val(0)
+                    }
+                });
+            
+        })
+        function ConverDecimal(value) {
+            debugger
+            var val = value.val();
+            if (isNaN(val)) {
+                val = val.replace(/[^0-9\.]/g, '');
+                if (val.split('.').length > 2)
+                    val = val.replace(/\.+$/, "");
+            }
+
+            value.val(getPositive(val));
+        };
+        function getPositive(number) {
+            debugger
+            // if number is less than zero multiply with -1, otherwise returns as it is
+            return number < 0 ? number * -1 : number;
+        }
+        function getP(value) {
+            debugger
+            var val = value.val();
+            if (val.length < 5) {
+                if (val.startsWith("-") || val.startsWith("--") || val == "") {
+                    debugger
+                    var fVal = val.split("-")[1];
+                    value.val(fVal);
+                };
+            } else {
+
+                value.val(val.substring(0, 10));
+
+            }
+            return true;
+        }
+    </script>
+}

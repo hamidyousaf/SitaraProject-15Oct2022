@@ -1,0 +1,314 @@
+﻿@model IEnumerable<Numbers.Entity.Models.GLVoucher>
+@{ ViewData["Title"] = ViewBag.Title; }
+@section customCSS{
+
+}
+@*<style>
+    .table > thead {
+        /*background-color: #4857a5;*/
+    }
+</style>*@
+<style>
+    input {
+        text-align: left;
+    }
+
+    ::-webkit-input-placeholder {
+        text-align: left;
+        padding-left: 0em;
+        direction: rtl;
+        margin: 0 0 0 0;
+    }
+
+    :-moz-placeholder {
+        text-align: left;
+        padding-left: 0em;
+        direction: rtl;
+        margin: 0 0 0 0;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            @*<div class="ibox-title">
+                    <h5>@ViewBag.Title</h5>
+                </div>*@
+            <input type="hidden" value="@ViewBag.Type" id="type" />
+            <div class="ibox-content">
+                <div class="text-center">
+                    <div class="">
+                        <a class="btn btn-primary pull-left" asp-action="Create" asp-route-type=@ViewBag.VoucherType>Create New</a>
+                    </div>
+                    <div class="pull-right row" style="margin-right:auto">
+                        @if (ViewBag.Approve == true)
+                        {
+                            <a class="btn btn-success" onclick="ApproveAll()">Approve All</a>
+                        }
+                        @*<a class="btn btn-danger" onclick="UnapproveAll()">Unapprove All</a>*@
+                    </div>
+                    <form id="form" method="get" asp-action="Index" asp-controller="PaymentVoucher">
+                        <!--<input name="type" id="type" type="hidden" />
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input id="Date" name="Date" class="form-control monthpicker" data-validation="required" type="text" value="@DateTime.Now.ToString("MMM-yy")"-->
+                        @*value=@(Model.Id = =0 ? CommonHelper.CurrentDate : Model.VoucherDate.ToString(CommonHelper.DateFormat))*@
+                        <!--/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <input type="submit" onclick="getFilteredVouchers();" value="Filter" class="btn btn-primary col-md-8"-->
+                        @*asp-action="Index" asp-controller="PaymentVoucher" *@
+                        <!--/>
+                        </div>-->
+                    </form>
+                </div>
+                <br /><br /><br />
+                <div class="col-md-12">
+
+                </div>
+                <div class="table-responsive" style="width: 100%;">
+                    <table style="width: 100%;" id="Table" class="table table-bordered table-striped dataTables-example">
+                        <thead>
+                            <tr>
+                                <th class="searchHeader" width="8%">Voucher No</th>
+                                <th class="searchHeader" width="12%">Voucher Date</th>
+                                @*<th class="searchHeader" width="15%">Reference</th>*@
+                                <th class="searchHeader" width="26%">Description</th>
+                                <th class="searchHeader" width="9%">Currency</th>
+                                <th class="searchHeader text-right" width="9%">Amount</th>
+                                <th class="searchHeader" width="10%">Created By</th>
+                                <th class="searchHeader" width="10%">Approved By</th>
+                                <th width="20%">Action</th>
+                                <th width="6%">All <input id="AllSelect" type="checkbox" /></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section customJS{
+    <script src="~/js/INV/storeIssueItem.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/INV/customSelect2.js"></script>
+    <script>
+        $(document).ready(function () {
+            GetList();
+        });
+        var Ids = [];
+        $("#AllSelect").change(function () {  //"select all" change
+            var status = this.checked; // "select all" checked status
+            $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                this.checked = status; //change ".checkbox" checked status
+            });
+
+        });
+        function ApproveAll() {
+            let bit = false;
+            $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                if (this.checked) {
+                    Ids = [];
+                    bit = this.checked; //change ".checkbox" checked status
+                    return;
+                }
+            });
+            if (bit)
+            {
+                $('.selectorApproval').each(function () { //iterate all listed checkbox items
+                    if (this.checked) {
+                        Ids.push(this.value);
+                    }
+                });
+                $.ajax({
+                    url: "/GL/PaymentVoucher/VouchersApproved",
+                    type: "POST",
+                    data: { Ids: Ids },
+                }).done(function (resp) {
+                    if (resp == true) {
+                        $("#dataTable").DataTable().draw();
+                        swal('', 'Selected Vouchers Approved', 'success');
+                    }
+                });
+            } else {
+                swal('', 'Please select atleast one record.', 'error');
+                Ids = [];
+                return;
+            };
+
+            debugger
+        }
+
+        function GetList() {
+            debugger
+            var type = $("#type").val();
+            var table1 = $("#Table").dataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": false,
+                "searching": true,
+                "order": [[0, "desc"]],
+                dom: "Blrtip",
+                buttons: [
+
+                ],
+                "ajax": {
+                    "url": "/GL/PaymentVoucher/GetGLVouchers",
+                    "data": { type: type },
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "decimal": "",
+                    "emptyTable": "No data available in table",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Loading...",
+                    "processing": "Processing...",
+                    "search": "Search:",
+                    "zeroRecords": "No matching records found",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    },
+                    "aria": {
+                        "sortAscending": ": activate to sort column ascending",
+                        "sortDescending": ": activate to sort column descending"
+                    }
+                },
+                "columnDefs": [{
+
+                    "targets":[0,1,2,3,4,5,6],
+                    "defaultContent": "-"
+                },
+                    { "orderable": false, "targets": [7, 8] },
+                     {
+                        targets: [4],
+                        render: $.fn.dataTable.render.number(',', '.', 2, '')
+                    }
+                ],
+
+                "columns": [
+                     { "data": "voucherNo", "name": "VoucherNo", className: "text-center" },
+                    { "data": "shortdate", "name": "VoucherDate", className: "text-center" },
+                    /*{ "data": "reference", "name": "Reference", className: "text-left" },*/
+                    { "data": "description", "name": "Description", className: "text-left" },
+                    { "data": "currency", "name": "Currency", className: "text-center" },
+                    { "data": "amount", "name": "Amount", className: "text-right" },
+                    { "data": "user.userName", "name": "User.UserName", className: "text-center" },
+                    { "data": "auser", "name": "ApprovalUser.UserName", className: "text-center" },
+                    {
+                        "data": "id", className: "text-center",
+                        "Status": "status", className: "text-center",
+                        "render": function (data, Status, row) {
+                            //debugger
+                            if (row.status != "Approved") {
+                                debugger;
+                               /* return "<a href='/GL/PaymentVoucher/ApproveVoucher?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>    <a href='/GL/PaymentVoucher/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/GL/PaymentVoucher/Delete?id=" + data + "'class='btn btn-sm btn-danger  m-t-n-xs' onclick='return confirm('Are you sure you want to delete Voucher?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >";*/
+                                if (row.approve == true) {
+                                     return "<a href='/GL/PaymentVoucher/ApproveVoucher?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-thumbs-up' title='Approve'></i></a>    <a href='/GL/PaymentVoucher/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/GL/PaymentVoucher/Delete?id=" + data + "'class='btn btn-sm btn-danger  m-t-n-xs' onclick='return confirm('Are you sure you want to delete Voucher?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >";
+
+                                }
+                                else {
+                                    return " <a href='/GL/PaymentVoucher/Create?id=" + data + "' class='btn btn-sm btn-info m-t-n-xs'><i class='fa fa-edit' title='Edit'></i></a>    <a  href = '/GL/PaymentVoucher/Delete?id=" + data + "'class='btn btn-sm btn-danger  m-t-n-xs' onclick='return confirm('Are you sure you want to delete Voucher?')' > <i class='fa fa-trash-alt' title='Delete'></i></a >";
+
+                                }
+
+                            }
+                            else {
+                                return '<a href="/GL/PaymentVoucher/Details?id=' + data + '" class="btn btn-sm btn-info m-t-n-xs"><i class="fa fa-search" title="View"></i></a>    <a href=@ViewBag.ReportPath' + data + ' target="_blank" class="btn btn-sm btn-success btn-lg m-t-n-xs"><i class="fa fa-print" title="Print Report"></i></a>';
+                            }
+                        }
+                    }, 
+                    {
+                        "data": "id", className: "text-center",
+                        "render": function (data, Status, row) {
+                            if (row.status != "Approved") {
+                                return '<input class="selectorApproval" value="' + data + '" type="checkbox"/>';
+                            } else {
+                                return '<input checked disabled type="checkbox"/>';
+                            }
+                        }
+                    }
+                ],
+
+            })
+            $('#Table thead th').each(function () {
+                if ($(this).hasClass("searchHeader")) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" style ="color: black;width: inherit;" placeholder="' + title + '" />');
+                }
+            });
+            table1.api().columns().every(function () {
+                var that = this;
+                var searchBox = $('input', this.header());
+                searchBox.on('keyup change clear', function () {
+                    debugger
+                    if (!(this.type == "checkbox")) {
+                        debugger
+                        that.search(this.value).draw()
+                    }
+                })
+                searchBox.on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+        }
+        //function getFilteredVouchers() {
+        //    var date = $('#searchDate').val();
+        //    if (date != '')
+        //    {
+        //        const urlParams = new URLSearchParams(window.location.search);
+        //        const myParam = urlParams.get('type');
+        //        $('#type').val(myParam);
+        //    }
+        //    else
+        //        alert('Date not found');
+        //}
+
+        @*function getFilteredVouchers() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const myParam = urlParams.get('type');
+            $('#type').val(myParam);
+
+            $.get('/GL/Voucher/Index',
+                $("#form").serialize()).done(function (data) {
+                });
+        }
+        $('.dataTables-example2').DataTable({
+            pageLength: 100,
+            sScrollX: "100%",
+            responsive: true,
+            dom: '<"html5buttons"B>lTfgitp',
+            order: [0, "desc"],
+            buttons: [
+                { extend: 'copy' },
+                { extend: 'csv' },
+                { extend: 'excel', title: 'ExampleFile' },
+                { extend: 'pdf', title: 'ExampleFile' },
+                {
+                    extend: 'print',
+                    customize: function (win) {
+                        $(win.document.body).addClass('primary');
+                        $(win.document.body).css('font-size', '10px');
+
+                        $(win.document.body).find('table')
+                            .addClass('compact')
+                            .css('font-size', 'inherit');
+                    }
+                }
+            ]
+
+        });*@
+
+    </script>
+}

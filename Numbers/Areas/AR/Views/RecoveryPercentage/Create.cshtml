@@ -1,0 +1,352 @@
+﻿@model ARRecoveryPercentageViewModel
+@{ ViewData["Title"] = "Create Recovery Percentage";
+    ViewData["CurrentPage"] = "RecoveryPercentage";
+}
+
+<style>
+    .form-group > .select2-container {
+        width: 100% !important;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+</style>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content ibox-content-1">
+                <form id="CustomerForm" asp-action="Create" enctype="multipart/form-data" onsubmit=" return submitdetails();">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div>
+                        <input type="hidden" asp-for="ARRecoveryPercentage.Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                @if (Model.ARRecoveryPercentage != null)
+                                {
+                                    <div class="col-lg-2 col-sm-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="ARRecoveryPercentage.TransactionNo"></label>
+                                            <input asp-for="ARRecoveryPercentage.TransactionNo" type="text" readonly class="form-control" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-2 col-sm-3 Pad-rht">
+                                        <div class="form-group">
+                                            <label asp-for="ARRecoveryPercentage.TransactionNo"></label>
+                                            <input asp-for="ARRecoveryPercentage.TransactionNo" type="text" readonly value="@ViewBag.Id" class="form-control" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="col-lg-3 col-sm-4 Pad-rht">
+                                    <div class="form-group">
+                                        <label asp-for="ARRecoveryPercentage.ItemCategory_Id"></label>
+                                        <select asp-for="ARRecoveryPercentage.ItemCategory_Id" id="ItemCategoryId" class="form-control chosen-select" asp-items="@ViewBag.listOfItemCategories" required>
+                                            <option selected="selected">Select...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <input id="id" type="hidden" />
+                                <div class="col-lg-2 col-sm-6">
+                                    <div class="form-group">
+                                        <label>From %</label>
+                                        <input type='number' step='0.01' min="0.00" placeholder='0.00' class="form-control text-right" id="FromPerc" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-sm-6">
+                                    <div class="form-group">
+                                        <label>To %</label>
+                                        <input type='number' step='0.01' min="0.00" placeholder='0.00' class="form-control text-right" id="ToPerc" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <input id="SId" type="hidden" />
+                                    <div class="form-group">
+                                        <label>Category Type</label>
+                                        <select asp-items="ViewBag.CategoryType" class="chosen-select form-control" id="CategoryType">
+                                            <option value="0" selected disabled>Please select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-1  col-sm-1 m-t-md">
+                                    <div class="form-group">
+                                        <a id="btnAdd1" onclick=" return Add()" class="btn btn-primary">Add</a>
+                                        @*<button id="btnAdd1" type="button" class="btn btn-primary" onclick="addrows();">ADD</button>*@
+                                        <button id="btnUpdateMaster" style="display:none;" type="button" class="btn btn-primary">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-title">
+                                <input id="RecoveryPercentageDetails" name="Details" style="display:none;" type="text" />
+                                <div class="container-fluid table-responsive" style="background-color:white;">
+                                    <h5 class="font-bold">Add Recovery Percentage</h5>
+                                    <br />
+                                    <table style="margin-top:10px" id="RecoverPercentTable" name="tableitems" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th hidden></th>
+                                                <th class="text-center">From %</th>
+                                                <th class="text-center">To %</th>
+                                                <th class="text-center">Category Type</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.ARRecoveryPercentageItem != null)
+                                            {
+                                                @if (Model.ARRecoveryPercentageItem.Count > 0)
+                                                {
+                                                    foreach (var items in Model.ARRecoveryPercentageItem)
+                                                    {
+                                                        <tr>
+                                                            <td hidden class='id'>@items.Id</td>
+                                                            <td hidden name='categoryId' class='CategoryValue'>@items.CategoryType_Id</td>
+                                                            <td class='text-center FromPerc'>@items.FromPerc</td>
+                                                            <td class='text-center ToPerc'>@items.ToPerc</td>
+                                                            <td class='text-center CategoryText'>@items.CategoryType</td>
+                                                            <td class="text-center"> @*<a class="btn btn-sm btn-info  "> <i class="fa fa-edit" title="Edit"></i></a><a class=""> </a>*@<a class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></a></td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <textarea style="display:none" name="IdsDeleted" id="IdsDeleted"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="btn btn-white" asp-action="Index">List</a>
+                    <input type="submit" value=@ViewBag.EntityState class="btn btn-primary submit" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section customJS{
+<script>
+    $("#ItemCategoryId").select2();
+    $("#CategoryType").select2();
+
+
+    function Range(min, max) {
+        debugger;
+        if (arguments.length === 0) {
+            throw 'Range must include at least one value.';
+        }
+        if (arguments.length === 1) {
+            max = min;
+            min = 0;
+        }
+        this.min = min;
+        this.max = max;
+    }
+
+    function Add() {
+        debugger;
+        var id = $("#id").val();
+        var categoryt = $("#CategoryType option:selected").text();
+        var categoryv = $("#CategoryType option:selected").val();
+        var fromPerc = Number(parseFloat($("#FromPerc").val()).toFixed(4));
+        var toPerc = Number(parseFloat($("#ToPerc").val()).toFixed(4));
+        if (fromPerc > Number(parseFloat(101).toFixed(4)) || toPerc > Number(parseFloat(101).toFixed(4))) {
+            swal("", "Recovery % range Should Less than 100!", "warning");
+            return false;
+        }
+        if (categoryv == 0) {
+            swal("", "Please Select Category Type!", "warning")
+            return false;
+        }
+
+        var value = false;
+        var value2 = false;
+        $('#RecoverPercentTable > tbody > tr').each(function () {
+            debugger;
+            var check = $(this).closest("tr").find(".CategoryValue").html();
+
+            var _fromPerc = Number( parseFloat($(this).find('.FromPerc').text()).toFixed(4));
+            var _toPerc = Number( parseFloat($(this).find('.ToPerc').text()).toFixed(4));
+            debugger;
+            if (categoryv == check) {
+                debugger;
+                    value = true;
+            }
+
+            //var rangeInner = new Range(_fromPerc, _toPerc);
+            //var rangeOuter = new Range(fromPerc, toPerc);
+            //Range.inBounds = function (outer, inner, inclusive) {
+            //    return inclusive
+            //        ? (inner.min >= outer.min && inner.max <= outer.max)
+            //        : (inner.min > outer.min && inner.max < outer.max);
+            //};
+            //Range.prototype.inBounds = function (target, inclusive) {
+            //    return Range.inBounds(this, target, inclusive);
+            //};
+            //var validRangeBounds = rangeOuter.inBounds(rangeInner, false); // true
+            //var invalidRangeBounds = rangeInner.inBounds(rangeOuter, false); // false
+            //if (validRangeBounds == true || invalidRangeBounds == true) {
+           // if ((fromPerc > _fromPerc && fromPerc > _toPerc) && (toPerc > _fromPerc && toPerc > _toPerc)) {
+           
+            if (((fromPerc > _fromPerc && fromPerc > _toPerc) && (toPerc > _fromPerc && toPerc > _toPerc)) && (fromPerc < 101 && toPerc<101)) {
+            } else {
+                 
+                value2 = true;
+            }
+            
+
+        });
+        if (value2 == true) {
+            debugger;
+            swal("", "Recovery % range is already exist!", "warning");
+            return false;
+        }
+        if (categoryt == "") {
+            swal("", "Please Select Category Type!", "warning");
+            return false;
+        }
+
+        if (fromPerc == "NaN") {
+            swal("", "Please Enter Percentage!", "warning");
+            return false;
+        }
+
+        if (toPerc == "NaN") {
+            swal("", "Please Enter Percentage!", "warning");
+            return false;
+        }
+
+        if (value == false && categoryt != "") {
+
+            var row = "<tr>" +
+                "<td hidden class='id'>" + id + "</td>" +
+                "<td hidden name='categoryId' class='CategoryValue'>" + categoryv + "</td>" +
+                "<td class='text-center FromPerc'>" + fromPerc + "</td> " +
+                "<td class='text-center ToPerc'>" + toPerc + "</td> " +
+                "<td class='text-center CategoryText'>" + categoryt + "</td> " +
+                '<td class="text-center"><a class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></a></td>' +
+                "</tr>";
+            $("#RecoverPercentTable tbody").append(row);
+
+            clearTexbox();
+            return true;
+        }
+        else {
+            swal("", "Category Type already exists..", "warning");
+            return false;
+        }
+         
+        
+
+        $('#FromPerc').focus();
+    }
+
+    function clearTexbox() {
+        debugger;
+        $('#CategoryType').val(null).trigger('change.select2');
+        $('#FromPerc').val("");
+        $('#ToPerc').val("");
+    }
+
+    $("#RecoverPercentTable tbody").on("click", ".fa-edit", function () {
+        //    var check = "";
+
+        debugger;
+        if ($('#btnUpdateMaster').css('display') == 'none') {
+
+            debugger;
+            var $id = $(this).closest("tr")
+                .find(".id").html();
+            var $CategoryValue = $(this).closest("tr")
+                .find(".CategoryValue")
+                .html();
+            var $CategoryText = $(this).closest("tr")
+                .find(".CategoryText")
+                .html();
+            var $FromPerc = $(this).closest("tr")
+                .find(".FromPerc")
+                .html();
+            var $ToPerc = $(this).closest("tr")
+                .find(".ToPerc")
+                .html();
+
+            debugger;
+
+
+            //var itemId = $('#ItemId');
+            //bindSelect2(itemId, '/Inventory/Api/GetItems', '/AR/Api/GetItem?id=', $itemv);
+
+            $('#CategoryType').val($CategoryValue).trigger('change.select2');
+
+            $('#FromPerc').val($FromPerc);
+            $('#ToPerc').val($ToPerc);
+
+            $(this).closest("tr").remove();
+            $('#btnUpdateMaster').css('display', 'block');
+            $('#btnAdd1').css('display', 'none');
+
+
+
+        }
+        else if ($('#btnUpdateMaster').css('display') == 'block') {
+
+            swal("", "Please Finish Updating Current Part.", "warning");
+        }
+    });
+
+    $("#RecoverPercentTable tbody").on('click', '.remove-row', function () {
+        debugger;
+        $(this).closest('tr').remove();
+    });
+
+    $('#btnUpdateMaster').click(function () {
+        Add();
+        $('#btnUpdateMaster').css('display', 'none');
+        $('#btnAdd1').css('display', 'block');
+        
+
+    });
+
+    function submitdetails() {
+        debugger;
+        var ItemCategoryId = $("#ItemCategoryId").val();
+        if (ItemCategoryId == "Select...") {
+            swal("", "Please select Item Category!", "warning");
+            return false;
+        }
+        var formdetails = [];
+        $.each($("#RecoverPercentTable tbody tr"), function () {
+            formdetails.push({
+                FromPerc: $(this).find('.FromPerc').html(),
+                ToPerc: $(this).find('.ToPerc').html(),
+                CategoryType_Id: $(this).find('.CategoryValue').html()
+            });
+
+        });
+
+        var model = JSON.stringify(formdetails);
+        $("#RecoveryPercentageDetails").val(model);
+        if (formdetails.length <= 0) {
+            swal("", "Enter At Least One Record!", "info");
+            return false;
+        }
+    }
+
+</script>
+}
+
